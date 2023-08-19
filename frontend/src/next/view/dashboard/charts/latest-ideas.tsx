@@ -3,7 +3,7 @@ import { Avatar, List, Skeleton, Tooltip } from 'antd'
 import { Http } from 'next/api/http'
 import useRoleNavigate from 'next/libs/use-role-navigate'
 import { IconText } from 'next/view/events/event-details/idea-card'
-import { useSnackbar } from 'notistack'
+
 import React, { useEffect, useState } from 'react'
 
 const ColorList = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae']

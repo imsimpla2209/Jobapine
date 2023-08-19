@@ -1,7 +1,7 @@
 import { LogoutOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, Layout, MenuProps, Row, Typography } from 'antd'
 import useRoleNavigate from 'next/libs/use-role-navigate'
-import { useSnackbar } from 'notistack'
+
 import { useNavigate } from 'react-router-dom'
 import AutoSearch from '../../components/search-field/autocomplete-search'
 import { imgDir } from '../../constants/img-dir'

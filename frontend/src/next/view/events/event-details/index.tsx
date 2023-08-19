@@ -3,7 +3,7 @@ import { Alert, Button, Card, Empty, List, Row, Space, Typography } from 'antd'
 import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
 import useRoleNavigate from 'next/libs/use-role-navigate'
-import { useSnackbar } from 'notistack'
+
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import IdeaCard from './idea-card'
