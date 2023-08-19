@@ -3,7 +3,7 @@ import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
 import RubikLoader from 'next/components/loader/rubik-loader'
 import { useSocket } from 'next/socket.io'
-import { useSnackbar } from 'notistack'
+
 import { useEffect, useState } from 'react'
 import ListDBItem from './list-item'
 

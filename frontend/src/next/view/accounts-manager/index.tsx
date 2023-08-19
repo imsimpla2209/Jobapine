@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { Button, Card, Row, Space, Switch, Table, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { useSnackbar } from 'notistack'
+
 import { useEffect, useMemo, useState } from 'react'
 import { Http } from '../../api/http'
 import AddAccountModal from './add-new-account'

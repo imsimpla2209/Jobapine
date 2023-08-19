@@ -1,10 +1,8 @@
 import { Col, Form, Input, Modal, Select, Space, Switch, Typography, message } from 'antd'
-import { useSnackbar } from 'notistack'
 import { useEffect, useState } from 'react'
 import { Http } from '../../api/http'
 
 export default function EditAccountModal({ userProfile, onCloseModal, onSubmit }) {
-  const { enqueueSnackbar } = useSnackbar()
   const [form] = Form.useForm()
   const [accountRole, setAccountRole] = useState('')
   const [departmentOptions, setDepartmentOptions] = useState([])
@@ -14,7 +12,6 @@ export default function EditAccountModal({ userProfile, onCloseModal, onSubmit }
   const getAllDepartment = async () =>
     await Http.get('/api/v1/department')
       .then(res => setDepartmentOptions(res.data.data))
-      .catch(error => enqueueSnackbar('Failed to get all departments !', { variant: 'error' }))
 
   useEffect(() => {
     getAllDepartment()
@@ -51,7 +48,6 @@ export default function EditAccountModal({ userProfile, onCloseModal, onSubmit }
         onSubmit()
         onCloseModal()
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
   }
 
   if (!userProfile?._id) return null

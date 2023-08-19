@@ -6,7 +6,7 @@ import draftToHtml from 'draftjs-to-html'
 import { Http } from 'next/api/http'
 import RichTextEditor from 'next/components/text-editor'
 import useWindowSize from 'next/utils/useWindowSize'
-import { useSnackbar } from 'notistack'
+
 import { useState } from 'react'
 
 const { Title } = Typography

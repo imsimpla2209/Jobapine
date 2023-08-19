@@ -1,5 +1,5 @@
 import { Form, Input, message, Modal } from 'antd'
-import { useSnackbar } from 'notistack'
+
 import { Http } from '../../api/http'
 
 export default function AddCategoryModal({

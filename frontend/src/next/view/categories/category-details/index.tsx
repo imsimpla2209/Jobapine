@@ -1,7 +1,7 @@
 import { Button, Card, Empty, List, Typography } from 'antd'
 import { Http } from 'next/api/http'
 import useRoleNavigate from 'next/libs/use-role-navigate'
-import { useSnackbar } from 'notistack'
+
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import IdeaCard from './idea-card'

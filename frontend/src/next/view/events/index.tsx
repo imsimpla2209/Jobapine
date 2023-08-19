@@ -2,7 +2,7 @@ import { ContainerFilled, FireFilled, PlusCircleTwoTone } from '@ant-design/icon
 import { Divider, Radio, Row, Skeleton, Space, Typography } from 'antd'
 import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
-import { useSnackbar } from 'notistack'
+
 import { useEffect, useState } from 'react'
 import EventCardItem from './card-item'
 import CreateEventField from './event-form'

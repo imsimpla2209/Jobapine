@@ -1,5 +1,4 @@
 import { SocketProvider } from 'next/socket.io'
-import { SnackbarProvider } from 'notistack'
 import ReactDOM from 'react-dom/client'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { BrowserRouter } from 'react-router-dom'
@@ -11,11 +10,9 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   // <React.StrictMode>
   <SocketProvider>
-    <SnackbarProvider maxSnack={1} preventDuplicate>
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </SnackbarProvider>
   </SocketProvider>
   // </React.StrictMode>
 )
