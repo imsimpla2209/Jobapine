@@ -28,19 +28,19 @@ Welcome to the Dropamine repository! This project is a web application inspired 
 
 1. Clone the repository:
    ```bash
-   git clone (https://github.com/imsimpla2209/dropamine.git)
-   cd dropamine
+   git clone (https://github.com/imsimpla2209/jobsicker.git)
+   cd jobsicker
    ```
 2. Install project dependencies:
   ```bash
-   yarn
+   yarn or npm install
    ```
 
 ## Usage 🚀
 
 1. Run the development server:
   ```bash
-    yarn dev
+    yarn start or npm start
    ```
 2. Open your web browser and visit http://localhost:3000 to see the application in action.
 
