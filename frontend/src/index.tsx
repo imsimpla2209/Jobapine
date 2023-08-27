@@ -4,16 +4,17 @@ import ReactDOM from 'react-dom/client'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
-import App from './next/view/app'
+// import App from './next/view/app'
 import reportWebVitals from './reportWebVitals'
+import App from 'next/App'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <SocketProvider>
     <SnackbarProvider maxSnack={1} preventDuplicate>
-      <BrowserRouter>
+      {/* <BrowserRouter> */}
         <App />
-      </BrowserRouter>
+      {/* </BrowserRouter> */}
     </SnackbarProvider>
   </SocketProvider>
 )

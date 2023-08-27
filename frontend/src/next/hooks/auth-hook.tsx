@@ -1,7 +1,7 @@
 import { Http, LOCALSTORAGE } from '../api/http'
 import { useState, useCallback, useEffect } from 'react'
-import { userStore } from '../view/auth/user-store'
 import jwt_decode from 'jwt-decode'
+import { userStore } from 'next/pages/Auth/user-store'
 
 let logoutTimer
 
