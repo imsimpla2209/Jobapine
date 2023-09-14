@@ -17,7 +17,6 @@ import DepartmentManager from './departments'
 import DepartmentDetail from './departments/department-detail'
 import EventsPage from './events'
 import EventDetails from './events/event-details'
-import HomePage from './home-page'
 import CreateIdea from './ideas/create-new-idea'
 import EditIdea from './ideas/edit-idea'
 import IdeaDetail from './ideas/idea-detail'
@@ -26,6 +25,7 @@ import LayoutManager from './layout/manager'
 import LayoutStaff from './layout/staff'
 import UserProfile from './user-profile'
 import OtherProfile from './user-profile/otherProfile'
+import HomePage from './home-page'
 
 export default function App() {
   const navigate = useNavigate()
@@ -147,7 +147,7 @@ export default function App() {
           </RoleAccess>
         }
       >
-        <Route path="" element={<HomePage accessRole={'manager'} />} />
+        <Route path="" element={<HomePage />} />
         <Route path="dashboard" element={<DashboardAdmin />} />
         <Route path="categories" element={<CategoryManager />} />
         <Route path="category/:id" element={<CategoryDetails />} />
