@@ -1,4 +1,4 @@
-import { Card, Skeleton, Space, Tag, Typography } from 'antd'
+import { Card, Skeleton, Space, Tag, Typography, message } from 'antd'
 import Title from 'antd/es/typography/Title'
 import { Http } from 'next/api/http'
 import useRoleNavigate from 'next/libs/use-role-navigate'
@@ -12,7 +12,6 @@ const colors = ['#69b1ff', '#00C49F', '#FFBB28', '#FF8042']
 export default function LarsestEventIdea() {
   const { appSocket } = useSocket()
   const navigate = useRoleNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const [eventList, setEventList] = useState([])
   const [loading, setLoading] = useState(false)
   const getEventList = async () => {
@@ -30,7 +29,7 @@ export default function LarsestEventIdea() {
             }))
         )
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
       .finally(() => setLoading(false))
   }
 

@@ -1,5 +1,5 @@
 import { DislikeOutlined, LikeOutlined, MessageOutlined, UserOutlined } from '@ant-design/icons'
-import { Avatar, List, Skeleton, Tooltip } from 'antd'
+import { Avatar, List, Skeleton, Tooltip, message } from 'antd'
 import { Http } from 'next/api/http'
 import useRoleNavigate from 'next/libs/use-role-navigate'
 import { IconText } from 'next/view/events/event-details/idea-card'
@@ -9,7 +9,6 @@ import React, { useEffect, useState } from 'react'
 const ColorList = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae']
 
 const LatestIdeaList: React.FC = () => {
-  const { enqueueSnackbar } = useSnackbar()
   const navigate = useRoleNavigate()
   const [initLoading, setInitLoading] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -18,7 +17,7 @@ const LatestIdeaList: React.FC = () => {
   const getAllIdeas = async () =>
     await Http.get(`/api/v1/idea`)
       .then(res => setIdeaList(res.data.data))
-      .catch(error => enqueueSnackbar('Failed to get all ideas !', { variant: 'error' }))
+      .catch(error => message.error('Failed to get all ideas !'))
       .finally(() => setInitLoading(false))
 
   useEffect(() => {

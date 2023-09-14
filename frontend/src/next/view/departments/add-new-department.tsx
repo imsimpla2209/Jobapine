@@ -10,7 +10,6 @@ export default function AddDepartmentModal({
   setLoading,
   currentDepartment,
 }) {
-  const { enqueueSnackbar } = useSnackbar()
   const [form] = Form.useForm()
 
   const onFinish = async () => {
@@ -38,7 +37,7 @@ export default function AddDepartmentModal({
 
           onCloseModal()
         })
-        .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+        .catch(error => message.error(error.message))
     } else {
       message.error('Please type a different name!')
     }

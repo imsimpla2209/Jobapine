@@ -1,4 +1,4 @@
-import { Card, List, Progress, Result, Space, Typography } from 'antd'
+import { Card, List, Progress, Result, Space, Typography, message } from 'antd'
 import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
 import RubikLoader from 'next/components/loader/rubik-loader'
@@ -12,7 +12,6 @@ const { Text, Title } = Typography
 let countSuccess = 0
 
 export default function BackupDataManager() {
-  const { enqueueSnackbar } = useSnackbar()
   const { appSocket } = useSocket()
   const [loading, setLoading] = useState(false)
   const [loadingListDB, setLoadingListDB] = useState(false)
@@ -28,7 +27,7 @@ export default function BackupDataManager() {
     setPercents(0)
     await Http.get('/api/v1/backup')
       .catch(error => {
-        enqueueSnackbar('Failed to backup data!', { variant: 'error' })
+        message.error('Failed to backup data!')
         setLoading(false)
         setFailToBackUp(true)
       })
@@ -44,7 +43,7 @@ export default function BackupDataManager() {
     await Http.get('/api/v1/backup/all')
       .then(res => setListDB(res.data.data))
       .catch(error => {
-        enqueueSnackbar('Failed to backup data!', { variant: 'error' })
+        message.error('Failed to backup data!')
       })
       .finally(() => setLoadingListDB(false))
   }

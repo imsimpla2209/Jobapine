@@ -1,6 +1,5 @@
-import { Card, Col, Empty, List, Row, Skeleton, Typography } from 'antd'
+import { Card, Col, Empty, List, Skeleton, Typography, message } from 'antd'
 import { Http } from 'next/api/http'
-
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import UserCard from './user-card'
@@ -8,7 +7,6 @@ const { Title } = Typography
 
 export default function DepartmentDetail() {
   const { id } = useParams()
-  const { enqueueSnackbar } = useSnackbar()
   const [department, setDepartment] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -18,7 +16,7 @@ export default function DepartmentDetail() {
       .then(res => {
         setDepartment(res.data?.data[0] || null)
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
       .finally(() => setLoading(false))
   }
 
@@ -46,7 +44,7 @@ export default function DepartmentDetail() {
           }}
           dataSource={department?.users}
           renderItem={(userId, index) => (
-            <Col className="gutter-row"  key={index}>
+            <Col className="gutter-row" key={index}>
               <Skeleton loading={loading}>
                 <UserCard userId={userId} />
               </Skeleton>

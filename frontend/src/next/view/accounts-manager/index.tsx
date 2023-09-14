@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons'
-import { Button, Card, Row, Space, Switch, Table, Tag } from 'antd'
+import { Button, Card, Row, Space, Switch, Table, Tag, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import { useEffect, useMemo, useState } from 'react'
@@ -23,7 +23,6 @@ const AddAccount = ({ openModal }) => (
 )
 
 function AccountManager() {
-  const { enqueueSnackbar } = useSnackbar()
   const [accounts, setAccounts] = useState([])
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [loading, setLoading] = useState(false)
@@ -38,7 +37,7 @@ function AccountManager() {
   const handleDeleteAccount = async id => {
     await await Http.delete('/api/v1/users/deleteUser', id)
       .then(res => setAccounts(accounts.filter(acc => acc._id !== id)))
-      .catch(error => enqueueSnackbar('Failed to delete account !', { variant: 'error' }))
+      .catch(error => message.error('Failed to delete account !'))
   }
 
   const handleChangeActiveAccount = async (id, active) => {
@@ -53,7 +52,7 @@ function AccountManager() {
           })
         )
       )
-      .catch(error => enqueueSnackbar('Failed to update account !', { variant: 'error' }))
+      .catch(error => message.error('Failed to update account !'))
   }
 
   const columns: ColumnsType<DataType> = [
@@ -127,7 +126,7 @@ function AccountManager() {
   const getAllUser = async () =>
     await Http.get('/api/v1/users')
       .then(res => setAccounts(res.data.data))
-      .catch(error => enqueueSnackbar('Failed to get all accounts !', { variant: 'error' }))
+      .catch(error => message.error('Failed to get all accounts !'))
       .finally(() => setLoading(false))
 
   useEffect(() => {

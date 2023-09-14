@@ -28,7 +28,6 @@ export default function ListDBItem({
   restoringVersion,
   setRestoringVersion,
 }) {
-  const { enqueueSnackbar } = useSnackbar()
   const [openConfirmModal, setOpenConfirmModal] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -43,7 +42,7 @@ export default function ListDBItem({
         setListDB(database => database.filter(item => item.name !== db.name))
       })
       .catch(error => {
-        enqueueSnackbar('Failed to delete backup data!', { variant: 'error' })
+        message.error('Failed to delete backup data!')
       })
       .finally(() => setLoading(false))
   }
@@ -59,7 +58,7 @@ export default function ListDBItem({
         )
       })
       .catch(error => {
-        enqueueSnackbar('Failed to restore data!', { variant: 'error' })
+        message.error('Failed to restore data!')
       })
       .finally(() => {
         setLoadingRestore(false)

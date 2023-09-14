@@ -1,5 +1,5 @@
 import { LogoutOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons'
-import { Avatar, Button, Dropdown, Layout, MenuProps, Row, Typography } from 'antd'
+import { Avatar, Button, Dropdown, Layout, MenuProps, Row, Typography, message } from 'antd'
 import useRoleNavigate from 'next/libs/use-role-navigate'
 
 import { useNavigate } from 'react-router-dom'
@@ -20,7 +20,6 @@ function AppHeader() {
   const navigate = useRoleNavigate()
   const navigator = useNavigate()
   const windowWidth = useWindowSize()
-  const { enqueueSnackbar } = useSnackbar()
   const {
     state: { avatar, username },
   } = useSubscription(userStore, ['avatar', 'username'])
@@ -49,8 +48,8 @@ function AppHeader() {
   const handleLogout = () => {
     logout()
     navigator('/login')
-    // window.location.reload();
-    return enqueueSnackbar("You're logout! man")
+
+    return message.error("You're logout! man")
   }
 
   const handleClickMenu = async (val: any) => {

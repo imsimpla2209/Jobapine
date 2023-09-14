@@ -1,8 +1,7 @@
 import { PlusCircleTwoTone } from '@ant-design/icons'
-import { Col, Divider, Input, Row, Skeleton, Typography } from 'antd'
+import { Col, Divider, Input, Row, Skeleton, Typography, message } from 'antd'
 import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
-
 import { useEffect, useState } from 'react'
 import AddDepartmentModal from './add-new-department'
 import DepartmentCardItem from './card-department'
@@ -10,7 +9,6 @@ import DepartmentCardItem from './card-department'
 const { Title } = Typography
 
 function DepartmentManager() {
-  const { enqueueSnackbar } = useSnackbar()
   const [searchKey, setSearchKey] = useState('')
   const [openModal, setOpenModal] = useState(false)
   const [allDepartmentList, setAllDepartmentList] = useState([])
@@ -23,7 +21,7 @@ function DepartmentManager() {
       .then(res => {
         setAllDepartmentList(res.data.data)
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
       .finally(() => setLoading(false))
   }
 
@@ -34,7 +32,7 @@ function DepartmentManager() {
   const handleDeleteDepartment = async (id: string) => {
     await Http.post('/api/v1/department/delete', { id })
       .then(() => setAllDepartmentList(allDepartmentList.filter(department => department._id !== id)))
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
   }
 
   return (
