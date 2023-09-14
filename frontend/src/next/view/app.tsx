@@ -1,4 +1,4 @@
-import { Layout, message } from 'antd'
+import { Layout } from 'antd'
 import UnAuthorize from 'next/components/fobidden/unauthorize'
 import { useEffect } from 'react'
 import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom'
@@ -22,7 +22,6 @@ import CreateIdea from './ideas/create-new-idea'
 import EditIdea from './ideas/edit-idea'
 import IdeaDetail from './ideas/idea-detail'
 import LayoutAdmin from './layout/admin'
-import LayoutCoordinator from './layout/coordinator'
 import LayoutManager from './layout/manager'
 import LayoutStaff from './layout/staff'
 import UserProfile from './user-profile'
@@ -44,8 +43,6 @@ export default function App() {
 
     if (credential) {
       if (credential?.token === '' || !credential?.token) {
-        navigate('/login')
-        return message.info('You need to login to access this application!')
       } else {
         if (credential?.tokenVerified === true && credential?.userId) {
           userCredential.updateState({
@@ -66,134 +63,107 @@ export default function App() {
           }
           updateUserInfo()
         } else {
-          navigate('/login')
-          return message.info('You need to login to access this application!')
         }
       }
     } else {
-      navigate('/login')
-      return message.info('You need to login to access this application!')
     }
   }, [])
 
-  let routes: any
+  const routes = (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/logout" />
+      <Route
+        path="/"
+        element={
+          <Layout style={{ minHeight: '100vh' }}>
+            <LayoutAdmin>
+              <Outlet />
+            </LayoutAdmin>
+          </Layout>
+        }
+      >
+        <Route path="" element={<HomePage />} />
+      </Route>
 
-  if (credential?.tokenVerified) {
-    routes = (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/logout" />
-        <Route path="/" element={<Navigate to={role ? `/${role}` : '/'} replace />} />
+      <Route
+        path="/admin"
+        element={
+          <RoleAccess roles={['admin']}>
+            <Layout style={{ minHeight: '100vh' }}>
+              <LayoutAdmin>
+                <Outlet />
+              </LayoutAdmin>
+            </Layout>
+          </RoleAccess>
+        }
+      >
+        <Route path="accounts-manager" element={<AccountManager />} />
+        <Route path="account" element={<UserProfile />} />
+        <Route path="departments" element={<DepartmentManager />} />
+        <Route path="departments/:id" element={<DepartmentDetail />} />
+        <Route path="" element={<HomePage />} />
+        <Route path="ideas" element={<HomePage />} />
+        <Route path="idea" element={<IdeaDetail />} />
+        <Route path="event" element={<EventsPage role="admin" />} />
+        <Route path="event/:id" element={<EventDetails />} />
+        <Route path="profile" element={<OtherProfile />} />
+        <Route path="backup" element={<BackupDataManager />} />
+      </Route>
 
-        <Route
-          path="/staff"
-          element={
-            <RoleAccess roles={['staff']}>
-              <Layout style={{ minHeight: '100vh' }}>
-                <LayoutStaff>
-                  <Outlet />
-                </LayoutStaff>
-              </Layout>
-            </RoleAccess>
-          }
-        >
-          <Route path="" element={<HomePage />} />
-          <Route path="event" element={<EventsPage />} />
-          <Route path="event/:id" element={<EventDetails role="staff" />} />
-          <Route path="ideas" element={<HomePage />} />
-          <Route path="account" element={<UserProfile />} />
-          <Route path="profile" element={<OtherProfile />} />
-          <Route path="submit" element={<CreateIdea />} />
-          <Route path="departments/:id" element={<DepartmentDetail />} />
-          <Route path="idea" element={<IdeaDetail />} />
-          <Route path="idea/edit" element={<EditIdea />} />
-        </Route>
+      <Route
+        path="/worker"
+        element={
+          <RoleAccess roles={['staff']}>
+            <Layout style={{ minHeight: '100vh' }}>
+              <LayoutStaff>
+                <Outlet />
+              </LayoutStaff>
+            </Layout>
+          </RoleAccess>
+        }
+      >
+        <Route path="" element={<HomePage />} />
+        <Route path="event" element={<EventsPage />} />
+        <Route path="event/:id" element={<EventDetails role="staff" />} />
+        <Route path="ideas" element={<HomePage />} />
+        <Route path="account" element={<UserProfile />} />
+        <Route path="profile" element={<OtherProfile />} />
+        <Route path="submit" element={<CreateIdea />} />
+        <Route path="departments/:id" element={<DepartmentDetail />} />
+        <Route path="idea" element={<IdeaDetail />} />
+        <Route path="idea/edit" element={<EditIdea />} />
+      </Route>
 
-        <Route
-          path="/coordinator"
-          element={
-            <RoleAccess roles={['coordinator']}>
-              <Layout style={{ minHeight: '100vh' }}>
-                <LayoutCoordinator>
-                  <Outlet />
-                </LayoutCoordinator>
-              </Layout>
-            </RoleAccess>
-          }
-        >
-          <Route path="" element={<HomePage />} />
-          <Route path="event" element={<EventsPage />} />
-          <Route path="event/:id" element={<EventDetails />} />
-          <Route path="ideas" element={<HomePage />} />
-          <Route path="account" element={<UserProfile />} />
-          <Route path="submit" element={<CreateIdea />} />
-          <Route path="idea" element={<IdeaDetail />} />
-          <Route path="profile" element={<OtherProfile />} />
-          <Route path="departments/:id" element={<DepartmentDetail />} />
-        </Route>
-
-        <Route
-          path="/admin"
-          element={
-            <RoleAccess roles={['admin']}>
-              <Layout style={{ minHeight: '100vh' }}>
-                <LayoutAdmin>
-                  <Outlet />
-                </LayoutAdmin>
-              </Layout>
-            </RoleAccess>
-          }
-        >
-          <Route path="accounts-manager" element={<AccountManager />} />
-          <Route path="account" element={<UserProfile />} />
-          <Route path="departments" element={<DepartmentManager />} />
-          <Route path="departments/:id" element={<DepartmentDetail />} />
-          <Route path="" element={<HomePage />} />
-          <Route path="ideas" element={<HomePage />} />
-          <Route path="idea" element={<IdeaDetail />} />
-          <Route path="event" element={<EventsPage role="admin" />} />
-          <Route path="event/:id" element={<EventDetails />} />
-          <Route path="profile" element={<OtherProfile />} />
-          <Route path="backup" element={<BackupDataManager />} />
-        </Route>
-
-        <Route
-          path="/manager"
-          element={
-            <RoleAccess roles={['manager']}>
-              <Layout style={{ minHeight: '100vh' }}>
-                <LayoutManager>
-                  <Outlet />
-                </LayoutManager>
-              </Layout>
-            </RoleAccess>
-          }
-        >
-          <Route path="" element={<HomePage accessRole={'manager'} />} />
-          <Route path="dashboard" element={<DashboardAdmin />} />
-          <Route path="categories" element={<CategoryManager />} />
-          <Route path="category/:id" element={<CategoryDetails />} />
-          <Route path="event" element={<EventsPage />} />
-          <Route path="event/:id" element={<EventDetails />} />
-          <Route path="ideas" element={<HomePage />} />
-          <Route path="submit" element={<CreateIdea />} />
-          <Route path="idea" element={<IdeaDetail />} />
-          <Route path="ideas" element={<HomePage />} />
-          <Route path="account" element={<UserProfile />} />
-          <Route path="profile" element={<OtherProfile />} />
-        </Route>
-        <Route path="*" element={<Navigate to={role ? `/${role}` : '/'} replace />} />
-        <Route path="/unauthorize" element={<UnAuthorize></UnAuthorize>}></Route>
-      </Routes>
-    )
-  } else {
-    routes = (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/*" element={<Navigate to={'/login'} replace />} />
-      </Routes>
-    )
-  }
+      <Route
+        path="/hire"
+        element={
+          <RoleAccess roles={['manager']}>
+            <Layout style={{ minHeight: '100vh' }}>
+              <LayoutManager>
+                <Outlet />
+              </LayoutManager>
+            </Layout>
+          </RoleAccess>
+        }
+      >
+        <Route path="" element={<HomePage accessRole={'manager'} />} />
+        <Route path="dashboard" element={<DashboardAdmin />} />
+        <Route path="categories" element={<CategoryManager />} />
+        <Route path="category/:id" element={<CategoryDetails />} />
+        <Route path="event" element={<EventsPage />} />
+        <Route path="event/:id" element={<EventDetails />} />
+        <Route path="ideas" element={<HomePage />} />
+        <Route path="submit" element={<CreateIdea />} />
+        <Route path="idea" element={<IdeaDetail />} />
+        <Route path="ideas" element={<HomePage />} />
+        <Route path="account" element={<UserProfile />} />
+        <Route path="profile" element={<OtherProfile />} />
+      </Route>
+      <Route path="*" element={<Navigate to={role ? `/${role}` : '/'} replace />} />
+      <Route path="/unauthorize" element={<UnAuthorize></UnAuthorize>}></Route>
+    </Routes>
+  )
 
   return (
     <>
