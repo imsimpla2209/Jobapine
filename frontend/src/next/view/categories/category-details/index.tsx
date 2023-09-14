@@ -1,4 +1,4 @@
-import { Button, Card, Empty, List, Typography } from 'antd'
+import { Button, Card, Empty, List, Typography, message } from 'antd'
 import { Http } from 'next/api/http'
 import useRoleNavigate from 'next/libs/use-role-navigate'
 
@@ -10,7 +10,6 @@ const { Title } = Typography
 
 export default function CategoryDetails() {
   const { id } = useParams()
-  const { enqueueSnackbar } = useSnackbar()
   const navigate = useRoleNavigate()
   const [category, setCategory] = useState(null)
 
@@ -19,7 +18,7 @@ export default function CategoryDetails() {
       .then(res => {
         setCategory(res.data?.data[0] || null)
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
   }
 
   useEffect(() => {

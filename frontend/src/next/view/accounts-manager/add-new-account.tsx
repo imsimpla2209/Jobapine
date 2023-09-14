@@ -1,11 +1,8 @@
 import { Button, Col, Form, Input, Modal, Select, Space, message } from 'antd'
-
 import { useEffect, useState } from 'react'
 import { Http } from '../../api/http'
-import ButtonGroup from 'antd/es/button/button-group'
 
 export default function AddAccountModal({ isOpen, onCloseModal, onSubmit }) {
-  const { enqueueSnackbar } = useSnackbar()
   const [form] = Form.useForm()
   const [accountRole, setAccountRole] = useState('')
   const [departmentOptions, setDepartmentOptions] = useState([])
@@ -14,7 +11,7 @@ export default function AddAccountModal({ isOpen, onCloseModal, onSubmit }) {
   const getAllDepartment = async () =>
     await Http.get('/api/v1/department')
       .then(res => setDepartmentOptions(res.data.data))
-      .catch(error => enqueueSnackbar('Failed to get all departments !', { variant: 'error' }))
+      .catch(error => message.error('Failed to get all departments !'))
 
   useEffect(() => {
     getAllDepartment()
@@ -41,7 +38,7 @@ export default function AddAccountModal({ isOpen, onCloseModal, onSubmit }) {
         onSubmit()
         onCloseModal()
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
       .finally(() => setLoading(false))
   }
 

@@ -1,8 +1,7 @@
 import { ContainerFilled, FireFilled, PlusCircleTwoTone } from '@ant-design/icons'
-import { Divider, Radio, Row, Skeleton, Space, Typography } from 'antd'
+import { Divider, Radio, Row, Skeleton, Space, Typography, message } from 'antd'
 import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
-
 import { useEffect, useState } from 'react'
 import EventCardItem from './card-item'
 import CreateEventField from './event-form'
@@ -10,7 +9,6 @@ import CreateEventField from './event-form'
 const { Title } = Typography
 
 function EventsPage({ role }: { role?: string }) {
-  const { enqueueSnackbar } = useSnackbar()
   const [openModal, setOpenModal] = useState(false)
   const [allEventList, setAllEventList] = useState([])
   const [filteredEventList, setFilteredEventList] = useState([])
@@ -24,7 +22,7 @@ function EventsPage({ role }: { role?: string }) {
       .then(res => {
         setAllEventList(res.data.data)
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
       .finally(() => setLoading(false))
   }
 
@@ -35,7 +33,7 @@ function EventsPage({ role }: { role?: string }) {
   const handleDeleteEvent = async (id: string) => {
     await Http.delete('/api/v1/event', id)
       .then(() => setAllEventList(allEventList.filter(event => event._id !== id)))
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
   }
 
   useEffect(() => {

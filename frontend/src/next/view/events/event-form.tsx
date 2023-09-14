@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined, InfoCircleOutlined } from '@ant-design/icons'
-import { Button, Card, DatePicker, Form, Input, Space, Tooltip, Typography } from 'antd'
+import { Button, Card, DatePicker, Form, Input, Space, Tooltip, Typography, message } from 'antd'
 import dayjs from 'dayjs'
 import { ContentState, convertFromHTML, convertToRaw, EditorState } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
@@ -20,7 +20,6 @@ const DATE_FORMAT = 'YYYY-MM-DD HH:mm'
 
 export default function CreateEventField(props: IEventModalProps) {
   const { onClose, onFinish, event } = props
-  const { enqueueSnackbar } = useSnackbar()
   const [loading, setLoading] = useState(false)
   const windowWidth = useWindowSize()
   const initialState = () => EditorState.createEmpty()
@@ -53,7 +52,7 @@ export default function CreateEventField(props: IEventModalProps) {
       .then(() => {
         onFinish(eventForm)
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
       .finally(() => setLoading(false))
   }
   return (

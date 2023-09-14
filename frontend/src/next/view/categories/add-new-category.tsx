@@ -10,7 +10,6 @@ export default function AddCategoryModal({
   categoriesList,
   currentCategory,
 }) {
-  const { enqueueSnackbar } = useSnackbar()
   const [form] = Form.useForm()
 
   const onFinish = async () => {
@@ -39,7 +38,7 @@ export default function AddCategoryModal({
           }
           onCloseModal()
         })
-        .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+        .catch(error => message.error(error.message))
         .finally(() => setLoading(false))
     } else {
       message.error('Please type a different name!')

@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined, ClockCircleTwoTone, FireTwoTone, RocketTwoTone } from '@ant-design/icons'
-import { Alert, Button, Card, Empty, List, Row, Space, Typography } from 'antd'
+import { Alert, Button, Card, Empty, List, Row, Space, Typography, message } from 'antd'
 import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
 import useRoleNavigate from 'next/libs/use-role-navigate'
@@ -12,7 +12,6 @@ const { Title } = Typography
 
 export default function EventDetails({ role }: { role?: string }) {
   const { id } = useParams()
-  const { enqueueSnackbar } = useSnackbar()
   const navigate = useRoleNavigate()
   const [event, setEvent] = useState(null)
   const isEventClosed = useMemo(() => new Date(event?.firstCloseDate) < new Date(), [event])
@@ -21,7 +20,7 @@ export default function EventDetails({ role }: { role?: string }) {
       .then(res => {
         setEvent(res.data?.data[0] || null)
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
   }
 
   useEffect(() => {

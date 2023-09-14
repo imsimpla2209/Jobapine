@@ -1,5 +1,5 @@
 import { PlusCircleTwoTone } from '@ant-design/icons'
-import { Col, Divider, Input, Row, Skeleton, Typography } from 'antd'
+import { Col, Divider, Input, Row, Skeleton, Typography, message } from 'antd'
 import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
 
@@ -10,7 +10,6 @@ import CategoryCardItem from './card-item'
 const { Title } = Typography
 
 function CategoryManager() {
-  const { enqueueSnackbar } = useSnackbar()
   const [searchKey, setSearchKey] = useState('')
   const [openModal, setOpenModal] = useState(false)
   const [allCategoryList, setAllCategoryList] = useState([])
@@ -23,7 +22,7 @@ function CategoryManager() {
       .then(res => {
         setAllCategoryList(res.data.data)
       })
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
       .finally(() => setLoading(false))
   }
 
@@ -34,7 +33,7 @@ function CategoryManager() {
   const handleDeleteCategory = async (id: string) => {
     await Http.delete('/api/v1/category', id)
       .then(() => setAllCategoryList(allCategoryList.filter(category => category._id !== id)))
-      .catch(error => enqueueSnackbar(error.message, { variant: 'error' }))
+      .catch(error => message.error(error.message))
   }
 
   return (
