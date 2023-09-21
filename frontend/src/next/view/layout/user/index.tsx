@@ -1,30 +1,20 @@
-import { CalendarOutlined, DashboardFilled, HomeFilled, TagOutlined, WeiboOutlined } from '@ant-design/icons'
+import { HomeFilled, InboxOutlined, UsergroupAddOutlined, WeiboOutlined } from '@ant-design/icons'
 import { Layout, MenuProps } from 'antd'
 import { Content } from 'antd/es/layout/layout'
 import useWindowSize from '../../../utils/useWindowSize'
 import { getItem } from '../admin'
-import AppFooter from '../footer'
 import AppHeader from '../header'
 import AppSidebar from '../sidebar'
 
 const items: MenuProps['items'] = [
   getItem('Home', 'home', <HomeFilled />),
-  getItem('Dashboard', 'dashboard', <DashboardFilled />),
   { type: 'divider' },
-  getItem(
-    'PUBLIC',
-    'grp',
-    null,
-    [
-      getItem('Your Profile', 'account', <WeiboOutlined />),
-      getItem('Categories', 'categories', <TagOutlined />),
-      getItem('Events', 'event', <CalendarOutlined />),
-    ],
-    'group'
-  ),
+  getItem('Find workers', 'hiring-workers', <UsergroupAddOutlined />),
+  getItem('Find jobs', 'freelance-jobs', <InboxOutlined />),
+  getItem('Your Profile', 'account', <WeiboOutlined />),
 ]
 
-const LayoutManager = ({ children }) => {
+const LayoutUser = ({ children }) => {
   const windowWidth = useWindowSize()
   const contentStyle =
     windowWidth > 1000
@@ -48,4 +38,4 @@ const LayoutManager = ({ children }) => {
   )
 }
 
-export default LayoutManager
+export default LayoutUser

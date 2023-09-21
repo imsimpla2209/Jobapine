@@ -1,4 +1,3 @@
-import { Layout } from 'antd'
 import UnAuthorize from 'next/components/fobidden/unauthorize'
 import { useEffect } from 'react'
 import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom'
@@ -10,26 +9,21 @@ import Login from './auth/login'
 import RoleAccess from './auth/role-access'
 import { userCredential, userStore } from './auth/user-store'
 import BackupDataManager from './backup-data'
-import CategoryManager from './categories'
-import CategoryDetails from './categories/category-details'
 import DashboardAdmin from './dashboard'
 import DepartmentManager from './departments'
 import DepartmentDetail from './departments/department-detail'
 import EventsPage from './events'
 import EventDetails from './events/event-details'
-import CreateIdea from './ideas/create-new-idea'
-import EditIdea from './ideas/edit-idea'
+import JobDetails from './hire/job-details'
+import JobList from './hire/job-list'
+import HomePage from './home-page'
 import IdeaDetail from './ideas/idea-detail'
 import LayoutAdmin from './layout/admin'
-import LayoutManager from './layout/manager'
-import LayoutStaff from './layout/staff'
+import LayoutUser from './layout/user'
 import UserProfile from './user-profile'
 import OtherProfile from './user-profile/otherProfile'
-import HomePage from './home-page'
-import WorkerList from './worker/worker-list'
-import JobList from './hire/job-list'
-import JobDetails from './hire/job-details'
 import WorkerDetails from './worker/worker-details'
+import WorkerList from './worker/worker-list'
 
 export default function App() {
   const navigate = useNavigate()
@@ -80,12 +74,37 @@ export default function App() {
       <Route
         path="/"
         element={
-          <LayoutAdmin>
+          <LayoutUser>
             <Outlet />
-          </LayoutAdmin>
+          </LayoutUser>
         }
       >
         <Route path="" element={<HomePage />} />
+      </Route>
+
+      <Route
+        path="/freelance-jobs"
+        element={
+          <LayoutUser>
+            <Outlet />
+          </LayoutUser>
+        }
+      >
+        <Route path="" element={<JobList />} />
+        <Route path="details" element={<JobDetails />} />
+      </Route>
+
+      <Route
+        path="/hiring-workers"
+        element={
+          <LayoutUser>
+            <Outlet />
+          </LayoutUser>
+        }
+      >
+        <Route path="" element={<WorkerList />} />
+        <Route path="details" element={<WorkerDetails />} />
+        <Route path="profile" element={<OtherProfile />} />
       </Route>
 
       <Route
@@ -112,30 +131,6 @@ export default function App() {
         <Route path="dashboard" element={<DashboardAdmin />} />
       </Route>
 
-      <Route
-        path="/worker"
-        element={
-          <LayoutStaff>
-            <Outlet />
-          </LayoutStaff>
-        }
-      >
-        <Route path="" element={<JobList />} />
-        <Route path="details" element={<JobDetails />} />
-      </Route>
-
-      <Route
-        path="/hire"
-        element={
-          <LayoutManager>
-            <Outlet />
-          </LayoutManager>
-        }
-      >
-        <Route path="" element={<WorkerList />} />
-        <Route path="details" element={<WorkerDetails />} />
-        <Route path="profile" element={<OtherProfile />} />
-      </Route>
       <Route path="*" element={<Navigate to={role ? `/${role}` : '/'} replace />} />
       <Route path="/unauthorize" element={<UnAuthorize></UnAuthorize>}></Route>
     </Routes>

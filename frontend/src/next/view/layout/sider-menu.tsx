@@ -5,7 +5,6 @@ import '../../../index.css'
 
 export default function SiderMenu({ menuItems }) {
   const navigate = useRoleNavigate()
-  const [collapsed, setCollapsed] = useState(false)
   const [tabKey, setTabKey] = useState([window.location.pathname.split('/')?.[2] || 'home'])
 
   const handleClickMenu = async (val: any) => {
@@ -18,16 +17,11 @@ export default function SiderMenu({ menuItems }) {
         navigate(`/${val.key}`)
     }
   }
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed)
-  }
+
   return (
     <>
       <Layout.Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={toggleCollapsed}
-        width={278}
+        collapsed={true}
         style={{
           background: 'linear-gradient(92.88deg, #455eb5 9.16%, #5643cc 43.89%, #673fd7 64.72%)',
           position: 'sticky',

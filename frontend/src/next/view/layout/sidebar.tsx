@@ -20,9 +20,7 @@ function AppSidebar({ items }) {
   return (
     <>
       {windowWidth > 1000 ? (
-        <Layout.Sider width={278} style={{ background: 'transparent' }}>
-          <SiderMenu menuItems={items} />
-        </Layout.Sider>
+        <SiderMenu menuItems={items} />
       ) : (
         <Dropdown
           menu={{ items: items, onClick: handleClickMenu }}
