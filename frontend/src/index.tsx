@@ -1,22 +1,41 @@
 import { SocketProvider } from 'next/socket.io'
-import { SnackbarProvider } from 'notistack'
 import ReactDOM from 'react-dom/client'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
-// import App from './next/view/app'
+import App from './next/view/app'
 import reportWebVitals from './reportWebVitals'
-import App from 'next/App'
+import { ConfigProvider } from 'antd'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
-  <SocketProvider>
-    <SnackbarProvider maxSnack={1} preventDuplicate>
-      {/* <BrowserRouter> */}
+  // <React.StrictMode>
+  <ConfigProvider
+    theme={{
+      token: {
+        // Seed Token
+        colorPrimary: '#394c90',
+        colorPrimaryBg: '#fff',
+        colorPrimaryBorder: '#394c90',
+        borderRadius: 10,
+        colorBorder: '#606060',
+
+        // Alias Token
+        colorBorderBg: '#d5d6e0',
+        colorBorderSecondary: '#d5d6e0',
+        colorBgContainer: '#fff',
+        colorBgBase: '#fff',
+        colorBgLayout: '#fff',
+      },
+    }}
+  >
+    <SocketProvider>
+      <BrowserRouter>
         <App />
-      {/* </BrowserRouter> */}
-    </SnackbarProvider>
-  </SocketProvider>
+      </BrowserRouter>
+    </SocketProvider>
+  </ConfigProvider>
+  // </React.StrictMode>
 )
 
 // If you want to start measuring performance in your app, pass a function

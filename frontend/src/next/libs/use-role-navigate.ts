@@ -1,5 +1,5 @@
-import { userStore } from 'next/pages/Auth/user-store'
 import { useSubscription } from './global-state-hook'
+import { userStore } from '../view/auth/user-store'
 import { useNavigate } from 'react-router-dom'
 
 export default function useRoleNavigate() {
