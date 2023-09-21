@@ -1,6 +1,6 @@
-import { Button, Card, Col, ConfigProvider, Input, Row, Tag } from 'antd'
+import { CalendarOutlined, FieldTimeOutlined, NodeIndexOutlined, StarOutlined } from '@ant-design/icons'
+import { Button, Col, ConfigProvider, Input, Row, Tag } from 'antd'
 import styled from 'styled-components'
-import { FieldTimeOutlined, CalendarOutlined, NodeIndexOutlined, StarOutlined } from '@ant-design/icons'
 
 export default function WorkerDetails() {
   const data = {
@@ -51,130 +51,123 @@ export default function WorkerDetails() {
     starArr.push(i)
   }
   return (
-    <StyleCard style={{ width: '80%', padding: '0', borderRadius: '15px', margin: 'auto', borderColor: '#d5e1d5' }}>
-      <Row>
-        <Col span={18}>
-          <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
-            <h2 style={{ paddingBottom: '16px' }}>{data.title}</h2>
-            <a href="" style={{ textDecoration: 'underline', color: '#108a00' }}>
-              {data.profession}
-            </a>
-            <div style={{ opacity: '0.6', paddingBottom: '8px' }}>{data.time}</div>
-            <div>{data.location}</div>
-          </div>
-          <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
-            <div>{data.description}</div>
-          </div>
-          <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
-            <Row gutter={16}>
-              {data.information.map((item, index) => (
-                <Col span={8} key={index} style={{ paddingTop: '16px' }}>
-                  <div style={{ display: 'flex' }}>
-                    <div style={{ paddingRight: '16px' }}>{item.icon}</div>
-                    <div>
-                      <div>{item.title}</div>
-                      <div style={{ opacity: '0.6', paddingBottom: '8px' }}>{item.des}</div>
-                    </div>
+    <Row>
+      <Col span={18}>
+        <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
+          <h2 style={{ paddingBottom: '16px' }}>{data.title}</h2>
+          <a href="" style={{ textDecoration: 'underline', color: '#108a00' }}>
+            {data.profession}
+          </a>
+          <div style={{ opacity: '0.6', paddingBottom: '8px' }}>{data.time}</div>
+          <div>{data.location}</div>
+        </div>
+        <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
+          <div>{data.description}</div>
+        </div>
+        <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
+          <Row gutter={16}>
+            {data.information.map((item, index) => (
+              <Col span={8} key={index} style={{ paddingTop: '16px' }}>
+                <div style={{ display: 'flex' }}>
+                  <div style={{ paddingRight: '16px' }}>{item.icon}</div>
+                  <div>
+                    <div>{item.title}</div>
+                    <div style={{ opacity: '0.6', paddingBottom: '8px' }}>{item.des}</div>
                   </div>
-                </Col>
-              ))}
-            </Row>
-          </div>
-          <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
-            <div>Project Type:{data.projectType}</div>
-          </div>
-          <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
-            <h3>Skills and Expertise</h3>
-            {data.tag.map(item => (
-              <a href="">
-                <StyleTag>{item}</StyleTag>
-              </a>
+                </div>
+              </Col>
             ))}
-          </div>
-          <div style={{ padding: '24px', borderRight: '1px solid', borderColor: '#d5e1d5' }}>
-            <h3>Activity on this job</h3>
-            <div>Proposals: {data.activity.Proposals}</div>
-            <div>Interviewing:{data.activity.Interviewing}</div>
-            <div>Invites sent: {data.activity.Invites}</div>
-            <div>Unanswered invites: {data.activity.Unanswered}</div>
-            <h2 style={{ paddingTop: '32px' }}>Upgrade your membership to see the bid range </h2>
-          </div>
-        </Col>
-        <Col span={6}>
-          <div style={{ padding: '24px', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
-            <ConfigProvider
-              theme={{
-                token: {
-                  colorPrimary: '#9aaa97',
-                  borderRadius: 100,
-                  colorBgContainer: '#e4ebe4',
-                  // colorBorder:'#9aaa97',
-                },
-              }}
-            >
-              <Button block style={{ width: '100%' }}>
-                Apply Now
-              </Button>
-            </ConfigProvider>
+          </Row>
+        </div>
+        <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
+          <div>Project Type:{data.projectType}</div>
+        </div>
+        <div style={{ padding: '24px', borderRight: '1px solid', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
+          <h3>Skills and Expertise</h3>
+          {data.tag.map(item => (
+            <a href="">
+              <StyleTag>{item}</StyleTag>
+            </a>
+          ))}
+        </div>
+        <div style={{ padding: '24px', borderRight: '1px solid', borderColor: '#d5e1d5' }}>
+          <h3>Activity on this job</h3>
+          <div>Proposals: {data.activity.Proposals}</div>
+          <div>Interviewing:{data.activity.Interviewing}</div>
+          <div>Invites sent: {data.activity.Invites}</div>
+          <div>Unanswered invites: {data.activity.Unanswered}</div>
+          <h2 style={{ paddingTop: '32px' }}>Upgrade your membership to see the bid range </h2>
+        </div>
+      </Col>
+      <Col span={6}>
+        <div style={{ padding: '24px', borderBottom: '1px solid', borderColor: '#d5e1d5' }}>
+          <ConfigProvider
+            theme={{
+              token: {
+                colorPrimary: '#9aaa97',
+                borderRadius: 100,
+                colorBgContainer: '#e4ebe4',
+                // colorBorder:'#9aaa97',
+              },
+            }}
+          >
+            <Button block style={{ width: '100%' }}>
+              Apply Now
+            </Button>
+          </ConfigProvider>
 
-            <ConfigProvider
-              theme={{
-                token: {
-                  colorPrimary: '#9aaa97',
-                  borderRadius: 100,
-                  colorBgContainer: '#ffffff',
-                  // colorBorder:'#9aaa97',
-                },
-              }}
-            >
-              <Button block style={{ width: '100%', marginTop: '16px' }}>
-                Save Job
-              </Button>
-            </ConfigProvider>
+          <ConfigProvider
+            theme={{
+              token: {
+                colorPrimary: '#9aaa97',
+                borderRadius: 100,
+                colorBgContainer: '#ffffff',
+                // colorBorder:'#9aaa97',
+              },
+            }}
+          >
+            <Button block style={{ width: '100%', marginTop: '16px' }}>
+              Save Job
+            </Button>
+          </ConfigProvider>
+        </div>
+        <div style={{ padding: '24px', borderBottom: '1px solid #d5e1d5', borderColor: '#d5e1d5' }}>
+          <h3>About the client</h3>
+          <div>Payment method verified</div>
+          {starArr.map(item => (
+            <StarOutlined style={{ color: '#108a00' }} />
+          ))}
+          <div style={{ paddingBottom: '16px' }}>
+            {data.evaluate.star} of {data.evaluate.reviews} reviews{' '}
           </div>
-          <div style={{ padding: '24px', borderBottom: '1px solid #d5e1d5', borderColor: '#d5e1d5' }}>
-            <h3>About the client</h3>
-            <div>Payment method verified</div>
-            {starArr.map(item => (
-              <StarOutlined style={{ color: '#108a00' }} />
-            ))}
-            <div style={{ paddingBottom: '16px' }}>
-              {data.evaluate.star} of {data.evaluate.reviews} reviews{' '}
-            </div>
-            <>
-              <div style={{ fontWeight: 500 }}>United Kingdom</div>
-              <div style={{ opacity: '0.6', paddingBottom: '8px' }}>London 8:55 am</div>
-            </>
-            <>
-              <div style={{ fontWeight: 500 }}>216 jobs posted</div>
-              <div style={{ opacity: '0.6', paddingBottom: '8px' }}>94% hire rate, 2 open jobs</div>
-            </>
-            <>
-              <div style={{ fontWeight: 500 }}>$5.7K total spent</div>
-              <div style={{ opacity: '0.6', paddingBottom: '8px' }}>204 hires, 3 active</div>
-            </>
-            <>
-              <div style={{ fontWeight: 500 }}>$14.98 /hr avg hourly rate paid</div>
-              <div style={{ opacity: '0.6', paddingBottom: '8px' }}>68 hours</div>
-            </>
-            <div style={{ opacity: '0.6', paddingBottom: '8px' }}>Member since Jul 13, 2022</div>
-          </div>
-          <div style={{ padding: '24px', borderColor: '#d5e1d5' }}>
-            <h3>Job link</h3>
-            <Input placeholder="Basic usage" value={'https://www.upwork.com/jobs/~01e1a389d6104fd45f'} />
-            <div style={{ color: '#108a00', paddingTop: '12px' }}>Copy link</div>
-          </div>
-        </Col>
-      </Row>
-    </StyleCard>
+          <>
+            <div style={{ fontWeight: 500 }}>United Kingdom</div>
+            <div style={{ opacity: '0.6', paddingBottom: '8px' }}>London 8:55 am</div>
+          </>
+          <>
+            <div style={{ fontWeight: 500 }}>216 jobs posted</div>
+            <div style={{ opacity: '0.6', paddingBottom: '8px' }}>94% hire rate, 2 open jobs</div>
+          </>
+          <>
+            <div style={{ fontWeight: 500 }}>$5.7K total spent</div>
+            <div style={{ opacity: '0.6', paddingBottom: '8px' }}>204 hires, 3 active</div>
+          </>
+          <>
+            <div style={{ fontWeight: 500 }}>$14.98 /hr avg hourly rate paid</div>
+            <div style={{ opacity: '0.6', paddingBottom: '8px' }}>68 hours</div>
+          </>
+          <div style={{ opacity: '0.6', paddingBottom: '8px' }}>Member since Jul 13, 2022</div>
+        </div>
+        <div style={{ padding: '24px', borderColor: '#d5e1d5' }}>
+          <h3>Job link</h3>
+          <Input placeholder="Basic usage" value={'https://www.upwork.com/jobs/~01e1a389d6104fd45f'} />
+          <div style={{ color: '#108a00', paddingTop: '12px' }}>Copy link</div>
+        </div>
+      </Col>
+    </Row>
   )
 }
 
-const StyleCard = styled(Card)`
-  .ant-card-body {
-    padding: 0;
-  }
-`
 const StyleTag = styled(Tag)`
   background-color: #e4ebe3;
   height: auto !important;

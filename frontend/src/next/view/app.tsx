@@ -26,6 +26,10 @@ import LayoutStaff from './layout/staff'
 import UserProfile from './user-profile'
 import OtherProfile from './user-profile/otherProfile'
 import HomePage from './home-page'
+import WorkerList from './worker/worker-list'
+import JobList from './hire/job-list'
+import JobDetails from './hire/job-details'
+import WorkerDetails from './worker/worker-details'
 
 export default function App() {
   const navigate = useNavigate()
@@ -76,11 +80,9 @@ export default function App() {
       <Route
         path="/"
         element={
-          <Layout style={{ minHeight: '100vh' }}>
-            <LayoutAdmin>
-              <Outlet />
-            </LayoutAdmin>
-          </Layout>
+          <LayoutAdmin>
+            <Outlet />
+          </LayoutAdmin>
         }
       >
         <Route path="" element={<HomePage />} />
@@ -90,11 +92,9 @@ export default function App() {
         path="/admin"
         element={
           <RoleAccess roles={['admin']}>
-            <Layout style={{ minHeight: '100vh' }}>
-              <LayoutAdmin>
-                <Outlet />
-              </LayoutAdmin>
-            </Layout>
+            <LayoutAdmin>
+              <Outlet />
+            </LayoutAdmin>
           </RoleAccess>
         }
       >
@@ -109,55 +109,31 @@ export default function App() {
         <Route path="event/:id" element={<EventDetails />} />
         <Route path="profile" element={<OtherProfile />} />
         <Route path="backup" element={<BackupDataManager />} />
+        <Route path="dashboard" element={<DashboardAdmin />} />
       </Route>
 
       <Route
         path="/worker"
         element={
-          <RoleAccess roles={['staff']}>
-            <Layout style={{ minHeight: '100vh' }}>
-              <LayoutStaff>
-                <Outlet />
-              </LayoutStaff>
-            </Layout>
-          </RoleAccess>
+          <LayoutStaff>
+            <Outlet />
+          </LayoutStaff>
         }
       >
-        <Route path="" element={<HomePage />} />
-        <Route path="event" element={<EventsPage />} />
-        <Route path="event/:id" element={<EventDetails role="staff" />} />
-        <Route path="ideas" element={<HomePage />} />
-        <Route path="account" element={<UserProfile />} />
-        <Route path="profile" element={<OtherProfile />} />
-        <Route path="submit" element={<CreateIdea />} />
-        <Route path="departments/:id" element={<DepartmentDetail />} />
-        <Route path="idea" element={<IdeaDetail />} />
-        <Route path="idea/edit" element={<EditIdea />} />
+        <Route path="" element={<JobList />} />
+        <Route path="details" element={<JobDetails />} />
       </Route>
 
       <Route
         path="/hire"
         element={
-          <RoleAccess roles={['manager']}>
-            <Layout style={{ minHeight: '100vh' }}>
-              <LayoutManager>
-                <Outlet />
-              </LayoutManager>
-            </Layout>
-          </RoleAccess>
+          <LayoutManager>
+            <Outlet />
+          </LayoutManager>
         }
       >
-        <Route path="" element={<HomePage />} />
-        <Route path="dashboard" element={<DashboardAdmin />} />
-        <Route path="categories" element={<CategoryManager />} />
-        <Route path="category/:id" element={<CategoryDetails />} />
-        <Route path="event" element={<EventsPage />} />
-        <Route path="event/:id" element={<EventDetails />} />
-        <Route path="ideas" element={<HomePage />} />
-        <Route path="submit" element={<CreateIdea />} />
-        <Route path="idea" element={<IdeaDetail />} />
-        <Route path="ideas" element={<HomePage />} />
-        <Route path="account" element={<UserProfile />} />
+        <Route path="" element={<WorkerList />} />
+        <Route path="details" element={<WorkerDetails />} />
         <Route path="profile" element={<OtherProfile />} />
       </Route>
       <Route path="*" element={<Navigate to={role ? `/${role}` : '/'} replace />} />
