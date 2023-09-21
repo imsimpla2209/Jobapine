@@ -105,7 +105,7 @@ export default function JobList() {
       </Space>
       <Layout>
         <Layout>
-          {/* <Sider
+          <Sider
             width={300}
             style={{
               background: colorBgContainer,
@@ -129,20 +129,23 @@ export default function JobList() {
                 </Checkbox.Group>
               </div>
             ))}
-          </Sider> */}
+          </Sider>
           <Row gutter={[16, 16]}>
             {dataCard.map(item => (
               <Col className="gutter-row" xs={24} sm={24} md={12} lg={12} xl={12}>
                 <Card bordered>
-                  <Row justify="space-between">
-                    <Col>
-                      <h2>{item.title}</h2>
-                    </Col>
-                    <Col>
-                      <Button type="primary" shape="round" size="large" onClick={() => navigate('/hire/details')}>
-                        View job
-                      </Button>
-                    </Col>
+                  <Row>
+                    <h2>{item.title}</h2>
+                  </Row>
+                  <Row>
+                    <Button
+                      type="primary"
+                      shape="round"
+                      size="large"
+                      onClick={() => navigate('/hiring-workers/details')}
+                    >
+                      View job
+                    </Button>
                   </Row>
 
                   <p>{item.dc1}</p>

@@ -1,8 +1,11 @@
-import { Button, Card, Checkbox, Col, Layout, Row, Space, Tag, theme } from 'antd'
+import { Card, Checkbox, Col, Divider, Image, Layout, Row, Space, Tag, theme, Typography } from 'antd'
 import type { CheckboxValueType } from 'antd/es/checkbox/Group'
+import { formatDay } from 'next/utils/helperFuncs'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+
+const { Text } = Typography
 
 interface SelectedValues {
   [menuId: number]: string[]
@@ -56,28 +59,44 @@ export default function WorkerList() {
 
   const dataCard = [
     {
-      title: 'Logo + Business Card Design for PrecisionPrint3D',
-      dc1: 'Hourly: $15.00-$35.00 Intermediate Est. time: Less than 1 month, Less than 30 hrs/week',
-      dc2: "We are seeking a talented designer to create a visually captivating logo for precisionprint3d, a company specializing in 3D printing services. The logo should reflect the company's dedication to precision and craftsmanship, while capturing the innovation and creativity of the 3D printing industry. The ideal candidate should have experience in logo design and be able to convey the company's motto, 'Crafting Perfection, Layer by Layer', through the",
+      name: 'ngiuyen quang huy',
+      avatar: '',
+      birthday: new Date(),
       tag: ['Chatbot Development', 'Lead Generation'],
+      email: 'huy132@gmail.com',
+      phone: '0987654',
     },
     {
-      title: 'Logo + Business Card Design for PrecisionPrint3D',
-      dc1: 'Hourly: $15.00-$35.00 Intermediate Est. time: Less than 1 month, Less than 30 hrs/week',
-      dc2: "We are seeking a talented designer to create a visually captivating logo for precisionprint3d, a company specializing in 3D printing services. The logo should reflect the company's dedication to precision and craftsmanship, while capturing the innovation and creativity of the 3D printing industry. The ideal candidate should have experience in logo design and be able to convey the company's motto, 'Crafting Perfection, Layer by Layer', through the",
+      name: 'ngiuyen quang huy',
+      avatar: '',
+      birthday: new Date(),
       tag: ['Chatbot Development', 'Lead Generation'],
+      email: 'huy132@gmail.com',
+      phone: '0987654',
     },
     {
-      title: 'Logo + Business Card Design for PrecisionPrint3D',
-      dc1: 'Hourly: $15.00-$35.00 Intermediate Est. time: Less than 1 month, Less than 30 hrs/week',
-      dc2: "We are seeking a talented designer to create a visually captivating logo for precisionprint3d, a company specializing in 3D printing services. The logo should reflect the company's dedication to precision and craftsmanship, while capturing the innovation and creativity of the 3D printing industry. The ideal candidate should have experience in logo design and be able to convey the company's motto, 'Crafting Perfection, Layer by Layer', through the",
+      name: 'ngiuyen quang huy',
+      avatar: '',
+      birthday: new Date(),
       tag: ['Chatbot Development', 'Lead Generation'],
+      email: 'huy132@gmail.com',
+      phone: '0987654',
     },
     {
-      title: 'Logo + Business Card Design for PrecisionPrint3D',
-      dc1: 'Hourly: $15.00-$35.00 Intermediate Est. time: Less than 1 month, Less than 30 hrs/week',
-      dc2: "We are seeking a talented designer to create a visually captivating logo for precisionprint3d, a company specializing in 3D printing services. The logo should reflect the company's dedication to precision and craftsmanship, while capturing the innovation and creativity of the 3D printing industry. The ideal candidate should have experience in logo design and be able to convey the company's motto, 'Crafting Perfection, Layer by Layer', through the",
+      name: 'ngiuyen quang huy',
+      avatar: '',
+      birthday: new Date(),
       tag: ['Chatbot Development', 'Lead Generation'],
+      email: 'huy132@gmail.com',
+      phone: '0987654',
+    },
+    {
+      name: 'ngiuyen quang huy',
+      avatar: '',
+      birthday: new Date(),
+      tag: ['Chatbot Development', 'Lead Generation'],
+      email: 'huy132@gmail.com',
+      phone: '0987654',
     },
   ]
   const [selectedValues, setSelectedValues] = useState<SelectedValues>({})
@@ -132,35 +151,36 @@ export default function WorkerList() {
           </Sider> */}
           <Row gutter={[16, 16]}>
             {dataCard.map(item => (
-              <Col className="gutter-row" xs={24} sm={24} md={12} lg={12} xl={12}>
-                <Card bordered>
-                  <Row justify="space-between">
-                    <Col>
-                      <h2>{item.title}</h2>
-                    </Col>
-                    <Col>
-                      <Button type="primary" shape="round" size="large" onClick={() => navigate('/hire/details')}>
-                        View job
-                      </Button>
-                    </Col>
-                  </Row>
-
-                  <p>{item.dc1}</p>
-                  <p>{item.dc2}</p>
-                  <div>
-                    {item.tag.map(i => (
-                      <Tag
-                        style={{
-                          borderRadius: '10rem',
-                          height: '32px',
-                          lineHeight: '32px',
-                          backgroundColor: '#f2f7f2',
-                        }}
-                      >
-                        {i}
+              <Col className="gutter-row" xs={12} sm={12} md={6} lg={6} xl={6}>
+                <Card
+                  bodyStyle={{ padding: 16 }}
+                  cover={
+                    <Image
+                      src={item?.avatar}
+                      fallback="https://i2-prod.manchestereveningnews.co.uk/sport/football/article27536776.ece/ALTERNATES/s1200c/1_GettyImages-1615425379.jpg"
+                    />
+                  }
+                >
+                  <Space direction="vertical" size={16} className="w-100">
+                    <div className="center w-100">
+                      <Tag color="#f50" style={{ fontSize: 20, padding: 8 }}>
+                        {item?.name}
                       </Tag>
-                    ))}
-                  </div>
+                    </div>
+                    <Divider style={{ margin: 0 }} />
+                    <Text>
+                      <b>DOB: </b>
+                      {formatDay(item.birthday)}
+                    </Text>
+                    <Text>
+                      <b>Phone number: </b>
+                      {item?.phone || 'None'}
+                    </Text>
+                    <Text>
+                      <b>Email: </b>
+                      {item?.email}
+                    </Text>
+                  </Space>
                 </Card>
               </Col>
             ))}

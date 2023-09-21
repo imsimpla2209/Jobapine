@@ -34,19 +34,11 @@ export function getItem(
 const items: MenuProps['items'] = [
   getItem('Home', 'home', <HomeFilled />),
   { type: 'divider' },
-  getItem(
-    'PUBLIC',
-    'grp',
-    null,
-    [
-      getItem('Your Profile', 'account', <WeiboOutlined />),
-      getItem('Users', 'accounts-manager', <TeamOutlined />),
-      getItem('Departments', 'departments', <UngroupOutlined />),
-      getItem('Events', 'event', <CalendarOutlined />),
-      getItem('Backup data', 'backup', <SafetyOutlined />),
-    ],
-    'group'
-  ),
+  getItem('Your Profile', 'account', <WeiboOutlined />),
+  getItem('Users', 'accounts-manager', <TeamOutlined />),
+  getItem('Departments', 'departments', <UngroupOutlined />),
+  getItem('Events', 'event', <CalendarOutlined />),
+  getItem('Backup data', 'backup', <SafetyOutlined />),
 ]
 
 const LayoutAdmin = ({ children }) => {
