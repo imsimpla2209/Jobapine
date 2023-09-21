@@ -1,12 +1,14 @@
-import { Button, Card, Checkbox, Col, Layout, Menu, Row, Space, Tag, theme } from 'antd'
+import { Button, Card, Checkbox, Col, Layout, Row, Space, Tag, theme } from 'antd'
 import type { CheckboxValueType } from 'antd/es/checkbox/Group'
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 interface SelectedValues {
   [menuId: number]: string[]
 }
 export default function JobList() {
+  const navigate = useNavigate()
   const { Sider } = Layout
   const {
     token: { colorBgContainer },
@@ -95,7 +97,7 @@ export default function JobList() {
     console.log(selectedValues)
   }
   return (
-    <>
+    <Layout style={{ padding: 20, width: '100%' }}>
       <Space size={[0, 8]} wrap>
         {allSelectedValues.map(item => (
           <StyleTag onClose={log}>{item}</StyleTag>
@@ -103,7 +105,7 @@ export default function JobList() {
       </Space>
       <Layout>
         <Layout>
-          <Sider
+          {/* <Sider
             width={300}
             style={{
               background: colorBgContainer,
@@ -127,52 +129,48 @@ export default function JobList() {
                 </Checkbox.Group>
               </div>
             ))}
-          </Sider>
-          <Layout>
+          </Sider> */}
+          <Row gutter={[16, 16]}>
             {dataCard.map(item => (
-              <Card style={{ width: '100%', border: 'none', borderRadius: 'none ', borderBottom: '1px solid #ccc' }}>
-                <Row justify="space-between">
-                  <Col>
-                    <h2>{item.title}</h2>
-                  </Col>
-                  <Col>
-                    <Button
-                      style={{ color: '#108a00', backgroundColor: '#ffff', borderColor: '#108a00' }}
-                      type="primary"
-                      shape="round"
-                      size="large"
-                    >
-                      View job
-                    </Button>
-                  </Col>
-                </Row>
+              <Col className="gutter-row" xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Card bordered>
+                  <Row justify="space-between">
+                    <Col>
+                      <h2>{item.title}</h2>
+                    </Col>
+                    <Col>
+                      <Button type="primary" shape="round" size="large" onClick={() => navigate('/hire/details')}>
+                        View job
+                      </Button>
+                    </Col>
+                  </Row>
 
-                <p>{item.dc1}</p>
-                <p>{item.dc2}</p>
-                <div>
-                  {item.tag.map(i => (
-                    <Tag
-                      style={{ borderRadius: '10rem', height: '32px', lineHeight: '32px', backgroundColor: '#f2f7f2' }}
-                    >
-                      {i}
-                    </Tag>
-                  ))}
-                </div>
-              </Card>
+                  <p>{item.dc1}</p>
+                  <p>{item.dc2}</p>
+                  <div>
+                    {item.tag.map(i => (
+                      <Tag
+                        style={{
+                          borderRadius: '10rem',
+                          height: '32px',
+                          lineHeight: '32px',
+                          backgroundColor: '#f2f7f2',
+                        }}
+                      >
+                        {i}
+                      </Tag>
+                    ))}
+                  </div>
+                </Card>
+              </Col>
             ))}
-          </Layout>
+          </Row>
         </Layout>
       </Layout>
-    </>
+    </Layout>
   )
 }
 
-export const CustomMenu = styled(Menu)`
-  .ant-menu-item-only-child {
-    height: auto !important ;
-    background-color: #ffff;
-  }
-`
 const StyleTag = styled(Tag)`
   background-color: #108a00;
   height: 32px;
