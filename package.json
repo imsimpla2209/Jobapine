@@ -1,0 +1,14 @@
+{
+    "name": "my-app",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "start": "concurrently \"cd frontend && npm start\" \"cd backend && npm start\"",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "dependencies": {
+        "concurrently": "^8.2.1"
+    }
+}
