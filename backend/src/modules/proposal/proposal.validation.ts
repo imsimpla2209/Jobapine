@@ -1,14 +1,16 @@
+import { EStatus, EPriority } from 'common/enums'
 import Joi from 'joi'
-import { objectId, password } from '../../providers/validate/custom.validation'
+import { objectId } from '../../providers/validate/custom.validation'
 import { NewCreatedProposal } from './proposal.interfaces'
 
 const createProposalBody: Record<keyof NewCreatedProposal, any> = {
   job: Joi.string().required(),
   freelancer: Joi.string().required(),
-  expectedAmount: Joi.number().positive,
-  description: Joi.string().max(969),
+  expectedAmount: Joi.number().positive(),
+  description: Joi.string().max(1969),
   attachments: Joi.array().items(Joi.string()),
   answers: Joi.object().pattern(Joi.number(), Joi.string()),
+  priority: Joi.number().valid(...Object.values(EPriority)),
 }
 
 export const createProposal = {
@@ -17,8 +19,9 @@ export const createProposal = {
 
 export const getProposals = {
   query: Joi.object().keys({
-    name: Joi.string(),
-    role: Joi.string(),
+    job: Joi.string(),
+    _id: Joi.string(),
+    'status.status': Joi.string().valid(...Object.values(EStatus)),
     sortBy: Joi.string(),
     projectBy: Joi.string(),
     limit: Joi.number().integer(),
@@ -38,9 +41,23 @@ export const updateProposal = {
   }),
   body: Joi.object()
     .keys({
-      email: Joi.string().email(),
-      password: Joi.string().custom(password),
-      name: Joi.string(),
+      expectedAmount: Joi.number().positive(),
+      description: Joi.string().max(1969),
+      clientComment: Joi.string(),
+      freelancerComment: Joi.string(),
+      attachments: Joi.array().items(Joi.string()),
+      answers: Joi.object().pattern(Joi.number(), Joi.string()),
+    })
+    .min(1),
+}
+
+export const updateProposalStatus = {
+  params: Joi.object().keys({
+    id: Joi.required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+      status: Joi.string().valid(...Object.values(EStatus)),
     })
     .min(1),
 }
@@ -48,5 +65,12 @@ export const updateProposal = {
 export const deleteProposal = {
   params: Joi.object().keys({
     id: Joi.string().custom(objectId),
+  }),
+}
+
+export const changeStatus = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+    status: Joi.string().valid(...Object.values(EStatus)),
   }),
 }

@@ -13,7 +13,13 @@ export interface IJob {
   payment?: IJobPayment
   reqSkills?: ILevelSkill[]
   scope?: IJobScope
-  status?: string
+  status?: [
+    {
+      status: string
+      date: Date
+      comment?: string
+    }
+  ]
   checkLists?: string[]
   attachments?: string[]
   proposals?: IProposalDoc['_id'][]
@@ -22,6 +28,7 @@ export interface IJob {
   budget?: number
   tags?: IJobTag['_id'][]
   isDeleted?: boolean
+  currentStatus?: string
 }
 
 export interface IJobCategory extends Document {
@@ -66,7 +73,7 @@ export interface IJobTagModel extends Model<IJobTag> {
 
 export type UpdateJobBody = Omit<IJob, 'client'>
 
-export type NewCreatedJob = Omit<IJob, 'status' | 'proposals' | 'isDeleted'>
+export type NewCreatedJob = Omit<IJob, 'status' | 'proposals' | 'isDeleted' | 'currentStatus'>
 
 export interface IJobWithTokens {
   user: IJobDoc

@@ -17,6 +17,7 @@ router
   .route('/:userId')
   .get(auth(), validate(jobValidation.getJob), jobController.getJob)
   .patch(auth(), validate(jobValidation.updateJob), jobController.updateJob)
+  .patch(auth(), validate(jobValidation.updateJobStatus), jobController.updateJobStatus)
   .delete(auth(), validate(jobValidation.deleteJob), jobController.deleteJob)
   .delete(auth('manageUsers'), validate(jobValidation.deleteJob), jobController.forcedDeleteJob)
 

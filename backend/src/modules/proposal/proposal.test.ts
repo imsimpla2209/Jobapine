@@ -10,7 +10,6 @@ import * as tokenService from '../token/token.service'
 import app from '../../app'
 import setupTestDB from '../../common/jest/setupTestDB'
 import Proposal from './proposal.model'
-import { NewCreatedProposal } from './proposal.interfaces'
 
 setupTestDB()
 

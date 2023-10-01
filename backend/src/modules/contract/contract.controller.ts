@@ -13,7 +13,7 @@ export const createContract = catchAsync(async (req: Request, res: Response) => 
 })
 
 export const getContracts = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['name', 'role'])
+  const filter = pick(req.query, ['job', 'proposal', 'client', 'freelancer', 'currentStatus'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await contractService.queryContracts(filter, options)
   res.send(result)
@@ -34,6 +34,17 @@ export const updateContract = catchAsync(async (req: Request, res: Response) => 
     const contract = await contractService.updateContractById(
       new mongoose.Types.ObjectId(req.params.contractId),
       req.body
+    )
+    res.send(contract)
+  }
+})
+
+export const updateContractStatus = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.contractId === 'string') {
+    const contract = await contractService.changeStatusContractById(
+      new mongoose.Types.ObjectId(req.params.contractId),
+      req.body?.status,
+      req.body?.comment
     )
     res.send(contract)
   }

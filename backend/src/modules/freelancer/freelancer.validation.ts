@@ -79,6 +79,7 @@ export const updateFreelancer = {
       preferJobType: Joi.array().items(Joi.string()),
       currentLocations: Joi.array().items(Joi.string()),
       preferencesURL: Joi.array().items(Joi.string()),
+      available: Joi.boolean(),
     })
     .min(1),
 }

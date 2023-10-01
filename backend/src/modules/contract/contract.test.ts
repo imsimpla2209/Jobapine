@@ -10,7 +10,6 @@ import * as tokenService from '../token/token.service'
 import app from '../../app'
 import setupTestDB from '../../common/jest/setupTestDB'
 import Contract from './contract.model'
-import { NewCreatedContract } from './contract.interfaces'
 
 setupTestDB()
 

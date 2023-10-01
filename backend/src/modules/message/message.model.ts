@@ -1,4 +1,4 @@
-import { EJobStatus } from 'common/enums'
+import { EStatus } from 'common/enums'
 import mongoose from 'mongoose'
 import paginate from '../../providers/paginate/paginate'
 import toJSON from '../../common/toJSON/toJSON'
@@ -31,8 +31,8 @@ const messageEmployeeSchema = new mongoose.Schema<IMessageEmployee, IMessageEmpl
     },
     status: {
       type: String,
-      enum: EJobStatus,
-      default: EJobStatus.PENDING,
+      enum: EStatus,
+      default: EStatus.PENDING,
     },
   },
   {

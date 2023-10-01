@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-computed-key */
-import { EComplexity, EPaymenType } from 'common/enums'
+import { EComplexity, EJobStatus, EPaymenType } from 'common/enums'
 import Joi from 'joi'
 import { objectId } from '../../providers/validate/custom.validation'
 import { NewCreatedJob } from './job.interfaces'
@@ -61,7 +61,7 @@ export const advancedGetJobs = {
     ['scope.complexity']: Joi.array().items(Joi.number().valid(...Object.values(EComplexity))),
     ['scope.duration']: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
     ['payment.amount']: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
-    nOProposals: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
+    proposals: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
     clientInfo: Joi.array().items(Joi.string()),
     clientHistory: Joi.string(),
     ['payment.type']: Joi.array().items(Joi.string().valid(...Object.values(EPaymenType))),
@@ -69,6 +69,7 @@ export const advancedGetJobs = {
     budget: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
     categories: Joi.array().items(Joi.string()),
     tags: Joi.array().items(Joi.string()),
+    currentStatus: Joi.array().items(Joi.string()),
   }),
   query: Joi.object().keys({
     sortBy: Joi.string(),
@@ -111,11 +112,18 @@ export const deleteJob = {
   }),
 }
 
-export const changeJobStatus = {
+export const updateJobStatus = {
   params: Joi.object().keys({
     id: Joi.string().custom(objectId),
-    status: Joi.string().valid(...Object.values(EPaymenType)),
   }),
+  body: Joi.object()
+    .keys({
+      status: Joi.string()
+        .valid(...Object.values(EJobStatus))
+        .required(),
+      comment: Joi.string(),
+    })
+    .min(1),
 }
 
 export const getRcmdJob = {

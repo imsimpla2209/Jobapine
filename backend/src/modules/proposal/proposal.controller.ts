@@ -8,12 +8,12 @@ import { IOptions } from '../../providers/paginate/paginate'
 import * as proposalService from './proposal.service'
 
 export const createProposal = catchAsync(async (req: Request, res: Response) => {
-  const proposal = await proposalService.createProposal(req.body)
+  const proposal = await proposalService.createProposal(req.user._id, req.body)
   res.status(httpStatus.CREATED).send(proposal)
 })
 
 export const getProposals = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['name', 'role'])
+  const filter = pick(req.query, ['job', '_id', 'status.status'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await proposalService.queryProposals(filter, options)
   res.send(result)
@@ -34,6 +34,16 @@ export const updateProposal = catchAsync(async (req: Request, res: Response) => 
     const proposal = await proposalService.updateProposalById(
       new mongoose.Types.ObjectId(req.params.proposalId),
       req.body
+    )
+    res.send(proposal)
+  }
+})
+
+export const updateProposalStatus = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.proposalId === 'string') {
+    const proposal = await proposalService.updateProposalStatusById(
+      new mongoose.Types.ObjectId(req.params.proposalId),
+      req.body?.status
     )
     res.send(proposal)
   }

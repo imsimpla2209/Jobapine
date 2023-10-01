@@ -1,6 +1,9 @@
 import { deleteContractByOptions } from '@modules/contract/contract.service'
 import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
+import { isJobOpened } from '@modules/job/job.service'
 import { Message } from '@modules/message'
+import { updateSickPointsById } from '@modules/user/user.service'
+import { EStatus } from 'common/enums'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
@@ -11,9 +14,18 @@ import Proposal from './proposal.model'
 /**
  * Register a proposal
  * @param {NewCreatedProposal} proposalBody
+ * @param {ObjectId} userId
  * @returns {Promise<IProposalDoc>}
  */
-export const createProposal = async (proposalBody: NewCreatedProposal): Promise<IProposalDoc> => {
+export const createProposal = async (
+  userId: mongoose.Types.ObjectId,
+  proposalBody: NewCreatedProposal
+): Promise<IProposalDoc> => {
+  const isJobOpen = isJobOpened(proposalBody.job, proposalBody as IProposalDoc)
+  if (!isJobOpen) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Either you or your proposal is incompatible with job!')
+  }
+  updateSickPointsById(userId, 5 + (proposalBody?.priority || 0) * 2, true)
   // if (await Proposal.isUserSigned(proposalBody.user)) {
   //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Proposal')
   // }
@@ -48,23 +60,8 @@ export const getProposalByJobId = async (job: mongoose.Types.ObjectId): Promise<
   Proposal.find({ job })
 
 /**
- * Get proposal by proposalname
- * @param {string} proposalname
- * @returns {Promise<IProposalDoc | null>}
- */
-export const getProposalByProposalname = async (proposalname: string): Promise<IProposalDoc | null> =>
-  Proposal.findOne({ proposalname })
-
-/**
- * Get proposal by email
- * @param {string} email
- * @returns {Promise<IProposalDoc | null>}
- */
-export const getProposalByEmail = async (email: string): Promise<IProposalDoc | null> => Proposal.findOne({ email })
-
-/**
  * Get proposal by option
- * @param {object} options
+ * @param {object} Options
  * @returns {Promise<IProposalDoc | null>}
  */
 export const getProposalByOptions = async (Options: any): Promise<IProposalDoc | null> => Proposal.findOne(Options)
@@ -83,6 +80,9 @@ export const updateProposalById = async (
   if (!proposal) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
   }
+  if (proposal.currentStatus === EStatus.ACCEPTED) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Proposal is already accepted')
+  }
   Object.assign(proposal, updateBody)
   await proposal.save()
   return proposal
@@ -95,10 +95,37 @@ export const updateProposalById = async (
  */
 export const deleteProposalById = async (proposalId: mongoose.Types.ObjectId): Promise<IProposalDoc | null> => {
   const proposal = await getProposalById(proposalId)
+  if (proposal.currentStatus === EStatus.ACCEPTED) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Proposal is already accepted, you only can cancel it')
+  }
   if (!proposal) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
   }
   await proposal.deleteOne()
+  return proposal
+}
+
+/**
+ * Delete proposal by id
+ * @param {mongoose.Types.ObjectId} proposalId
+ * @param {string} status
+ * @returns {Promise<IProposalDoc | null>}
+ */
+export const updateProposalStatusById = async (
+  proposalId: mongoose.Types.ObjectId,
+  status: string
+): Promise<IProposalDoc | null> => {
+  const proposal = await getProposalById(proposalId)
+  if (!proposal) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
+  }
+  Object.assign(proposal, {
+    status: {
+      status,
+      date: new Date(),
+    },
+  })
+  await proposal.save()
   return proposal
 }
 

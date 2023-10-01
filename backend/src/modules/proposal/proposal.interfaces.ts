@@ -2,7 +2,7 @@ import { IContractDoc } from '@modules/contract/contract.interfaces'
 import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
 import { IJobDoc } from '@modules/job/job.interfaces'
 import { IMessageDoc } from '@modules/message/message.interfaces'
-import { EJobStatus } from 'common/enums'
+import { EStatus } from 'common/enums'
 import mongoose, { Document, Model } from 'mongoose'
 import { QueryResult } from '../../providers/paginate/paginate'
 import { AccessAndRefreshTokens } from '../token/token.interfaces'
@@ -12,13 +12,15 @@ export interface IProposal {
   freelancer: IFreelancerDoc['_id']
   expectedAmount?: number
   description?: string
-  status?: EJobStatus
+  status?: [{ status: EStatus; date: Date }]
   clientComment?: string[]
   freelancerComment?: string[]
   attachments?: string[]
   contract?: IContractDoc['_id']
   messages?: IMessageDoc['_id'][]
   answers?: Record<number, string>
+  priority?: number
+  currentStatus?: string
 }
 
 export interface IProposalEmployee extends Document {

@@ -1,4 +1,4 @@
-import { EJobStatus, EPaymenType } from 'common/enums'
+import { EStatus, EPaymenType } from 'common/enums'
 import mongoose from 'mongoose'
 import paginate from '../../providers/paginate/paginate'
 import toJSON from '../../common/toJSON/toJSON'
@@ -6,6 +6,7 @@ import { IContractDoc, IContractEmployee, IContractEmployeeModel, IContractModel
 
 const contractSchema = new mongoose.Schema<IContractDoc, IContractModel>(
   {
+    job: { type: mongoose.Types.ObjectId, ref: 'Job' },
     proposal: { type: mongoose.Types.ObjectId, ref: 'Proposal' },
     freelancer: { type: mongoose.Types.ObjectId, ref: 'Freelancer' },
     client: { type: mongoose.Types.ObjectId, ref: 'Freelancer' },
@@ -13,11 +14,25 @@ const contractSchema = new mongoose.Schema<IContractDoc, IContractModel>(
       type: String,
       default: 'Nothing :))',
     },
-    status: {
-      type: String,
-      enum: EJobStatus,
-      default: EJobStatus.PENDING,
-    },
+    status: [
+      {
+        type: {
+          status: {
+            type: String,
+            enum: EStatus,
+            default: EStatus.PENDING,
+          },
+          date: {
+            type: Date,
+            default: new Date(),
+          },
+          comment: {
+            type: String,
+            default: '',
+          },
+        },
+      },
+    ],
     startDate: {
       type: Date,
       required: true,
@@ -38,6 +53,11 @@ const contractSchema = new mongoose.Schema<IContractDoc, IContractModel>(
     catalogs: [{ type: String, required: 'false', default: [] }],
     attachments: [{ type: String, required: 'false', default: [] }],
     paymentHistory: [{ type: mongoose.Types.ObjectId, ref: 'PaymentHistory', default: [] }],
+    currentStatus: {
+      type: String,
+      enum: EStatus,
+      default: EStatus.PENDING,
+    },
   },
   {
     timestamps: true,
@@ -54,8 +74,8 @@ const contractEmployeeSchema = new mongoose.Schema<IContractEmployee, IContractE
     },
     status: {
       type: String,
-      enum: EJobStatus,
-      default: EJobStatus.PENDING,
+      enum: EStatus,
+      default: EStatus.PENDING,
     },
   },
   {
@@ -75,11 +95,10 @@ contractSchema.plugin(paginate)
  */
 
 contractSchema.pre('save', async function (next) {
-  // const contract = this
-  // const user = await getUserById(contract.user)
-  // if (!user.isVerified) {
-  //   throw new Error(`User is not verified`)
-  // }
+  if (this.isModified('status')) {
+    const status = this.get('status').at(-1)?.status
+    this.set('currentStatus', status)
+  }
   next()
 })
 

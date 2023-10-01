@@ -5,8 +5,10 @@
 import queryGen from '@core/libs/queryGennerator'
 import { getClientById, getClientByOptions } from '@modules/client/client.service'
 import { getSimilarByFreelancerId, updateSimilarById } from '@modules/freelancer/freelancer.service'
+import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
 import { deleteProposalByOptions } from '@modules/proposal/proposal.service'
 import { Skill } from '@modules/skill'
+import { EJobStatus } from 'common/enums'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
@@ -61,14 +63,15 @@ export const queryAdvancedJobs = async (filter: Record<string, any>, options: IO
   filter['reqSkills'] && (filter['reqSkills'] = { $in: filter['reqSkills'] })
   filter['categories'] && (filter['categories'] = { $in: filter['categories'] })
   filter['tags'] && (filter['tags'] = { $in: filter['tags'] })
+  filter['currentStatus'] && (filter['currentStatus'] = { $in: filter['currentStatus'] })
 
   filter['scope.duration'] &&
     (filter['scope.duration'] = queryGen.numRanges(filter['scope.duration']?.from, filter['scope.duration']?.to))
   filter['budget'] && (filter['budget'] = queryGen.numRanges(filter['budget']?.from, filter['budget']?.to))
   filter['payment.amount'] &&
     (filter['payment.amount'] = queryGen.numRanges(filter['payment.amount']?.from, filter['payment.amount']?.to))
-  filter['nOProposals'] &&
-    (filter['nOProposals'] = queryGen.numRanges(filter['nOProposals']?.from, filter['nOProposals']?.to))
+  filter['proposals'] &&
+    (filter['proposals'] = { $size: queryGen.numRanges(filter['nOProposals']?.from, filter['nOProposals']?.to) })
   filter['preferences.nOEmployee'] &&
     (filter['preferences.nOEmployee'] = queryGen.numRanges(
       filter['preferences.nOEmployee']?.from,
@@ -76,7 +79,7 @@ export const queryAdvancedJobs = async (filter: Record<string, any>, options: IO
     ))
 
   const queryFilter = {
-    $and: [filter, { isDeleted: { $ne: true } }],
+    $and: [filter, { isDeleted: { $ne: true } }, { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } }],
   }
 
   options.populate = 'client,categories,reqSkills.skill'
@@ -112,6 +115,7 @@ export const searchJobsByText = async (searchText: string, options: IOptions): P
         ],
       },
       { isDeleted: { $ne: true } },
+      { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
     ],
   }
 
@@ -151,6 +155,7 @@ export const getRcmdJob = async (freelancerId: mongoose.Types.ObjectId, options:
         ],
       },
       { isDeleted: { $ne: true } },
+      { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
     ],
   }
 
@@ -252,10 +257,44 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
  * @param {string} status
  * @returns {Promise<IJobDoc | null>}
  */
-export const changeStatusJobById = async (jobId: mongoose.Types.ObjectId, status: string): Promise<IJobDoc | null> => {
-  const job = await Job.findByIdAndUpdate(jobId, { status })
+export const changeStatusJobById = async (
+  jobId: mongoose.Types.ObjectId,
+  status: string,
+  comment: string
+): Promise<IJobDoc | null> => {
+  const job = await Job.findByIdAndUpdate(jobId, {
+    status: {
+      status,
+      date: new Date(),
+      comment: comment || '',
+    },
+  })
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
   return job
+}
+
+/**
+ * check is job opened by id
+ * @param {mongoose.Types.ObjectId} jobId
+ * @param {IProposalDoc} proposal
+ * @returns {Promise<boolean | null>}
+ */
+export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IProposalDoc): Promise<boolean | null> => {
+  const job = await Job.findById(jobId)
+  let check = true
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  }
+  if (job?.questions?.length !== Object.keys(proposal.answers).length) {
+    check = false
+  }
+  // eslint-disable-next-line no-unsafe-optional-chaining
+  if (job?.proposals?.length * job?.preferences?.nOEmployee >= 15 * job?.preferences?.nOEmployee) {
+    check = false
+  }
+  return (
+    !!(job?.status?.at(-1)?.status === EJobStatus.PENDING || job?.status?.at(-1)?.status === EJobStatus.OPEN) && check
+  )
 }

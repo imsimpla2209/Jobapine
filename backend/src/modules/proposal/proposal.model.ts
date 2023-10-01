@@ -1,4 +1,4 @@
-import { EJobStatus } from 'common/enums'
+import { EStatus } from 'common/enums'
 import mongoose from 'mongoose'
 import paginate from '../../providers/paginate/paginate'
 import toJSON from '../../common/toJSON/toJSON'
@@ -16,16 +16,31 @@ const proposalSchema = new mongoose.Schema<IProposalDoc, IProposalModel>(
       type: String,
       default: 'Nothing :))',
     },
-    status: {
-      type: String,
-      enum: EJobStatus,
-      default: EJobStatus.PENDING,
-    },
+    status: [
+      {
+        type: {
+          status: {
+            type: String,
+            enum: EStatus,
+            default: EStatus.PENDING,
+          },
+          date: {
+            type: Date,
+            default: new Date(),
+          },
+        },
+      },
+    ],
     clientComment: [{ type: String, required: 'false', default: [] }],
     freelancerComment: [{ type: String, required: 'false', default: [] }],
     attachments: [{ type: String, required: 'false', default: [] }],
     contract: { type: mongoose.Types.ObjectId, ref: 'Contract' },
     messages: [{ type: mongoose.Types.ObjectId, ref: 'Message', default: [] }],
+    currentStatus: {
+      type: String,
+      enum: EStatus,
+      default: EStatus.PENDING,
+    },
   },
   {
     timestamps: true,
@@ -42,8 +57,8 @@ const proposalEmployeeSchema = new mongoose.Schema<IProposalEmployee, IProposalE
     },
     status: {
       type: String,
-      enum: EJobStatus,
-      default: EJobStatus.PENDING,
+      enum: EStatus,
+      default: EStatus.PENDING,
     },
   },
   {
@@ -63,11 +78,10 @@ proposalSchema.plugin(paginate)
  */
 
 proposalSchema.pre('save', async function (next) {
-  // const proposal = this
-  // const user = await getUserById(proposal.user)
-  // if (!user.isVerified) {
-  //   throw new Error(`User is not verified`)
-  // }
+  if (this.isModified('status')) {
+    const status = this.get('status')?.at(-1)?.status
+    this.set('currentStatus', status)
+  }
   next()
 })
 

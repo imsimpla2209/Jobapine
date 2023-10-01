@@ -1,7 +1,7 @@
 import { Card, List, Progress, Result, Space, Typography, message } from 'antd'
 import { Http } from 'next/api/http'
 import { BlueColorButton } from 'next/components/custom-style-elements/button'
-import RubikLoader from 'next/components/loader/rubik-loader'
+// import RubikLoader from 'next/components/loader/rubik-loader'
 import { useSocket } from 'next/socket.io'
 
 import { useEffect, useState } from 'react'
@@ -78,7 +78,7 @@ export default function BackupDataManager() {
         </BlueColorButton>
       )}
 
-      {loadingRestore && (
+      {/* {loadingRestore && (
         <>
           <RubikLoader />
           <Text>Restoring version history...</Text>
@@ -91,7 +91,7 @@ export default function BackupDataManager() {
           <Text>In progress...</Text>
           <Progress percent={percents} strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />
         </>
-      )}
+      )} */}
       {!loadingRestore && !loading && !failToBackUp && countSuccess > 0 && (
         <Space direction="vertical" className="w-100 center" style={{ paddingTop: 50 }}>
           <Progress type="circle" percent={100} strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />

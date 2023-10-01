@@ -1,4 +1,4 @@
-import { EJobStatus, EPaymentMethod } from 'common/enums'
+import { EStatus, EPaymentMethod } from 'common/enums'
 import mongoose from 'mongoose'
 import paginate from '../../providers/paginate/paginate'
 import toJSON from '../../common/toJSON/toJSON'
@@ -13,8 +13,8 @@ const paymentSchema = new mongoose.Schema<IPaymentDoc, IPaymentModel>(
     },
     status: {
       type: String,
-      enum: EJobStatus,
-      default: EJobStatus.PENDING,
+      enum: EStatus,
+      default: EStatus.PENDING,
     },
     paymentMethod: {
       type: String,
