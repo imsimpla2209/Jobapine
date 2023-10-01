@@ -188,3 +188,25 @@ export const addPointForUser = async (userId: mongoose.Types.ObjectId, points: n
     throw new ApiError(httpStatus.BAD_REQUEST, `Something went wrong: ${error.message}`)
   }
 }
+
+/**
+ * Update user by id
+ * @param {mongoose.Types.ObjectId} userId
+ * @param {number} amount
+ * @param {boolean} isUsed
+ * @returns {Promise<IUserDoc | null>}
+ */
+export const updateSickPointsById = async (
+  userId: mongoose.Types.ObjectId,
+  amount: number,
+  isUsed: boolean
+): Promise<IUserDoc | null> => {
+  const user = await getUserById(userId)
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found')
+  }
+  const changedAmount = isUsed ? -amount : amount
+  Object.assign(user, { sickPoints: user.sickPoints + changedAmount })
+  await user.save()
+  return user
+}

@@ -1,19 +1,43 @@
+import { getClientById } from '@modules/client/client.service'
+import { getFreelancerById } from '@modules/freelancer/freelancer.service'
+import { getJobById } from '@modules/job/job.service'
+import { EJobStatus } from 'common/enums'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
-import Contract from './contract.model'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
-import { UpdateContractBody, IContractDoc, NewCreatedContract } from './contract.interfaces'
+import { IContractDoc, NewCreatedContract, UpdateContractBody } from './contract.interfaces'
+import Contract from './contract.model'
 
 /**
- * Register a contract
+ * create a contract
  * @param {NewCreatedContract} contractBody
  * @returns {Promise<IContractDoc>}
  */
 export const createContract = async (contractBody: NewCreatedContract): Promise<IContractDoc> => {
-  // if (await Contract.isUserSigned(contractBody.user)) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Contract')
+  const job = await getJobById(contractBody?.job)
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  }
+
+  const client = await getClientById(contractBody?.client)
+  const freelancer = await getFreelancerById(contractBody?.freelancer)
+  if (!client || !freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Client or Freelancer not found')
+  }
+
+  if (client?.user === freelancer?.user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Done self-make silly contract')
+  }
+
+  // TODO: payment feature
+  // if (client.balance < payment_amount) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Lack of balance')
   // }
+
+  if (!(job.currentStatus === EJobStatus.OPEN || job.currentStatus === EJobStatus.PENDING)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not open or pending')
+  }
   return Contract.create(contractBody)
 }
 
@@ -74,6 +98,30 @@ export const updateContractById = async (
   }
   Object.assign(contract, updateBody)
   await contract.save()
+  return contract
+}
+
+/**
+ * Change status contract by id
+ * @param {mongoose.Types.ObjectId} contractId
+ * @param {string} status
+ * @returns {Promise<IContractDoc | null>}
+ */
+export const changeStatusContractById = async (
+  contractId: mongoose.Types.ObjectId,
+  status: string,
+  comment: string
+): Promise<IContractDoc | null> => {
+  const contract = await Contract.findByIdAndUpdate(contractId, {
+    status: {
+      status,
+      date: new Date(),
+      comment: comment || '',
+    },
+  })
+  if (!contract) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Contract not found')
+  }
   return contract
 }
 

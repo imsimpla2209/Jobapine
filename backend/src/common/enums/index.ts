@@ -1,4 +1,4 @@
-export enum EJobStatus {
+export enum EStatus {
   PENDING = 'pending',
   INPROGRESS = 'inProgress',
   COMPLETED = 'completed',
@@ -8,6 +8,15 @@ export enum EJobStatus {
   CANCELLED = 'cancelled',
   PAID = 'paid',
   LATE = 'late',
+}
+
+export enum EJobStatus {
+  PENDING = 'pending',
+  INPROGRESS = 'inProgress',
+  COMPLETED = 'completed',
+  CLOSED = 'closed',
+  CANCELLED = 'cancelled',
+  OPEN = 'open',
 }
 
 export enum ELevel {
@@ -25,6 +34,13 @@ export enum EComplexity {
   MEDIUM = 1,
   HARD = 2,
   HELL = 3,
+}
+
+export enum EPriority {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  GOAT = 3,
 }
 
 export enum EPaymenType {

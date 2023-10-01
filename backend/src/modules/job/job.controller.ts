@@ -31,9 +31,10 @@ export const getAdvancedJobs = catchAsync(async (req: Request, res: Response) =>
     'payment.amount',
     'description',
     'reqSkills',
-    'nOProposals',
+    'proposals',
     'categories',
     'tags',
+    'currentStatus',
   ])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await jobService.queryAdvancedJobs(filter, options)
@@ -66,6 +67,17 @@ export const getJob = catchAsync(async (req: Request, res: Response) => {
 export const updateJob = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.jobId === 'string') {
     const job = await jobService.updateJobById(new mongoose.Types.ObjectId(req.params.jobId), req.body)
+    res.send(job)
+  }
+})
+
+export const updateJobStatus = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.jobId === 'string') {
+    const job = await jobService.changeStatusJobById(
+      new mongoose.Types.ObjectId(req.params.jobId),
+      req.body?.status,
+      req.body?.comment
+    )
     res.send(job)
   }
 })

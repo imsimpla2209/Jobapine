@@ -1,8 +1,8 @@
+import { ILevelSkill } from '@modules/skill/skill.interfaces'
 import { EComplexity, EJobStatus, ELevel, EPaymenType } from 'common/enums'
 import mongoose from 'mongoose'
-import { ILevelSkill } from '@modules/skill/skill.interfaces'
-import paginate from '../../providers/paginate/paginate'
 import toJSON from '../../common/toJSON/toJSON'
+import paginate from '../../providers/paginate/paginate'
 import {
   IJobCategory,
   IJobCategoryModel,
@@ -48,11 +48,25 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
         type: EPaymenType.PERHOURS,
       },
     },
-    status: {
-      type: String,
-      enum: EJobStatus,
-      default: EJobStatus.PENDING,
-    },
+    status: [
+      {
+        type: {
+          status: {
+            type: String,
+            enum: EJobStatus,
+            default: EJobStatus.PENDING,
+          },
+          date: {
+            type: Date,
+            default: new Date(),
+          },
+          comment: {
+            type: String,
+            default: '',
+          },
+        },
+      },
+    ],
     reqSkills: [
       {
         type: {
@@ -85,6 +99,11 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
       },
     },
     isDeleted: { type: Boolean, default: false, private: true },
+    currentStatus: {
+      type: String,
+      enum: EJobStatus,
+      default: EJobStatus.PENDING,
+    },
   },
   {
     timestamps: true,
@@ -112,10 +131,6 @@ jobSchema.plugin(toJSON)
 jobSchema.plugin(paginate)
 
 jobSchema.index({ title: 'text' })
-
-jobSchema.virtual('nOProposals').get(function () {
-  return this.proposals.length
-})
 
 // add plugin that converts mongoose to json
 jobTagSchema.plugin(toJSON)
@@ -152,13 +167,12 @@ jobCategorySchema.static('isNameTaken', async function (name: string): Promise<b
  * @returns {Promise<boolean>}
  */
 
-jobSchema.pre('save', async function (next) {
-  // const job = this
-  // const user = await getUserById(job.user)
-  // if (!user.isVerified) {
-  //   throw new Error(`User is not verified`)
-  // }
-  next()
+jobSchema.pre('save', function (done) {
+  if (this.isModified('status')) {
+    const status = this.get('status').at(-1)?.status
+    this.set('currentStatus', status)
+  }
+  done()
 })
 
 const Job = mongoose.model<IJobDoc, IJobModel>('Job', jobSchema)

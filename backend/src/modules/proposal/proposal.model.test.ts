@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker'
-import { NewCreatedProposal } from './proposal.interfaces'
 import Proposal from './proposal.model'
 
 describe('Proposal model', () => {

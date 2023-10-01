@@ -2,17 +2,25 @@ import { IClientDoc } from '@modules/client/client.interfaces'
 import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
 import { IJobDoc } from '@modules/job/job.interfaces'
 import { IPayment } from '@modules/payment/payment.interfaces'
-import { EJobStatus } from 'common/enums'
+import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
+import { EStatus } from 'common/enums'
 import mongoose, { Document, Model } from 'mongoose'
 import { QueryResult } from '../../providers/paginate/paginate'
 import { AccessAndRefreshTokens } from '../token/token.interfaces'
 
 export interface IContract {
-  proposal: IJobDoc['_id']
+  proposal: IProposalDoc['_id']
+  job: IJobDoc['_id']
   freelancer: IFreelancerDoc['_id']
   client: IClientDoc['_id']
   overview?: string
-  status?: EJobStatus
+  status?: [
+    {
+      status: EStatus
+      date: Date
+      comment: string
+    }
+  ]
   startDate?: Date
   endDate?: Date
   paymentType?: string
@@ -20,6 +28,7 @@ export interface IContract {
   catalogs?: string[]
   attachments?: string[]
   paymentHistory?: IPayment[]
+  currentStatus?: string
 }
 
 export interface IContractEmployee extends Document {
@@ -42,7 +51,7 @@ export type UpdateContractBody = Omit<IContract, 'freelancer' | 'job'>
 
 export type NewCreatedContract = Omit<
   IContract,
-  'status' | 'messages' | 'contract' | 'freelancerComment' | 'clientComment' | 'paymentHistory'
+  'status' | 'messages' | 'contract' | 'freelancerComment' | 'clientComment' | 'paymentHistory' | 'currentStatus'
 >
 
 export interface IContractWithTokens {
