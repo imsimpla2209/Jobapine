@@ -152,16 +152,12 @@ export default function WorkerList() {
           <Row gutter={[16, 16]}>
             {dataCard.map(item => (
               <Col className="gutter-row" xs={12} sm={12} md={6} lg={6} xl={6}>
-                <Card
-                  bodyStyle={{ padding: 16 }}
-                  cover={
+                <Card bodyStyle={{ padding: 16 }}>
+                  <Space direction="vertical" size={16} className="w-100">
                     <Image
                       src={item?.avatar}
                       fallback="https://i2-prod.manchestereveningnews.co.uk/sport/football/article27536776.ece/ALTERNATES/s1200c/1_GettyImages-1615425379.jpg"
                     />
-                  }
-                >
-                  <Space direction="vertical" size={16} className="w-100">
                     <div className="center w-100">
                       <Tag color="#f50" style={{ fontSize: 20, padding: 8 }}>
                         {item?.name}
