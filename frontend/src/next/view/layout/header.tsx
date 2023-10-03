@@ -1,5 +1,5 @@
 import { LogoutOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons'
-import { Avatar, Button, Dropdown, Layout, MenuProps, Row, Typography, message } from 'antd'
+import { Avatar, Button, Dropdown, Layout, MenuProps, Row, Space, Typography, message } from 'antd'
 import useRoleNavigate from 'next/libs/use-role-navigate'
 
 import { useNavigate } from 'react-router-dom'
@@ -17,12 +17,16 @@ function AppHeader() {
   const {
     state: { logout },
   } = useSubscription(userCredential)
+  const {
+    state: { _id },
+  } = useSubscription(userStore, ['_id'])
   const navigate = useRoleNavigate()
   const navigator = useNavigate()
   const windowWidth = useWindowSize()
   const {
     state: { avatar, username },
   } = useSubscription(userStore, ['avatar', 'username'])
+  const isLoggedIn = !!_id
 
   const userMenu: MenuProps['items'] = [
     {
@@ -92,7 +96,14 @@ function AppHeader() {
           </a>
           <AutoSearch />
         </>
-        {windowWidth < 1300 ? (
+        {!isLoggedIn ? (
+          <Space>
+            <Button type="primary" onClick={() => navigate('/login')}>
+              Sign in
+            </Button>
+            <Button onClick={() => navigate('/sign-up')}>Sign up</Button>
+          </Space>
+        ) : windowWidth < 1300 ? (
           <Dropdown menu={{ items: userMenu }} trigger={['click']} overlayStyle={{ width: 200 }} placement="bottom">
             <Button icon={<MenuOutlined />} type="text" />
           </Dropdown>

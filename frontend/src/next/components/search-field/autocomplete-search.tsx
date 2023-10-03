@@ -83,7 +83,7 @@ function AutoSearch() {
 
   return (
     <AutoComplete
-      dropdownMatchSelectWidth={278}
+      popupMatchSelectWidth={278}
       style={{ width: '60%', height: 40, marginTop: '10px', borderRadius: '5px' }}
       options={options}
       onSelect={onSelect}

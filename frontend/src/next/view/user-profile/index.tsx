@@ -22,9 +22,10 @@ function UserProfile() {
   const { state } = useSubscription(userStore)
   const [activeTabKey, setActiveTabKey] = useState('edit')
   return (
-    <Row gutter={{ xs: 8, sm: 16, md: 24 }} style={{ padding: 20 }}>
-      <Col className="gutter-row" xs={24} sm={24} md={6} xxl={6} style={{ marginBottom: 16 }}>
+    <Row gutter={{ xs: 8, sm: 16, md: 24 }} style={{ padding: 20, height: 'calc(100vh - 60px)' }}>
+      <Col className="gutter-row" xs={24} sm={24} md={6} xxl={6}>
         <Card
+          style={{ height: '100%' }}
           bodyStyle={{ padding: 16 }}
           cover={
             <Image
@@ -64,7 +65,13 @@ function UserProfile() {
         </Card>
       </Col>
       <Col className="gutter-row" xs={24} sm={24} md={18} xxl={18}>
-        <Card tabList={tabList} activeTabKey={activeTabKey} onTabChange={setActiveTabKey}>
+        <Card
+          style={{ height: '100%' }}
+          bodyStyle={{ padding: 16 }}
+          tabList={tabList}
+          activeTabKey={activeTabKey}
+          onTabChange={setActiveTabKey}
+        >
           {activeTabKey === 'edit' ? <EditProfileForm /> : <ListIdeas userId={state._id} />}
         </Card>
       </Col>

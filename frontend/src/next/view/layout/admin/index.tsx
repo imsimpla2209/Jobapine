@@ -48,10 +48,12 @@ const LayoutAdmin = ({ children }) => {
       ? {
           width: '100%',
           background: 'none',
+          overflow: 'auto',
         }
       : {
           maxWidth: 'none',
           width: '100%',
+          overflow: 'auto',
         }
 
   return (
