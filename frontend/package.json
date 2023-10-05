@@ -14,6 +14,7 @@
     "@types/node": "^16.18.12",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
+    "@vitejs/plugin-react": "^4.1.0",
     "antd": "^5.1.7",
     "axios": "^1.3.3",
     "date-fns": "^2.29.3",
@@ -35,11 +36,13 @@
     "socket.io-client": "^4.6.1",
     "styled-components": "^5.3.6",
     "typescript": "^4.9.5",
+    "vite": "^4.4.10",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": " react-scripts start",
     "build": "react-scripts build",
+    "build-start": "vite build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
