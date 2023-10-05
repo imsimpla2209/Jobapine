@@ -1,8 +1,8 @@
 import { MenuOutlined } from '@ant-design/icons'
-import { Button, Dropdown, Layout } from 'antd'
+import { Button, Dropdown } from 'antd'
+import useRoleNavigate from 'next/libs/use-role-navigate'
 import useWindowSize from 'next/utils/useWindowSize'
 import SiderMenu from './sider-menu'
-import useRoleNavigate from 'next/libs/use-role-navigate'
 
 function AppSidebar({ items }) {
   const windowWidth = useWindowSize()

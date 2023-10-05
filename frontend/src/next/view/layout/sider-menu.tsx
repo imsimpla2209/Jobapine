@@ -15,6 +15,7 @@ export default function SiderMenu({ menuItems }) {
         break
       default:
         navigate(`/${val.key}`)
+        break
     }
   }
 
