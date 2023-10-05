@@ -28,8 +28,8 @@ export default function SiderMenu({ menuItems }) {
           position: 'sticky',
           zIndex: 1,
           alignSelf: 'start',
-          height: '97vh',
-          top: '50px',
+          overflow: 'hidden',
+          height: 'calc(100vh - 60px)',
           boxShadow: 'rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px',
           paddingTop: '12px',
         }}

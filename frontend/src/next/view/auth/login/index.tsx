@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { Http, LOCALSTORAGE } from '../../../api/http'
 import { imgDir } from '../../../constants/img-dir'
 import { userCredential, userStore } from '../user-store'
-const { Title } = Typography
+const { Title, Link } = Typography
 
 function Login() {
   const {
@@ -88,10 +88,14 @@ function Login() {
               <Input.Password />
             </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Login
-              </Button>
+            <Form.Item wrapperCol={{ offset: 10 }}>
+              <Space size={'middle'}>
+                <Link onClick={() => navigate('/sign-up')}>Sign up </Link>
+
+                <Button type="primary" htmlType="submit" loading={loading}>
+                  Login
+                </Button>
+              </Space>
             </Form.Item>
           </Form>
         </Space>

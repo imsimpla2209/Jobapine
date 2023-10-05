@@ -47,12 +47,14 @@ const LayoutAdmin = ({ children }) => {
     windowWidth > 1000
       ? {
           width: '100%',
+          height: 'calc(100vh - 60px)',
           background: 'none',
           overflow: 'auto',
         }
       : {
           maxWidth: 'none',
           width: '100%',
+          height: 'calc(100vh - 60px)',
           overflow: 'auto',
         }
 

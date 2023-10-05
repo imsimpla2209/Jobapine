@@ -24,6 +24,7 @@ import UserProfile from './user-profile'
 import OtherProfile from './user-profile/otherProfile'
 import WorkerDetails from './worker/worker-details'
 import WorkerList from './worker/worker-list'
+import SignUp from './auth/sign-up'
 
 export default function App() {
   const navigate = useNavigate()
@@ -70,6 +71,7 @@ export default function App() {
   const routes = (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/sign-up" element={<SignUp />} />
       <Route path="/logout" />
       <Route
         path="/"
