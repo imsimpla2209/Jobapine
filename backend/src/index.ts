@@ -1,37 +1,51 @@
-import cookieParser from 'cookie-parser'
-import cors from 'cors'
-import express from 'express'
-import http from 'http'
-import { createSocketIO } from './utils/socket'
-import initiateMongoServer from './common/db'
-import { ReadConfig } from './config'
-import User from './models/User'
-import router from './routers/api'
+import mongoose from 'mongoose'
+import app from './app'
+import config from './config/config'
+import logger from './common/logger/logger'
+import { SocketIO, injectSocket } from './core/libs/SocketIO'
+import dbChecker from './core/libs/dbCheck.connect'
 
-async function main() {
-  const config = await ReadConfig()
-  await initiateMongoServer(config.database.db_url!)
+require('./core/databases/Mongo')
 
-  const app = express()
+const server = app.listen(config.port, () => {
+  logger.info(`Listening to port ${config.port}`)
+  logger.info(`Docs available at ${config.apiHost}/docs`)
+  dbChecker()
+})
 
-  app.use(express.json())
-  app.use(cookieParser())
-  app.disable('x-powered-by')
-  app.use(cors())
-  router(app)
-  console.log(`listen on ${config.server.port}`)
-  await User.seedAdmin() // clone code ve xoa het account trong mongo de tao tk admin
-  // khi tai khoan admin dc tao roi thi comment dong ben tren vao. tk: admin, mk: admin
+const io = new SocketIO(server)
+app.set('socketio', io)
 
-  let server = http.createServer(app)
+injectSocket(io)
 
-  createSocketIO(server)
-
-  server.listen(Number(config.server.port), '0.0.0.0', () => {
-    const err = arguments[0]
-    if (err) {
-      console.error(err)
-    }
-  })
+const exitHandler = () => {
+  if (server) {
+    server.close(() => {
+      logger.info('Server closed')
+      process.exit(1)
+    })
+  } else {
+    process.exit(1)
+  }
 }
-main().catch(err => console.error(`Cannot init server!, log: `, err))
+
+const unexpectedErrorHandler = (error: string) => {
+  logger.error(error)
+  exitHandler()
+}
+
+process.on('uncaughtException', unexpectedErrorHandler)
+process.on('unhandledRejection', unexpectedErrorHandler)
+
+process.on('SIGINT', () => {
+  mongoose.connection.close()
+  logger.info('Mongoose disconnected on app termination')
+  process.exit(0)
+})
+
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received')
+  if (server) {
+    server.close()
+  }
+})
