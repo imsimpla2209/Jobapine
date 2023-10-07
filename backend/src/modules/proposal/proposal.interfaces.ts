@@ -44,7 +44,7 @@ export type UpdateProposalBody = Omit<IProposal, 'freelancer' | 'job'>
 
 export type NewCreatedProposal = Omit<
   IProposal,
-  'status' | 'messages' | 'contract' | 'freelancerComment' | 'clientComment'
+  'status' | 'messages' | 'contract' | 'freelancerComment' | 'clientComment' | 'currentStatus'
 >
 
 export interface IProposalWithTokens {

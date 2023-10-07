@@ -2691,6 +2691,11 @@ clone@^1.0.2:
   resolved "https://registry.npmmirror.com/clone/-/clone-1.0.4.tgz"
   integrity sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==
 
+clone@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.npmmirror.com/clone/-/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
+  integrity sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==
+
 cluster-key-slot@1.1.1:
   version "1.1.1"
   resolved "https://registry.npmmirror.com/cluster-key-slot/-/cluster-key-slot-1.1.1.tgz"
@@ -6210,12 +6215,7 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.npmmirror.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz"
   integrity sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==
 
-lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.7.0:
-  version "4.17.21"
-  resolved "https://registry.npmmirror.com/lodash/-/lodash-4.17.21.tgz"
-  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
-
-lodash@^4.17.21:
+lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.21, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.npmmirror.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -6549,6 +6549,11 @@ moment@2.x.x, moment@^2.29.4:
   version "2.29.4"
   resolved "https://registry.npmmirror.com/moment/-/moment-2.29.4.tgz"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
+
+mongo-object@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.npmmirror.com/mongo-object/-/mongo-object-3.0.1.tgz#e0d4a3b2348115175ed19bebd3f99a12bb387983"
+  integrity sha512-EbiwWHvKOF9xhIzuwaqknwPISdkHMipjMs6DiJFicupgBBLEhUs0OOro9MuPkFogB17DZlsV4KJhhxfqZ7ZRMQ==
 
 mongodb-connection-string-url@^2.6.0:
   version "2.6.0"
@@ -8167,6 +8172,14 @@ signal-exit@^3.0.0, signal-exit@^3.0.2, signal-exit@^3.0.3, signal-exit@^3.0.7:
   version "3.0.7"
   resolved "https://registry.npmmirror.com/signal-exit/-/signal-exit-3.0.7.tgz"
   integrity sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==
+
+simpl-schema@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.npmmirror.com/simpl-schema/-/simpl-schema-3.4.1.tgz#930006a150d1e19645c241e96da7fe076fe26583"
+  integrity sha512-ud8kcF5BduR7VkL9A+3I/BTk2hOl+BWEetr0kQVo9t60QMLYJFmbMF3PAdeHjqqRvynazCZncZvOMG/G0gWCtA==
+  dependencies:
+    clone "^2.1.2"
+    mongo-object "^3.0.1"
 
 simple-swizzle@^0.2.2:
   version "0.2.2"
