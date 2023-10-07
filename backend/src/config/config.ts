@@ -32,6 +32,11 @@ const envVarsSchema = Joi.object()
     AWS_S3_SECRET_KEY: Joi.string().required().description('S3 Secret Key'),
     S3_BUCKET_NAME: Joi.string().required().description('S3 Bucket name'),
     SIB_API_KEY: Joi.string().required().description('Sendinblue Secret Key'),
+    VNP_TMNCODE: Joi.string().required().description('VNP code'),
+    VNP_HASHSECRET: Joi.string().required().description('VNP secret key'),
+    VNP_URL: Joi.string().description('VNP URL'),
+    VNP_API: Joi.string().description('VNP API'),
+    VNP_RETURNURL: Joi.string().description('VNP return url'),
   })
   .unknown()
 
@@ -94,6 +99,13 @@ const config = {
     accessKey: envVars.AWS_S3_ACCESS_KEY,
     secretKey: envVars.AWS_S3_SECRET_KEY,
     s3BucketName: envVars.S3_BUCKET_NAME,
+  },
+  VN_pay: {
+    vnp_TmnCode: envVars.VNP_TMNCODE,
+    vnp_HashSecret: envVars.VNP_HASH_SECRET,
+    vnp_Url: envVars.VNP_URL,
+    vnp_Api: envVars.VNP_API,
+    vnp_ReturnUrl: envVars.VNP_RETURNURL,
   },
 }
 

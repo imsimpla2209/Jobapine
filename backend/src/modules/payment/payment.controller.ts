@@ -42,3 +42,10 @@ export const deletePayment = catchAsync(async (req: Request, res: Response) => {
     res.status(httpStatus.NO_CONTENT).send()
   }
 })
+
+export const initialPayment = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.paymentId === 'string') {
+    await paymentService.deletePaymentById(new mongoose.Types.ObjectId(req.params.paymentId))
+    res.status(httpStatus.NO_CONTENT).send()
+  }
+})
