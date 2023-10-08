@@ -91,7 +91,7 @@ export const deleteFreelancer = {
 }
 
 export const getRcmdFreelancers = {
-  params: Joi.object().keys({
+  body: Joi.object().keys({
     jobId: Joi.string().custom(objectId),
   }),
   query: Joi.object().keys({

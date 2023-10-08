@@ -102,6 +102,7 @@ export const updateJob = {
       questions: Joi.array().items(Joi.string()),
       preferences: jobPreferencesBody,
       budget: Joi.number().positive(),
+      tags: Joi.array().items(Joi.string()),
     })
     .min(1),
 }

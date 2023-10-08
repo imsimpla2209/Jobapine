@@ -8,17 +8,17 @@ const router: Router = express.Router()
 router
   .route('/')
   .post(validate(jobValidation.createJob), jobController.createJob)
-  .post(validate(jobValidation.advancedGetJobs), jobController.getAdvancedJobs)
   .get(validate(jobValidation.getJobs), jobController.getJobs)
-  .get(validate(jobValidation.searchJob), jobController.searchJobs)
-  .get(validate(jobValidation.getRcmdJob), jobController.getRcmdJobs)
+router.route('/filter').post(validate(jobValidation.advancedGetJobs), jobController.getAdvancedJobs)
+router.route('/search').get(validate(jobValidation.searchJob), jobController.searchJobs)
+router.route('/rcmd').get(validate(jobValidation.getRcmdJob), jobController.getRcmdJobs)
 
 router
-  .route('/:userId')
+  .route('/:id')
   .get(auth(), validate(jobValidation.getJob), jobController.getJob)
   .patch(auth(), validate(jobValidation.updateJob), jobController.updateJob)
-  .patch(auth(), validate(jobValidation.updateJobStatus), jobController.updateJobStatus)
   .delete(auth(), validate(jobValidation.deleteJob), jobController.deleteJob)
-  .delete(auth('manageUsers'), validate(jobValidation.deleteJob), jobController.forcedDeleteJob)
+router.route('/status/:id').patch(auth(), validate(jobValidation.updateJobStatus), jobController.updateJobStatus)
+router.route('/admin/:id').delete(auth('manageUsers'), validate(jobValidation.deleteJob), jobController.forcedDeleteJob)
 
 export default router
