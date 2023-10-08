@@ -11,11 +11,13 @@ router
   .get(validate(clientValidation.getClients), clientController.getClients)
 
 router
-  .route('/:userId')
+  .route('/:id')
   .get(auth(), validate(clientValidation.getClient), clientController.getClient)
   .patch(auth(), validate(clientValidation.updateClient), clientController.updateClient)
-  .patch(auth(), validate(clientValidation.reviewClient), clientController.reviewClient)
   .delete(auth(), validate(clientValidation.deleteClient), clientController.deleteClient)
+router.route('/review/:id').patch(auth(), validate(clientValidation.reviewClient), clientController.reviewClient)
+router
+  .route('/admin/:id')
   .delete(auth('manageUsers'), validate(clientValidation.deleteClient), clientController.forcedDeleteClient)
 
 export default router
