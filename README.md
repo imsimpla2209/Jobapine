@@ -1,9 +1,8 @@
 # 🚀  JobSicker
 
 # 420 Dev. You Know What We Doin'
-![420](https://cdn0.iconfinder.com/data/icons/marijuana-eco-vol-2/512/Sativa-512.png)
 
-Welcome to the Dropamine repository! This project is a web application inspired by Upwork, developed using Nextjs, React, Expressjs. The project aims to complete our final project.
+Welcome to the Jobsicker repository! This project is a web application inspired by Upwork, developed using Nextjs, React, Expressjs. The project aims to complete our final project.
 
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
