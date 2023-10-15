@@ -1,4 +1,3 @@
-import { getUserById } from '@modules/user/user.service'
 import { IReview } from 'common/interfaces/subInterfaces'
 import mongoose from 'mongoose'
 import toJSON from '../../common/toJSON/toJSON'
@@ -24,6 +23,8 @@ const clientSchema = new mongoose.Schema<IClientDoc, IClientModel>(
     preferJobType: [{ type: mongoose.Types.ObjectId, ref: 'JobCategory', default: [] }],
     preferLocations: [{ type: String, required: 'false', default: [] }],
     preferencesURL: [{ type: String, required: 'false', default: [] }],
+    paymentVerified: { type: Boolean, default: false },
+    spent: { type: Number, default: 0 },
   },
   {
     timestamps: true,
@@ -43,7 +44,7 @@ clientSchema.index({ name: 'text' })
  * @returns {Promise<boolean>}
  */
 clientSchema.static('isUserSigned', async function (user_id: mongoose.Types.ObjectId): Promise<boolean> {
-  const user = await getUserById(user_id)
+  const user = await this.findOne({ user: user_id })
   return !!user
 })
 

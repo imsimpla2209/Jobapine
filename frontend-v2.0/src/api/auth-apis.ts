@@ -1,3 +1,4 @@
+import { IUser } from "src/types/user";
 import { instance } from "./http";
 
 export const loginGoogle = () => {
@@ -8,30 +9,50 @@ export const loginFacebook = () => {
   return instance.get('auth/facebook');
 }
 
-export const login = (data: { username: string; password: string} ) => {
+export const getMe = () => {
+  return instance.get(`auth/me`);
+}
+
+export const postLogin = (data: { username: string; password: string }) => {
   return instance.post('auth/login', data);
 }
 
-export const register = (data: { username: string; password: string} ) => {
+export const register = (data: Omit<
+  IUser,
+  | 'role'
+  | 'isEmailVerified'
+  | 'provider'
+  | 'oAuth'
+  | 'paymentInfo'
+  | 'isVerified'
+  | 'isActive'
+  | 'balance'
+  | 'refreshToken'
+  | 'sickPoints'
+>) => {
   return instance.post('auth/register', data);
 }
 
-export const logout = (data: { refreshToken: string } ) => {
-  return instance.post('auth/logout', data);
+export const logout = () => {
+  return instance.post('auth/logout');
 }
 
-export const refreshToken = (data: { refreshToken: string } ) => {
-  return instance.post('auth/refresh-tokens', data);
+export const refreshToken = () => {
+  return instance.post('auth/refresh-tokens');
 }
 
-export const forgotPassword = (data: { email: string } ) => {
+export const forgotPassword = (data: { email: string }) => {
   return instance.post('auth/forgot-password', data);
 }
 
-export const resetPassword = (data: { password: string }, token: string ) => {
+export const resetPassword = (data: { password: string }, token: string) => {
   return instance.post(`auth/forgot-password?token=${token}`, data);
 }
 
-export const verifyEmail = (token: string ) => {
+export const sendVerifyEmail = () => {
+  return instance.post(`auth/send-verification-email`);
+}
+
+export const verifyEmail = (token: string) => {
   return instance.post(`auth/verify-email?token=${token}`);
 }

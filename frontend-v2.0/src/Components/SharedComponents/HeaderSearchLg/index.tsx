@@ -67,7 +67,7 @@ export default function HeaderSearchLg() {
           className="form-control ms-1 ps-5 py-1 border-0 text-white search-input-cnn place-h-cn"
           type="search"
           onChange={handle}
-          value={'itemSearchList'}
+          value={''}
           style={{ color: 'white' }}
           placeholder={t("Search")}
           aria-label="Search"

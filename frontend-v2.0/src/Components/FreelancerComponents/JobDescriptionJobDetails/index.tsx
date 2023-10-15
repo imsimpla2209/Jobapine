@@ -1,22 +1,33 @@
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
+import { Rate } from "antd";
 import { useTranslation } from "react-i18next";
-import JobProposalsNumber from './../SectionCenterFreelancerHome/JobProposalsNumber';
+import { locationStore } from "src/Store/commom.store";
+import { useSubscription } from "src/libs/global-state-hook";
+import { EComplexityGet } from "src/utils/enum";
+import { currencyFormatter, pickName } from "src/utils/helperFuncs";
 
 
 export default function JobDescriptionJobDetails({ job }) {
   const { t, i18n } = useTranslation(['main']);
   const lang = i18n.language;
+  const locations = useSubscription(locationStore).state
+
 
   return (
     <div className="col-lg-9 col-xs-12  mt-lg-0 d-flex flex-column">
       <div className="bg-white py-lg-4 px-4 border border-1 row py-sm-3 mt-lg-0 mt-sm-3 py-xs-5">
-        <h4>{job?.jobTitle}</h4>
+        <h4>{job?.title}</h4>
       </div>
       <div className="bg-white py-lg-4 px-4 border border-1 row py-sm-3">
-        <a href="#" className="advanced-search-link">
-          {lang === 'vi' ? job?.jobCategoryAr : job?.jobCategory}
-        </a>
+        <div>
+          {
+            job?.categories.map(c => (
+              <a href="#" key={c?.name} className="advanced-search-link">
+                {c?.name}
+              </a>
+            ))
+          }
+        </div>
 
         <p className="text-muted">
           {new Date(job?.postTime?.seconds * 1000).toLocaleString()}
@@ -25,11 +36,19 @@ export default function JobDescriptionJobDetails({ job }) {
           <i className="fas fa-street-view" style={{ color: "#14bff4" }}>
             {" "}
           </i>{" "}
-          {t("Worldwide")}
+          <div style={{ display: 'flex', }}>
+            {
+              job?.preferences?.locations.map(l => (
+                <div key={l}>
+                  {locations[Number(l)].name}
+                </div>
+              ))
+            }
+          </div>
         </span>
       </div>
       <div className="bg-white py-lg-4 px-4 border border-1 row py-xs-5">
-        <p>{job?.jobDescription}</p>
+        <p>{job?.description}</p>
       </div>
       <ul className="bg-white py-lg-4 px-4 border border-1 row list-group list-group-horizontal py-sm-3 py-xs-5">
         {/**/}
@@ -47,10 +66,10 @@ export default function JobDescriptionJobDetails({ job }) {
                 <path d="M13.688.311L8.666 0 0 8.665 5.334 14 14 5.332 13.688.311zm-2.354 1.528a.827.827 0 11-.002 1.654.827.827 0 01.002-1.654zM6.441 9.892c-.384-.016-.761-.168-1.128-.455l-.73.729-.579-.578.73-.729a3.612 3.612 0 01-.498-.872 3.186 3.186 0 01-.223-.934l.965-.331c.018.339.094.672.229 1.002.133.325.297.586.488.777.164.164.32.264.473.295s.287-.009.4-.123a.422.422 0 00.131-.315c-.004-.123-.035-.249-.094-.381s-.146-.308-.27-.52a6.892 6.892 0 01-.39-.793 1.501 1.501 0 01-.086-.7c.028-.248.157-.486.383-.714.275-.273.596-.408.971-.402.369.008.74.149 1.109.423l.682-.682.578.577-.676.677c.176.224.326.461.446.707.121.25.205.495.252.734l-.965.354a3.638 3.638 0 00-.314-.84 2.369 2.369 0 00-.419-.616.863.863 0 00-.404-.253.344.344 0 00-.342.1.438.438 0 00-.109.458c.049.18.162.427.332.739.172.31.299.582.383.807.086.226.113.465.084.714-.03.252-.161.493-.393.723-.295.297-.635.436-1.016.422z"></path>
               </svg>
             </span>{" "}
-            <strong>${job?.jobBudget}</strong>
+            <strong>{currencyFormatter(job?.budget)}</strong>
           </div>{" "}
           <small className="text-muted">
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{lang === 'vi' ? job?.jobPaymentTypeAr : job?.jobPaymentType}
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{job?.payment?.type}
           </small>
         </li>
         {/**/}
@@ -68,7 +87,7 @@ export default function JobDescriptionJobDetails({ job }) {
                 <circle cx="6.3" cy="5.3" r=".9" />
               </svg>
             </span>{" "}
-            <strong>{lang === 'vi' ? job?.jobExperienceLevelAr : job?.jobExperienceLevel}</strong>
+            <strong>{t(EComplexityGet[job?.complexity])}</strong>
           </div>{" "}
           <small className="text-muted">
             <span className="d-none d-lg-inline">
@@ -92,7 +111,7 @@ export default function JobDescriptionJobDetails({ job }) {
                 <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
               </svg>
             </span>{" "}
-            <strong>{lang === 'vi' ? job?.jobDurationAr : job?.jobDuration}</strong>
+            <strong>{job?.scope?.duration} days</strong>
           </div>
           <small className="text-muted">
             <span className="d-none d-lg-inline">
@@ -103,31 +122,34 @@ export default function JobDescriptionJobDetails({ job }) {
       </ul>
       <div className="bg-white py-lg-4 px-4 border border-1 row py-sm-3 py-xs-5">
         <span className="fw-bold">
-          {t("Project type")}: <span className="fw-normal">{lang === 'vi' ? job?.jobTypeAr : job?.jobType}</span>
+          {t("Project type")}: <span className="fw-normal">{job?.jobType}</span>
         </span>
       </div>
       <div className="bg-white py-lg-4 px-4 border border-1 row pb-sm-3 py-xs-5">
         <h5 className="fw-bold my-4">{t("Skills and experties")}</h5>
         <div className="col">
-          {job?.skills?.map((task, index) => (
-            <button
-              type="button"
-              className="btn text-light btn-sm rounded-pill skills mx-1"
-              style={{ backgroundColor: "#9b9d9f" }}
-              key={index}
-            >
-              {task}
-            </button>
+          {job?.reqSkills?.map((skill, index) => (
+            <div key={index}>
+              <button
+                key={index}
+                type="button"
+                className="btn text-light btn-sm rounded-pill skills mx-1 my-1"
+                style={{ backgroundColor: "#9b9d9f" }}
+              >
+                {pickName(skill?.skill, lang)}
+              </button>
+              <Rate defaultValue={skill?.level} character={({ index }: { index: number }) => index + 1} />
+            </div>
           ))}
         </div>
       </div>
       {
-        job?.jobImages?.length > 0 &&
+        job?.attachments?.length > 0 &&
         <div className="bg-white py-lg-4 px-4 border border-1 row pb-sm-3 py-xs-5">
           <h5 className="fw-bold my-4">Images</h5>
           <div className="col">
             {job?.jobImages?.map((img, index) => (
-              <p><a
+              <p key={index}><a
                 target="_blank"
                 href={img}
                 className=" mx-1"
@@ -143,7 +165,7 @@ export default function JobDescriptionJobDetails({ job }) {
         <h5 className="fw-bold my-4">{t("Activity on this job")}</h5>
         <div className="pb-5">
           <p className="my-lg-1">
-            Proposals: <JobProposalsNumber jobID={job?.jobID} />
+            Proposals: {job?.proposals?.length || 0}
           </p>
         </div>
       </div>

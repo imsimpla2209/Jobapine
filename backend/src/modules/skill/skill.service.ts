@@ -23,8 +23,8 @@ export const createSkill = async (skillBody: NewCreatedSkill): Promise<ISkillDoc
  * @param {Object} options - Query options
  * @returns {Promise<QueryResult>}
  */
-export const querySkills = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
-  const skills = await Skill.paginate(filter, options)
+export const querySkills = async (): Promise<ISkillDoc[]> => {
+  const skills = await Skill.find().lean()
   return skills
 }
 

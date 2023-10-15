@@ -1,6 +1,21 @@
 .job-title-link {
+  font-size: 20px;
   color: #222;
 }
 .job-title-link:hover {
-  color: #3c8224;
+  color: #6600cc;
+}
+.cats {
+  background: #8b78ad
+}
+.cats:hover {
+  background: #aa89d6;
+}
+.card-job {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.card-job:hover {
+  box-shadow: 0 3px 6px 2px #b693e6;
+  transform: scale(1.005,1.005);
 }

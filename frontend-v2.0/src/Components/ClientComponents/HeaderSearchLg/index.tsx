@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 /* eslint-disable array-callback-return */
 import { fakeFreelancerState } from 'Store/fake-state';
 import { useEffect } from 'react';

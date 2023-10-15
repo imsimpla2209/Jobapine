@@ -50,7 +50,7 @@ function EditProfileForm() {
 
     if (files) {
       try {
-        let fileNameList = await fetchAllToS3(files)
+        const fileNameList = await fetchAllToS3(files)
         userform['avatar'] = fileNameList[0]
       } catch (error) {
         console.error(error)
@@ -69,7 +69,7 @@ function EditProfileForm() {
           avatar: userform?.avatar ? userform?.avatar : state.avatar,
         })
       })
-      .catch(err => message.error('Failed to update profile!'))
+      .catch(() => message.error('Failed to update profile!'))
       .finally(() => setLoading(false))
   }
 

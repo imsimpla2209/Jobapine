@@ -1,7 +1,7 @@
-/* eslint-disable jsx-a11y/alt-text */
+
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useSelector } from "react-redux";
@@ -278,7 +278,7 @@ export default function SubmitProposal() {
                     >
                       <path
                         d="M72.5.5L16.8 17.6v61c0 5.6 1.4 11.2 4.2 16.1 6.1 10.8 20.3 27.5 51.5 34.8 31.2-7.2 45.4-24 51.5-34.8 2.8-4.9 4.2-10.5 4.2-16.1v-61L72.5.5z"
-                        fill="#6fda44"
+                        fill="#6600cc"
                       />
                       <path
                         d="M128.2 78.6v-61L72.5.5v129c31.2-7.2 45.4-24 51.5-34.8 2.8-4.9 4.2-10.4 4.2-16.1z"

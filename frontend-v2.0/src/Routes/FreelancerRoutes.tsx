@@ -1,5 +1,5 @@
 import Footer from "Components/BeforeLoginComponents/Footer";
-import Header from "Components/BeforeLoginComponents/Header";
+import Header from "Components/FreelancerComponents/Header";
 import ReviewProposalsCard from "Components/ClientComponents/ReviewProposalsCard";
 import { SearchContextProvider } from "Context/SearchContext";
 import AllContracts from "pages/ClientPages/AllContract";
@@ -27,15 +27,19 @@ import Notifications from "pages/Notifications";
 import PageNotFound from "pages/PageNotFound";
 import SubmitProposal from "pages/Submit Proposal";
 import React, { useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import JobDetails from "src/pages/AdminPages/hire/job-details";
+import JobList from "src/pages/AdminPages/hire/job-list";
 
 export default function FreelancerRoutes() {
   const [arr, setarr] = useState([]);
   const [itemSearchList, setitemSearchList] = useState("");
   const [searchList, setsearchList] = useState([]);
   const [switchJobs, setswitchJobs] = useState("")
-  // const { pathname } = useLocation();
-  // pathname === "/" && navigate("/find-work");
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  pathname === "/" && navigate("/find-work");
+
   return (
     <>
       <SearchContextProvider
@@ -51,6 +55,8 @@ export default function FreelancerRoutes() {
             <Route path="/Search" element={<Search />} />
             <Route path="/job/" element={<JobDetailsFreelancer />} />
             <Route path="/job/:id" element={<JobDetailsFreelancer />} />
+            <Route path="/fake-job" element={<JobDetails />} />
+            <Route path="/fake-job-list" element={<JobList />} />
             <Route path="/job/apply/:id" element={<SubmitProposal />} />
             <Route
               path="/job/review-proposal/:id"
@@ -84,7 +90,7 @@ export default function FreelancerRoutes() {
             <Route path="/messages" element={<Messages location={undefined} />} />
             <Route path="/contract" element={<Contract location={undefined} />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="**" element={<PageNotFound />} />
+            <Route path="*" element={<PageNotFound />} />
           </Routes>
         </div>
       </SearchContextProvider>

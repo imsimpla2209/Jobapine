@@ -1,31 +1,39 @@
-/* eslint-disable jsx-a11y/alt-text */
-import { fakeFreelancerState } from "Store/fake-state";
-import { useState } from "react";
+
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import apple from "../../../assets/svg/apple.svg";
+import { loginGoogle } from "src/api/auth-apis";
+import { ESignupStep } from "src/pages/BeforeLoginPages/SignUp";
 
-
-export default function SignupForm() {
+export default function SignupForm({ setEmail, setStep, errorMessage, setErrorMessage }: any) {
   const { t }=useTranslation(['main']);
 
-  const [emailError, setEmailErorr] = useState("");
-  const navigate = useNavigate();
-  let user = fakeFreelancerState;
-
   const getEmail = ({ target }) => {
-    user.email = target.value;
-    setEmailErorr(
-      target.value === "" ? t("Email required") : !target.value.match(/^([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)
-        ? t("Please inter Valid Email") : null
-    );
+    const checkErr = target.value === "" ? t("Email required") : !target.value.match(/^([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)
+    ? t("Please inter Valid Email") : null
+    setErrorMessage(checkErr);
+    if(checkErr) {
+      return
+    }
+    setEmail(target.value)
   }
 
   const signUpContinue = () => {
-    navigate('/sign-up/details');
+    setStep(ESignupStep.DETAIL)
   }
 
+  const onLoginGoogle = async () => {
+    const res = await loginGoogle()
+    console.log(res)
+  }
 
+  const onEnter = (e: any) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      if(!errorMessage) {
+        setStep(ESignupStep.DETAIL);
+      }
+    }
+  }
 
   return (
     <div className="col-sm-12 col-md-6 mx-auto">
@@ -35,12 +43,11 @@ export default function SignupForm() {
           {t("Get your free account")}
           </span>
         </h4>
-        <div className="google-btn  gap-2 mx-auto mt-3 rounded hitbtn-class">
+        <div className="google-btn  gap-2 mx-auto mt-3 rounded hitbtn-class" onClick={() => onLoginGoogle()}>
           <div className="google-icon-wrapper">
             <img
               className="google-icon"
               src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
-              
             />
           </div>
           <div className="text-justify ">
@@ -72,7 +79,7 @@ export default function SignupForm() {
         <div className="separator mt-3 col-8 mx-auto">or</div>
         <form>
           <div className="form-group col-8 mx-auto mt-3">
-            <span className='text-danger'>{emailError}</span>
+            <span className='text-danger'>{errorMessage}</span>
             <input
               type="email"
               name="email"
@@ -81,12 +88,13 @@ export default function SignupForm() {
               aria-describedby="emailHelp"
               placeholder={t("Work email address")}
               onInput={getEmail}
+              onKeyDown={onEnter}
             />
           </div>
           <div className="d-grid gap-2 col-8 mx-auto mt-3 hitbtn-class loginpcolor mb-4">
 
             <button
-              disabled={emailError != null}
+              disabled={errorMessage != null}
               className="btn bg-jobsicker"
               type="button"
               onClick={signUpContinue}

@@ -3,23 +3,26 @@ import { useParams } from "react-router";
 import JobDescriptionJobDetails from "../../../Components/FreelancerComponents/JobDescriptionJobDetails";
 import RightSidebarJobDetails from "../../../Components/FreelancerComponents/RightSidebarJobDetails";
 
-import { fakeFreelancerState } from "Store/fake-state";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { freelancerStore, userStore } from "src/Store/user.store";
+import { getJob } from "src/api/job-apis";
+import { useSubscription } from "src/libs/global-state-hook";
 import AcceptedAlert from "../../../Components/FreelancerComponents/AcceptedAlert";
 import Loader from "../../../Components/SharedComponents/Loader/Loader";
 
 export default function JobDetailsFreelancer() {
   const { id } = useParams();
   const [jobData, setJobData] = useState(null)
-  const user = fakeFreelancerState;
+  const freelancer = useSubscription(freelancerStore).state;
+  const user = useSubscription(userStore).state;
 
   useEffect(() => {
     // dispatch(freelancerDataAction());
-    // db.collection("job").doc(id).get().then(res => {
-    //   setJobData(res.data())
-    //   console.log("sasa");
-    // })
+    getJob(id).then(res => {
+      console.log("load job, ", id);
+      setJobData(res.data)
+    })
   }, [])
 
   const { t } = useTranslation(['main']);
@@ -31,7 +34,7 @@ export default function JobDetailsFreelancer() {
           <div className="d-lg-block">
             <div className="row my-lg-4 px-0 mx-0 d-lg-block d-none py-xs-5">
               {
-                user.accepted === false &&
+                user.isVerified === false &&
                 <AcceptedAlert widthh="100%" />
               }
               <h3 className="mt-4">{t("Job details")}</h3>

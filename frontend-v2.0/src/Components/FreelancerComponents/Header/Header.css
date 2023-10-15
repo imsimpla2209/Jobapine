@@ -1,10 +1,10 @@
 /* start navbar style */
 .nav-bg-cn {
-  background-color: #1d4354;
+  background: #ebccff;
 }
 
 .nav-active-link-cn {
-  color: #6fda44;
+  color: #5b14b8;
 }
 
 .search-input-cnn2 {
@@ -55,17 +55,17 @@
 
 .navbar-dark .navbar-nav .nav-link.active,
 .navbar-dark .navbar-nav .show > .nav-link {
-  color: #6fda44;
+  color: #ff0066;
 }
 
 .navbar-dark .navbar-nav .nav-link {
-  color: white;
-  font-size: 15px;
-  font-weight: 400;
+  color: #6600cc;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .navbar-dark .navbar-nav .nav-link:hover {
-  color: #6fda44;
+  color: #5b14b8;
 }
 
 #acc-id {
@@ -239,7 +239,7 @@ body[dir = "rtl"] .nav-item.hov-cn:hover .dropdown-menu.Reports-cn
 
   .nav-item .nav-link.active,
   #navbarNavDropdown li > a:hover {
-    color: #6fda44 !important;
+    color: #6600cc !important;
   }
 
   .dropdown-item:focus,

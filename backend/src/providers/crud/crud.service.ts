@@ -18,6 +18,13 @@ export default class CrudService<T extends Document, ICreate, IUpdate> {
    * @param {mongoose.Types.ObjectId} id
    * @returns {Promise<T | null>}
    */
+  getAll = async (): Promise<T | null> => this.model.find().lean()
+
+  /**
+   * Get  by id
+   * @param {mongoose.Types.ObjectId} id
+   * @returns {Promise<T | null>}
+   */
   getById = async (id: mongoose.Types.ObjectId): Promise<T | null> => this.model.findById(id).lean()
 
   /**

@@ -1,5 +1,5 @@
 import Footer from "Components/BeforeLoginComponents/Footer";
-import Header from "Components/BeforeLoginComponents/Header";
+import Header from "Components/ClientComponents/Header";
 import { SearchContextProvider } from "Context/SearchContext";
 import EmailVerified from "pages/EmailVerification/EmailVerified";
 import PleaseVerifiy from "pages/EmailVerification/PleaseVerifiy";
@@ -62,7 +62,7 @@ export default function ClientRoutes() {
           />
           <Route path="/create-contract" element={<CreateContract location={undefined} />} />
           <Route path="/notifications"  element={<Notifications />} />
-          <Route path="**" element={<PageNotFound />} />
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
       </SearchContextProvider>
       <Footer />

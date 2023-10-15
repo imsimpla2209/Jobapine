@@ -1,10 +1,10 @@
-/* eslint-disable jsx-a11y/alt-text */
+
 /* eslint-disable */
 
 import React from "react";
 import "./HomeFourthSection.css";
-import img1 from "../../../assets/img/cara.webp";
-import img2 from "../../../assets/img/sam.webp";
+import img1 from "../../../assets/img/caraa.jpg";
+import img2 from "../../../assets/img/james.jpg";
 import img3 from "../../../assets/svg/clearly-rated.e51d653.svg";
 import { useTranslation } from "react-i18next"; 
 
@@ -47,7 +47,7 @@ export default function HomeFourthSection() {
             </div>
             <div className="text-center mb-5">
               <span>4.6 / 5</span>
-              <span className="mx-3" style={{ color: "#6FDA44" }}>
+              <span className="mx-3" style={{ color: "#6600cc" }}>
                 <i className="fas fa-star"></i>
                 <i className="fas fa-star"></i>
                 <i className="fas fa-star"></i>

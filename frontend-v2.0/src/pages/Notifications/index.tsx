@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 /* eslint-disable jsx-a11y/anchor-has-content */
 import { useEffect, useState } from "react"
 // import { auth, db } from "../../firebase"

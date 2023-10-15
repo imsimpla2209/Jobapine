@@ -1,11 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 import { fakeClientState } from "Store/fake-state";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import img from "../../../assets/img/icon-user.svg";
 import LanguageList from "../../SharedComponents/LanguageBtn/LanguageList";
+import { logout } from "src/api/auth-apis";
+import toast from "react-hot-toast";
 
 export default function NavLargScreen() {
   const { t } = useTranslation(['main']);
@@ -14,20 +16,20 @@ export default function NavLargScreen() {
   useEffect(() => {
   }, []);
 
-  const logout = () => {
-    // firebaseApp
-    //   .auth()
-    //   .signOut()
-    //   .then((res) => {
-    //     console.log(res);
-    //     navigate("/login");
-    //     window.location.reload();
-    //     localStorage.removeItem('userType');
-    //   })
-    //   .catch((error) => {
-    //     console.log(error.message);
-    //   });
-    console.log("bo may logout")
+  const handleLogout = () => {
+    logout().then((res) => {
+      console.log(res);
+      navigate("/login");
+      window.location.reload();
+      localStorage.removeItem('userType');
+      localStorage.removeItem('expiredIn');
+      toast.success('Bye', {
+        icon: '👋'
+      })
+    })
+      .catch((error) => {
+        console.log(error.message);
+      });
   };
 
   return (
@@ -123,25 +125,25 @@ export default function NavLargScreen() {
                       <circle
                         cx="109.4"
                         cy="30.1"
-                        fill="#6fda44"
+                        fill="#6600cc"
                         r="5.6"
                       ></circle>
                       <circle
                         cx="84.6"
                         cy="52.6"
-                        fill="#6fda44"
+                        fill="#6600cc"
                         r="5.6"
                       ></circle>
                       <circle
                         cx="59.8"
                         cy="38.6"
-                        fill="#6fda44"
+                        fill="#6600cc"
                         r="5.6"
                       ></circle>
-                      <circle cx="32" cy="66.4" fill="#6fda44" r="5.6"></circle>
+                      <circle cx="32" cy="66.4" fill="#6600cc" r="5.6"></circle>
                       <path
                         d="M143.5 98.4H1.5c-.6 0-1-.4-1-1V85.5c0-.6.4-11-1h142c.6 0 1 .4 1 1v11.9c0 .6-.4 1-1 1z"
-                        fill="#6fda44"
+                        fill="#6600cc"
                       ></path>
                     </svg>
                   </div>
@@ -150,7 +152,7 @@ export default function NavLargScreen() {
                   </p>
                   <a
                     href="#"
-                    style={{ color: "#6fda44" }}
+                    style={{ color: "#6600cc" }}
                     className="d-block text-center mb-3"
                   >
                     {t("Learn More")}
@@ -260,13 +262,15 @@ export default function NavLargScreen() {
                   <span className="ps-2">{t("Settings")}</span>
                 </a>
               </li> */}
-              <li onClick={logout}>
-                <a className="dropdown-item px-4" href="#">
+              <li style={{
+                cursor: 'pointer',
+              }} onClick={handleLogout}>
+                {/* <a className="dropdown-item px-4" href="#"> */}
                   <span>
                     <i className="fas fa-sign-out-alt"></i>
                   </span>
                   <span className="ps-2">{t("Log Out")}</span>
-                </a>
+                {/* </a> */}
               </li>
             </ul>
           </li>

@@ -1,3 +1,5 @@
+import { IReview } from "./freelancer";
+
 export interface NewRegisteredClient {
   user: string;
   intro?: string;
@@ -29,4 +31,21 @@ export interface IUpdateClientBody {
   preferLocations?: string[];
   preferJobType?: string[];
   favoriteFreelancers?: string[];
+}
+
+export interface IClient {
+  user: string
+  name?: string
+  intro?: string
+  rating?: number
+  jobs?: string[]
+  organization?: string
+  reviews?: IReview[]
+  images?: string[]
+  preferencesURL?: string[]
+  preferLocations?: string[]
+  preferJobType?: string[]
+  favoriteFreelancers?: string[]
+  paymentVerified?: boolean
+  spent?: number
 }

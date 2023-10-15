@@ -4,37 +4,39 @@ import FindWorkFreelancerHome from "Components/FreelancerComponents/FindWorkFree
 import LeftSidebarFreelancerHome from "Components/FreelancerComponents/LeftSidebarFreelancerHome";
 import RightSidebarFreelancerHome from "Components/FreelancerComponents/RightSidebarFreelancerHome";
 import SectionCenterFreelancerHome from "Components/FreelancerComponents/SectionCenterFreelancerHome";
-import { fakeFreelancerState } from "Store/fake-state";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { freelancerStore, userStore } from "src/Store/user.store";
+import { useSubscription } from "src/libs/global-state-hook";
 import Loader from "../../../Components/SharedComponents/Loader/Loader";
 import "./HomeFreelancer.css";
 
 export default function HomeFreelancer() {
 
   const { i18n, t } = useTranslation(['main']);
-  let lang = i18n.language;
-  const user = fakeFreelancerState;
+  const lang = i18n.language;
+  const user = useSubscription(userStore).state;
+  const freelancer = useSubscription(freelancerStore).state;
 
   useEffect(() => {
     // dispatch(freelancerDataAction(user));
   }, [lang]);
 
   return (
-    <div dir={lang === 'vi' ? 'rtl' : 'ltr'} >
-      <div className="container-md container-fluid-sm my-lg-4 px-3 pt-1">
+    <div >
+      <div className="container-md container-fluid-sm my-lg-4 px-1 pt-1">
         {
-          user.firstName
+          user?.name
             ? <div className="mx-3">
               {
-                user.accepted === false &&
+                user?.isVerified === false &&
                 <AcceptedAlert widthh="66%" />
               }
               <FindWorkFreelancerHome />
               <div className="row">
                 <LeftSidebarFreelancerHome />
-                <SectionCenterFreelancerHome />
-                <RightSidebarFreelancerHome lang={lang} />
+                <SectionCenterFreelancerHome user={freelancer}/>
+                <RightSidebarFreelancerHome lang={lang} user={user} freelancer={freelancer} />
               </div>
             </div>
             : <div className="d-flex justify-content-center align-items-center" style={{ height: "90vh" }}>

@@ -24,11 +24,11 @@ export const getRcmdJobs = (data: {jobId: string}, query: IAdvancedGetJobsQuery 
 }
 
 export const getJob = (id: string ) => {
-  return instance.get(`jobs:${id}`);
+  return instance.get(`jobs/${id}`);
 }
 
 export const updateJob = (data: Omit<ICreateJobBody, 'client'>, id: string ) => {
-  return instance.patch(`jobs:${id}`, data);
+  return instance.patch(`jobs/${id}`, data);
 }
 
 export const deleteJob = (id: string) => {
@@ -40,9 +40,16 @@ export const reviewJob = (data: IReview, id: string ) => {
 }
 
 export const changeStatus = (data: {status: EJobStatus, comment?: string }, id: string ) => {
-  return instance.patch(`jobs/status/:${id}`, data);
+  return instance.patch(`jobs/status/${id}`, data);
 }
 
 export const forcedDeleteJob = (id: string) => {
-  return instance.delete(`jobs/admin/:${id}`);
+  return instance.delete(`jobs/admin/${id}`);
+}
+
+export const getCategories = () => {
+  return instance.get(`jobs/categories`);
+}
+export const getSkills = () => {
+  return instance.get(`jobs/skills`);
 }
