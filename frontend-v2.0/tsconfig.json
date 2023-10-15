@@ -37,7 +37,8 @@
       "hooks/*": ["src/hooks/*"],
       "LayOut/*": ["src/LayOut/*"],
       "libs/*": ["src/libs/*"],
-      "api/*": ["src/api/*"]
+      "api/*": ["src/api/*"],
+      "socket.io": ["src/socket.io"],
     }
   },
   "include": ["src", "src/index.tsx", "index.d.ts"],

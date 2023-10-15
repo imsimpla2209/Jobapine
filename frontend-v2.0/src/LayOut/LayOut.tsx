@@ -16,7 +16,7 @@ export default function LayOut() {
 
   useEffect(() => {
     if (authenticated) {
-      setUsrType(localStorage.getItem('userType'));
+      setUsrType(localStorage.getItem('userType') || '');
     }
   }, [authenticated])
 

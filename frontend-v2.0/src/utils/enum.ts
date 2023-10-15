@@ -19,6 +19,11 @@ export enum EJobStatus {
   OPEN = 'open',
 }
 
+export enum EUserVisibility {
+  ANYONE = 'anyone',
+  VERIFIED_USER = 'verified_user',
+}
+
 export enum ELevel {
   BEGINNER = 0,
   INTERMEDIATE = 1,
@@ -56,6 +61,12 @@ export enum EPaymenType {
   PERWEEK = 'PerWeek',
   PERMONTH = 'PerMonth',
   WHENDONE = 'WhenDone',
+}
+
+export enum EJobType {
+  ONE_TIME_PROJECT = 'one-time-project',
+  ONGOING_PROJECT = 'ongoing-project',
+  COMPLEX_PROJECTS = 'complex-projects',
 }
 
 export enum EError {
