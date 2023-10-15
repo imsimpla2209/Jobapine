@@ -20,6 +20,8 @@ export interface IJob {
       comment?: string
     }
   ]
+  experienceLevel?: string[]
+  type: string
   checkLists?: string[]
   attachments?: string[]
   proposals?: IProposalDoc['_id'][]
@@ -29,6 +31,8 @@ export interface IJob {
   tags?: IJobTag['_id'][]
   isDeleted?: boolean
   currentStatus?: string
+  visibility?: string
+  jobDuration?: 'short-term' | 'long-term'
 }
 
 export interface IJobCategory extends Document {

@@ -1,115 +1,94 @@
 /* eslint-disable jsx-a11y/alt-text */
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import "./PostJobVisibility.css";
-import upwork from "../../../assets/img/TLpZ1jf.png";
-import { updateJob } from "../../../Network/Network";
-import { useTranslation } from "react-i18next";
+import { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { StepContext } from 'src/pages/ClientPages/PostJop'
+import upwork from '../../../assets/img/TLpZ1jf.png'
+import { postJobSubscribtion } from '../PostJobGetStarted'
+import './style.css'
+import { EUserVisibility } from 'src/utils/enum'
 
 export default function PostJobVisibility({ setBtns, btns }) {
-  const [job, setJob] = useState({ jobVisibility: "", freelancerNeed: "" });
-  const { t } = useTranslation(['main']);
+  const { setStep } = useContext(StepContext)
+  const [job, setJob] = useState<{ jobVisibility: EUserVisibility; freelancerNeed: number }>({
+    jobVisibility: null,
+    freelancerNeed: 0,
+  })
+  const { t } = useTranslation(['main'])
 
-  const getData = (e) => {
-    const val = e.target.value;
-    const name = e.target.name;
+  const getData = e => {
+    const val = e.target.value
+    const name = e.target.name
     switch (name) {
-      case "visibility":
-        job.jobVisibility = val;
-        setJob({ ...job, jobVisibility: job.jobVisibility });
-        break;
-      case "freelancerNeed":
-        job.freelancerNeed = val;
-        setJob({ ...job, freelancerNeed: job.freelancerNeed });
-        break;
+      case 'visibility':
+        job.jobVisibility = val
+        setJob({ ...job, jobVisibility: job.jobVisibility })
+        break
+      case 'freelancerNeed':
+        job.freelancerNeed = val
+        setJob({ ...job, freelancerNeed: job.freelancerNeed })
+        break
       default:
-        break;
+        break
     }
-  };
+  }
 
   const addData = () => {
-    console.log(job);
-    const id = localStorage.getItem("docID");
-    console.log(id);
-    updateJob({ jobVisibility: job.jobVisibility, jobVisibilityAr: job.jobVisibility === "anyone" ? "أى شخص" : job.jobVisibility === "invite only" ? "دعوة فقط" : "مستخدم أبورك فقط", freelancerNeed: job.freelancerNeed, freelancerNeedAr: job.freelancerNeed === "one freelancer" ? "مستقل واحد" : "أكثر من مستقل" }, id);
-    setBtns({ ...btns, budget: false });
-  };
+    postJobSubscribtion.updateState({
+      visibility: job.jobVisibility,
+      preferences: { nOEmployee: job.freelancerNeed },
+    })
+    setBtns({ ...btns, budget: false })
+    setStep('budget')
+  }
 
   return (
     <>
       <section className=" bg-white border rounded mt-3 pt-4">
         <div className="border-bottom ps-4">
-          <h4>{t("Visibility")}</h4>
-          <p>{t("Step 5 of 7")}</p>
+          <h4>{t('Visibility')}</h4>
+          <p>{t('Step 5 of 7')}</p>
         </div>
         <div className="px-4 mt-3">
-          <p className="fw-bold mt-2">{t("Who can see your job?")}</p>
+          <p className="fw-bold mt-2">{t('Who can see your job?')}</p>
           <div className="my-4 d-flex justify-content-center" onInput={getData}>
             <label className="border border-success rounded p-3 text-center w-50">
-              <input
-                type="radio"
-                className="float-end"
-                name="visibility"
-                value="anyone"
-              />
+              <input type="radio" className="float-end" name="visibility" value={EUserVisibility.ANYONE} />
               <div>
                 <i className="fas fa-user mt-4"></i>
               </div>
-              <h6 className="my-3">{t("Anyone")}</h6>
+              <h6 className="my-3">{t('Anyone')}</h6>
               <small className="fw-normal">
                 {t(
-                  " Looking for someone relativelyFreelancers and agencies using JobSickers and public search engines can find this job."
+                  ' Looking for someone relativelyFreelancers and agencies using JobSickers and public search engines can find this job.'
                 )}
               </small>
             </label>
             <label className="border border-success rounded p-3 text-center w-50 mx-3">
-              <input
-                type="radio"
-                className="float-end"
-                name="visibility"
-                value="only jobsicker freelancer"
-              />
+              <input type="radio" className="float-end" name="visibility" value={EUserVisibility.VERIFIED_USER} />
               <div className="w-50 mx-auto">
-                <img
-                  className="bg-dark w-25 rounded-circle mt-4"
-                  src={upwork}
-                />
+                <img className="bg-dark w-25 rounded-circle mt-4" src={upwork} />
               </div>
-              <h6 className="my-3">{t("Only JobSickers freelancer")}</h6>
-              <small className="fw-normal">
-                {t("Only JobSickers users can find this job.")}
-              </small>
+              <h6 className="my-3">{t('Only JobSickers freelancer')}</h6>
+              <small className="fw-normal">{t('Only JobSickers users can find this job.')}</small>
             </label>
           </div>
         </div>
         <div className="px-4 mt-3">
-          <p className="fw-bold mt-2">
-            {t("How many people do you need for this job?")}
-          </p>
+          <p className="fw-bold mt-2">{t('How many people do you need for this job?')}</p>
           <div className="my-4 d-flex" onInput={getData}>
             <label className="border border-success rounded p-3 text-center w-25">
-              <input
-                type="radio"
-                className="float-end"
-                name="freelancerNeed"
-                value="one freelancer"
-              />
+              <input type="radio" className="float-end" name="freelancerNeed" value={1} />
               <div>
                 <i className="fas fa-user mt-4"></i>
               </div>
-              <h6 className="my-3">{t("One freelancer")}</h6>
+              <h6 className="my-3">{t('One freelancer')}</h6>
             </label>
             <label className="border border-success rounded p-3 text-center ms-3 w-25">
-              <input
-                type="radio"
-                className="float-end"
-                name="freelancerNeed"
-                value="more than one freelancer"
-              />
+              <input type="radio" className="float-end" name="freelancerNeed" value={10} />
               <div>
                 <i className="fas fa-user-friends mt-4"></i>
               </div>
-              <h6 className="my-3">{t("More than one freelancer")}</h6>
+              <h6 className="my-3">{t('More than one freelancer')}</h6>
             </label>
           </div>
         </div>
@@ -117,11 +96,13 @@ export default function PostJobVisibility({ setBtns, btns }) {
 
       <section className="bg-white border rounded mt-3">
         <div className="ps-4 my-3">
-          <button className="btn">
-            <Link className="btn border text-success me-4 px-5" to="/post-job/expertise">{t("Back")}</Link>
+          <button className="btn" onClick={() => setStep('expertise')}>
+            <span className="btn border text-success me-4 px-5">{t('Back')}</span>
           </button>
-          <button className={`btn ${job.jobVisibility === "" || job.freelancerNeed === "" ? "disabled" : ""}`}>
-            <Link className="btn bg-jobsicker px-5" to="/post-job/budget" onClick={addData}>{t("Next")}</Link>
+          <button className={`btn ${!job.jobVisibility || !job.freelancerNeed ? 'disabled' : ''}`}>
+            <span className="btn bg-jobsicker px-5" onClick={addData}>
+              {t('Next')}
+            </span>
           </button>
         </div>
       </section>
