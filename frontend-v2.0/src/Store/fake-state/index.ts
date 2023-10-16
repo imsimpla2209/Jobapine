@@ -44,7 +44,7 @@ export const fakeFreelancerState = {
   expertiseLevel: "Intermediate",
   accepted: false,
   totalEarnings: 1000,
-  profileCompletion: 250,
+  profileCompletion: 69,
   authID: '420ent',
   skills: [
     'Hút cần',

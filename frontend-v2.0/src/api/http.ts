@@ -2,7 +2,8 @@ import { SERVER_ENPOINT } from './server-url'
 import axios, { AxiosError } from 'axios'
 
 export const instance = axios.create({
-  baseURL: SERVER_ENPOINT + '/v1/',
+  withCredentials: true,
+  baseURL: '/v1/',
 });
 
 // if returning AxiosError object, the library will remove

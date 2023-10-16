@@ -5,6 +5,7 @@ import passport from '@config/passport'
 
 const router: Router = express.Router()
 
+router.get('/me', auth(), authController.getMe)
 router.post('/register', validate(authValidation.register), authController.register)
 router.post('/login', validate(authValidation.login), authController.login)
 router.get(
@@ -31,8 +32,8 @@ router.get(
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   authController.oAuthCallback
 )
-router.post('/logout', validate(authValidation.logout), authController.logout)
-router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens)
+router.post('/logout', auth(), authController.logout)
+router.post('/refresh-tokens', authController.refreshTokens)
 router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword)
 router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword)
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail)

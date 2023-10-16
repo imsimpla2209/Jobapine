@@ -1,17 +1,27 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import httpStatus from 'http-status'
+import config from '@config/config'
+import { getUserById } from '@modules/user/user.service'
+import { ApiError } from 'common/errors'
 import { Request, Response } from 'express'
+import httpStatus from 'http-status'
+import { emailService } from '../../providers/email'
 import catchAsync from '../../utils/catchAsync'
 import { tokenService } from '../token'
 import { userService } from '../user'
 import * as authService from './auth.service'
-import { emailService } from '../../providers/email'
+
+const cookiConfigs = config.jwt.cookieOptions
 
 export const register = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.registerUser(req.body)
   const tokens = await tokenService.generateAuthTokens(user)
   await userService.setUserRefreshToken(user._id, tokens.refresh.token)
-  res.setHeader('Set-Cookie', tokens.cookie)
+  res.cookie('Authentication', tokens.access, {
+    domain: '.localhost',
+    httpOnly: cookiConfigs.httpOnly,
+    secure: cookiConfigs.secure,
+    maxAge: cookiConfigs.maxAge,
+  })
   res.status(httpStatus.CREATED).send({ user, tokens: tokens.access })
 })
 
@@ -20,7 +30,12 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   const user = await authService.loginUserWithUsernameAndPassword(username, password)
   const tokens = await tokenService.generateAuthTokens(user)
   await userService.setUserRefreshToken(user._id, tokens.refresh.token)
-  res.setHeader('Set-Cookie', tokens.cookie)
+  res.cookie('Authentication', tokens.access, {
+    domain: '.localhost',
+    httpOnly: cookiConfigs.httpOnly,
+    secure: cookiConfigs.secure,
+    maxAge: cookiConfigs.maxAge,
+  })
   res.send({ user, tokens: tokens.access })
 })
 
@@ -29,18 +44,35 @@ export const oAuthCallback = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.getUserByEmail(email)
   const tokens = await tokenService.generateAuthTokens(user)
   await userService.setUserRefreshToken(user._id, tokens.refresh.token)
-  res.setHeader('Set-Cookie', tokens.cookie)
+  res.cookie('Authentication', tokens.access, {
+    domain: '.localhost',
+    httpOnly: cookiConfigs.httpOnly,
+    secure: cookiConfigs.secure,
+    maxAge: cookiConfigs.maxAge,
+  })
   res.send({ user, tokens: tokens.access })
 })
 
 export const logout = catchAsync(async (req: Request, res: Response) => {
-  await authService.logout(req.body.refreshToken)
+  await authService.logout(req.user?._id)
   await userService.removeRefreshToken(req?.user?._id)
+  res.cookie('Authentication', '', {
+    domain: '.localhost',
+    httpOnly: cookiConfigs.httpOnly,
+    secure: cookiConfigs.secure,
+    maxAge: cookiConfigs.maxAge,
+  })
   res.status(httpStatus.NO_CONTENT).send()
 })
 
 export const refreshTokens = catchAsync(async (req: Request, res: Response) => {
   const userWithTokens = await authService.refreshAuth(req.body.refreshToken)
+  res.cookie('Authentication', userWithTokens.tokens.access, {
+    domain: '.localhost',
+    httpOnly: cookiConfigs.httpOnly,
+    secure: cookiConfigs.secure,
+    maxAge: cookiConfigs.maxAge,
+  })
   res.send({ ...userWithTokens })
 })
 
@@ -70,4 +102,12 @@ export const sendVerificationEmail = catchAsync(async (req: Request, res: Respon
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   await authService.verifyEmail(req.query?.token)
   res.status(httpStatus.NO_CONTENT).send()
+})
+
+export const getMe = catchAsync(async (req: Request, res: Response) => {
+  const user = await getUserById(req?.user?._id)
+  if (!user) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'User not logged in')
+  }
+  res.send(user)
 })

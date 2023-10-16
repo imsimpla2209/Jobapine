@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 import { fakeJobsState } from "Store/fake-state";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";

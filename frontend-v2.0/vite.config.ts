@@ -29,15 +29,22 @@ export default defineConfig({
   plugins: [react({
     include: "**/*.tsx",
   }), reactVirtualized()],
+  define: {
+    'process.env': process.env
+  },
   server: {
-    hmr: {
-      overlay: false
+    // hmr: {
+    //   overlay: false
+    // },
+    proxy: {
+      '/v1': 'http://localhost:6969'
+      //'/api': 'http://127.0.0.1:8033'
     },
     host: 'localhost',
     port: 6996,
     watch: {
       usePolling: true,
-    }
+    },
   },
   resolve: {
     alias: {

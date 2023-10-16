@@ -11,8 +11,7 @@ import pick from '../../utils/pick'
 import * as clientService from './client.service'
 
 export const registerClient = catchAsync(async (req: Request, res: Response) => {
-  const { _id } = req.user
-  const user = await clientService.registerClient(new mongoose.Types.ObjectId(_id), req.body)
+  const user = await clientService.registerClient(new mongoose.Types.ObjectId(req.body.user), req.body)
   updateUserById(new mongoose.Types.ObjectId(req.user?._id), {
     lastLoginAs: EUserType.CLIENT,
   })

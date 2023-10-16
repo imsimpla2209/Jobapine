@@ -31,3 +31,25 @@ export const getErrorMsg = err => {
     return err?.message
   }
 }
+
+
+export function pickName(
+  o: { name: string | null; name_vi: string | null } | null,
+  lang: string,
+) {
+  if (lang === 'en') {
+    return o?.name || '';
+  } else {
+    return o?.name_vi || '';
+  }
+}
+
+export function randomDate(start, end) {
+  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+}
+
+export function currencyFormatter(money: any, currency: string = 'VND') {
+  const currenor = new Intl.NumberFormat('it-IT', {style : 'currency', currency : currency});
+  const validMoney = (currency === 'VND' && money < 10000) ? money * 1000 : money
+  return `${currenor.format(validMoney)}`
+}

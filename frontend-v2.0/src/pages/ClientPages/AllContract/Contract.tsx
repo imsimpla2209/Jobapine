@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 /* eslint-disable react-hooks/exhaustive-deps */
 import { fakeClientState, fakeFreelancerState, fakeJobsState } from "Store/fake-state";
 import { useEffect, useState } from "react";

@@ -7,11 +7,11 @@ import ExpressMongoSanitize from 'express-mongo-sanitize'
 import helmet from 'helmet'
 import httpStatus from 'http-status'
 import xss from 'xss-clean'
-import config from './config/config'
 import { ApiError, errorConverter, errorHandler } from './common/errors'
 import { morgan } from './common/logger'
-import { authLimiter } from './utils'
+import config from './config/config'
 import routes from './routes/v1'
+import { authLimiter } from './utils'
 
 const app: Express = express()
 
@@ -27,10 +27,12 @@ app.use(helmet())
 const corsOptions = {
   'Access-Control-Allow-Credentials': true,
   'Access-Control-Allow-Origin': '*',
+  // ['http://127.0.0.1:6996', 'http://localhost:6996'],
   'Access-Control-Allow-Headers': 'origin, X-Requested-With,Content-Type,Accept, Authorization, Content-Type',
   methods: 'GET,POST,DELETE,PUT,PATCH',
   Accept: 'application/json',
   origin: true,
+  // ['http://127.0.0.1:6996', 'http://localhost:6996'],
   credentials: true,
   withCredentials: true,
 }
@@ -55,6 +57,8 @@ app.use(compression())
 
 // Cookie
 app.use(cookieParser())
+
+// app.use(session())
 
 // authentication
 app.use(passport.initialize())

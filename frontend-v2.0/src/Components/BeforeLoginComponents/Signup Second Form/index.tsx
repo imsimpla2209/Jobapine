@@ -1,35 +1,26 @@
-/* eslint-disable react/jsx-no-target-blank */
-import { ChangeEvent, useRef, useState } from "react";
+import { ArrowLeftOutlined, PhoneOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+import userIcon from "assets/img/icon-user.svg";
+import { useEffect, useRef, useState } from "react";
 import CountrySelect from "react-bootstrap-country-select";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
-import { createDocumentWithId } from "../../../Network/Network";
-export default function SignUpSecondForm() {
+
+export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMessage, onUserTypeChange, goBack }: any) {
   const { t } = useTranslation(['main']);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [validate, setValidate] = useState({ firstName: "", lastName: "", password: "", terms: false });
+  const [validate, setValidate] = useState({ firstName: "", lastName: "", password: "", terms: false, username: '', phone: '' });
   const terms = useRef(null);
   const [country, setCountry] = useState<any>(undefined);
-  const userEmail = "user@420.gmail";
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const [usr, setuser] = useState({
-    authID: "",
-    email: userEmail,
-    firstName: "",
-    lastName: "",
-    password: "",
-    userType: "client",
-    createdAt: new Date(),
-  });
-  console.log(usr.userType);
+  useEffect(() => {
+    setuser({ ...usr, name: validate.lastName + ' ' + validate.firstName});
+  }, [validate])
 
   const getUserData = (e) => {
     const val = e.target.value;
     const name = e.target.name;
     switch (name) {
       case "firstName":
-        setuser({ ...usr, firstName: val });
         setValidate({
           ...validate,
           firstName:
@@ -41,7 +32,6 @@ export default function SignUpSecondForm() {
         });
         break;
       case "lastName":
-        setuser({ ...usr, lastName: val });
         setValidate({
           ...validate,
           lastName:
@@ -52,6 +42,28 @@ export default function SignUpSecondForm() {
                 : null
         });
         break;
+      case "username":
+        setuser({ ...usr, username: val });
+        setValidate({
+          ...validate,
+          username:
+            val === ""
+              ? t("This is Required")
+              : val.match(/^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/)
+                ? t("Please inter Valid Email")
+                : null
+        });
+        break;
+      case "phone":
+        setuser({ ...usr, phone: val });
+        setValidate({
+          ...validate,
+          phone:
+              val.match(/(84|0[3|5|7|8|9])+([0-9]{8})\b/g)
+                ? t("Please inter Valid Phone")
+                : null
+        });
+        break;
       case "password":
         setuser({ ...usr, password: val });
         setValidate({
@@ -59,16 +71,15 @@ export default function SignUpSecondForm() {
           password:
             val === ""
               ? t("This is Required")
-              : val.length < 8
+              : val.match(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/)
                 ? t("Password Should be More 8 Character")
                 : null
         });
         break;
       case "userType":
-        setuser({ ...usr, userType: val });
+        onUserTypeChange(val);
         break;
       case "terms":
-        console.log(terms.current.checked);
         setValidate({
           ...validate,
           terms: terms.current.checked
@@ -80,76 +91,16 @@ export default function SignUpSecondForm() {
 
   };
 
-  const signUpComplete = () => {
-    // auth
-    //   .createUserWithEmailAndPassword(usr.email, usr.password)
-    //   .then(res => {
-    //     if (res.user) {
-    //       res.user.updateProfile({ displayName: usr.userType });
-    //       res.user.sendEmailVerification();
-    //       localStorage.setItem('userType', usr.userType)
-    //       if (usr.userType === "freelancer") {
-    //         createDocumentWithId(
-    //           usr.userType,
-    //           {
-    //             ...usr,
-    //             authID: auth.currentUser.uid,
-    //             accepted: false,
-    //             totalJobs: 0,
-    //             totalEarnings: 0,
-    //             totalHours: 0,
-    //             availability: "",
-    //             hourlyRate: 0,
-    //             badge: {
-    //               none: "",
-    //               risingFreelancer: "Rising Freelancer",
-    //               risingFreelancerAr: "موهبة صاعدة",
-    //               topRated: "Top Rated",
-    //               topRatedAr: "تقييم عالي",
-    //               expert: "Expert-Vetted",
-    //               expertAr: "خبير"
-    //             },
-    //             // jobHistory: [],
-    //             employmentHistory: [],
-    //             education: { school: "", areaOfStudy: "", degree: "", gradYear: "" },
-    //             portfolio: [],
-    //             skills: [],
-    //             // otherExperience: [],
-    //             connects: 20,
-    //             connectsHistory: [],
-    //             profileCompletion: 0,
-    //             savedJobs: []
-    //           },
-    //           auth.currentUser.uid
-    //         );
-    //       } else if (usr.userType === "client") {
-    //         createDocumentWithId(
-    //           usr.userType,
-    //           {
-    //             ...usr,
-    //             authID: auth.currentUser.uid,
-    //             paymentVerified: false,
-    //             review: 0,
-    //             spentMoney: 0,
-    //             location: country.name,
-    //             savedFreelancer: []
-    //           },
-    //           auth.currentUser.uid
-    //         );
-    //       }
-    //       navigate("/sign-up/please-verify");
-    //       // sessionStorage.setItem("searchArray", [' '])
-    //     }
-    //   })
-    //   .catch(err => {
-    //     setErrorMessage(err.message);
-    //     console.log(err.message);
-    //   });
-  };
+  const handleSignup = async () => {
+    setLoading(true);
+    await signUpComplete();
+    setLoading(false);
+  }
 
   return (
     <div className="col-sm-12 col-md-6 mx-auto">
       <div className="shadow-sm p-3 mb-5 bg-white rounded mx-auto mt-5 w-100 border">
+        <Button onClick={goBack} shape="round" icon={<ArrowLeftOutlined />} />
         <form>
           <h5 className="text-danger text-center">{errorMessage}</h5>
           <h4 className="text-center m-0">
@@ -217,7 +168,34 @@ export default function SignUpSecondForm() {
             </div>
           </div>
 
-
+          <div className="input-group pt-3">
+            <span className="input-group-text bg-white" id="basic-addon1">
+              <img src={userIcon} width={16} alt="" />
+            </span>
+            <input
+              type="text"
+              name="username"
+              className="form-control  border-start-0"
+              placeholder={t("Username")}
+              aria-label="Input group example"
+              aria-describedby="basic-addon1"
+              onInput={getUserData}
+            />
+          </div>
+          <div className="input-group pt-3">
+            <span className="input-group-text bg-white" id="basic-addon1">
+              <PhoneOutlined />
+            </span>
+            <input
+              type="text"
+              name="phone"
+              className="form-control  border-start-0"
+              placeholder={t("Phone")}
+              aria-label="Input group example"
+              aria-describedby="basic-addon1"
+              onInput={getUserData}
+            />
+          </div>
           <div className="input-group pt-3">
             <span className="input-group-text bg-white" id="basic-addon1">
               <svg
@@ -243,7 +221,7 @@ export default function SignUpSecondForm() {
           </div>
           <p className='text-danger'>{validate.password}</p>
           <div>
-            <h3 className="text-center mt-3">{t("i want to :")}</h3>
+            <h3 className="text-center mt-3 text-black text-secondary">{t("I want to:")}</h3>
             <div
               className="btn-group d-flex  border-gray rounded"
               role="group"
@@ -255,12 +233,12 @@ export default function SignUpSecondForm() {
                 className="btn-check"
                 id="btnradio1"
                 autoComplete="off"
-                defaultChecked
-                value="client"
+                // defaultChecked
+                value="Client"
                 onInput={getUserData}
               />
               <label className="btn btn-outline-jobsicker" htmlFor="btnradio1">
-                {t("Hire for a project")}
+                {t("Hire for a job")}
               </label>
               <input
                 type="radio"
@@ -268,19 +246,20 @@ export default function SignUpSecondForm() {
                 className="btn-check"
                 id="btnradio2"
                 autoComplete="off"
-                value="freelancer"
+                value="Freelancer"
                 onInput={getUserData}
+                style={{ borderLeft: '1px solid black !important' }}
               />
               <label className="btn btn-outline-jobsicker" htmlFor="btnradio2">
                 {t("Work as a freelancer")}
               </label>
             </div>
           </div>
-          <div className={`my-3 text-dark ${usr.userType !== "client" && "d-none"}`}>
+          <div className={`my-3 text-dark ${usr.lastLoginAs !== "Client" && "d-none"}`}>
             <i className="fas fa-map-marker-alt border rounded" style={{ padding: "10px 15px" }}></i>
-            <CountrySelect className="w-50 d-inline-block" value={country} onChange={setCountry} onTextChange={function (text: string, changeEvent: ChangeEvent<Element>): void {
+            <CountrySelect className="w-50 d-inline-block" value={country} onChange={setCountry} onTextChange={function (): void {
               throw new Error('Function not implemented.');
-            } } />
+            }} />
           </div>
           <div className="form-check mt-3">
             <input
@@ -322,14 +301,15 @@ export default function SignUpSecondForm() {
           </div>
 
           <div className="d-grid gap-2 col-8 mx-auto mt-3 hitbtn-class loginpcolor mb-4" >
-            <button
+            <Button 
               className="btn bg-jobsicker"
-              type="button"
-              disabled={validate.password != null || !validate.firstName || !!validate.lastName || (usr.userType === "client" && !country) || !validate.terms}
-              onClick={signUpComplete}
+              loading={loading}
+              style={{ height: '50px'}}
+              // disabled={validate.password != null || !validate.firstName || !!validate.lastName || (usr.userType === "Client" && !country) || !validate.terms}
+              onClick={handleSignup}
             >
               {t("Continue with Email")}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

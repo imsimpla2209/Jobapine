@@ -136,3 +136,13 @@ export const generateVerifyEmailToken = async (user: IUserDoc): Promise<string> 
   await saveToken(verifyEmailToken, user.id, expires, tokenTypes.VERIFY_EMAIL)
   return verifyEmailToken
 }
+
+/**
+ * get token
+ * @param {IUserDoc} options
+ * @returns {Promise<any>}
+ */
+export const getRefreshToken = async (user: any): Promise<any> => {
+  const token = Token.findOne({ user, type: tokenTypes.REFRESH })
+  return token
+}

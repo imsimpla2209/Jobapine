@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/alt-text */
+
 import React from 'react'
 import verify from "../../assets/svg/verifyEmail.svg";
 // import { auth } from '../../firebase';

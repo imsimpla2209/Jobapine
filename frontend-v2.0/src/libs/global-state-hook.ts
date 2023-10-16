@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import React from 'react'
 import { mergeDeep } from '../utils/deepMerge'
 
 type Listener<S> = (newState: S) => void
-export interface ISubscription<S extends any> {
+export interface ISubscription<S> {
   subscribe: (fn: Listener<S>) => void
   unsubscribe: (fn: Listener<S>) => void
   listener: Set<Listener<S>>
@@ -10,7 +11,7 @@ export interface ISubscription<S extends any> {
   updateState: (nextState: S | any, forceUpdate?: boolean, mergeNestedObjectProps?: boolean) => void
   [key: string]: any
 }
-export interface IReactive<S extends any> {
+export interface IReactive<S> {
   subscribe: (fn: Listener<string>) => void
   unsubscribe: (fn: Listener<string>) => void
   listener: Set<Listener<string>>
@@ -19,7 +20,7 @@ export interface IReactive<S extends any> {
 
 export function createSubscription<S extends object>(initialState?: S): ISubscription<S> {
   let state: S = initialState || ({} as any)
-  let listener: Set<Listener<S>> = new Set()
+  const listener: Set<Listener<S>> = new Set()
   const subscribe = (fn: Listener<S>) => {
     listener.add(fn)
   }
@@ -145,7 +146,7 @@ export function useSubscription<S extends object, P extends Array<string>>(
 }
 
 export const createReactive = <S extends object>(initialState: S): IReactive<S> => {
-  let listener: Set<Listener<string>> = new Set()
+  const listener: Set<Listener<string>> = new Set()
   const subscribe = (fn: Listener<string>) => listener.add(fn)
   const unsubscribe = (fn: Listener<string>) => listener.delete(fn)
   const store: S = new Proxy(initialState, {

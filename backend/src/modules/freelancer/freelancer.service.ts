@@ -6,7 +6,6 @@ import queryGen from '@core/libs/queryGennerator'
 import { JobCategory, JobTag } from '@modules/job/job.model'
 import { getJobById } from '@modules/job/job.service'
 import { Skill } from '@modules/skill'
-import { getUserById } from '@modules/user/user.service'
 import { IReview } from 'common/interfaces/subInterfaces'
 import httpStatus from 'http-status'
 import keywordExtractor from 'keyword-extractor'
@@ -32,10 +31,10 @@ export const registerFreelancer = async (
   userId: mongoose.Types.ObjectId,
   freelancerBody: NewRegisteredFreelancer
 ): Promise<IFreelancerDoc> => {
-  const user = await getUserById(userId)
-  if (!user.isVerified) {
-    throw new ApiError(httpStatus.BAD_REQUEST, `User is not verified`)
-  }
+  // const user = await getUserById(userId)
+  // if (!user.isVerified) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, `User is not verified`)
+  // }
   if (await Freelancer.findOne({ user: freelancerBody.user })) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Freelancer')
   }
@@ -287,8 +286,8 @@ export const updateSimilarById = async (userId: mongoose.Types.ObjectId): Promis
   const freelancer = await getFreelancerByOptions({ user: userId })
   let keyWords
 
-  if (freelancer.intro) {
-    keyWords = keywordExtractor.extract(freelancer.intro, {
+  if (freelancer?.intro) {
+    keyWords = keywordExtractor.extract(freelancer?.intro, {
       language: 'english',
       remove_digits: true,
       return_changed_case: true,
@@ -299,9 +298,9 @@ export const updateSimilarById = async (userId: mongoose.Types.ObjectId): Promis
     keyWords = new RegExp(keyWords, 'i')
   }
 
-  let foundCats = await JobCategory.find({ name: { $regex: keyWords, $options: 'i' } })
-  let foundSkills = await Skill.find({ name: { $regex: keyWords, $options: 'i' } })
-  const foundTags = await JobTag.find({ name: { $regex: keyWords, $options: 'i' } })
+  let foundCats = await JobCategory.find({ name: { $regex: keyWords || 'nothing', $options: 'i' } })
+  let foundSkills = await Skill.find({ name: { $regex: keyWords || 'nothing', $options: 'i' } })
+  const foundTags = await JobTag.find({ name: { $regex: keyWords || 'nothing', $options: 'i' } })
 
   foundCats = union(foundCats, freelancer.preferJobType)
   foundSkills = union(

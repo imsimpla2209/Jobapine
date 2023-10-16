@@ -1,13 +1,19 @@
-import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt'
 import config from '@config/config'
+import { Request } from 'express'
+import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt'
+import { IPayload } from '../../modules/token/token.interfaces'
 import tokenTypes from '../../modules/token/token.types'
 import User from '../../modules/user/user.model'
-import { IPayload } from '../../modules/token/token.interfaces'
 
 const jwtStrategy = new JwtStrategy(
   {
     secretOrKey: config.jwt.secret,
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: ExtractJwt.fromExtractors([
+      (request: Request) => {
+        return request?.cookies?.Authentication?.token
+      },
+    ]),
+    // passReqToCallback: true,
   },
   async (payload: IPayload, done) => {
     try {

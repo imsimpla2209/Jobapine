@@ -7,11 +7,11 @@ const router: Router = express.Router()
 
 router
   .route('/')
-  .post(validate(freelancerValidation.createFreelancer), freelancerController.registerFreelancer)
+  .post(auth(), validate(freelancerValidation.createFreelancer), freelancerController.registerFreelancer)
   .get(validate(freelancerValidation.getFreelancers), freelancerController.getFreelancers)
 router
   .route('/filter')
-  .post(validate(freelancerValidation.getAdvancedFreelancers), freelancerController.getAdvancedFreelancers)
+  .post(auth(), validate(freelancerValidation.getAdvancedFreelancers), freelancerController.getAdvancedFreelancers)
 router.route('/rcmd').post(validate(freelancerValidation.getRcmdFreelancers), freelancerController.getRcmdFreelancers)
 router.route('/search').post(validate(freelancerValidation.searchFreelancers), freelancerController.searchFreelancers)
 

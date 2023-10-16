@@ -1,10 +1,13 @@
+import { LoadingOutlined } from '@ant-design/icons'
+import { Spin } from 'antd';
 import React from 'react'
-import img from "../../../assets/img/loader.gif"
+
+const loadIcon = <LoadingOutlined style={{ fontSize: 70, color: '#5b14b8' }} spin />;
 
 export default function Loader() {
     return (
         <div className="text-center mt-2">
-            <img width="80" src={img} alt="loader" />
+            <Spin indicator={loadIcon} />
         </div>
     )
 }

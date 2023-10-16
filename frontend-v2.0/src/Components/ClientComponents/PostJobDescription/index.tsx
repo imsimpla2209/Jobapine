@@ -1,7 +1,10 @@
+
+import React, { useState, useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { updateJob } from "../../../Network/Network";
+import "./PostJobDescription.css";
 /* eslint-disable jsx-a11y/alt-text */
-import { useContext, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'

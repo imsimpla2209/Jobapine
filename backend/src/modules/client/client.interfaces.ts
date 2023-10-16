@@ -18,6 +18,8 @@ export interface IClient {
   preferLocations?: string[]
   preferJobType?: IJobCategory['_id'][]
   favoriteFreelancers?: IFreelancerDoc['_id'][]
+  paymentVerified?: boolean
+  spent?: number
 }
 
 export interface IOrganizationDoc extends Document {
@@ -35,6 +37,6 @@ export interface IOrganizationModel extends Model<IOrganizationDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>
 }
 
-export type UpdateClientBody = Omit<IClient, 'user'>
+export type UpdateClientBody = Omit<IClient, 'user' | 'spent' | 'paymentVerified'>
 
-export type NewRegisteredClient = Omit<IClient, 'rating' | 'jobs' | 'reviews' | 'images'>
+export type NewRegisteredClient = Omit<IClient, 'rating' | 'jobs' | 'reviews' | 'images' | 'spent' | 'paymentVerified'>

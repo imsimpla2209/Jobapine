@@ -35,7 +35,7 @@ export default function BillingByClients() {
             {/* <button
               type="button"
               className="btn btn-light mb-3  mt-2 rounded-border "
-              style={{ backgroundColor: "white", color: "#6fda44" }}
+              style={{ backgroundColor: "white", color: "#6600cc" }}
             > */}
             <CustomButtonwithoutbackground headers="Load more" />
             {/* </button> */}

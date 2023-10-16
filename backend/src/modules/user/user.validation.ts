@@ -5,7 +5,7 @@ import { NewCreatedUser } from './user.interfaces'
 
 const createUserBody: Record<keyof NewCreatedUser, any> = {
   email: Joi.string().required().email(),
-  phone: Joi.string().required(),
+  phone: Joi.string(),
   password: Joi.string().required().custom(password),
   name: Joi.string().required(),
   role: Joi.string().valid('user', 'admin'),
@@ -16,7 +16,7 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   images: Joi.array().items(Joi.string()),
   dob: Joi.string(),
   address: Joi.string(),
-  nationalId: Joi.string().required(),
+  nationalId: Joi.string(),
 }
 
 export const createUser = {

@@ -1,8 +1,8 @@
-/* eslint-disable jsx-a11y/alt-text */
+
 import { useTranslation } from "react-i18next"
 import { Link } from 'react-router-dom'
-import img7 from '../../../assets/img/john-desktop.webp'
-import img6 from '../../../assets/img/susan-desktop.webp'
+import img7 from '../../../assets/img/moneyimg2.jpg'
+import img6 from '../../../assets/img/moneyimg1.webp'
 import img2 from '../../../assets/svg/Airbnb_Logo.svg'
 import img1 from '../../../assets/svg/Microsoft_logo.svg'
 import img4 from '../../../assets/svg/ge.svg'
@@ -10,7 +10,7 @@ import img3 from '../../../assets/svg/godaddy.d9459f1.svg'
 import './HomeFirstSection.css'
 export default function HomeFirstSection() {
 	const { i18n, t } = useTranslation(['main']);
-	let lang = i18n.language;
+	const lang = i18n.language;
 	return (
 		<section style={{ marginTop: "10%" }} className="overflow-hidden">
 			<div className="container">
@@ -35,7 +35,7 @@ export default function HomeFirstSection() {
 						</div>
 					</div>
 					<div className="col-md-6 col-sm-12">
-						<div className="mt-5 position-relative">
+						<div className="position-relative">
 							<div className="w-75">
 								<img className="w-75" src={img6} />
 							</div>

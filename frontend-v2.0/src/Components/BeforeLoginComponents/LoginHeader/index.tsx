@@ -11,13 +11,13 @@ export default function LoginHeader() {
 	const { pathname } = useLocation();
 
 	return (
-		<header className="py-3" style={{ background: "linear-gradient(100.88deg, #7e2dc4 9.16%, #5643cc 43.89%, #673fd7 64.72%)" }}>
+		<header className="py-3" style={{ background: "white" }}>
 			<div className="container d-flex justify-content-between">
-				<Logo />
+					<Logo />
 				<div>
 					{
 						pathname === "/sign-up" &&
-						<p className="text-white">{t("Already have an account")}<Link to="/login">{" "}{t("Log In")}</Link></p>
+						<p className="text-muted">{t("Already have an account")}<Link to="/login">{" "}{t("Log In")}</Link></p>
 					}
 				</div>
 			</div>

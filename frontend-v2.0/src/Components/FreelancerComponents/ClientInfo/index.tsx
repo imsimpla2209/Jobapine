@@ -1,35 +1,19 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import StarsRating from './../../SharedComponents/StarsRating/StarsRating';
-import { fakeClientState } from "Store/fake-state";
+import { useSubscription } from "src/libs/global-state-hook";
+import { locationStore } from "src/Store/commom.store";
 
-export default function ClientInfo({ clientID }) {
+export default function ClientInfo({ client }) {
 
-  console.log(clientID);
+  console.log(client);
   const { t } = useTranslation(['main']);
-  const client = fakeClientState;
-  const [clientJobs, setClientJobs] = useState({ closed: 0, hired: 0, public: 0, allJobs: 0 })
+  const locations = useSubscription(locationStore).state
 
   useEffect(() => {
-    // db.collection("client")
-    //   .doc(clientID)
-    //   .get().then(doc => setClient(doc.data()))
 
-    // clientID && db.collection("job")
-    //   .where("authID", "==", clientID)
-    //   .get().then(res => {
-    //     const closed = [];
-    //     const puplic = [];
-    //     const hired = [];
-    //     res.docs.map(job => {
-    //       job.data().status === "public" && puplic.push(job.data())
-    //       job.data().status === "hired" && hired.push(job.data())
-    //       job.data().status === "closed" && closed.push(job.data())
-    //     })
-    //     setClientJobs({ allJobs: res.docs.length, hired: hired.length, public: puplic.length, closed: closed.length })
-    //   })
   }, [])
 
   return (
@@ -45,22 +29,31 @@ export default function ClientInfo({ clientID }) {
         </span>
       </h6>
       <p className="text-muted">
-        <StarsRating clientReview={client?.review} index={1} />
-        <StarsRating clientReview={client?.review} index={2} />
-        <StarsRating clientReview={client?.review} index={3} />
-        <StarsRating clientReview={client?.review} index={4} />
-        <StarsRating clientReview={client?.review} index={5} />
+        <StarsRating clientReview={client?.rating} index={1} />
+        <StarsRating clientReview={client?.rating} index={2} />
+        <StarsRating clientReview={client?.rating} index={3} />
+        <StarsRating clientReview={client?.rating} index={4} />
+        <StarsRating clientReview={client?.rating} index={5} />
       </p>
-      <p className="fw-bold"><span className="fw-bold ">
-        <i className="fas fa-map-marker-alt me-2" /> {client?.location.city}
-      </span></p>
-      <p><span className="text-muted">Jobs posted: </span><strong>{clientJobs?.allJobs}</strong></p>
-      <p><span className="text-muted">Hired: </span><strong>{clientJobs?.closed}</strong></p>
-      <p><span className="text-muted">Hire rate: </span><strong>{clientJobs?.closed ? clientJobs?.closed * 100 / clientJobs?.allJobs : 0}%</strong></p>
-      <p><span className="text-muted">Open jobs: </span><strong>{clientJobs?.public}</strong></p>
-      <p><span className="text-muted">Spent: </span><strong>${client?.spentMoney}</strong></p>
-      <p><span className="text-muted">Active: </span><strong>{clientJobs?.hired}</strong></p>
-      <p><span className="text-muted">Member since: </span><strong>{new Date().toLocaleDateString()}</strong></p>
+      <p className="fw-bold">
+        <div style={{ display: 'flex', }}>
+          {
+            client?.preferLocations?.map(l => (
+              <span key={l} className="fw-bold">
+                <i className="fas fa-map-marker-alt me-2" />{locations[Number(l)].name}
+              </span>
+            ))
+          }
+        </div>
+
+      </p>
+      <p><span className="text-muted">Jobs posted: </span><strong>{client?.jobs?.length}</strong></p>
+      {/* <p><span className="text-muted">Hired: </span><strong>{client?.closed}</strong></p> */}
+      {/* <p><span className="text-muted">Hire rate: </span><strong>{client?.closed ? client?.closed * 100 / client?.allJobs : 0}%</strong></p> */}
+      {/* <p><span className="text-muted">Open jobs: </span><strong>{client?.public}</strong></p> */}
+      <p><span className="text-muted">Spent: </span><strong>${client?.spent}</strong></p>
+      {/* <p><span className="text-muted">Active: </span><strong>{client?.hired}</strong></p> */}
+      <p><span className="text-muted">Member since: </span><strong>{new Date(client?.createdAt).toLocaleString()}</strong></p>
     </div>
   );
 }

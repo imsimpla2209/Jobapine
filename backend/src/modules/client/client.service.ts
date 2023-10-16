@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import queryGen from '@core/libs/queryGennerator'
-import { getUserById } from '@modules/user/user.service'
 import { IReview } from 'common/interfaces/subInterfaces'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
@@ -20,10 +19,10 @@ export const registerClient = async (
   userId: mongoose.Types.ObjectId,
   clientBody: NewRegisteredClient
 ): Promise<IClientDoc> => {
-  const user = await getUserById(userId)
-  if (!user.isVerified) {
-    throw new ApiError(httpStatus.BAD_REQUEST, `User is not verified`)
-  }
+  // const user = await getUserById(userId)
+  // if (!user.isVerified) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, `User is not verified`)
+  // }
   if (await Client.isUserSigned(clientBody.user)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Client')
   }

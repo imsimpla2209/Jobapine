@@ -1,16 +1,18 @@
 /* eslint-disable */
-import { Link } from "react-router-dom";
-import apple from "../../../assets/svg/apple.svg";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import React from "react";
+import { postLogin } from "src/api/auth-apis";
+import { useAuth } from "src/Components/Providers/AuthProvider";
+import { ResponseStatus } from "src/api/constants";
+import toast from 'react-hot-toast';
 
 export default function LoginTemp() {
   const [user, setUser] = useState({ email: "", password: "" });
   const [emailError, setEmailErorr] = useState("");
   const [PasswordError, setPasswordErrorr] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const { login } = useAuth()
   const navigate = useNavigate();
 
   const { t } = useTranslation(['main']);
@@ -26,9 +28,9 @@ export default function LoginTemp() {
         });
         setEmailErorr(
           val === ""
-            ? t("Email required")
+            ? t("This is Required")
             : !val.match(
-              /^([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/
+              /^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$|^([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/
             )
               ? t("Please inter Valid Email")
               : null
@@ -52,24 +54,29 @@ export default function LoginTemp() {
     }
   };
 
-  const login = (e) => {
+  const onLogin = async (e) => {
     console.log(user);
     e.preventDefault();
-    // auth
-    //   .signInWithEmailAndPassword(user.email, user.password)
-    //   .then((res) => {
-    //     if (res.user) {
-    //       localStorage.setItem("userType", res.user.displayName);
-    //       res.user.displayName === "freelancer"
-    //         ? navigate("/find-work")
-    //         : navigate("/home");
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     setErrorMessage(error.message);
-    //     console.log(error.message);
-    //     console.log(error.code);
-    //   });
+    await postLogin({ username: user.email, password: user.password })
+      .then((res) => {
+        if (res.data.user) {
+          localStorage.setItem("userType", res.data.user?.lastLoginAs || "Freelancer");
+          res.data.user?.lastLoginAs === "Freelancer"
+            ? navigate("/find-work")
+            : navigate("/home");
+          login(res.data?.tokens?.token, res.data?.user)
+          toast.success('Got you, bro!')
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+        if (error?.responseBody?.code === ResponseStatus?.UNAUTHORIZED) {
+          toast.error("Wrong username/email or password!")
+          return setErrorMessage('Wrong username/email or password!');
+        }
+        setErrorMessage(error.message);
+        toast.error(error.message)
+      });
   };
 
   const googleLogin = () => {
@@ -104,8 +111,6 @@ export default function LoginTemp() {
                 </span>
               </h5>
               <form>
-                <span className="text-danger text-center">{errorMessage}</span>
-
                 <div className="form-group col-8 mx-auto mt-3">
                   <span className="text-danger">{emailError}</span>
                   <input
@@ -140,12 +145,14 @@ export default function LoginTemp() {
                 <div className="d-grid gap-2 col-8 mx-auto mt-3 hitbtn-className loginpcolor">
                   <button
                     className="btn bg-jobsicker "
-                    onClick={login}
+                    onClick={onLogin}
                     disabled={PasswordError != null || emailError != null}
                   >
                     {t("Log in")}
                   </button>
                 </div>
+                <span className="text-danger text-center ms-md-5 " >{errorMessage}</span>
+
                 {/* <div className="d-grid gap-2 col-8 mx-auto mt-3">
                   <Link to="" className="text-center">
                     {t("Not you")}

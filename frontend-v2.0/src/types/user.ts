@@ -20,10 +20,10 @@ export interface IUser {
   name: string
   username: string
   email: string
-  phone: string
-  nationalId: string
+  phone?: string
+  nationalId?: string
   role: string
-  isEmailVerified: boolean
+  isEmailVerified?: boolean
   oAuth?: any
   refreshToken?: string
   avatar?: string
@@ -35,6 +35,7 @@ export interface IUser {
   balance?: number
   lastLoginAs?: string
   sickPoints?: number
+  token?: string
 }
 
 export interface IUserQuery extends filterFreelancersQuery{

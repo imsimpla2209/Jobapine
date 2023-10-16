@@ -91,9 +91,9 @@ export default function CreateProfileSubmit() {
               </div>
               <div className="mt-5">
                 <h4 className="fw-bold">{t("Languages")}</h4>
-                <p>{t("English")} {" : "} {lang === 'vi' ? user.englishProficiency : user.englishProficiency}</p>
+                <p>{t("English")} {" : "} {user.englishProficiency}</p>
                 {user?.otherLanguages?.map((langItem, ix) => <p key={ix}>
-                  {lang === 'vi' ? [langItem.language, ' ', ':', ' ', langItem.langProf] : [langItem.language, ' ', ':', ' ', langItem.langProf]}
+                  {[langItem.language, ' ', ':', ' ', langItem.langProf]}
                 </p>)}
               </div>
               <div className="border-top pt-5">
@@ -103,11 +103,11 @@ export default function CreateProfileSubmit() {
                 </h5>
                 <h5 className="my-3">
                   <span className="text-muted">Category: </span>
-                  {lang === 'vi' ? user.jobCategory : user.jobCategory}
+                  {user.jobCategory}
                 </h5>
                 <h5 className="my-">
                   <span className="text-muted">Experience level: </span>
-                  {lang === 'vi' ? user.expertiseLevel : user.expertiseLevel}
+                  {user.expertiseLevel}
                 </h5>
               </div>
             </div>
