@@ -41,12 +41,13 @@ export enum EComplexity {
   HELL = 3,
 }
 
-export enum EComplexityGet {
+export const EComplexityGet = [
   'easy',
   'medium',
   'hard',
   'hell',
-}
+]
+
 
 export enum EPriority {
   LOW = 0,

@@ -1,5 +1,6 @@
 import { InboxOutlined, UploadOutlined } from '@ant-design/icons'
 import { Button, Form, Typography, Upload, message } from 'antd'
+import { useTranslation } from 'react-i18next'
 
 const validFileType = [
   'application/msword',
@@ -74,10 +75,10 @@ export const previewFile = file => {
 }
 
 export function DefaultUpload({ normFile, files }) {
+  const { t } = useTranslation(['main'])
   return (
     <Form.Item
       name="upload"
-      label="Upload"
       valuePropName="fileList"
       getValueFromEvent={e => {
         const validFiles = handleValidateFile(e)
@@ -85,6 +86,7 @@ export function DefaultUpload({ normFile, files }) {
       }}
       style={{
         marginBottom: '20px',
+        marginTop: '8px',
       }}
     >
       <Upload
@@ -95,11 +97,11 @@ export function DefaultUpload({ normFile, files }) {
 text/plain, application/pdf, image/*, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, 
 application/vnd.ms-excel, .xlsx, .xls"
         beforeUpload={file => onChangeUpload(file)}
-        maxCount={3}
+        maxCount={10}
       >
-        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+        <Button icon={<UploadOutlined />}>{t('upload')}</Button>
         <Typography.Text disabled style={{ marginLeft: '10px' }}>
-          Maximum Files: 3
+          Maximum Files: 10
         </Typography.Text>
       </Upload>
     </Form.Item>
@@ -124,7 +126,7 @@ export function DraggerUpload({ normFile, files }) {
 text/plain, application/pdf, image/*, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel,
 .xlsx, .xls"
           beforeUpload={file => onChangeUpload(file)}
-          maxCount={3}
+          maxCount={10}
         >
           <p className="ant-upload-drag-icon">
             <InboxOutlined />

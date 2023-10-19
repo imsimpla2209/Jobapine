@@ -17,7 +17,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
   }, []);
 
   return (
-    <div className="col d-none d-lg-block">
+    <div className="col d-none d-lg-block" style={{ width: '300'}}>
       <div style={{
         background: 'white',
         border: '1px solid #eaddf0',
@@ -32,17 +32,17 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
           flexDirection: 'column',
         }}>
           <img
-            src={user?.avartar ? user?.avartar : img}
+            src={user?.avatar ? user?.avatar : img}
             alt=""
-            className="rounded-circle d-inline"
-            width="40px"
-            height="40px"
+            className="rounded-circle d-inline border"
+            width="50px"
+            height="50px"
           />
           <h5 className="d-inline ps-1 text-wrap" style={{
             wordBreak: 'break-all'
           }}>{`@${user.name}.`}</h5>
         </div>
-        <div className="my-lg-1">
+        <div className="my-lg-1 text-center">
           <Link to={`/profile/420`} className="advanced-search-link">
             <i className="fas fa-eye"> </i> {t("View Profile")}
           </Link>
@@ -76,10 +76,10 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
         padding: 8,
         width: '100%',
       }}>
-        <div className="my-lg-1 fw-bold">
+        <div className="mt-lg-1">
           <p className="text-muted">{t("Availability")}</p>
         </div>
-        <div className="my-lg-1">
+        <div className="mb-lg-1">
           <i className="far fa-clock me-2" />
           <span>
             {lang === 'vi' ? freelancer?.available ? "đang rảnh" : "éo rảnh lắm" : freelancer?.available ? "available" : "not available"}

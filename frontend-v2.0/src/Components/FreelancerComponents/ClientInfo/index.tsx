@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import StarsRating from './../../SharedComponents/StarsRating/StarsRating';
 import { useSubscription } from "src/libs/global-state-hook";
 import { locationStore } from "src/Store/commom.store";
+import { currencyFormatter } from "src/utils/helperFuncs";
 
 export default function ClientInfo({ client }) {
 
@@ -18,7 +19,7 @@ export default function ClientInfo({ client }) {
 
   return (
     <div className="bg-white py-lg-4 px-4 border border-1 py-sm-3 py-xs-5">
-      <h5>{t("About the client")}</h5>
+      <h5>{t("ClientInfo")}</h5>
       <h6 className="fw-bold py-sm-3">
         <span className="fw-bold" style={{ color: client?.paymentVerified ? "#14bff4" : "red" }}>
           <i
@@ -51,7 +52,7 @@ export default function ClientInfo({ client }) {
       {/* <p><span className="text-muted">Hired: </span><strong>{client?.closed}</strong></p> */}
       {/* <p><span className="text-muted">Hire rate: </span><strong>{client?.closed ? client?.closed * 100 / client?.allJobs : 0}%</strong></p> */}
       {/* <p><span className="text-muted">Open jobs: </span><strong>{client?.public}</strong></p> */}
-      <p><span className="text-muted">Spent: </span><strong>${client?.spent}</strong></p>
+      <p><span className="text-muted">Spent: </span><strong>{currencyFormatter(client?.spent)}</strong></p>
       {/* <p><span className="text-muted">Active: </span><strong>{client?.hired}</strong></p> */}
       <p><span className="text-muted">Member since: </span><strong>{new Date(client?.createdAt).toLocaleString()}</strong></p>
     </div>

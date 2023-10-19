@@ -16,3 +16,11 @@ export const ResponseStatus = {
   ORIGIN_IS_UNREACHABLE: 523,
   INVALID_SSL_CERTIFICATE: 526
 }
+
+export const Level = [
+  'Beginer',
+  'Intermediate',
+  'Junior',
+  'Senior',
+  'Expert',
+]

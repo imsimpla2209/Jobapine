@@ -13,6 +13,7 @@ import { registerAsClient } from "src/api/client-apis";
 import { useNavigate } from "react-router-dom";
 import FreelancerRegisterModal from "src/Components/BeforeLoginComponents/FreelancerRegisterModal";
 import ClientRegisterModal from "src/Components/BeforeLoginComponents/ClientRegisterModal";
+import toast from "react-hot-toast";
 
 export enum ESignupStep {
   INITIAL = 0,
@@ -71,15 +72,17 @@ export default function SignUp() {
               }
             )
           }
-          sendVerifyEmail();
+          // sendVerifyEmail();
           localStorage.setItem("userType", userInfo?.lastLoginAs || "Freelancer");
           userInfo?.lastLoginAs === "Freelancer"
             ? navigate("/find-work")
             : navigate("/home");
-          navigate("/sign-up/please-verify");
+          toast.success('Welcome, mah bro');
+          // navigate("/sign-up/please-verify");
         }
       })
       .catch(err => {
+        toast.error(err?.responseBody?.message);
         setErrorMessage(err.message);
         console.log(err.message);
       });

@@ -1,15 +1,14 @@
 /* eslint-disable array-callback-return */
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import { fakeFreelancerState, fakeJobsState } from "Store/fake-state";
+import { fakeJobsState } from "Store/fake-state";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function LeftSidebarFreelancerHome() {
+export default function LeftSidebarFreelancerHome({ freelancer }) {
 
   // const { arr, setarr, setitemSearchList, setsearchList, setswitchJobs} = useContext(SearchContext);
-  const user = fakeFreelancerState;
   const jobs = fakeJobsState;
   const { t } = useTranslation(['main']);
   const navigate = useNavigate();
@@ -45,27 +44,34 @@ export default function LeftSidebarFreelancerHome() {
 
   return (
     <div className="col d-none d-lg-block">
-      <ul id="list-homepage" className="list-group sidebar-homebage-ul mb-lg-4" >
+      <ul id="list-homepage" className="list-group sidebar-homebage-ul mb-lg-4" style={{
+        background: 'white',
+        border: '1px solid #eaddf0',
+        height: 'auto',
+        borderRadius: 4,
+        padding: 8,
+        width: '100%',
+      }}>
         <li
           className="list-group-item sidebar-homebage-ul-li"
-          aria-current="true" style={{ background: '#F1F2F4' }}
+          aria-current="true"
         >
           <Link
-						className=" list-group-item-action sidebar-homebage-ul-li-aa activeside"
-						aria-current="true" style={{ background: '#F1F2F4', fontSize: '14px' }}
-						onClick={() => switchJobs("My Feed")} to={""}          >
+            className=" list-group-item-action sidebar-homebage-ul-li-aa activeside"
+            aria-current="true" style={{ fontSize: '16px', fontWeight: 'bold' }}
+            onClick={() => switchJobs("My Feed")} to={""}>
             {t("My Feed")}
           </Link>
         </li>
         <li
           className="list-group-item sidebar-homebage-ul-li"
-          aria-current="true" style={{ background: '#F1F2F4' }}
+          aria-current="true"
         >
           <Link
 
-						className=" list-group-item-action sidebar-homebage-ul-li-aa"
-						aria-current="true" style={{ background: '#F1F2F4', fontSize: '14px' }}
-						onClick={() => switchJobs("Best Matches")} to={""}          >
+            className=" list-group-item-action sidebar-homebage-ul-li-aa"
+            aria-current="true" style={{ fontSize: '14px' }}
+            onClick={() => switchJobs("Best Matches")} to={""}          >
             {t("Best Matches")}
           </Link>
           <span className="hotspot">
@@ -105,24 +111,38 @@ export default function LeftSidebarFreelancerHome() {
         ) : null
       )} */}
 
-      <h5 className="mb-lg-2 display-inline-block end">{t("My Category")}</h5>
-      <ul
-        className="list-group sidebar-homebage-ul mb-lg-3 "
-        style={{ fontSize: "0.9em" }}
-      >
-        <li
-          className="list-group-item sidebar-homebage-ul-li "
-          aria-current="true" style={{ background: '#F1F2F4' }}
+      <div style={{
+        background: 'white',
+        border: '1px solid #eaddf0',
+        height: 'auto',
+        borderRadius: 4,
+        padding: 8,
+        width: '100%',
+      }}>
+        <h5 className="mb-lg-2 display-inline-block end">{t("My Category")}</h5>
+        <ul
+          className="list-group sidebar-homebage-ul mb-lg-3 "
+          style={{ fontSize: "0.9em" }}
         >
-          <a
-            href="#"
-            className=" list-group-item-action advanced-search-link"
-            aria-current="true" style={{ background: '#F1F2F4' }}
-          >
-            {user.jobCategory}
-          </a>
-        </li>
-      </ul>
+          {
+            freelancer?.preferJobType?.map((jobType, ix) => (
+              <li
+                key={jobType?._id}
+                className="list-group-item sidebar-homebage-ul-li "
+                aria-current="true"
+              >
+                <Link
+                  to="#"
+                  className=" list-group-item-action advanced-search-link"
+                  aria-current={"true"}
+                >
+                  {jobType?.name}
+                </Link>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
     </div>
   );
 }

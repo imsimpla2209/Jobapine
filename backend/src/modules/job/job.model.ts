@@ -104,6 +104,19 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
       enum: EJobStatus,
       default: EJobStatus.PENDING,
     },
+    type: {
+      type: String,
+      default: '',
+    },
+    experienceLevel: [{ type: String, default: [] }],
+    visibility: {
+      type: String,
+      default: '',
+    },
+    jobDuration: {
+      type: String,
+      default: 'short-term',
+    },
   },
   {
     timestamps: true,
