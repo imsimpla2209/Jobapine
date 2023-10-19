@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 import { fakeFreelancerState } from "Store/fake-state";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";

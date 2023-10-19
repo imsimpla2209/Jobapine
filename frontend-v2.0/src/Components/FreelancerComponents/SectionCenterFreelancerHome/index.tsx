@@ -1,23 +1,30 @@
 
-import { fakeFreelancerState, fakeJobsState } from "Store/fake-state";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { getJobs } from "src/api/job-apis";
 import Loader from "../../SharedComponents/Loader/Loader";
 import JobCard from "./JobCard";
 import "./SectionCenterFreelancerHome.css";
 
 
-export default function SectionCenterFreelancerHome() {
+export default function SectionCenterFreelancerHome({ user }) {
 
   const { i18n, t } = useTranslation(['main']);
-  let lang = i18n.language;
+  const lang = i18n.language;
   const [isliked, setisliked] = useState(false)
-  const jobs = fakeJobsState;
-  const user = fakeFreelancerState;
   const [switchedJobs, setswitchedJobs] = useState([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    setswitchedJobs([...jobs])
+    setLoading(true);
+    getJobs({}).then(res => {
+      setswitchedJobs(res.data.results)
+      setLoading(false)
+    }).catch(err => {
+      toast.error('something went wrong, ', err)
+      setLoading(false)
+    })
   }, [])
 
   useEffect(() => {
@@ -30,7 +37,7 @@ export default function SectionCenterFreelancerHome() {
     // else {
     //   setswitchedJobs([...jobs])
     // };
-  }, [jobs, user])
+  }, [])
 
 
 
@@ -55,10 +62,10 @@ export default function SectionCenterFreelancerHome() {
     <div className="col-lg-8 col-xs-12">
       {/* <HeadOfCenterSection /> */}
       {
-        jobs[0]?.jobID
+        !loading
           ? switchedJobs.map((item, index) => (
             <div key={index}>
-              <JobCard item={item} saveJob={saveJob} user={user} lang={lang} />
+              <JobCard item={item} saveJob={saveJob} freelancer={user} lang={lang} />
             </div>
           ))
           : <div className="d-flex justify-content-center align-items-center" style={{ height: "10vh" }}>

@@ -66,28 +66,30 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
     },
     paymentInfo: [
       {
-        bankName: {
-          type: String,
+        type: {
+          bankName: {
+            type: String,
+          },
+          bankAccNumber: {
+            type: String,
+          },
+          bankAccType: {
+            type: String,
+          },
+          routingNumber: {
+            type: String,
+          },
+          branchName: {
+            type: String,
+          },
+          isPrimary: {
+            type: Boolean,
+          },
+          createdAt: {
+            type: Date,
+          },
         },
-        bankAccNumber: {
-          type: String,
-          unique: true,
-        },
-        bankAccType: {
-          type: String,
-        },
-        routingNumber: {
-          type: String,
-        },
-        branchName: {
-          type: String,
-        },
-        isPrimary: {
-          type: Boolean,
-        },
-        createdAt: {
-          type: Date,
-        },
+        default: [],
       },
     ],
     isVerified: {
@@ -114,6 +116,11 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       type: Number,
       required: false,
       default: 20,
+    },
+    avatar: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   {

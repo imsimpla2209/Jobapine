@@ -33,6 +33,10 @@ const createJobBody: Record<keyof NewCreatedJob, any> = {
   preferences: jobPreferencesBody,
   budget: Joi.number().positive(),
   tags: Joi.array().items(Joi.string()),
+  type: Joi.string(),
+  experienceLevel: Joi.array().items(Joi.string()),
+  visibility: Joi.string(),
+  jobDuration: Joi.string(),
 }
 
 export const createJob = {
@@ -41,7 +45,7 @@ export const createJob = {
 
 export const getJobs = {
   query: Joi.object().keys({
-    title: Joi.string().required(),
+    title: Joi.string(),
     nOEmployee: Joi.number().positive(),
     complexity: Joi.string(),
     duration: Joi.number().positive(),

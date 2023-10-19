@@ -7,8 +7,8 @@ export default function RightSidebarJobDetails({ job }) {
   return (
     <div className="col-lg-3 col-xs-3 d-flex flex-column">
       <ConnectsAndSubmit />
-      <ClientInfo clientID={job?.authID} />
-      <JobLink />
+      <ClientInfo client={job?.client} />
+      <JobLink id={job?._id}/>
     </div>
   );
 }

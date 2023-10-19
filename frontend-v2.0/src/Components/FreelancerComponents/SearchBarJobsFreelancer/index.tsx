@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable array-callback-return */
 import { fakeFreelancerState, fakeJobsState } from "Store/fake-state";
@@ -51,7 +51,7 @@ export default function SearchBarJobsFreelancer(props) {
       <div className="col-8 input-group form-outline has-success">
         <input
           onChange={handle}
-          value={'itemSearchList'}
+          value={''}
           id="input"
           type="search"
           style={{height: "35.5px" , borderRadius : 0 }}
@@ -71,7 +71,7 @@ export default function SearchBarJobsFreelancer(props) {
         </Link>
       </div>
       <span className="d-block pt-2">
-        <Link to='/Search' className="advanced-search-link" style={{fontSize:'13.5px' , color:'#3CAF24', fontWeight:"600"}}>
+        <Link to='/Search' className="advanced-search-link" style={{fontSize:'13.5px' , color:'#8529cc', fontWeight:"600"}}>
           {t("AdvancedSearch")}
         </Link>
       </span>

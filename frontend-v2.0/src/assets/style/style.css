@@ -67,7 +67,7 @@
 }
 
 .google-btn:active {
-  background: #1669f2;
+  background: #4700b3;
 }
 
 /*# sourceMappingURL=style.css.map */
@@ -90,10 +90,10 @@
 .bg-jobsicker-dark {
   color: white;
   transition: all 0.3s;
-  background: #455eb5;
+  background: linear-gradient(92.88deg, #4d94ff 9.16%, #5643cc 43.89%, #4d79ff 64.72%);
 }
 .bg-jobsicker-dark:hover {
-  background: #3e59b8;
+  background: linear-gradient(92.88deg, #3385ff 9.16%, #5643cc 43.89%, #3366ff 64.72%);
   color: white;
 }
 .text-jobsicker {
@@ -293,7 +293,7 @@ a {
 a:hover,
 a:focus,
 a:active {
-  color: #6058c4;
+  color: #6600cc;
   /* text-decoration: underline; */
 }
 .btn-circle {

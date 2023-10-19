@@ -1,9 +1,9 @@
 .nav-bg-cn {
-  background-color: #1d4354;
+  background: linear-gradient(90.88deg, #e6ccff 16.16%, #d699ff 43.89%, #bf80ff 64.72%);
 }
 
 .nav-active-link-cn {
-  color: #6fda44;
+  color: #5b14b8;
 }
 
 .search-input-cnn {
@@ -55,7 +55,7 @@
 
 .navbar-dark .navbar-nav .nav-link.active,
 .navbar-dark .navbar-nav .show > .nav-link {
-  color: #6fda44;
+  color: #5b14b8;
 }
 
 .navbar-dark .navbar-nav .nav-link {
@@ -65,7 +65,7 @@
 }
 
 .navbar-dark .navbar-nav .nav-link:hover {
-  color: #6fda44;
+  color: #5b14b8;
 }
 
 #acc-id {
@@ -186,7 +186,7 @@ nav ul ul {
 
   .nav-item .nav-link.active,
   #navbarNavDropdown li > a:hover {
-    color: #6fda44 !important;
+    color: #5b14b8 !important;
   }
 
   .dropdown-item:focus,

@@ -1,5 +1,4 @@
-import { getClientById } from '@modules/client/client.service'
-import { getFreelancerById } from '@modules/freelancer/freelancer.service'
+import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
 import { EUserType } from 'common/enums'
 import { Request, Response } from 'express'
 import httpStatus from 'http-status'
@@ -47,27 +46,23 @@ export const deleteUser = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const switchToFreelancer = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req?.user?._id === 'string') {
-    const freelancerProfile = await getFreelancerById(new mongoose.Types.ObjectId(req.user?._id))
-    userService.updateUserById(new mongoose.Types.ObjectId(req.user?._id), {
-      lastLoginAs: EUserType.FREELANCER,
-    })
-    if (!freelancerProfile) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'You are not registered as a freelancer')
-    }
-    res.send(freelancerProfile)
+  const freelancerProfile = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req.user?._id) })
+  userService.updateUserById(new mongoose.Types.ObjectId(req.user?._id), {
+    lastLoginAs: EUserType.FREELANCER,
+  })
+  if (!freelancerProfile) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not registered as a freelancer')
   }
+  res.send(freelancerProfile)
 })
 
 export const switchToClient = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req?.user?._id === 'string') {
-    const clientProfile = await getClientById(new mongoose.Types.ObjectId(req.user?._id))
-    userService.updateUserById(new mongoose.Types.ObjectId(req.user?._id), {
-      lastLoginAs: EUserType.CLIENT,
-    })
-    if (!clientProfile) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'You are not registered as a client')
-    }
-    res.send(clientProfile)
+  const clientProfile = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req.user?._id) })
+  userService.updateUserById(new mongoose.Types.ObjectId(req.user?._id), {
+    lastLoginAs: EUserType.CLIENT,
+  })
+  if (!clientProfile) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not registered as a client')
   }
+  res.send(clientProfile)
 })

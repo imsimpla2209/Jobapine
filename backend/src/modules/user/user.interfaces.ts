@@ -51,7 +51,6 @@ export type NewRegisteredUser = Omit<
   | 'paymentInfo'
   | 'isVerified'
   | 'isActive'
-  | 'lastLoginAs'
   | 'balance'
   | 'refreshToken'
   | 'sickPoints'

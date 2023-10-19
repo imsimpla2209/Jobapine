@@ -30,3 +30,11 @@ export const deleteUser = (id: string) => {
 export const forcedDeleteUser = (id: string) => {
   return instance.delete(`users/admin/:${id}`);
 }
+
+export const switchToFreelancer = () => {
+  return instance.get(`users/to-freelancer`);
+}
+
+export const switchToClient = () => {
+  return instance.get(`users/to-client`);
+}

@@ -9,9 +9,8 @@ import { useTranslation } from "react-i18next";
 import {
   NavLink,
   Route,
-  BrowserRouter as Router,
   useLocation,
-  useNavigate,
+  useNavigate
 } from "react-router-dom";
 
 export default function OverviewReports() {
@@ -33,7 +32,7 @@ export default function OverviewReports() {
   }, []);
 
   return (
-    <Router>
+    <>
       <>
 
         <div className="W-100%">
@@ -187,6 +186,6 @@ export default function OverviewReports() {
           <Available />
         </Route>
       </switch>
-    </Router>
+    </>
   );
 }

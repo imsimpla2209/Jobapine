@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 /* eslint-disable no-script-url */
-/* eslint-disable jsx-a11y/alt-text */
+
 import { fakeClientState, fakeJobsState } from "Store/fake-state";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

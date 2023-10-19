@@ -7,12 +7,33 @@ export interface NewRegisteredFreelancer {
   user: string;
   name: string;
   intro?: string;
-  skills: SkillBody[];
+  skills?: SkillBody[];
   certificate?: string;
-  images: string[];
-  preferJobType: string[];
-  currentLocations: string[];
-  preferencesURL: string[];
+  images?: string[];
+  preferJobType?: string[];
+  currentLocations?: string[];
+  preferencesURL?: string[];
+}
+
+export interface IFreelancer {
+  user: string
+  name: string
+  intro?: string
+  members?: string[]
+  // tests?: ITestDoc['_id'][]
+  skills?: SkillBody[]
+  certificate?: string
+  proposals?: string[]
+  images?: string[]
+  reviews?: IReview[]
+  favoriteJobs?: string[]
+  preferJobType?: any[]
+  currentLocations?: string[]
+  preferencesURL?: string[]
+  rating?: number
+  jobsDone?: { number: number; success: number }
+  earned?: number
+  available?: boolean
 }
 
 export interface UpdateFreelancer {

@@ -4,18 +4,17 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import JobDescriptionJobDetails from "../../../Components/FreelancerComponents/JobDescriptionJobDetails";
 import RightSidebarJobDetails from "../../../Components/FreelancerComponents/RightSidebarJobDetails";
+import { getJob } from "src/api/job-apis";
 
 export default function JobAppliedDetails() {
   const { id } = useParams();
   const [jobData, setJobData] = useState({});
 
   useEffect(() => {
-    // db.collection("job")
-    //   .doc(id)
-    //   .get()
-    //   .then((res) => {
-    //     setJobData(res.data());
-    //   });
+    getJob(id).then(res => {
+      console.log("load job, ", id);
+      setJobData(res.data)
+    })
   }, []);
   const { t } = useTranslation(['main']);
 

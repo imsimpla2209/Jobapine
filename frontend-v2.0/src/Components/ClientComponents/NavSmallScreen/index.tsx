@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { fakeClientState } from "Store/fake-state";
@@ -227,25 +227,25 @@ export default function NavSmallScreen() {
                       <circle
                         cx="109.4"
                         cy="30.1"
-                        fill="#6fda44"
+                        fill="#6600cc"
                         r="5.6"
                       ></circle>
                       <circle
                         cx="84.6"
                         cy="52.6"
-                        fill="#6fda44"
+                        fill="#6600cc"
                         r="5.6"
                       ></circle>
                       <circle
                         cx="59.8"
                         cy="38.6"
-                        fill="#6fda44"
+                        fill="#6600cc"
                         r="5.6"
                       ></circle>
-                      <circle cx="32" cy="66.4" fill="#6fda44" r="5.6"></circle>
+                      <circle cx="32" cy="66.4" fill="#6600cc" r="5.6"></circle>
                       <path
                         d="M143.5 98.4H1.5c-.6 0-1-.4-1-1V85.5c0-.6.4-11-1h142c.6 0 1 .4 1 1v11.9c0 .6-.4 1-1 1z"
-                        fill="#6fda44"
+                        fill="#6600cc"
                       ></path>
                     </svg>
                   </div>
@@ -254,7 +254,7 @@ export default function NavSmallScreen() {
                   </p>
                   <a
                     href="#"
-                    style={{ color: "#6fda44" }}
+                    style={{ color: "#6600cc" }}
                     className="d-block text-center mb-3"
                   >
                     {t("Learn More")}

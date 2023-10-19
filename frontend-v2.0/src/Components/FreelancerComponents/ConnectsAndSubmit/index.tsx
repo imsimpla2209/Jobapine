@@ -1,19 +1,19 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import { fakeFreelancerState } from "Store/fake-state";
+
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { updateUserData } from "../../../Network/Network";
+import { freelancerStore, userStore } from "src/Store/user.store";
+import { useSubscription } from "src/libs/global-state-hook";
 
 export default function ConnectsAndSubmit() {
   const { t } = useTranslation(['main']);
   const { id } = useParams();
-  const user = fakeFreelancerState;
+  const freelancer = useSubscription(freelancerStore).state;
+  const user = useSubscription(userStore).state;
   // let [text, setText] = useState("");
   let [proposal, setProposal] = useState("");
-  let [freelancer, setFreelancer] = useState("");
   const [jobProposal, setjobProposal] = useState(false);
   const navigate = useNavigate();
   const [isliked, setisliked] = useState(false)
@@ -34,21 +34,21 @@ export default function ConnectsAndSubmit() {
   }, [isliked])
   const saveJob = (e) => {
     setisliked(!isliked)
-    if (e.target.className === 'far fa-heart') {
-      updateUserData("freelancer", { savedJobs: [...user?.savedJobs, id] });
-      e.target.className = 'fas fa-heart text-jobsicker'
+    // if (e.target.className === 'far fa-heart') {
+    //   updateUserData("freelancer", { savedJobs: [...freelancer?.savedJobs, id] });
+    //   e.target.className = 'fas fa-heart text-jobsicker'
 
-    }
-    else {
-      user?.savedJobs?.forEach((item, index) => {
-        if (item === id) {
-          user?.savedJobs?.splice(index, 1);
-          updateUserData("freelancer", { savedJobs: [...user?.savedJobs] });
-          e.target.className = 'far fa-heart'
+    // }
+    // else {
+    //   user?.savedJobs?.forEach((item, index) => {
+    //     if (item === id) {
+    //       user?.savedJobs?.splice(index, 1);
+    //       updateUserData("freelancer", { savedJobs: [...freelancer?.savedJobs] });
+    //       e.target.className = 'far fa-heart'
 
-        }
-      })
-    }
+    //     }
+    //   })
+    // }
   }
 
 
@@ -105,7 +105,7 @@ export default function ConnectsAndSubmit() {
           <button
             className="btn bg-jobsicker"
             onClick={(handleRout) => navigate(`/job/apply/${id}`)}
-            disabled={user.accepted === false || user.connects < 2}
+            disabled={user.isVerified === false || user.sickPoints < 2}
           >
             {t("Submit a proposal")}
           </button>
@@ -124,7 +124,7 @@ export default function ConnectsAndSubmit() {
         >
           <i
             onClick={(e) => saveJob(e)}
-            className={`${user?.savedJobs?.includes(id) ? 'fas fa-heart text-jobsicker' : 'far fa-heart'}`}
+            className={`${freelancer?.favoriteJobs?.includes(id) ? 'fas fa-heart text-jobsicker' : 'far fa-heart'}`}
             aria-hidden="true"
           />
           {/* {text} */}
@@ -135,7 +135,7 @@ export default function ConnectsAndSubmit() {
         {t("Required Connects to submit a proposal")}: 2
       </p>
       <p>
-        {t("Available Connects")}: {user.connects}
+        {t("Available Connects")}: {user.sickPoints}
       </p>
     </div>
   );

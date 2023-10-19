@@ -26,7 +26,7 @@ i18n
     // supportedLngs: i18nextConfig.i18n.locales, // List of supported languages
     debug: true,
     detection: {
-      order: ['path', 'localStorage', 'navigator'], // Check localStorage first, then use browser navigator 
+      order: ['localStorage', 'navigator'], // Check localStorage first, then use browser navigator 
       lookupFromPathIndex: 0,
       caches: ['localStorage'],
     },

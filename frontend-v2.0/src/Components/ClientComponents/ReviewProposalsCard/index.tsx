@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable jsx-a11y/alt-text */
+
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import img from "../../../assets/img/icon-user.svg";

@@ -5,7 +5,7 @@ import Token from '../token/token.model'
 import { generateAuthTokens, verifyToken } from '../token/token.service'
 import tokenTypes from '../token/token.types'
 import { IUserDoc, IUserWithTokens } from '../user/user.interfaces'
-import { getUserById, getUserByUsername, updateUserById } from '../user/user.service'
+import { getUserById, getUserByOptions, getUserByUsername, updateUserById } from '../user/user.service'
 
 /**
  * Login with username and password
@@ -14,8 +14,14 @@ import { getUserById, getUserByUsername, updateUserById } from '../user/user.ser
  * @returns {Promise<IUserDoc>}
  */
 export const loginUserWithUsernameAndPassword = async (username: string, password: string): Promise<IUserDoc> => {
-  const user = await getUserByUsername(username)
-  if (!user || !(await user.isPasswordMatch(password))) {
+  let user = await getUserByUsername(username)
+  if (!user) {
+    user = await getUserByOptions({ email: username })
+    if (!user) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect username or password')
+    }
+  }
+  if (!(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect username or password')
   }
   return user
@@ -23,11 +29,11 @@ export const loginUserWithUsernameAndPassword = async (username: string, passwor
 
 /**
  * Logout
- * @param {string} refreshToken
+ * @param {string} userId
  * @returns {Promise<void>}
  */
-export const logout = async (refreshToken: string): Promise<void> => {
-  const refreshTokenDoc = await Token.findOne({ token: refreshToken, type: tokenTypes.REFRESH, blacklisted: false })
+export const logout = async (userId: string): Promise<void> => {
+  const refreshTokenDoc = await Token.findOne({ user: userId, type: tokenTypes.REFRESH, blacklisted: false })
   if (!refreshTokenDoc) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not found')
   }

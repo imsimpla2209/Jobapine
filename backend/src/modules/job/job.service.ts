@@ -38,12 +38,12 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
  * @returns {Promise<QueryResult>}
  */
 export const queryJobs = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
-  const jobs = await Job.paginate(filter, options)
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee'
+      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee, preferences'
   }
+  const jobs = await Job.paginate(filter, options)
   return jobs
 }
 
@@ -85,7 +85,7 @@ export const queryAdvancedJobs = async (filter: Record<string, any>, options: IO
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee'
+      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee, preferences'
   }
 
   const jobs = await Job.paginate(queryFilter, options)
@@ -122,7 +122,7 @@ export const searchJobsByText = async (searchText: string, options: IOptions): P
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee'
+      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee, preferences'
   }
 
   const jobs = await Job.paginate(filter, options)
@@ -162,7 +162,7 @@ export const getRcmdJob = async (freelancerId: mongoose.Types.ObjectId, options:
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee'
+      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee, preferences'
   }
 
   const jobs = await Job.paginate(filter, options)
@@ -175,7 +175,7 @@ export const getRcmdJob = async (freelancerId: mongoose.Types.ObjectId, options:
  * @returns {Promise<IJobDoc | null>}
  */
 export const getJobById = async (id: mongoose.Types.ObjectId): Promise<IJobDoc | null> =>
-  Job.findById(id, { isDeleted: { $ne: true } })
+  Job.findOne({ _id: id, isDeleted: { $ne: true } })
     .populate(['client', 'categories', 'reqSkills.skill', 'proposals'])
     .lean()
 

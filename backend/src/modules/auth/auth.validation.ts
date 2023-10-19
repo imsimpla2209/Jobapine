@@ -1,3 +1,4 @@
+import { EUserType } from 'common/enums'
 import Joi from 'joi'
 import { password } from '../../providers/validate/custom.validation'
 import { NewRegisteredUser } from '../user/user.interfaces'
@@ -7,12 +8,15 @@ const registerBody: Record<keyof NewRegisteredUser, any> = {
   password: Joi.string().required().custom(password),
   name: Joi.string().required(),
   username: Joi.string().required(),
-  phone: Joi.string().required(),
-  avatar: Joi.string(),
-  images: Joi.array().items(Joi.string()),
-  dob: Joi.date(),
-  address: Joi.string(),
-  nationalId: Joi.string().required(),
+  phone: Joi.string().optional(),
+  avatar: Joi.string().optional(),
+  images: Joi.array().items(Joi.string()).optional(),
+  dob: Joi.date().optional(),
+  address: Joi.string().optional(),
+  nationalId: Joi.string().optional(),
+  lastLoginAs: Joi.string()
+    .valid(...Object.values(EUserType))
+    .optional(),
 }
 
 export const register = {

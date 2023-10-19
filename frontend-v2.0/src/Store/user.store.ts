@@ -1,0 +1,64 @@
+import { createSubscription } from "libs/global-state-hook"
+import { IClient } from "src/types/client"
+import { IFreelancer } from "src/types/freelancer"
+import { IUser } from "src/types/user"
+
+export const userStore = createSubscription<IUser>({
+  name: "",
+  username: "",
+  email: "",
+  phone: "",
+  nationalId: "",
+  role: "",
+  isEmailVerified: false,
+  oAuth: {},
+  avatar: "",
+  images: [],
+  dob: null,
+  address: "",
+  isVerified: false,
+  isActive: false,
+  balance: 0,
+  lastLoginAs: "",
+  sickPoints: 0,
+  token: "",
+})
+
+export const freelancerStore = createSubscription<IFreelancer>({
+  user: "",
+  name: "",
+  intro: '',
+  members: [],
+  // tests: ITestDoc['_id'][]
+  skills: [],
+  certificate: '',
+  proposals: [],
+  images: [],
+  reviews: [],
+  favoriteJobs: [],
+  preferJobType: [],
+  currentLocations: [],
+  preferencesURL: [],
+  rating: 0,
+  jobsDone: { number: 0, success: 0 },
+  earned: 0,
+  available: false,
+})
+
+export const clientStore = createSubscription<IClient>({
+  user: "",
+  name: "",
+  intro: '',
+  organization: '',
+  // tests: ITestDoc['_id'][]
+  images: [],
+  reviews: [],
+  favoriteFreelancers: [],
+  preferJobType: [],
+  preferLocations: [],
+  preferencesURL: [],
+  rating: 0,
+  jobs: [],
+  spent: 0,
+  paymentVerified: false,
+})

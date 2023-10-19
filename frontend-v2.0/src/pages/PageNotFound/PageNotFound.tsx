@@ -21,7 +21,7 @@ export default function PageNotFound() {
               <circle cx="72.4" cy="65" fill="#1d4354" r="64.2"></circle>
               <path
                 d="M33.4 100.6l49.1-75.8 31.6 9.7-6.3 67.5z"
-                fill="#6fda44"
+                fill="#6600cc"
               ></path>
               <ellipse
                 cx="70.3"

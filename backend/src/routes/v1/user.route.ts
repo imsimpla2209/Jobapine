@@ -5,6 +5,9 @@ import { userController, userValidation } from '../../modules/user'
 
 const router: Router = express.Router()
 
+router.route('/to-freelancer').get(auth(), userController.switchToFreelancer)
+router.route('/to-client').get(auth(), userController.switchToClient)
+
 router
   .route('/')
   .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
