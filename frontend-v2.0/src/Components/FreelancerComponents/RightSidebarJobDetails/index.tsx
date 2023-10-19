@@ -8,7 +8,7 @@ export default function RightSidebarJobDetails({ job }) {
     <div className="col-lg-3 col-xs-3 d-flex flex-column">
       <ConnectsAndSubmit />
       <ClientInfo client={job?.client} />
-      <JobLink />
+      <JobLink id={job?._id}/>
     </div>
   );
 }

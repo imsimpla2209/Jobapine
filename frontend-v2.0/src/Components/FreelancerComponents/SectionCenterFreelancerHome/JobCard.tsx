@@ -1,4 +1,5 @@
 
+import { ClockCircleFilled } from '@ant-design/icons'
 import { Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
@@ -6,7 +7,7 @@ import ShowMore from 'react-show-more-button/dist/module'
 import { locationStore } from 'src/Store/commom.store'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { EComplexityGet } from 'src/utils/enum'
-import { currencyFormatter, pickName, randomDate } from 'src/utils/helperFuncs'
+import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
 import StarsRating from '../../SharedComponents/StarsRating/StarsRating'
 import JobProposalsNumber from './JobProposalsNumber'
 
@@ -22,12 +23,7 @@ export default function JobCard({ item, saveJob, freelancer, lang }) {
         <div className="row align-items-center">
           <div className="col-lg-9 pt-lg-2">
             <Link
-              to={''}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                navigate(`/job/${item._id}`, { state: `${item._id}` })
-              }}
+              to={`/job/${item._id}`}
               className="job-title-link fw-bold"
             >
               {item?.title}
@@ -68,42 +64,55 @@ export default function JobCard({ item, saveJob, freelancer, lang }) {
             </div>
           </div>
         </div>
-        <p style={{ fontSize: "0.9em" }}>
-          <span className="text-muted">
-            <span className="fw-bold me-2" id="contract-type">
-              {item?.payment?.type}
-            </span>
-            <span className="text-secondary" id="contract-type">
-              {currencyFormatter(item?.payment?.amount)} {'/'} {item?.payment?.type}
-            </span>
-            <span> - </span>
-            <span id="experience-level">{t(EComplexityGet[item?.scope?.complexity])}</span>
-            <span> - </span>
-            <span>Est. Budget: </span>
-            <span id="client-budget">{currencyFormatter(item?.budget)}</span> - posted
+        <div>
+          <p className="text-muted" style={{ fontSize: "0.8em", lineHeight: 1 }}>
+            <span><ClockCircleFilled /> </span>
+            <span className="fw-bold me-1">{t('posted')}</span>
             <span id="posting-time"> {
               item?.createdAt ? new Date(item?.createdAt * 1000).toLocaleString()
                 : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()
             }</span>
-          </span>
-        </p>
-        <ShowMore
-          maxHeight={100}
-          button={
-            <button
-              id="seemorebutton"
-              className="advanced-search-link "
-              style={{ color: "green", position: "absolute", left: 0 }}
-            >
-              more
-            </button>
-          }
-        >
-          {item?.description}
-        </ShowMore>
+          </p>
+          <p style={{ fontSize: "0.9em" }}>
+            <span className="text-muted">
+              <span className="fw-bold me-1" id="contract-type">
+                {t(item?.payment?.type)}:
+              </span>
+              <span className="text-secondary" id="contract-type">
+                {currencyFormatter(item?.payment?.amount)} {'/'} {item?.payment?.type}
+              </span>
+              <span> - </span>
+              <span className="fw-bold me-1">
+                {t('Complexity')}:
+              </span>
+              <span id="experience-level">{t(EComplexityGet[item?.scope?.complexity || 0])}</span>
+              <span> - </span>
+              <span className="fw-bold me-1">{t("Est. Budget")}</span>
+              <span id="client-budget">{currencyFormatter(item?.budget)}</span>
+            </span>
+          </p>
+        </div>
+
+        <div style={{ marginBottom: 8 }}>
+          <span className="text-muted fw-bold me-1" style={{ fontSize: "0.9em" }}>{t('Description')}</span>
+          <ShowMore
+            maxHeight={100}
+            button={
+              <button
+                id="seemorebutton"
+                className="advanced-search-link "
+                style={{ color: "green", position: "absolute", left: 0 }}
+              >
+                more
+              </button>
+            }
+          >
+            <span style={{ fontSize: 17 }}>{item?.description}</span>
+          </ShowMore>
+        </div>
 
         <Space size="small">
-          <strong>{t("Categories") + ":"}</strong>
+          <div className='fw-bold me-1 text-muted' style={{ fontSize: "0.9em" }}>{t("Categories") + ":"}</div>
           {item?.categories?.map((c, index) => (
             <div key={index}>
               <button

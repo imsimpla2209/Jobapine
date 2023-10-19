@@ -33,8 +33,8 @@ export default function HomeFreelancer() {
                 <AcceptedAlert widthh="66%" />
               }
               <FindWorkFreelancerHome />
-              <div className="row">
-                <LeftSidebarFreelancerHome />
+              <div className="row gx-3">
+                <LeftSidebarFreelancerHome freelancer={freelancer} />
                 <SectionCenterFreelancerHome user={freelancer}/>
                 <RightSidebarFreelancerHome lang={lang} user={user} freelancer={freelancer} />
               </div>

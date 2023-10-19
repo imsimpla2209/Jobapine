@@ -27,7 +27,7 @@ export interface IFreelancer {
   images?: string[]
   reviews?: IReview[]
   favoriteJobs?: string[]
-  preferJobType?: string[]
+  preferJobType?: any[]
   currentLocations?: string[]
   preferencesURL?: string[]
   rating?: number

@@ -224,6 +224,10 @@ export const getFreelancerByEmail = async (email: string): Promise<IFreelancerDo
  */
 export const getFreelancerByOptions = async (Options: any): Promise<IFreelancerDoc | null> =>
   Freelancer.findOne({ ...Options, isDeleted: { $ne: true } })
+    .lean()
+    .populate('preferJobType')
+    .populate('skills.skill')
+    .exec()
 
 /**
  * Update freelancer by id
