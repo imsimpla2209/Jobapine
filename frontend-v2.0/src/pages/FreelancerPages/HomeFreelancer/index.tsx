@@ -4,7 +4,6 @@ import FindWorkFreelancerHome from "Components/FreelancerComponents/FindWorkFree
 import LeftSidebarFreelancerHome from "Components/FreelancerComponents/LeftSidebarFreelancerHome";
 import RightSidebarFreelancerHome from "Components/FreelancerComponents/RightSidebarFreelancerHome";
 import SectionCenterFreelancerHome from "Components/FreelancerComponents/SectionCenterFreelancerHome";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { freelancerStore, userStore } from "src/Store/user.store";
 import { useSubscription } from "src/libs/global-state-hook";
@@ -17,10 +16,6 @@ export default function HomeFreelancer() {
   const lang = i18n.language;
   const user = useSubscription(userStore).state;
   const freelancer = useSubscription(freelancerStore).state;
-
-  useEffect(() => {
-    // dispatch(freelancerDataAction(user));
-  }, [lang]);
 
   return (
     <div >
@@ -35,7 +30,7 @@ export default function HomeFreelancer() {
               <FindWorkFreelancerHome />
               <div className="row gx-3">
                 <LeftSidebarFreelancerHome freelancer={freelancer} />
-                <SectionCenterFreelancerHome user={freelancer}/>
+                <SectionCenterFreelancerHome user={freelancer} />
                 <RightSidebarFreelancerHome lang={lang} user={user} freelancer={freelancer} />
               </div>
             </div>

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Logo from 'src/Components/SharedComponents/Logo/Logo';
 import LanguageList from '../../SharedComponents/LanguageBtn/LanguageList';
 import './Header.css';
+import SearchBox from 'src/Components/SharedComponents/SearchBox';
 
 export default function Header() {
 	const { i18n } = useTranslation(['main']);
@@ -122,47 +123,7 @@ export default function Header() {
 						</nav>
 					</div>
 					<div className="d-flex justify-content-between col-7">
-						<form id="search-form-id" className="d-flex">
-							<button className="btn position-relative search-btnn-cn ">
-								<i className="fa fa-search search-icon-cn"></i>
-							</button>
-							<div className="nav-item dropdown search-type-cn ">
-								<a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-									<i className="fa fa-sort-down search-icon-cn"></i>
-								</a>
-								<ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-									<a className="dropdown-item px-4" href="#">
-										<div className="d-flex align-items-center">
-											<span className="me-2 mb-3"><i className="fas fa-user fs-6"></i></span>
-											<div className="acc-cn ms-2">
-												<p>{t("Freelancer")}</p>
-												<p>{t("Hire professionals and agencies")}</p>
-											</div>
-										</div>
-									</a>
-									<a className="dropdown-item px-4" href="#">
-										<div className="d-flex align-items-center">
-											<span className="me-2 mb-3"><i className="fas fa-clipboard-list fs-6"></i></span>
-											<div className="acc-cn ms-2">
-												<p>{t("Projects ")}<span id="search-type-projects-new" className="rounded-pill">{t("NEW")}</span>
-												</p>
-												<p>{t("Buy pre-defined projects")}</p>
-											</div>
-										</div>
-									</a>
-									<a className="dropdown-item px-4" href="#">
-										<div className="d-flex align-items-center">
-											<span className="me-2 mb-3"><i className="fas fa-briefcase fs-6"></i></span>
-											<div className="acc-cn ms-2">
-												<p>{t("Jobs")}</p>
-												<p>{t("Apply to jobs posted by clients")}</p>
-											</div>
-										</div>
-									</a>
-								</ul>
-							</div>
-							<input className="form-control ms-1 ps-5 py-1 search-inputt-cn" type="search" placeholder={t("Search")} aria-label="Search" />
-						</form>
+						<SearchBox />
 						<div className="col-md-5 border-start ps-2 d-flex j justify-content-end">
 							<Link className={`btn login-btn-cn ${lang === 'vi' && "fs-6"}`} to="/login">{t("Log In")}</Link>
 							<Link className={`btn signup-btn-cn px-3 py-2 ${lang === 'vi' && "fs-6"}`} to="/sign-up">{t("Sign Up")}</Link>

@@ -80,6 +80,7 @@ export const updateFreelancer = {
       currentLocations: Joi.array().items(Joi.string()),
       preferencesURL: Joi.array().items(Joi.string()),
       available: Joi.boolean(),
+      favoriteJobs: Joi.array().items(Joi.string()),
     })
     .min(1),
 }

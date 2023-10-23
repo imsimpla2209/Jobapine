@@ -11,6 +11,10 @@ export const getJobs = (data: IGetJobsQuery ) => {
   return Http.get('jobs', data);
 }
 
+export const getAllJobs = () => {
+  return Http.get('jobs/all');
+}
+
 export const filterJobs = (data: IAdvancedGetJobsBody, query: IAdvancedGetJobsQuery ) => {
   return Http.post('jobs/filter', data, query);
 }
@@ -19,8 +23,12 @@ export const searchJobs = (data: {searchText: string}, query: IAdvancedGetJobsQu
   return Http.post('jobs/search', data, query);
 }
 
-export const getRcmdJobs = (data: {jobId: string}, query: IAdvancedGetJobsQuery ) => {
-  return Http.post('jobs/rcmd', data, query);
+export const getRcmdJobs = (freelancerId: string, query?: IAdvancedGetJobsQuery, categories?: string[], skills?: string[],  ) => {
+  return Http.get(`jobs/rcmd`, {...query, categories, skills, freelancerId});
+}
+
+export const getSimilarJobs = (id: string, query?: IAdvancedGetJobsQuery ) => {
+  return Http.get(`jobs/similar`, {...query, id});
 }
 
 export const getJob = (id: string ) => {

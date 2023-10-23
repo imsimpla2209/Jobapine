@@ -14,7 +14,7 @@ export const createJob = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const getJobs = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['title'])
+  const filter = pick(req.query, ['title', 'skills', 'categories'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await jobService.queryJobs(filter, options)
   res.send(result)
@@ -51,7 +51,18 @@ export const searchJobs = catchAsync(async (req: Request, res: Response) => {
 
 export const getRcmdJobs = catchAsync(async (req: Request, res: Response) => {
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
-  const result = await jobService.getRcmdJob(new mongoose.Types.ObjectId(req.params.freelancerId), options)
+  const result = await jobService.getRcmdJob(
+    new mongoose.Types.ObjectId(req.query.freelancerId as string),
+    req.query.categories,
+    req.query.skills,
+    options
+  )
+  res.send(result)
+})
+
+export const getSimilarJobs = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const result = await jobService.getSimilarJobs(new mongoose.Types.ObjectId(req.query.id as string), options)
   res.send(result)
 })
 
@@ -97,6 +108,18 @@ export const deleteJob = catchAsync(async (req: Request, res: Response) => {
     await jobService.softDeleteJobById(new mongoose.Types.ObjectId(req.params.id))
     res.status(httpStatus.NO_CONTENT).send()
   }
+})
+
+// export const updateMulJobs = catchAsync(async (req: Request, res: Response) => {
+//   if (typeof req.params?.id === 'string') {
+//     await jobService.softDeleteJobById(new mongoose.Types.ObjectId(req.params.id))
+//     res.status(httpStatus.NO_CONTENT).send()
+//   }
+// })
+
+export const getAllJobs = catchAsync(async (req: Request, res: Response) => {
+  const result = await jobService.getAllJob()
+  res.send(result)
 })
 
 // ================================Categories Controller================================= //

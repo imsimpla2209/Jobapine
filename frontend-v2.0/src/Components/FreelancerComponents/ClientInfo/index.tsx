@@ -36,18 +36,19 @@ export default function ClientInfo({ client }) {
         <StarsRating clientReview={client?.rating} index={4} />
         <StarsRating clientReview={client?.rating} index={5} />
       </p>
-      <p className="fw-bold">
-        <div style={{ display: 'flex', }}>
+      <div className="my-3">
+        <div className="text-muted">{t("Location")}:</div>
+        <div className="d-flex flex-wrap fw-bold">
           {
             client?.preferLocations?.map(l => (
-              <span key={l} className="fw-bold">
+              <span key={l} className="fw-bold me-4">
                 <i className="fas fa-map-marker-alt me-2" />{locations[Number(l)].name}
               </span>
             ))
           }
         </div>
 
-      </p>
+      </div>
       <p><span className="text-muted">Jobs posted: </span><strong>{client?.jobs?.length}</strong></p>
       {/* <p><span className="text-muted">Hired: </span><strong>{client?.closed}</strong></p> */}
       {/* <p><span className="text-muted">Hire rate: </span><strong>{client?.closed ? client?.closed * 100 / client?.allJobs : 0}%</strong></p> */}

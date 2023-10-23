@@ -26,10 +26,12 @@ import Messages from "pages/Messages";
 import Notifications from "pages/Notifications";
 import PageNotFound from "pages/PageNotFound";
 import SubmitProposal from "pages/Submit Proposal";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import JobDetails from "src/pages/AdminPages/hire/job-details";
 import JobList from "src/pages/AdminPages/hire/job-list";
+import { getAllJobs } from "src/api/job-apis";
+import { miniSearch, handleCacheData, handleGetCacheData } from "src/utils/handleData";
 
 export default function FreelancerRoutes() {
   const [arr, setarr] = useState([]);
@@ -39,6 +41,24 @@ export default function FreelancerRoutes() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   pathname === "/" && navigate("/find-work");
+
+  useEffect(() => {
+    const isIndex = localStorage.getItem("index");
+    if(!isIndex || isIndex !== 'okay') {
+      console.log('reIndex')
+      getAllJobs().then(res => {
+        miniSearch.addAll(res.data)
+        handleCacheData(res.data)
+        localStorage.setItem("index", 'okay');
+      }).catch((err) => console.log('sth wrong', err))
+
+    } else if (isIndex === 'okay') {
+      handleGetCacheData().then((res) => {
+        console.log('cache res', res)
+        miniSearch.addAll(res?.rows?.map(s => s?.doc))
+      }).catch((err) => console.log('get cache failed', err))
+    }
+  }, []);
 
   return (
     <>

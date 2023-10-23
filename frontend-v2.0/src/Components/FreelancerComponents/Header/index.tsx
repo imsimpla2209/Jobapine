@@ -5,6 +5,7 @@ import NavLargScreen from './../NavLargScreen';
 import NavSmallScreen from './../NavSmallScreen';
 import HeaderSearchSm from './../../SharedComponents/HeaderSearchSm/HeaderSearchSm';
 import "./Header.css";
+import SearchBox from "src/Components/SharedComponents/SearchBox";
 
 export default function Header() {
 
@@ -12,7 +13,7 @@ export default function Header() {
 	const [showSearchIcon, setShowSearchIcon] = useState(true);
 
 	useEffect(() => {
-
+		console.log('first')
 	}, [showSearch, showSearchIcon])
 
 	const toggleSearchForm = () => {
@@ -29,7 +30,8 @@ export default function Header() {
 				{/* Header in large screen */}
 				<div id="nav-lg-id" className="container d-flex justify-content-between align-items-center">
 					<Logo />
-					<HeaderSearchLg />
+					{/* <HeaderSearchLg /> */}
+						<SearchBox />
 					<nav className="navbar navbar-expand-lg navbar-dark bg-transparent py-0">
 						<NavLargScreen />
 					</nav>

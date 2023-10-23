@@ -37,6 +37,8 @@ export interface ICreateJobBody {
 
 export interface IGetJobsQuery {
   title?: string
+  categories?: string[]
+  skills?: string[]
   nOEmployee?: number
   complexity?: string
   duration?: number

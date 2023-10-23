@@ -10,6 +10,7 @@ import { deleteProposalByOptions } from '@modules/proposal/proposal.service'
 import { Skill } from '@modules/skill'
 import { EJobStatus } from 'common/enums'
 import httpStatus from 'http-status'
+import keywordExtractor from 'keyword-extractor'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
@@ -38,12 +39,24 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
  * @returns {Promise<QueryResult>}
  */
 export const queryJobs = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
+  const categoryFilter = filter['categories']?.length ? { categories: { $in: filter['categories'] || [] } } : {}
+
+  const skillFilter = filter['skills']?.length ? { 'reqSkills.skill': { $in: filter['skills'] || [] } } : {}
+  const queryFilter = {
+    $and: [
+      categoryFilter,
+      skillFilter,
+      { isDeleted: { $ne: true } },
+      { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
+    ],
+  }
+
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
   }
-  const jobs = await Job.paginate(filter, options)
+  const jobs = await Job.paginate(queryFilter, options)
   return jobs
 }
 
@@ -71,7 +84,7 @@ export const queryAdvancedJobs = async (filter: Record<string, any>, options: IO
   filter['payment.amount'] &&
     (filter['payment.amount'] = queryGen.numRanges(filter['payment.amount']?.from, filter['payment.amount']?.to))
   filter['proposals'] &&
-    (filter['proposals'] = { $size: queryGen.numRanges(filter['nOProposals']?.from, filter['nOProposals']?.to) })
+    (filter['proposals'] = queryGen.numRanges(filter['nOProposals']?.from, filter['nOProposals']?.to))
   filter['preferences.nOEmployee'] &&
     (filter['preferences.nOEmployee'] = queryGen.numRanges(
       filter['preferences.nOEmployee']?.from,
@@ -85,7 +98,7 @@ export const queryAdvancedJobs = async (filter: Record<string, any>, options: IO
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
   }
 
   const jobs = await Job.paginate(queryFilter, options)
@@ -122,7 +135,7 @@ export const searchJobsByText = async (searchText: string, options: IOptions): P
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
   }
 
   const jobs = await Job.paginate(filter, options)
@@ -132,40 +145,66 @@ export const searchJobsByText = async (searchText: string, options: IOptions): P
 /**
  * manually get recommended jobs based on freelancer(low level vcl)
  * @param {string} freelancerId
+ * @param {any} filter,
  * @param {Object} options
  * @returns {Promise<QueryResult>}
  */
-export const getRcmdJob = async (freelancerId: mongoose.Types.ObjectId, options: IOptions): Promise<QueryResult> => {
-  const similarDocs = await getSimilarByFreelancerId(freelancerId)
-
+export const getRcmdJob = async (
+  freelancerId: mongoose.Types.ObjectId,
+  categories: any,
+  skills: any,
+  options: IOptions
+): Promise<QueryResult> => {
+  let similarDocs = await getSimilarByFreelancerId(freelancerId)
   if (!similarDocs) {
-    await updateSimilarById(freelancerId)
+    similarDocs = await updateSimilarById(freelancerId)
   }
+
+  const categoryFilter = categories?.length ? { categories: { $in: categories || [] } } : {}
+
+  const skillFilter = skills?.length ? { 'reqSkills.skill': { $in: skills || [] } } : {}
 
   const filter = {
     $and: [
       {
         $or: [
-          { title: { $regex: similarDocs.similarKeys, $options: 'i' } },
-          { description: { $regex: similarDocs.similarKeys, $options: 'i' } },
-          { categories: { $in: similarDocs.similarJobCats || [] } },
-          { reqSkills: { $in: similarDocs.similarSkills || [] } },
-          { tags: { $in: similarDocs.similarTags || [] } },
-          { 'preferences.locations': { $in: similarDocs.similarLocations || [] } },
+          { title: { $regex: `${similarDocs?.similarKeys}`, $options: 'si' } },
+          { description: { $regex: `${similarDocs?.similarKeys}`, $options: 'si' } },
+          { categories: { $in: similarDocs?.similarJobCats?.map(c => c.toString()) || [] } },
+          { 'reqSkills.skill': { $in: similarDocs?.similarSkills || [] } },
+          { tags: { $in: similarDocs?.similarTags || [] } },
+          { 'preferences.locations': { $in: similarDocs?.similarLocations || [] } },
         ],
       },
       { isDeleted: { $ne: true } },
+      categoryFilter,
+      skillFilter,
       { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
     ],
   }
 
+  console.log('first', filter)
+
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
   }
 
   const jobs = await Job.paginate(filter, options)
+  return jobs
+}
+
+/**
+ * @returns {Promise<IJobDoc | null>}
+ */
+export const getAllJob = async (): Promise<IJobDoc[] | null> => {
+  const jobs = await Job.find()
+    .select(
+      'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences'
+    )
+    .populate([{ path: 'client', select: 'rating spent paymentVerified' }, { path: 'categories' }]).lean()
+
   return jobs
 }
 
@@ -200,6 +239,74 @@ export const getJobByOptions = async (Options: any): Promise<IJobDoc | null> =>
     .lean()
 
 /**
+ * manually get similar jobs based on job input(low level vcl)
+ * @param {mongoose.Types.ObjectId} jobId
+ * @param {Object} options
+ * @returns {Promise<QueryResult>}
+ */
+export const getSimilarJobs = async (jobId: mongoose.Types.ObjectId, options: IOptions): Promise<QueryResult> => {
+  const job = await getJobById(jobId)
+
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Not found job')
+  }
+
+  let keyWords
+
+  if (job?.title) {
+    keyWords = keywordExtractor.extract(
+      `${`${job?.title} ${job?.description} ${job?.checkLists?.map(c => c).join(' ')} ${job?.questions
+        ?.map(c => c)
+        .join(' ')}`}`,
+      {
+        language: 'english',
+        remove_digits: true,
+        return_changed_case: true,
+        remove_duplicates: true,
+      }
+    )
+
+    keyWords = keyWords.map(k => `.*${k}.*`).join('|')
+    keyWords = new RegExp(keyWords, 'i')
+  }
+
+  const filter = {
+    $and: [
+      {
+        $or: [
+          { title: { $regex: `${keyWords}`, $options: 'si' } },
+          { description: { $regex: `${keyWords}`, $options: 'si' } },
+          { categories: { $in: job?.categories || [] } },
+          { 'reqSkills.skill': { $in: job?.reqSkills?.map(s => s.skill) || [] } },
+          { tags: { $in: job?.tags || [] } },
+          { 'preferences.locations': { $in: job?.preferences?.locations || [] } },
+          { 'preferences.nOEmployee': { $eq: job?.preferences?.nOEmployee || 1 } },
+          { budget: queryGen.numRanges((job?.budget || 0) - 250, (job?.budget || 0) + 350) },
+          { 'scope.complexity': job?.scope?.complexity },
+          { 'payment.type': job?.payment?.type },
+          {
+            'scope.duration': queryGen.numRanges((job?.scope?.duration || 0) - 5, (job?.scope?.duration || 0) + 10),
+          },
+          {
+            'payment.amount': queryGen.numRanges((job?.payment?.amount || 0) - 10, (job?.payment?.amount || 0) + 15),
+          },
+        ],
+      },
+      { isDeleted: { $ne: true } },
+      { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
+    ],
+  }
+
+  options.populate = 'client,categories'
+  if (!options.projectBy) {
+    options.projectBy = 'client, categories, title, description, locations, complexity, payment, budget, preferences'
+  }
+
+  const jobs = await Job.paginate(filter, options)
+  return jobs
+}
+
+/**
  * Update job by id
  * @param {mongoose.Types.ObjectId} jobId
  * @param {UpdateJobBody} updateBody
@@ -215,6 +322,20 @@ export const updateJobById = async (
   }
   Object.assign(job, updateBody)
   await job.save()
+  return job
+}
+
+/**
+ * Update job by id
+ * @param {any} options
+ * @param {UpdateJobBody} updateBody
+ * @returns {Promise<any | null>}
+ */
+export const updateMulJobByOptions = async (options: any, updateBody: UpdateJobBody): Promise<any | null> => {
+  const job = await Job.updateMany(options, updateBody)
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  }
   return job
 }
 
