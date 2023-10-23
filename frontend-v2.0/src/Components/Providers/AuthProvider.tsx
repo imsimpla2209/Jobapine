@@ -35,11 +35,22 @@ const AuthProvider = ({ children }: Props) => {
 
 	const [tokenExpirationDate, setTokenExpirationDate] = useState(Date.now() + ExpireTime)
 
-	const login = useCallback((token: any, data: any) => {
+	const login = useCallback(async (token: any, data: any) => {
+		setLoading(true)
 		setState({ ...data, token });
 		setToken(token)
 		setAuthenticated(true);
 		setTokenExpirationDate(Date.now() + ExpireTime);
+		if(data.lastLoginAs === EUserType.FREELANCER) {
+			await switchToFreelancer().then((res) => {
+				setFreelancer(res.data)
+			})
+		} else if (data.lastLoginAs === EUserType.CLIENT) {
+			await switchToClient().then((res) => {
+				setClient(res.data)
+			})
+		}
+		setLoading(false);
 		localStorage.setItem("expiredIn", `${Date.now() + ExpireTime}`);
 	}, [setState])
 

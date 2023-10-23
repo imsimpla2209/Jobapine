@@ -11,9 +11,11 @@ router
   .post(validate(jobValidation.createJob), jobController.createJob)
   .get(validate(jobValidation.getJobs), jobController.getJobs)
 
+router.route('/all').get(jobController.getAllJobs)
 router.route('/filter').post(validate(jobValidation.advancedGetJobs), jobController.getAdvancedJobs)
 router.route('/search').get(validate(jobValidation.searchJob), jobController.searchJobs)
 router.route('/rcmd').get(validate(jobValidation.getRcmdJob), jobController.getRcmdJobs)
+router.route('/similar').get(validate(jobValidation.getSimilarJobs), jobController.getSimilarJobs)
 router.route('/categories').get(jobController.getCategories)
 router.route('/skills').get(getSkills)
 

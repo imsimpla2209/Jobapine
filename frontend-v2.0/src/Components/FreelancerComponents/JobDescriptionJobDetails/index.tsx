@@ -15,7 +15,6 @@ export default function JobDescriptionJobDetails({ job }) {
   const lang = i18n.language;
   const locations = useSubscription(locationStore).state
 
-
   return (
     <div className="col-lg-9 col-xs-12  mt-lg-0 d-flex flex-column" style={{ borderRadius: 10 }}>
       <div className="bg-white py-lg-4 px-4 border border-1 justify-content-sm-between d-flex py-sm-3 mt-lg-0 mt-sm-3 py-xs-5 py-2">
@@ -23,7 +22,7 @@ export default function JobDescriptionJobDetails({ job }) {
         <Badge className="text-capitalize" status={job?.currentStatus === 'open' || job?.currentStatus === 'pending' ? 'processing' : 'default'} text={job?.currentStatus} />
       </div>
       <div className="bg-white py-lg-4 px-4 border border-1 row py-sm-3 py-2">
-        <Space size={'middle'}>
+        <Space size={'middle'} wrap>
           {
             job?.categories.map(c => (
               <Link to="#" key={c?.name} className="advanced-search-link" style={{ fontWeight: 600, fontSize: 16 }}>
@@ -38,11 +37,11 @@ export default function JobDescriptionJobDetails({ job }) {
             job?.createdAt ? new Date(job?.createdAt * 1000).toLocaleString()
               : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}
         </p>
-        <Space size={'small'}>
+        <Space size={'small'} wrap>
           <i className="fas fa-street-view" style={{ color: "#14bff4" }}>
             {" "}
           </i>{" "}
-          <Space size={'small'} style={{ display: 'flex', }}>
+          <Space size={'small'} wrap style={{ display: 'flex', }}>
             {
               job?.preferences?.locations.map(l => (
                 <div key={l}>

@@ -3,6 +3,8 @@ import { QueryResult } from '../../providers/paginate/paginate'
 
 export interface ISkill {
   name: string
+  name_vi: string
+  category: string
 }
 
 export interface ILevelSkill {

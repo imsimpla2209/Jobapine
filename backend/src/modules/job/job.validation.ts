@@ -46,6 +46,8 @@ export const createJob = {
 export const getJobs = {
   query: Joi.object().keys({
     title: Joi.string(),
+    categories: Joi.array().items(Joi.string()),
+    skills: Joi.array().items(Joi.string()),
     nOEmployee: Joi.number().positive(),
     complexity: Joi.string(),
     duration: Joi.number().positive(),
@@ -132,10 +134,20 @@ export const updateJobStatus = {
 }
 
 export const getRcmdJob = {
-  params: Joi.object().keys({
-    freelancerId: Joi.string().custom(objectId),
-  }),
   query: Joi.object().keys({
+    freelancerId: Joi.string().custom(objectId),
+    categories: Joi.array().items(Joi.string()),
+    skills: Joi.array().items(Joi.string()),
+    sortBy: Joi.string(),
+    projectBy: Joi.string(),
+    limit: Joi.number().integer(),
+    page: Joi.number().integer(),
+  }),
+}
+
+export const getSimilarJobs = {
+  query: Joi.object().keys({
+    id: Joi.string().custom(objectId),
     sortBy: Joi.string(),
     projectBy: Joi.string(),
     limit: Joi.number().integer(),

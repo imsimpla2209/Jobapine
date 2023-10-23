@@ -19,14 +19,12 @@ export default function JobDetailsFreelancer() {
   const [jobData, setJobData] = useState(null)
   const freelancer = useSubscription(freelancerStore).state;
   const user = useSubscription(userStore).state;
-
   useEffect(() => {
-    // dispatch(freelancerDataAction());
     getJob(id).then(res => {
       console.log("load job, ", id);
       setJobData(res.data)
     })
-  }, [])
+  }, [id])
 
   const { t } = useTranslation(['main']);
 
@@ -51,7 +49,7 @@ export default function JobDetailsFreelancer() {
             <div className="col-lg-12 col-xs-12">
               <ClientRecentHistory />
               <OtherOpenJobsByThisClient />
-              <SimilarJobsOnJobSickers />
+              <SimilarJobsOnJobSickers id={jobData?._id}/>
             </div>
           </div>
         </div>

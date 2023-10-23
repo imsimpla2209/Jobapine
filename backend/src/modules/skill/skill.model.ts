@@ -9,6 +9,14 @@ const skillSchema = new mongoose.Schema<ISkillDoc, ISkillModel>(
       type: String,
       required: true,
     },
+    name_vi: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

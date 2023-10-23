@@ -4,6 +4,8 @@ import { NewCreatedSkill } from './skill.interfaces'
 
 const createSkillBody: Record<keyof NewCreatedSkill, any> = {
   name: Joi.string().required(),
+  name_vi: Joi.string(),
+  category: Joi.string(),
 }
 
 export const createSkill = {
