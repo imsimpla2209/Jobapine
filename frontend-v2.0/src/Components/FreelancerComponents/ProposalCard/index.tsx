@@ -1,20 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { fakeJobsState } from "Store/fake-state";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getJob } from "src/api/job-apis";
 import Loader from './../../SharedComponents/Loader/Loader';
+import { EStatus } from "src/utils/enum";
+import { useTranslation } from "react-i18next";
+import { randomDate } from "src/utils/helperFuncs";
 
 export default function ProposalCard({ proposal, jobId, ind }) {
-
-  const jobData = fakeJobsState[0]
+  const { t } = useTranslation(['main'])
+  const [jobData, setJobData] = useState<any>({})
 
   useEffect(() => {
-    // db.collection("job")
-    //   .doc(jobId)
-    //   .onSnapshot(doc => {
-    //     setJobData(doc.data());
-    //   });
+    getJob(jobId).then(res => {
+      setJobData(res.data);
+    }).catch(err => console.log(err));
   }, []);
 
   return (
@@ -22,25 +23,53 @@ export default function ProposalCard({ proposal, jobId, ind }) {
       {
         jobId
           &&
-          jobData?.jobTitle ?
+          jobData?.title ?
           <div>
-            <div className="row">
-              <div className="col">
+            <div className="d-flex flex-wrap flex-md-row flex-column justify-content-around">
+              <div className="">
+                <Link
+                  to={`/job/review-proposal/${proposal._id}`}
+                  className="fw-bold "
+                  style={{ color: "#6600cc" }}
+                >
+                  Proposals No.{ind + 1}
+                </Link>
                 <div>
-                  {
-                    proposal.status === "proposal"
-                      ? new Date(proposal.proposalTime?.seconds * 1000).toLocaleString()
-                      : new Date(proposal.startContractTime?.seconds * 1000).toLocaleString()
-                  }
+                  <strong className=" me-2">
+                    {t("Cover Letter")}:
+                  </strong>
+                  <span className="text-muted text-wrap">
+                    {proposal?.description}
+                  </span>
+                </div>
+                <div className="">
+                  <div>
+                    {
+                      proposal?.currentStatus === EStatus.ACCEPTED
+                        ? new Date(proposal?.status?.date * 1000).toLocaleString()
+                        : t("Submited Date") + ': ' + (proposal?.createdAt ? new Date((proposal?.createdAt) * 10000).toLocaleString() : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString())
+                    }
+                  </div>
+                  <div>
+                    {
+                      t("Status") + ': ' + proposal?.currentStatus
+                    }
+                  </div>
                 </div>
               </div>
-              <Link
-                to={`/job/applied/${jobId}`}
-                className="col-6 fw-bold text-success "
-              >
-                {jobData.jobTitle}
-              </Link>
-              <div className="col text muted">{jobData.jobCategory}</div>
+              <div className="d-flex flex-column">
+                <strong className=" me-2">
+                  {t("Job details")}:
+                </strong>
+                <Link
+                  to={`/job/${jobId}`}
+                  className="fw-bold "
+                  style={{ color: "#6600cc" }}
+                >
+                  {jobData.title}
+                </Link>
+                <div className="text muted">{jobData?.description}</div>
+              </div>
             </div>
             <hr />
           </div>

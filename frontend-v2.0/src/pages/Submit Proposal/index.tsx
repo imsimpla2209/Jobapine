@@ -14,10 +14,12 @@ import { getJob } from "src/api/job-apis";
 import { useSubscription } from "src/libs/global-state-hook";
 import SubmitProposalFixed from "../../Components/FreelancerComponents/SubmitProposalFixed";
 import SubmitProposalHourly from "../../Components/FreelancerComponents/SubmitProposalHourly";
-import { Button, Form, Input, Space, Tag } from "antd";
-import { pickName, randomDate } from "src/utils/helperFuncs";
+import { Button, Form, Input, Modal, Result, Space, Tag } from "antd";
+import { currencyFormatter, pickName, randomDate } from "src/utils/helperFuncs";
 import { EComplexityGet, EPaymenType } from "src/utils/enum";
 import { DefaultUpload } from "src/Components/CommonComponents/upload/upload";
+import { createProposal } from "src/api/proposal-apis";
+import toast from "react-hot-toast";
 
 const customizeRequiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
   <>
@@ -33,8 +35,10 @@ export default function SubmitProposal() {
   const navigate = useNavigate();
   const [jobData, setJobData] = useState(null)
   const [files, setFiles] = useState([])
+  const [open, setOpen] = useState(false);
   const freelancer = useSubscription(freelancerStore).state;
   const user = useSubscription(userStore).state;
+  const [isValid, setValid] = useState(true);
   const [proposalData, setproposalData] = useState({
     coverLetter: "",
     proposalImages: [],
@@ -45,8 +49,15 @@ export default function SubmitProposal() {
     getJob(id).then(res => {
       console.log("load job, ", id);
       setJobData(res.data)
+      
     })
   }, []);
+
+  useEffect(() => {
+    if (jobData?.appliedFreelancers?.includes(freelancer?._id)) {
+      setValid(false)
+    }
+  }, [freelancer?._id, jobData])
 
   const normFile = (e: any) => {
     // handle event file changes in upload and dragger components
@@ -124,37 +135,25 @@ export default function SubmitProposal() {
   }
 
   const handleProposal = () => {
-    // subCollection(
-    //   "freelancer",
-    //   "jobProposal",
-    //   {
-    //     jobId: id,
-    //     status: "proposal",
-    //     proposalTime: firebase.firestore.Timestamp.now(),
-    //     startContractTime: "",
-    //     endContractTime: "",
-    //     budget: parseInt(rate)
-    //   },
-    //   auth.currentUser.uid
-    // );
-    // updateUserData("freelancer", { connects: user.sickPoints - 2 });
-
-    // //subcollection proposal
-    // subCollection(
-    //   "job",
-    //   "proposals",
-    //   {
-    //     freelancerName: user.firstName + " " + user.lastName,
-    //     freelancerId: auth.currentUser.uid,
-    //     coverLetter: proposalData.coverLetter,
-    //     images: proposalData?.proposalImages,
-    //     clientId: job.authID,
-    //     budget: parseInt(rate),
-    //     jobPaymentType: job.jobPaymentType,
-    //     proposalTime: firebase.firestore.Timestamp.now(),
-    //   },
-    //   id
-    // );
+    toast.promise(
+      createProposal({
+        description: proposalData?.coverLetter,
+        attachments: proposalData?.proposalImages || [],
+        expectedAmount: rate ? (rate / 1000) : jobData?.payment?.amount,
+        job: jobData?._id,
+        freelancer: freelancer?._id
+      }).then(res => {
+        setOpen(true)
+        setValid(false)
+      }).catch(err => {
+        console.log('Err', err)
+      }),
+      {
+        loading: 'Submiting...',
+        success: <b>Submited!</b>,
+        error: <b>Could not Submit.</b>,
+      }
+    );
   };
 
   return (
@@ -194,6 +193,12 @@ export default function SubmitProposal() {
               <div className="ps-4 pt-2 d-flex flex-md-row flex-column">
                 <div className="w-75">
                   <p className="fw-bold">{jobData?.title}</p>
+                  <span>
+                    {
+                      jobData?.createdAt ? new Date(`${jobData?.createdAt}`).toLocaleString()
+                        : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()
+                    }
+                  </span>
                   <div className="mb-3">
                     <span className="bg-cat-cn py-1 px-2 me-3 rounded-pill">
                       <Space size={'middle'}>
@@ -205,11 +210,6 @@ export default function SubmitProposal() {
                           ))
                         }
                       </Space>
-                    </span>
-                    <span>
-                      {
-                        jobData?.createdAt ? new Date(jobData?.createdAt * 1000).toLocaleString()
-                          : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}
                     </span>
                   </div>
                   <div className="mb-3">
@@ -275,7 +275,7 @@ export default function SubmitProposal() {
                 {
                   jobData?.payment?.type === EPaymenType.WHENDONE
                     ? <SubmitProposalFixed rate={rate} setrate={setrate} />
-                    : <SubmitProposalHourly rate={rate} setrate={setrate} />
+                    : <SubmitProposalHourly rate={rate} setrate={setrate} currentValue={jobData?.payment?.amount} />
                 }
 
 
@@ -381,120 +381,133 @@ export default function SubmitProposal() {
                 </p>
               </div>
               <div className="border-top ps-4 py-4">
-                <button
-                  className="btn shadow-none text-white"
-                  onClick={handleProposal}
-                  style={{ backgroundColor: "#5b14b8" }}
-                  data-bs-toggle="modal"
-                  data-bs-target="#exampleModal"
-                >
-                  {t("Submit Proposal")}
-                </button>
-                <button className="btn shadow-none upw-c-cn">{t("Cancel")}</button>
-
-                <div
-                  className="modal fade"
-                  id="exampleModal"
-                  tabIndex={-1}
-                  aria-labelledby="exampleModalLabel"
-                  aria-hidden="true"
-                >
-                  <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">
+                {
+                  isValid ? <>
+                    <button
+                      className="btn shadow-none text-white"
+                      onClick={() => handleProposal()}
+                      style={{ backgroundColor: "#5b14b8" }}
+                    >
+                      {t("Submit Proposal")}
+                    </button>
+                    <button className="btn shadow-none upw-c-cn">{t("Cancel")}</button>
+                  </> : <>
+                    <Result
+                      title={`${t("You already applied for this Job")} ${t("OR")} ${t("You are Blocked from this one")}`}
+                      extra={
+                        <Link to={`/proposals`} type="primary" key="console">
                           {t("Review proposal")}
-                        </h5>
-                        {/* <button
+                        </Link>
+                      }
+                    />
+                  </>
+                }
+
+                <Modal
+                  open={open}
+                  footer={null}
+                  className="w-100 w-md-75"
+                >
+                  <div >
+                    <div className="">
+                      <h5 className="">
+                        {t("Review proposal")}
+                      </h5>
+                      {/* <button
                             type="button"
                             className="btn-close"
                             data-bs-dismiss="modal"
                             aria-label="Close"
                           ></button> */}
-                      </div>
-                      <div className="modal-body">
-                        <div className="ps-4 pt-2 d-flex">
-                          <div className="w-75">
-                            <p className="fw-bold">{jobData?.title}</p>
-                            <div className="mb-3">
-                              <span className="bg-cat-cn py-1 px-2 me-3 rounded-pill">
-                                <Space size={'middle'}>
-                                  {
-                                    jobData?.categories.map(c => (
-                                      <Link to="#" key={c?.name} className="advanced-search-link" style={{ fontWeight: 600, fontSize: 16 }}>
-                                        {c?.name}
-                                      </Link>
-                                    ))
-                                  }
-                                </Space>
-                              </span>
-                            </div>
-                            <div className="mb-3">
-                              <p>{jobData?.description}</p>
-                            </div>
-                          </div>
-                          <div className="w-25 border-start m-3 ps-3">
-                            <div>
-                              <span>
-                                <i className="fas fa-head-side-virus" />
-                              </span>
-                              <span className="ps-2">
-                                <strong>Expert</strong>
-                              </span>
-                              <p className="ps-4">
-                                {t(EComplexityGet[Number(jobData?.scope?.complexity)])}
-                              </p>
-                            </div>
-                            <div>
-                              <span>
-                                <i className="far fa-clock" />
-                              </span>
-                              <span className="ps-2">
-                                <strong>{t("Hours to be determined")}</strong>
-                              </span>
-                              <p className="ps-4">{t(`${jobData?.payment?.type}`)}</p>
-                            </div>
-                            <div>
-                              <span>
-                                <i className="far fa-calendar-alt" />
-                              </span>
-                              <span className="ps-2">
-                                <strong>{jobData?.scope?.duration} {t('days')}</strong>
-                              </span>
-                              <p className="ps-4">{t("Job Duration")}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="fw-bold">{t("Cover Letter")}</p>
+                    </div>
+                    <div className="">
+                      <div className="pt-2">
+                        <div className="w-75">
+                          <p className="fw-bold" style={{ fontSize: 19 }}>{jobData?.title}</p>
                           <div className="mb-3">
-                            <p>{proposalData.coverLetter}</p>
+                            <span className="bg-cat-cn py-1 px-2 rounded-pill">
+                              <Space size={'middle'}>
+                                {
+                                  jobData?.categories.map(c => (
+                                    <Link to="#" key={c?.name} className="advanced-search-link" style={{ fontWeight: 600, fontSize: 16 }}>
+                                      {c?.name}
+                                    </Link>
+                                  ))
+                                }
+                              </Space>
+                            </span>
+                          </div>
+                          <div className="mb-3">
+                            <p>{jobData?.description}</p>
+                          </div>
+                        </div>
+                        <div className="border-bottom mb-3 d-flex flex-md-row flex-column justify-content-between">
+                          <div>
+                            <span>
+                              <i className="fas fa-head-side-virus" />
+                            </span>
+                            <span className="ps-2">
+                              <strong>Expert</strong>
+                            </span>
+                            <p className="ps-4">
+                              {t(EComplexityGet[Number(jobData?.scope?.complexity)])}
+                            </p>
+                          </div>
+                          <div>
+                            <span>
+                              <i className="far fa-clock" />
+                            </span>
+                            <span className="ps-2">
+                              <strong>{t("Hours to be determined")}</strong>
+                            </span>
+                            <p className="ps-4">{t(`${jobData?.payment?.type}`)}</p>
+                          </div>
+                          <div>
+                            <span>
+                              <i className="far fa-calendar-alt" />
+                            </span>
+                            <span className="ps-2">
+                              <strong>{jobData?.scope?.duration} {t('days')}</strong>
+                            </span>
+                            <p className="ps-4">{t("Job Duration")}</p>
                           </div>
                         </div>
                       </div>
-                      <div className="modal-footer">
-                        <button
-                          type="button"
-                          style={{ background: '#56889c' }}
-                          className="btn rounded text-white"
-                          data-bs-dismiss="modal"
-                          onClick={handlewithdrawProposal}
-                        >
-                          {t("WithDraw proposal")}
-                        </button>
-                        <button
-                          onClick={handleRout}
-                          className="btn bg-jobsicker"
-                          type="button"
-                          data-bs-dismiss="modal"
-                          aria-label="Close"
-                        >
-                          {t("Save changes")}
-                        </button>
+                      <div>
+                        <p className="fw-bold">{t("Cover Letter")}</p>
+                        <div className="mb-3">
+                          <p>{proposalData.coverLetter}</p>
+                        </div>
                       </div>
+                      {
+                        rate && <div>
+                          <p className="fw-bold">{t("Hourly Rate")}</p>
+                          <div className="mb-3">
+                            <p>{currencyFormatter(rate)}</p>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                    <div className="modal-footer">
+                      <button
+                        type="button"
+                        style={{ background: '#56889c' }}
+                        className="btn rounded text-white"
+                        data-bs-dismiss="modal"
+                        onClick={handlewithdrawProposal}
+                      >
+                        {t("WithDraw proposal")}
+                      </button>
+                      <button
+                        onClick={handleRout}
+                        className="btn bg-jobsicker"
+                        type="button"
+                      >
+                        {t("Save changes")}
+                      </button>
                     </div>
                   </div>
-                </div>
+                </Modal>
               </div>
             </div>
           </div>

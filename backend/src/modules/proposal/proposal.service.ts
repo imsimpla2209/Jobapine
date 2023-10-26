@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 import { deleteContractByOptions } from '@modules/contract/contract.service'
-import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
-import { isJobOpened } from '@modules/job/job.service'
+import { addProposaltoFreelancerById, getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
+import { addApplytoJobById, addProposaltoJobById, isJobOpened } from '@modules/job/job.service'
 import { Message } from '@modules/message'
 import { updateSickPointsById } from '@modules/user/user.service'
 import { EStatus } from 'common/enums'
+import { logger } from 'common/logger'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
@@ -25,11 +27,20 @@ export const createProposal = async (
   if (!isJobOpen) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Either you or your proposal is incompatible with job!')
   }
-  updateSickPointsById(userId, 5 + (proposalBody?.priority || 0) * 2, true)
-  // if (await Proposal.isUserSigned(proposalBody.user)) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Proposal')
-  // }
-  return Proposal.create(proposalBody)
+  try {
+    updateSickPointsById(userId, 2 + (proposalBody?.priority || 0) * 2, true)
+    // if (await Proposal.isUserSigned(proposalBody.user)) {
+    //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Proposal')
+    // }
+    const newProposal = await Proposal.create(proposalBody)
+    await addProposaltoJobById(proposalBody.job, newProposal._id)
+    await addProposaltoFreelancerById(proposalBody.freelancer, newProposal._id)
+    await addApplytoJobById(proposalBody.job, proposalBody.freelancer)
+    return newProposal
+  } catch (err: any) {
+    logger.error('cannot create proposal', err)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'cannot create proposals')
+  }
 }
 
 /**
@@ -39,7 +50,15 @@ export const createProposal = async (
  * @returns {Promise<QueryResult>}
  */
 export const queryProposals = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
-  const proposals = await Proposal.paginate(filter, options)
+  const freelancerFilter = filter['freelancer'] ? { freelancer: filter['freelancer'] || '' } : {}
+  const jobFilter = filter['job'] ? { job: filter['job'] || '' } : {}
+  const statusFilter = filter['status.status'] ? { 'status.status': filter['status.status'] || '' } : {}
+
+  const queryFilter = {
+    $and: [freelancerFilter, jobFilter, statusFilter],
+  }
+
+  const proposals = await Proposal.paginate(queryFilter, options)
   return proposals
 }
 

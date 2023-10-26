@@ -13,11 +13,11 @@ export const getProposals = (data: IProposalQuery) => {
 }
 
 export const getProposal = (id: string) => {
-  return instance.get(`proposals:${id}`);
+  return instance.get(`proposals/${id}`);
 }
 
 export const updateProposal = (data: Omit<IProposal, 'freelancer' | 'job'>, id: string) => {
-  return instance.patch(`proposals:${id}`, data);
+  return instance.patch(`proposals/${id}`, data);
 }
 
 export const deleteProposal = (id: string) => {
@@ -25,5 +25,5 @@ export const deleteProposal = (id: string) => {
 }
 
 export const forcedDeleteProposal = (id: string) => {
-  return instance.delete(`proposals/admin/:${id}`);
+  return instance.delete(`proposals/admin/${id}`);
 }

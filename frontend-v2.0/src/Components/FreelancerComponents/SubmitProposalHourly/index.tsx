@@ -2,8 +2,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { updateUserData } from './../../../Network/Network';
+import { useTranslation } from "react-i18next";
+import { currencyFormatter } from "src/utils/helperFuncs";
 
-export default function SubmitProposalHourly({ rate, setrate }) {
+export default function SubmitProposalHourly({ rate, setrate, currentValue }) {
+	const { t } = useTranslation(['main'])
 	const rateNum = (e) => {
 		rate = e.target.value;
 		setrate(rate);
@@ -12,20 +15,20 @@ export default function SubmitProposalHourly({ rate, setrate }) {
 	return (
 		<section className=" bg-white mt-3 pt-4">
 			<div className="ps-1 pb-3">
-				<h4>What is the rate you'd like to bid for this job?</h4>
+				<h4>{t("What is the rate you'd like to bid for this job?(Optional)")}</h4>
 			</div>
 			<div className="p-4 my-3">
 				<div>
 					<div className="mb-4 d-flex justify-content-between  border-bottom">
 						<div>
 							<span>
-								<strong>Hourly Rate</strong>
+								<strong>{t("Hourly Rate")} {`(${t("Original")}/${currencyFormatter(currentValue)})`}</strong>
 							</span>
-							<p>Total amount the client will see on your proposal</p>
+							<p>{t("Total amount the client will see on your proposal")}</p>
 						</div>
 						<div className="me-5 mt-2 position-relative jd-inp-cn">
 							<div className="position-absolute">
-								<i className="fas fa-dollar-sign"></i>
+								VND
 							</div>
 							<input
 								className="form-control text-end"
@@ -48,7 +51,7 @@ export default function SubmitProposalHourly({ rate, setrate }) {
 						</div>
 						<div className="me-5 mb-3 d-flex">
 							<span style={{ position: "relative", right: "148px" }}>
-								<i className="fas fa-dollar-sign"></i>
+								VND
 							</span>
 							<span className="text-end">{(rate * 20) / 100}</span>
 							<span style={{ position: "relative", right: "-30px" }}>/hr</span>
@@ -57,13 +60,13 @@ export default function SubmitProposalHourly({ rate, setrate }) {
 					<div className="mb-3 d-flex  justify-content-between border-top pt-3">
 						<div>
 							<span>
-								<strong>You'll Receive</strong>
+								<strong>{t("You'll Receive")}</strong>
 							</span>
-							<p className="w-75">The estimated amount you'll receive after service fees</p>
+							<p className="w-75">{t("The estimated amount you'll receive after service fees")}</p>
 						</div>
 						<div className="me-5 mt-2 position-relative jd-inp-cn">
 							<div className="position-absolute">
-								<i className="fas fa-dollar-sign"></i>
+								VND
 							</div>
 							<input
 								className="form-control text-end"

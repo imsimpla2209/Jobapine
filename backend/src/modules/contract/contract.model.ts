@@ -20,16 +20,18 @@ const contractSchema = new mongoose.Schema<IContractDoc, IContractModel>(
           status: {
             type: String,
             enum: EStatus,
-            default: EStatus.PENDING,
           },
           date: {
             type: Date,
-            default: new Date(),
           },
           comment: {
             type: String,
-            default: '',
           },
+        },
+        default: {
+          date: new Date(),
+          status: EStatus.PENDING,
+          comment: '',
         },
       },
     ],

@@ -7,8 +7,8 @@ const router: Router = express.Router()
 
 router
   .route('/')
-  .post(validate(proposalValidation.createProposal), proposalController.createProposal)
-  .get(validate(proposalValidation.getProposals), proposalController.getProposals)
+  .get(auth(), validate(proposalValidation.getProposals), proposalController.getProposals)
+  .post(auth(), validate(proposalValidation.createProposal), proposalController.createProposal)
 
 router
   .route('/:userId')

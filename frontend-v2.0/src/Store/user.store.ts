@@ -25,6 +25,7 @@ export const userStore = createSubscription<IUser>({
 })
 
 export const freelancerStore = createSubscription<IFreelancer>({
+  _id: "",
   user: "",
   name: "",
   intro: '',

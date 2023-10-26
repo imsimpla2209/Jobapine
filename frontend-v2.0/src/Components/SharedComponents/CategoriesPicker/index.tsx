@@ -2,8 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Select, Space } from 'antd';
 import { getCategories } from 'src/api/job-apis';
 
-const CategoriesPicker = ({handleChange}: any) => {
+const CategoriesPicker = ({handleChange, istakeValue=false, reset=false}: any) => {
   const [categories, setcategories] = useState([])
+  const [selected, setSelected] = useState([])
+
+  useEffect(() => {
+    if(reset) {
+      setSelected([])
+    }
+  }, [reset])
 
   useEffect(() => {
     getCategories() //eslint-disable-line
@@ -24,12 +31,17 @@ const CategoriesPicker = ({handleChange}: any) => {
   return (
     <Space style={{ width: '100%' }} direction="vertical" >
       <Select
+        labelInValue={istakeValue}
+        value={selected}
         mode="multiple"
         allowClear
         style={{ width: '100%' }}
         placeholder="Please select"
         defaultValue={[]}
-        onChange={handleChange}
+        onChange={(e) => {
+          setSelected(e)
+          handleChange(e)
+        }}
         options={categories}
       />
     </Space>

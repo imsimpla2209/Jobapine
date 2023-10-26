@@ -13,14 +13,14 @@ export const getUsers = (data: IUserQuery) => {
 }
 
 export const getUser = (id: string) => {
-  return instance.get(`users:${id}`);
+  return instance.get(`users/${id}`);
 }
 
 export const updateUser = (data: Omit<
   IUser,
   'refreshToken' | 'isVerified' | 'isActive' | 'lastLoginAs' | 'balance' | 'sickPoints'
 >, id: string) => {
-  return instance.patch(`users:${id}`, data);
+  return instance.patch(`users/${id}`, data);
 }
 
 export const deleteUser = (id: string) => {
@@ -28,7 +28,7 @@ export const deleteUser = (id: string) => {
 }
 
 export const forcedDeleteUser = (id: string) => {
-  return instance.delete(`users/admin/:${id}`);
+  return instance.delete(`users/admin/${id}`);
 }
 
 export const switchToFreelancer = () => {

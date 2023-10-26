@@ -1,10 +1,12 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 
+import { HeartFilled, HeartOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { freelancerStore, userStore } from "src/Store/user.store";
+import { updateFreelancer } from "src/api/freelancer-apis";
 import { useSubscription } from "src/libs/global-state-hook";
 
 export default function ConnectsAndSubmit() {
@@ -13,10 +15,10 @@ export default function ConnectsAndSubmit() {
   const freelancer = useSubscription(freelancerStore).state;
   const user = useSubscription(userStore).state;
   // let [text, setText] = useState("");
-  let [proposal, setProposal] = useState("");
   const [jobProposal, setjobProposal] = useState(false);
   const navigate = useNavigate();
   const [isliked, setisliked] = useState(false)
+  const setState = useSubscription(freelancerStore).setState;
 
   useEffect(() => {
     // db.collection("freelancer")
@@ -32,23 +34,30 @@ export default function ConnectsAndSubmit() {
     // dispatch(jobsDataAction());
     // dispatch(freelancerDataAction())
   }, [isliked])
-  const saveJob = (e) => {
+
+  const saveJob = () => {
     setisliked(!isliked)
-    // if (e.target.className === 'far fa-heart') {
-    //   updateUserData("freelancer", { savedJobs: [...freelancer?.savedJobs, id] });
-    //   e.target.className = 'fas fa-heart text-jobsicker'
-
-    // }
-    // else {
-    //   user?.savedJobs?.forEach((item, index) => {
-    //     if (item === id) {
-    //       user?.savedJobs?.splice(index, 1);
-    //       updateUserData("freelancer", { savedJobs: [...freelancer?.savedJobs] });
-    //       e.target.className = 'far fa-heart'
-
-    //     }
-    //   })
-    // }
+    if (!freelancer?.favoriteJobs.includes(id)) {
+      const favorJob = freelancer?.favoriteJobs || []
+      updateFreelancer({
+        favoriteJobs: [...favorJob, id]
+      }, freelancer?._id).then(() => {
+        setState({ ...freelancer, favoriteJobs: [...favorJob, id] })
+      })
+    }
+    else {
+      const favorJob = freelancer?.favoriteJobs
+      favorJob?.forEach((item, index) => {
+        if (item === id) {
+          favorJob?.splice(index, 1);
+          updateFreelancer({
+            favoriteJobs: favorJob || []
+          }, freelancer?._id).then(() => {
+            setState({ ...freelancer, favoriteJobs: favorJob || [] })
+          })
+        }
+      })
+    }
   }
 
 
@@ -121,12 +130,11 @@ export default function ConnectsAndSubmit() {
         <button
           className="btn btn-light border border-1 my-lg-2"
           type="button"
+          onClick={saveJob}
         >
-          <i
-            onClick={(e) => saveJob(e)}
-            className={`${freelancer?.favoriteJobs?.includes(id) ? 'fas fa-heart text-jobsicker' : 'far fa-heart'}`}
-            aria-hidden="true"
-          />
+          {
+            freelancer?.favoriteJobs?.includes(id) ? <HeartFilled style={{ color: '#6600cc' }} /> : <HeartOutlined />
+          }
           {/* {text} */}
         </button>
 

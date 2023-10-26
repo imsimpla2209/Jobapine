@@ -22,20 +22,26 @@ const proposalSchema = new mongoose.Schema<IProposalDoc, IProposalModel>(
           status: {
             type: String,
             enum: EStatus,
-            default: EStatus.PENDING,
           },
           date: {
             type: Date,
-            default: new Date(),
           },
+          comment: {
+            type: String,
+          },
+        },
+        default: {
+          date: new Date(),
+          status: EStatus.PENDING,
+          comment: '',
         },
       },
     ],
     clientComment: [{ type: String, required: 'false', default: [] }],
     freelancerComment: [{ type: String, required: 'false', default: [] }],
     attachments: [{ type: String, required: 'false', default: [] }],
-    contract: { type: mongoose.Types.ObjectId, ref: 'Contract' },
-    messages: [{ type: mongoose.Types.ObjectId, ref: 'Message', default: [] }],
+    contract: { type: String, ref: 'Contract' },
+    messages: [{ type: String, ref: 'Message', default: [] }],
     currentStatus: {
       type: String,
       enum: EStatus,
