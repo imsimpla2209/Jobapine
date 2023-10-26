@@ -1,6 +1,7 @@
 /* start navbar style */
 .nav-bg-cn {
-  background: #ebccff;
+  background: #ffffff;
+  border-bottom: 1px solid #ccc;
 }
 
 .nav-active-link-cn {
@@ -55,11 +56,11 @@
 
 .navbar-dark .navbar-nav .nav-link.active,
 .navbar-dark .navbar-nav .show > .nav-link {
-  color: #ff0066;
+  color: #6600cc;
 }
 
 .navbar-dark .navbar-nav .nav-link {
-  color: #6600cc;
+  color: #49484a;
   font-size: 16px;
   font-weight: 600;
 }
@@ -239,7 +240,7 @@ body[dir = "rtl"] .nav-item.hov-cn:hover .dropdown-menu.Reports-cn
 
   .nav-item .nav-link.active,
   #navbarNavDropdown li > a:hover {
-    color: #6600cc !important;
+    color: #49484a !important;
   }
 
   .dropdown-item:focus,

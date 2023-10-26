@@ -2,7 +2,7 @@ import { SlidersFilled } from '@ant-design/icons'
 import { Button, Dropdown, List, MenuProps, Space, Typography } from 'antd'
 import { Http } from 'api/http'
 import { useSocket } from 'socket.io'
-import { handleFilter } from 'utils/handleFilter'
+import { handleFilter } from 'src/utils/handleData'
 import { useEffect, useState } from 'react'
 import Comment from './comment'
 interface DataType {

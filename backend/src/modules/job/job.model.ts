@@ -71,7 +71,8 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
       {
         type: {
           skill: {
-            type: mongoose.Types.ObjectId,
+            // type: mongoose.Types.ObjectId,
+            type: String,
             ref: 'Skill',
           },
           level: {
@@ -87,7 +88,14 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
     proposals: [{ type: mongoose.Types.ObjectId, ref: 'Proposal', default: [] }],
     attachments: [{ type: String, required: 'false', default: [] }],
     questions: [{ type: String, required: 'false', default: [] }],
-    categories: [{ type: mongoose.Types.ObjectId, ref: 'JobCategory', default: [] }],
+    categories: [
+      {
+        // type: mongoose.Types.ObjectId,
+        type: String,
+        ref: 'JobCategory',
+        default: [],
+      },
+    ],
     preferences: {
       type: {
         nOEmployee: Number,

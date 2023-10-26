@@ -7,14 +7,16 @@ const Progress = ({ done }) => {
   const { t } = useTranslation(['main'])
   const [style, setStyle] = React.useState({});
 
-  setTimeout(() => {
-    const newStyle = {
-      opacity: 1,
-      width: `${(done + 1) * 20}%`
-    }
+  React.useEffect(() => {
+    setTimeout(() => {
+      const newStyle = {
+        opacity: 1,
+        width: `${(done + 1) * 20}%`
+      }
 
-    setStyle(newStyle);
-  }, 200);
+      setStyle(newStyle);
+    }, 200);
+  }, [])
 
   return (
     <div className="progress">

@@ -24,3 +24,5 @@ export const Level = [
   'Senior',
   'Expert',
 ]
+
+export const stopWords = new Set(['and', 'or', 'to', 'in', 'a', 'the', /* ...and more */ ])

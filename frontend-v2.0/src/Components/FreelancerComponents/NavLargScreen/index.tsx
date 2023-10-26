@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import toast from "react-hot-toast";
@@ -44,7 +45,7 @@ export default function NavLargScreen() {
                 `nav-link
                 ${pathname === "/saved-jobs" || pathname === "/proposals" ? "active" : ""}`
               }
-              
+
               to="/find-work"
             >
               {t("FindWork")}
@@ -85,7 +86,7 @@ export default function NavLargScreen() {
                 
                 ${pathname === "/all-contract" || pathname === "/offers" ? "active" : ""}`
               }
-              
+
               to="/my-jobs"
             >
               {t("My Jobs")}
@@ -111,7 +112,7 @@ export default function NavLargScreen() {
           </li>
           <li className="nav-item hov-cn">
             <NavLink className={`nav-link reports-cn `}
-              
+
               to="/overview">
               {t("My Reports")}
             </NavLink>
@@ -172,23 +173,26 @@ export default function NavLargScreen() {
             <LanguageList />
           </li>
           <li className="dropdown">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdownMenuLink"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <img style={{ height: "40px", width: "40px" }} className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
-            </a>
+              <a
+                className="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdownMenuLink"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <img style={{ height: "40px", width: "40px", border: '1px solid #ccc' }} className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
+              </a>
             <ul
+              style={{
+                border: '1px solid #ccc'
+              }}
               id="acc-id"
-              className="dropdown-menu"
+              className="dropdown-menu shadow"
               aria-labelledby="navbarDropdownMenuLink"
             >
               <div className="nav-dd-acc-cn"></div>
-              {/* <li className="px-4 py-3">
+              <li className="px-4 py-3">
                 <div
                   id="acc-btns-id"
                   className="btn-group w-100"
@@ -203,7 +207,7 @@ export default function NavLargScreen() {
                     {t("Invisible")}
                   </button>
                 </div>
-              </li> */}
+              </li>
               <li>
                 <NavLink className={`dropdown-item px-4 ${lang === 'vi' && "text-end"}`} to="/find-work">
                   <div className="d-flex align-items-center">
@@ -217,7 +221,7 @@ export default function NavLargScreen() {
                   </div>
                 </NavLink>
               </li>
-              {/* <li>
+              <li>
                 <NavLink
                   className={`dropdown-item px-4 mb-1 ${lang === 'vi' && "text-end"}`}
                   to="/home"
@@ -232,15 +236,15 @@ export default function NavLargScreen() {
                     </div>
                   </div>
                 </NavLink>
-              </li> */}
-              {/* <li>
+              </li>
+              <li>
                 <Link className={`dropdown-item px-4 ${lang === 'vi' && "fs-6 text-end"}`} to="settings">
                   <span>
                     <i className={`fa fa-cog ${lang === 'vi' && "px-3 fs-5"}`}></i>
                   </span>
                   <span className="ps-2">{t("Settings")}</span>
                 </Link>
-              </li> */}
+              </li>
               <li>
                 <button className={`dropdown-item px-4 ${lang === 'vi' && "fs-6 text-end"}`} onClick={handleLogout}>
                   <span>

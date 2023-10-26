@@ -30,7 +30,8 @@ export default defineConfig({
     include: "**/*.tsx",
   }), reactVirtualized()],
   define: {
-    'process.env': process.env
+    'process.env': process.env,
+    global: {},
   },
   server: {
     // hmr: {

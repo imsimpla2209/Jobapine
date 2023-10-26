@@ -166,7 +166,7 @@ export const getRcmdFreelancers = async (jobId: mongoose.Types.ObjectId, options
       { skills: { $in: job.reqSkills || [] } },
       // { tags: { $in: similarDocs.similarTags || [] } },
       { currentLocations: { $in: job.preferences?.locations || [] } },
-      { member: { $size: { $gte: job.preferences?.nOEmployee } } },
+      { member: { $gte: job.preferences?.nOEmployee } },
     ],
   }
 
@@ -287,7 +287,12 @@ export const reviewFreelancerById = async (
  * @returns {Promise<IFreelancerDoc | null>}
  */
 export const updateSimilarById = async (userId: mongoose.Types.ObjectId): Promise<any | null> => {
-  const freelancer = await getFreelancerByOptions({ user: userId })
+  const freelancer = await getFreelancerById(userId)
+
+  if (!freelancer) {
+    throw new Error('Freelancer not found')
+  }
+
   let keyWords
 
   if (freelancer?.intro) {
@@ -302,14 +307,26 @@ export const updateSimilarById = async (userId: mongoose.Types.ObjectId): Promis
     keyWords = new RegExp(keyWords, 'i')
   }
 
-  let foundCats = await JobCategory.find({ name: { $regex: keyWords || 'nothing', $options: 'i' } })
-  let foundSkills = await Skill.find({ name: { $regex: keyWords || 'nothing', $options: 'i' } })
-  const foundTags = await JobTag.find({ name: { $regex: keyWords || 'nothing', $options: 'i' } })
+  let foundCats = await JobCategory.find({ name: { $regex: `${keyWords}`, $options: 'si' } })
+  let foundSkills = (await Skill.find({ name: { $regex: `${keyWords}`, $options: 'si' } })) || []
 
-  foundCats = union(foundCats, freelancer.preferJobType)
+  freelancer?.skills.forEach(async sk => {
+    const skill = await Skill.findById(sk.skill)
+    foundSkills.push(skill)
+  })
+
+  const extraSimilarSkills = await Promise.all(foundSkills.map(sk => Skill.find({ category: sk?.category })))
+
+  const foundTags = await JobTag.find({ name: { $regex: `${keyWords}`, $options: 'si' } })
+
+  foundCats = union(
+    foundCats?.map(c => c?._id),
+    freelancer?.preferJobType
+  )
   foundSkills = union(
-    foundSkills,
-    freelancer.skills.map(sk => sk.skill)
+    foundSkills?.map(sk => sk._id),
+    freelancer?.skills.map(sk => sk.skill),
+    [].concat(...extraSimilarSkills)?.map(sk => sk._id)
   )
 
   const similarDoc = new SimilarFreelancer({

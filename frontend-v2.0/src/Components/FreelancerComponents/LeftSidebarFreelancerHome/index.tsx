@@ -2,16 +2,22 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
 import { fakeJobsState } from "Store/fake-state";
+import { Checkbox, ConfigProvider, Radio, Space } from "antd";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
+import { EJobFilter, jobLoad } from "src/Store/job.store";
+import { useSubscription } from "src/libs/global-state-hook";
+import { pickName } from "src/utils/helperFuncs";
 
 export default function LeftSidebarFreelancerHome({ freelancer }) {
 
   // const { arr, setarr, setitemSearchList, setsearchList, setswitchJobs} = useContext(SearchContext);
-  const jobs = fakeJobsState;
-  const { t } = useTranslation(['main']);
+  const { t, i18n } = useTranslation(['main']);
+  const lang = i18n.language;
   const navigate = useNavigate();
+
+  const jobLoader = useSubscription(jobLoad)
 
   useEffect(() => {
     // user.searchHistory != null ?
@@ -28,27 +34,24 @@ export default function LeftSidebarFreelancerHome({ freelancer }) {
   };
 
   const switchJobs = (txt) => {
-    // switch (txt) {
-    //   case "Best Matches":
-    //     setswitchJobs("Best Matches")
-    //     break;
-    //   case "My Feed":
-    //     setswitchJobs("My Feed")
-    //     break;
-
-    //   default: setswitchJobs("My Feed")
-    //     break;
-    // }
+    jobLoader.setState({ ...jobLoader.state, filter: txt.target.value, isFirstLoad: true })
   }
 
+  const switchCats = (txt) => {
+    jobLoader.setState({ ...jobLoader.state, categories: txt, isFirstLoad: true })
+  }
+
+  const switchSkills = (txt) => {
+    jobLoader.setState({ ...jobLoader.state, skills: txt, isFirstLoad: true })
+  }
 
   return (
     <div className="col d-none d-lg-block">
       <ul id="list-homepage" className="list-group sidebar-homebage-ul mb-lg-4" style={{
         background: 'white',
-        border: '1px solid #eaddf0',
+        border: '1.4px solid #ccc',
         height: 'auto',
-        borderRadius: 4,
+        borderRadius: 8,
         padding: 8,
         width: '100%',
       }}>
@@ -63,21 +66,31 @@ export default function LeftSidebarFreelancerHome({ freelancer }) {
             {t("My Feed")}
           </Link>
         </li>
-        <li
-          className="list-group-item sidebar-homebage-ul-li"
-          aria-current="true"
+        <ConfigProvider
+          theme={{
+            components: {
+              Radio: {
+                buttonSolidCheckedBg: 'linear-gradient(92.88deg, #930cc9 9.16%, #8319cf 43.89%, #803ade 64.72%)',
+                buttonSolidCheckedHoverBg: 'linear-gradient(92.88deg, #a32ed1 9.16%, #8b31cc 43.89%, #803ade 64.72%)'
+              }
+            }
+          }}
         >
-          <Link
+          <Radio.Group onChange={switchJobs} buttonStyle="solid" value={jobLoader?.state?.filter} style={{ marginLeft: 34, marginTop: 8 }}>
+            <Space direction="vertical" align="center">
+              <Radio.Button value={EJobFilter.RCMD}>
+                {t("Best Matches")}
+              </Radio.Button>
+              <Radio.Button value={EJobFilter.RECENT}>
+                {t("Recent")}
+              </Radio.Button>
+              <Radio.Button value={EJobFilter.OTHER}>
+                {t("All")}
+              </Radio.Button>
+            </Space>
+          </Radio.Group>
+        </ConfigProvider>
 
-            className=" list-group-item-action sidebar-homebage-ul-li-aa"
-            aria-current="true" style={{ fontSize: '14px' }}
-            onClick={() => switchJobs("Best Matches")} to={""}          >
-            {t("Best Matches")}
-          </Link>
-          <span className="hotspot">
-            <button className="hotspot__btn" />
-          </span>
-        </li>
       </ul>
 
       {/* {arr != null ? (
@@ -111,38 +124,71 @@ export default function LeftSidebarFreelancerHome({ freelancer }) {
         ) : null
       )} */}
 
-      <div style={{
-        background: 'white',
-        border: '1px solid #eaddf0',
-        height: 'auto',
-        borderRadius: 4,
-        padding: 8,
-        width: '100%',
-      }}>
-        <h5 className="mb-lg-2 display-inline-block end">{t("My Category")}</h5>
-        <ul
-          className="list-group sidebar-homebage-ul mb-lg-3 "
-          style={{ fontSize: "0.9em" }}
-        >
-          {
-            freelancer?.preferJobType?.map((jobType, ix) => (
-              <li
-                key={jobType?._id}
-                className="list-group-item sidebar-homebage-ul-li "
-                aria-current="true"
-              >
-                <Link
-                  to="#"
-                  className=" list-group-item-action advanced-search-link"
-                  aria-current={"true"}
-                >
-                  {jobType?.name}
-                </Link>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorBorder: "#930cc9",
+            colorText: "#6600cc",
+            colorPrimary: "#930cc9"
+          },
+        }}
+      >
+        <div style={{
+          background: 'white',
+          border: '1.4px solid #ccc',
+          height: 'auto',
+          borderRadius: 8,
+          padding: 8,
+          width: '100%',
+        }}>
+          <h5 className="mb-lg-2 display-inline-block end">{t("My Category")}</h5>
+          <Checkbox.Group onChange={(c) => switchCats(c)}>
+            <Space
+              direction="vertical"
+              style={{ fontSize: "0.9em" }}
+            >
+              {
+                freelancer?.preferJobType?.map((jobType, ix) => (
+                  <Checkbox
+                    value={jobType?._id}
+                    key={jobType?._id}
+                  >
+                    {jobType?.name}
+                  </Checkbox >
+                ))
+              }
+            </Space>
+          </Checkbox.Group>
+        </div>
+        <div style={{
+          background: 'white',
+          border: '1.4px solid #ccc',
+          height: 'auto',
+          borderRadius: 8,
+          padding: 8,
+          width: '100%',
+          marginTop: 24,
+        }}>
+          <h5 className="mb-lg-2 display-inline-block end">{t("My Skills")}</h5>
+          <Checkbox.Group onChange={(s) => switchSkills(s)}>
+            <Space
+              direction="vertical"
+              style={{ fontSize: "0.9em" }}
+            >
+              {
+                freelancer?.skills?.map((skill, ix) => (
+                  <Checkbox
+                    key={skill?.skill?._id}
+                    value={skill?.skill?._id}
+                  >
+                    {pickName(skill?.skill, lang)}
+                  </Checkbox>
+                ))
+              }
+            </Space>
+          </Checkbox.Group>
+        </div>
+      </ConfigProvider>
     </div>
   );
 }

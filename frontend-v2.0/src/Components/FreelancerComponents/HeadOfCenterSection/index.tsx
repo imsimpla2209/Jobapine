@@ -1,49 +1,82 @@
 /* eslint-disable */
+import { Carousel } from "antd";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import branding from 'src/assets/img/PersonalBranding.png';
+import conversation from 'src/assets/img/conversation.png';
+import carousel1 from 'src/assets/videos/carousel1.gif';
+
+
+const contentStyle: React.CSSProperties = {
+  height: '200px',
+  lineHeight: '160px',
+  textAlign: 'center',
+  borderRadius: 14,
+  display: 'flex',
+};
 
 export default function HeadOfCenterSection() {
   const { t } = useTranslation(['main']);
   return (
-    <div>
-      <div className="list-group-item my-lg-2 pt-3 rounded text-center ">
+    <div className="">
+      {/* <div className="list-group-item my-lg-2 pt-3 rounded text-center ">
         <h6>
-          <a href="#" className="text-decoration-none" style={{color:'#3CAF24'}}>
+          <a href="#" className="text-decoration-none" style={{ color: '#3CAF24' }}>
             {" "}
             {t("There are new jobs. Click to see them")}
           </a>
         </h6>
-      </div>
-      <div className="list-group-item pt-lg-4 pb-lg-3 px-4 border-bottom-0 border-top rounded-top">
-        <h4>
-         
-          {t("My Feed")}
-          <span>
-            <div className="btn-group float-sm-end ">
-              <button
-                type="button"
-                className=" btn btn-light dropdown-toggle border border-1 rounded-circle"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i className="fas fa-ellipsis-h " />
-              </button>
-              <ul className="dropdown-menu" style={{fontSize:'13px'}}>
-                <li>
-                  <a className="dropdown-item " href="#">
-                    RSS
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#">
-                    Atom
-                  </a>
-                </li>
-              </ul>
+      </div> */}
+      <div className="mb-4 d-none d-lg-block">
+        <Carousel autoplaySpeed={4000} effect="fade" autoplay style={{
+          borderRadius: 20
+        }}>
+          <div>
+            <div style={{
+              ...contentStyle,
+              background: 'linear-gradient(92.88deg, #fff0c2, #ffb8fd)',
+              justifyContent: 'space-between',
+              padding: 4,
+              alignItems: 'center'
+            }}>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'start',
+                alignContent: 'start',
+                marginLeft: 14,
+              }}>
+                <h3 style={{ fontSize: 23, fontWeight: 600, color: "#fc2683" }}>
+                  {t("HOT!!! This November")}
+                </h3>
+                <p style={{ fontSize: 20, fontWeight: 600, color: "#6e6247", lineHeight: 2 }}>
+                  {t("Start launching a money-making contest at home for girls")}
+                </p>
+              </div>
+              <img src={carousel1} alt="this slowpoke moves" width="250" />
             </div>
-          </span>
-        </h4>
-      </div>
-    </div>
+          </div>
+          <div>
+            <h3 style={{
+              ...contentStyle, background: `url(${conversation})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'cover',
+            }}>
+
+            </h3>
+          </div>
+          <div>
+            <div style={{
+              ...contentStyle,
+              background: `url(${branding})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'contain',
+            }}>
+              {/* <img src={branding} alt="branding" /> */}
+            </div>
+          </div>
+        </Carousel>
+      </div >
+    </div >
   );
 }

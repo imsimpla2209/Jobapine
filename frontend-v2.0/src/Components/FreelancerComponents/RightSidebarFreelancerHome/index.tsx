@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 
 /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -20,7 +21,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
     <div className="col d-none d-lg-block" style={{ width: '300'}}>
       <div style={{
         background: 'white',
-        border: '1px solid #eaddf0',
+        border: '1.4px solid #ccc',
         height: 'auto',
         borderRadius: '12px',
         padding: 8,
@@ -67,20 +68,21 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
           <Progress percent={70} status="active" strokeColor={{ from: '#803ade', to: '#fc2389' }} />
         </div>
       </div>
-      <div className="my-3" />
       <div style={{
-        background: 'white',
-        border: '1px solid #eaddf0',
+        background: '#fdf5ff',
+        border: '1.4px solid #ccc',
         height: 'auto',
         borderRadius: '12px',
         padding: 8,
         width: '100%',
+        marginTop: 24,
+
       }}>
         <div className="mt-lg-1">
-          <p className="text-muted">{t("Availability")}</p>
+          <p className="text-muted" style={{ margin: 0}}>{t("Availability")}</p>
         </div>
         <div className="mb-lg-1">
-          <i className="far fa-clock me-2" />
+          <i className="far fa-clock me-2 mb-3" />
           <span>
             {lang === 'vi' ? freelancer?.available ? "đang rảnh" : "éo rảnh lắm" : freelancer?.available ? "available" : "not available"}
           </span>
