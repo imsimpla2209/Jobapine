@@ -39,6 +39,7 @@ export default function SubmitProposal() {
   const freelancer = useSubscription(freelancerStore).state;
   const user = useSubscription(userStore).state;
   const [isValid, setValid] = useState(true);
+  const [answer, setAnswer] = useState<Record<number, string>>({});
   const [proposalData, setproposalData] = useState({
     coverLetter: "",
     proposalImages: [],
@@ -49,7 +50,7 @@ export default function SubmitProposal() {
     getJob(id).then(res => {
       console.log("load job, ", id);
       setJobData(res.data)
-      
+
     })
   }, []);
 
@@ -135,13 +136,22 @@ export default function SubmitProposal() {
   }
 
   const handleProposal = () => {
+    if (jobData?.questions?.length) {
+      if (jobData?.questions?.length !== Object.keys(answer)?.length) {
+        return toast.error(t('You need to answer this question'))
+      }
+    }
+    if (!proposalData?.coverLetter || proposalData?.coverLetter?.length < 8) {
+      return toast.error(t("You need to put some description of your Proposals"))
+    }
     toast.promise(
       createProposal({
         description: proposalData?.coverLetter,
         attachments: proposalData?.proposalImages || [],
         expectedAmount: rate ? (rate / 1000) : jobData?.payment?.amount,
         job: jobData?._id,
-        freelancer: freelancer?._id
+        freelancer: freelancer?._id,
+        answers: answer
       }).then(res => {
         setOpen(true)
         setValid(false)
@@ -327,9 +337,12 @@ export default function SubmitProposal() {
               <div className="ps-4 pt-2 pe-4 mt-3">
                 {jobData?.questions?.length && <>
                   <p className="fw-bold">{t("Fast Client's Questions")}</p>
-                  {jobData?.questions?.map(question => (
+                  {jobData?.questions?.map((question, ix) => (
                     <Form.Item label={question + "?"} key={question} required tooltip={t('You need to answer this question')}>
-                      <Input placeholder="" />
+                      <Input placeholder={t('You need to answer this question')}
+                        onChange={(e: any) => {
+                          setAnswer({ ...answer, [ix]: e.target.value })
+                        }} />
                     </Form.Item>
                   ))}
                 </>}

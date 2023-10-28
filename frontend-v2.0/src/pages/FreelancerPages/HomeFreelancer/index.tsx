@@ -19,7 +19,7 @@ export default function HomeFreelancer() {
 
   return (
     <div >
-      <div className="container-md container-fluid-sm my-lg-4 px-1 pt-1">
+      <div className="container-xxl container-fluid-sm my-lg-4 px-1 pt-1">
         {
           user?.name
             ? <div className="mx-3">
@@ -28,7 +28,7 @@ export default function HomeFreelancer() {
                 <AcceptedAlert widthh="66%" />
               }
               <FindWorkFreelancerHome />
-              <div className="row gx-3">
+              <div className="row gx-2">
                 <LeftSidebarFreelancerHome freelancer={freelancer} />
                 <SectionCenterFreelancerHome user={freelancer} />
                 <RightSidebarFreelancerHome lang={lang} user={user} freelancer={freelancer} />

@@ -23,21 +23,23 @@ export const createProposal = async (
   userId: mongoose.Types.ObjectId,
   proposalBody: NewCreatedProposal
 ): Promise<IProposalDoc> => {
-  const isJobOpen = isJobOpened(proposalBody.job, proposalBody as IProposalDoc)
+  const isJobOpen = await isJobOpened(proposalBody.job, proposalBody as IProposalDoc)
   if (!isJobOpen) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Either you or your proposal is incompatible with job!')
   }
+  let newProposal: any
   try {
     updateSickPointsById(userId, 2 + (proposalBody?.priority || 0) * 2, true)
     // if (await Proposal.isUserSigned(proposalBody.user)) {
     //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Proposal')
     // }
-    const newProposal = await Proposal.create(proposalBody)
+    newProposal = await Proposal.create(proposalBody)
     await addProposaltoJobById(proposalBody.job, newProposal._id)
     await addProposaltoFreelancerById(proposalBody.freelancer, newProposal._id)
     await addApplytoJobById(proposalBody.job, proposalBody.freelancer)
     return newProposal
   } catch (err: any) {
+    Proposal.findByIdAndDelete(newProposal?._id)
     logger.error('cannot create proposal', err)
     throw new ApiError(httpStatus.BAD_REQUEST, 'cannot create proposals')
   }

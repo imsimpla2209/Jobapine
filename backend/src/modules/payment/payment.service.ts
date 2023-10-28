@@ -1,5 +1,8 @@
+/* eslint-disable operator-assignment */
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
+import { getUserById } from '@modules/user/user.service'
+import { EPaymentMethod } from 'common/enums'
 import Payment from './payment.model'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
@@ -14,6 +17,37 @@ export const createPayment = async (paymentBody: NewCreatedPayment): Promise<IPa
   // if (await Payment.isUserSigned(paymentBody.user)) {
   //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Payment')
   // }
+  return Payment.create(paymentBody)
+}
+
+/**
+ * buy sickpoints
+ * @param {NewCreatedPayment} paymentBody
+ * @param {number} sickPoints
+ * @param {mongoose.Types.ObjectId} buyer
+ * @returns {Promise<IPaymentDoc>}
+ */
+export const buySickPoints = async (
+  paymentBody: NewCreatedPayment,
+  sickPoints: number,
+  buyer: mongoose.Types.ObjectId
+): Promise<IPaymentDoc> => {
+  const user = await getUserById(buyer)
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Not found Buyer')
+  }
+  try {
+    if (paymentBody.paymentMethod === EPaymentMethod.BALANCE) {
+      if (!user?.balance || user?.balance < paymentBody?.amount) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Your balance is not enough')
+      }
+      user.balance = Number(user?.balance || 0) - paymentBody.amount
+    }
+    user.sickPoints = Number(user?.sickPoints || 0) + sickPoints
+    await user.save()
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Cannot perform buying sickpoints ${error}`)
+  }
   return Payment.create(paymentBody)
 }
 

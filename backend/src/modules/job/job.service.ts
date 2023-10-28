@@ -535,7 +535,14 @@ export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IPro
   if (job?.proposals?.length * job?.preferences?.nOEmployee >= 15 * job?.preferences?.nOEmployee) {
     check = false
   }
-  return (
-    !!(job?.status?.at(-1)?.status === EJobStatus.PENDING || job?.status?.at(-1)?.status === EJobStatus.OPEN) && check
-  )
+
+  if (job?.appliedFreelancers?.includes(proposal.freelancer) || job?.blockFreelancers?.includes(proposal.freelancer)) {
+    throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'This user already applied or is not allowed to apply this job')
+  }
+
+  if (!(job?.currentStatus === EJobStatus.PENDING || job?.currentStatus === EJobStatus.OPEN)) {
+    check = false
+  }
+
+  return check
 }

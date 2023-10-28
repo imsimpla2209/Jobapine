@@ -2,7 +2,7 @@
 import { Carousel } from "antd";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import branding from 'src/assets/img/PersonalBranding.png';
+import getsomemoney from 'src/assets/img/getsomemoney.gif';
 import conversation from 'src/assets/img/conversation.png';
 import carousel1 from 'src/assets/videos/carousel1.gif';
 
@@ -27,7 +27,7 @@ export default function HeadOfCenterSection() {
           </a>
         </h6>
       </div> */}
-      <div className="mb-4 d-none d-lg-block">
+      <div className="mb-3 d-none d-lg-block">
         <Carousel autoplaySpeed={4000} effect="fade" autoplay style={{
           borderRadius: 20
         }}>
@@ -35,7 +35,7 @@ export default function HeadOfCenterSection() {
             <div style={{
               ...contentStyle,
               background: 'linear-gradient(92.88deg, #fff0c2, #ffb8fd)',
-              justifyContent: 'space-between',
+              justifyContent: 'space-around',
               padding: 4,
               alignItems: 'center'
             }}>
@@ -68,11 +68,26 @@ export default function HeadOfCenterSection() {
           <div>
             <div style={{
               ...contentStyle,
-              background: `url(${branding})`,
-              backgroundRepeat: 'no-repeat',
-              backgroundSize: 'contain',
+              background: 'linear-gradient(92.88deg, #23cf79, #38d6c9)',
+              justifyContent: 'space-around',
+              padding: 4,
+              alignItems: 'center'
             }}>
-              {/* <img src={branding} alt="branding" /> */}
+              <img src={getsomemoney} alt="this slowpokess moves" width="200" />
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'start',
+                alignContent: 'start',
+                marginLeft: 14,
+              }}>
+                <h3 style={{ fontSize: 23, fontWeight: 600, color: "#295b99" }}>
+                  {t("Why so serious")}
+                </h3>
+                <p style={{ fontSize: 20, fontWeight: 600, color: "#11403d", lineHeight: 2 }}>
+                  {t("If you’re good at something, never do it for free.")}
+                </p>
+              </div>
             </div>
           </div>
         </Carousel>

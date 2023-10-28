@@ -18,7 +18,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
   }, []);
 
   return (
-    <div className="col d-none d-lg-block" style={{ width: '300'}}>
+    <div className="col d-none d-lg-block" style={{ width: '300' }}>
       <div style={{
         background: 'white',
         border: '1.4px solid #ccc',
@@ -44,7 +44,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
           }}>{`@${user.name}.`}</h5>
         </div>
         <div className="my-lg-1 text-center">
-          <Link to={`/profile/420`} className="advanced-search-link">
+          <Link to={`/profile/me`} className="advanced-search-link">
             <i className="fas fa-eye"> </i> {t("View Profile")}
           </Link>
         </div>
@@ -59,7 +59,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
         <div style={{
           marginTop: 16
         }}>
-          <Link to={`/profile/420`} className="advanced-search-link">
+          <Link to={`/profile/me`} className="advanced-search-link">
             <FormOutlined /><span> {t("CompleteProfile")}</span>
           </Link>
 
@@ -79,7 +79,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
 
       }}>
         <div className="mt-lg-1">
-          <p className="text-muted" style={{ margin: 0}}>{t("Availability")}</p>
+          <p className="text-muted" style={{ margin: 0 }}>{t("Availability")}</p>
         </div>
         <div className="mb-lg-1">
           <i className="far fa-clock me-2 mb-3" />
@@ -104,6 +104,12 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
               {freelancer?.proposals?.length} {t('NumberofProposals')}
             </Link>
           </li>
+        </ul>
+        <h5 className="display-inline-block lh-1">Sick Points</h5>
+        <ul
+          className="list-group sidebar-homebage-ul mb-lg-3 d-lg-block"
+          style={{ fontSize: "0.9em" }}
+        >
           <li
             className="list-group-item sidebar-homebage-ul-li"
             aria-current="true"
@@ -113,8 +119,22 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
               className=" list-group-item-action advanced-search-link"
               aria-current="true"
             >
-              {t("AvalableSicks")}: {user.sickPoints} 
+              {t("AvalableSicks")}: {user.sickPoints}
             </a>
+
+          </li>
+          <li
+            className="list-group-item sidebar-homebage-ul-li"
+            aria-current="true"
+          >
+            <a
+              href="#"
+              className=" list-group-item-action advanced-search-link border border-secondary p-1 rounded"
+              aria-current="true"
+            >
+              {t("Buy SickPoints")}
+            </a>
+
           </li>
         </ul>
       </div>

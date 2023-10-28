@@ -99,7 +99,7 @@ export default function SectionCenterFreelancerHome({ user }) {
   }, [handleGetData, jobLoader, pageSize, setState])
 
   return (
-    <div className="col-lg-8 col-xs-12 mb-4">
+    <div className="col-lg-8 col-xs-12 mb-4 px-lg-3">
       <HeadOfCenterSection />
       {
         !loading
