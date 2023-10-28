@@ -11,7 +11,7 @@ const Progress = ({ done }) => {
     setTimeout(() => {
       const newStyle = {
         opacity: 1,
-        width: `${(done + 1) * 20}%`
+        width: `${(done > 0 ? done : done + 1) * 20}%`
       }
 
       setStyle(newStyle);
@@ -21,7 +21,7 @@ const Progress = ({ done }) => {
   return (
     <div className="progress">
       <div className="progress-done" style={style}>
-        {t(`${Level[done]}`)}
+        {t(`${Level[done - 1]}`)}
       </div>
     </div>
   )

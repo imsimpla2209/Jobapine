@@ -13,7 +13,7 @@ export const createProposal = catchAsync(async (req: Request, res: Response) => 
 })
 
 export const getProposals = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['job', '_id', 'status.status'])
+  const filter = pick(req.query, ['job', '_id', 'status.status', 'freelancer'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await proposalService.queryProposals(filter, options)
   res.send(result)

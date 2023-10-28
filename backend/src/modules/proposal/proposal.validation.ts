@@ -21,6 +21,7 @@ export const getProposals = {
   query: Joi.object().keys({
     job: Joi.string(),
     _id: Joi.string(),
+    freelancer: Joi.string(),
     'status.status': Joi.string().valid(...Object.values(EStatus)),
     sortBy: Joi.string(),
     projectBy: Joi.string(),

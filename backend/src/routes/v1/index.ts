@@ -8,6 +8,7 @@ import freelancerRoute from './freelancer.route'
 import clientRoute from './client.route'
 import proposalRoute from './proposal.route'
 import contractRoute from './contract.route'
+import paymentRoute from './payment.route'
 
 const router = express.Router()
 
@@ -44,6 +45,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/contracts',
     route: contractRoute,
+  },
+  {
+    path: '/payments',
+    route: paymentRoute,
   },
 ]
 

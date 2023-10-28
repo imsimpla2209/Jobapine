@@ -1,5 +1,5 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Rate, Select } from 'antd';
+import { Button, Form, Rate, Select, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getSkills } from 'src/api/job-apis';
@@ -138,5 +138,49 @@ const SkillPicker = ({ handleChange }: any) => {
     </Form.Item>
   );
 };
+
+export const MultiSkillPicker = ({ handleChange, reset = false, istakeValue = false }: any) => {
+  const [skills, setSkills] = useState<any[]>([])
+  const [selected, setSelected] = useState<any[]>([])
+
+  useEffect(() => {
+    if(reset) {
+      setSelected([])
+    }
+  }, [reset])
+
+  const { i18n } = useTranslation(['main'])
+
+  useEffect(() => {
+    getSkills().then(res => {
+      setSkills(res.data.map((skill: any) => {
+        return {
+          label: pickName(skill, i18n.language),
+          value: skill._id,
+        }
+      }));
+    })
+  }, [])
+
+  return (
+    <Space style={{ width: '100%' }} direction="vertical" >
+      <Select
+        labelInValue={istakeValue}
+        mode="multiple"
+        allowClear
+        value={selected}
+        style={{ width: '100%' }}
+        placeholder="Please select"
+        defaultValue={[]}
+        onChange={(e) => {
+          setSelected(e)
+          handleChange(e)
+        }}
+        options={skills}
+      />
+    </Space>
+  );
+};
+
 
 export default SkillPicker;

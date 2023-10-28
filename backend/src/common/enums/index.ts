@@ -70,6 +70,12 @@ export enum EUserType {
 
 export enum EPaymentMethod {
   VNPAY = 'VNPay',
-  MOMO = 'Momo',
-  CASHOUT = 'Cashout',
+  PAYPAL = 'Paypal',
+  BALANCE = 'Balance',
+}
+
+export enum EPaymentPurpose {
+  BUYSICK = 'Buy_Sicks_Point',
+  RECHARGE = 'Recharge',
+  ESCROW = 'Escrow',
 }

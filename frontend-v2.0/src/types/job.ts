@@ -36,6 +36,7 @@ export interface ICreateJobBody {
 }
 
 export interface IGetJobsQuery {
+  client?: string
   title?: string
   categories?: string[]
   skills?: string[]
@@ -51,20 +52,21 @@ export interface IGetJobsQuery {
 
 export interface IAdvancedGetJobsBody {
   title?: string
-  ['preferences.nOEmployee']?: { from?: number; to?: number }
-  ['preferences.locations']?: string[]
-  ['scope.complexity']?: number[]
-  ['scope.duration']?: { from?: number; to?: number }
-  ['payment.amount']?: { from?: number; to?: number }
+  nOEmployee?: { from?: number; to?: number }
+  locations?: string[]
+  complexity?: number[]
+  duration?: { from?: number; to?: number }
+  paymentAmount?: { from?: number; to?: number }
   proposals?: { from?: number; to?: number }
   clientInfo?: string[]
   clientHistory?: string
-  ['payment.type']?: EPaymenType[]
+  paymentType?: EPaymenType[]
   description?: string
   budget?: { from?: number; to?: number }
   categories?: string[]
   tags?: string[]
   currentStatus?: string[]
+  searchText?: string
 }
 
 export interface IAdvancedGetJobsQuery {

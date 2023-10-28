@@ -42,13 +42,13 @@ export default function JobDetailsFreelancer() {
             </div>
             <div className="row">
               <JobDescriptionJobDetails job={jobData} />
-              <RightSidebarJobDetails job={jobData} />
+              <RightSidebarJobDetails job={jobData} freelancer={freelancer}/>
             </div>
           </div>
           <div className="row  me-md-1">
             <div className="col-lg-12 col-xs-12">
               <ClientRecentHistory />
-              <OtherOpenJobsByThisClient />
+              <OtherOpenJobsByThisClient client={jobData?.client}/>
               <SimilarJobsOnJobSickers id={jobData?._id}/>
             </div>
           </div>

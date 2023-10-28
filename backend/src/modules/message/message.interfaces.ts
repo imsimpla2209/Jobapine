@@ -1,17 +1,21 @@
 import { IClientDoc } from '@modules/client/client.interfaces'
 import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
+import { IUserDoc } from '@modules/user/user.interfaces'
 import mongoose, { Document, Model } from 'mongoose'
 import { QueryResult } from '../../providers/paginate/paginate'
 import { AccessAndRefreshTokens } from '../token/token.interfaces'
 
 export interface IMessage {
-  client: IClientDoc['_id']
-  freelancer: IFreelancerDoc['_id']
+  from: IClientDoc['_id']
+  to: IFreelancerDoc['_id']
+  other?: IUserDoc['_id'][]
   content?: string
   proposalStatusCatalog?: string[]
   attachments?: string[]
   proposal?: IProposalDoc['_id']
+  room?: string
+  seen?: boolean
 }
 
 export interface IMessageEmployee extends Document {

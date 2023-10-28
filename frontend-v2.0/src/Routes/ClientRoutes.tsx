@@ -33,7 +33,7 @@ export default function ClientRoutes() {
         <Routes>
           <Route path="/home" element={<Jobs />} />
           <Route path="/" element={<Jobs />} />
-          <Route path="/messages" element={<Messages location={undefined} />} />
+          <Route path="/messages" element={<Messages />} />
           <Route path="/all-job-posts" element={<AllJobPosts />} />
           <Route path="/all-contracts" element={<AllContract />} />
           <Route path="/bring-your-own-freelancer" element={<BringYourFreelancer />} />

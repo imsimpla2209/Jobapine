@@ -1,5 +1,6 @@
 .nav-bg-cn {
-  background: linear-gradient(90.88deg, #e6ccff 16.16%, #d699ff 43.89%, #bf80ff 64.72%);
+  background: #ffffff;
+  border-bottom: 1px solid #ccc;
 }
 
 .nav-active-link-cn {

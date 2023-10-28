@@ -2,19 +2,19 @@
   height: 38px;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #7c7c8a;
   border-left: 0;
 }
 
 .search-inputt-cn:focus {
   box-shadow: unset;
-  border-color: #e0e0e0 !important;
+  border-color: #7c7c8a !important;
 }
 
 .search-btnn-cn {
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #7c7c8a;
   border-right: 0;
   left: 70px;
   height: 38px;
@@ -45,7 +45,7 @@
 }
 
 .form-control:focus {
-  border-color: #e0e0e0;
+  border-color: #7c7c8a;
 }
 
 .dropdown-toggle::after {

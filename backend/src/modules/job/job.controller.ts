@@ -14,7 +14,7 @@ export const createJob = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const getJobs = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['title', 'skills', 'categories'])
+  const filter = pick(req.query, ['title', 'skills', 'categories', 'client'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await jobService.queryJobs(filter, options)
   res.send(result)
@@ -22,23 +22,23 @@ export const getJobs = catchAsync(async (req: Request, res: Response) => {
 
 export const getAdvancedJobs = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.body, [
-    'scope.duration',
-    'scope.complexity',
-    'preferences.locations',
-    'preferences.nOEmployee',
+    'duration',
+    'complexity',
+    'locations',
+    'nOEmployee',
     'title',
     'budget',
-    'payment.type',
-    'payment.amount',
+    'paymentType',
+    'paymentAmount',
     'description',
-    'reqSkills',
+    'skills',
     'proposals',
     'categories',
     'tags',
     'currentStatus',
   ])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
-  const result = await jobService.queryAdvancedJobs(filter, options)
+  const result = await jobService.queryAdvancedJobs(filter, options, req?.body?.searchText)
   res.send(result)
 })
 
@@ -55,6 +55,15 @@ export const getRcmdJobs = catchAsync(async (req: Request, res: Response) => {
     new mongoose.Types.ObjectId(req.query.freelancerId as string),
     req.query.categories,
     req.query.skills,
+    options
+  )
+  res.send(result)
+})
+
+export const getFavJobsByUser = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const result = await jobService.getFavJobByFreelancer(
+    new mongoose.Types.ObjectId(req.query.freelancerId as string),
     options
   )
   res.send(result)

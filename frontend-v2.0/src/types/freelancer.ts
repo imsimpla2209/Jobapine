@@ -16,6 +16,7 @@ export interface NewRegisteredFreelancer {
 }
 
 export interface IFreelancer {
+  _id: string
   user: string
   name: string
   intro?: string
@@ -37,15 +38,16 @@ export interface IFreelancer {
 }
 
 export interface UpdateFreelancer {
-  name: string;
-  intro: string;
-  skills: SkillBody[];
-  certificate: string;
-  images: string[];
-  preferJobType: string[];
-  currentLocations: string[];
-  preferencesURL: string[];
-  available: boolean;
+  name?: string;
+  intro?: string;
+  skills?: SkillBody[];
+  certificate?: string;
+  images?: string[];
+  preferJobType?: string[];
+  currentLocations?: string[];
+  preferencesURL?: string[];
+  available?: boolean;
+  favoriteJobs?: any[];
 }
 
 export interface QueryParams {

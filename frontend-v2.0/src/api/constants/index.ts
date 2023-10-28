@@ -25,4 +25,6 @@ export const Level = [
   'Expert',
 ]
 
+export const PAYPAL_CLIENT_ID='AZ_UPj7fyxZxMWb1fViq9b0sgXVEmJGfAPK-5pw3w4CRfqJT7XlT8vxi9TybaCAeERyMxpy9oID_Z7ml'
+
 export const stopWords = new Set(['and', 'or', 'to', 'in', 'a', 'the', /* ...and more */ ])

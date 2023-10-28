@@ -4,7 +4,7 @@
 
 import queryGen from '@core/libs/queryGennerator'
 import { getClientById, getClientByOptions } from '@modules/client/client.service'
-import { getSimilarByFreelancerId, updateSimilarById } from '@modules/freelancer/freelancer.service'
+import { getFreelancerById, getSimilarByFreelancerId, updateSimilarById } from '@modules/freelancer/freelancer.service'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
 import { deleteProposalByOptions } from '@modules/proposal/proposal.service'
 import { Skill } from '@modules/skill'
@@ -42,8 +42,11 @@ export const queryJobs = async (filter: Record<string, any>, options: IOptions):
   const categoryFilter = filter['categories']?.length ? { categories: { $in: filter['categories'] || [] } } : {}
 
   const skillFilter = filter['skills']?.length ? { 'reqSkills.skill': { $in: filter['skills'] || [] } } : {}
+
+  const clientFilter = filter['client'] ? { client: filter['client'] || '' } : {}
   const queryFilter = {
     $and: [
+      clientFilter,
       categoryFilter,
       skillFilter,
       { isDeleted: { $ne: true } },
@@ -51,8 +54,8 @@ export const queryJobs = async (filter: Record<string, any>, options: IOptions):
     ],
   }
 
-  options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
+    options.populate = 'client,categories,reqSkills.skill'
     options.projectBy =
       'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
   }
@@ -66,34 +69,59 @@ export const queryJobs = async (filter: Record<string, any>, options: IOptions):
  * @param {Object} options - Query options
  * @returns {Promise<QueryResult>}
  */
-export const queryAdvancedJobs = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
+export const queryAdvancedJobs = async (
+  filter?: Record<string, any>,
+  options?: IOptions,
+  searchText?: string
+): Promise<QueryResult> => {
   filter['title'] && (filter['title'] = { $search: `${filter['title']}`, $diacriticSensitive: true })
   filter['description'] && (filter['description'] = { $regex: `${filter['description']}`, $options: 'i' })
 
-  filter['preferences.locations'] && (filter['preferences.locations'] = { $in: filter['preferences.locations'] })
-  filter['scope.complexity'] && (filter['scope.complexity'] = { $in: filter['scope.complexity'] })
-  filter['payment.type'] && (filter['payment.type'] = { $in: filter['payment.type'] })
-  filter['reqSkills'] && (filter['reqSkills'] = { $in: filter['reqSkills'] })
-  filter['categories'] && (filter['categories'] = { $in: filter['categories'] })
-  filter['tags'] && (filter['tags'] = { $in: filter['tags'] })
-  filter['currentStatus'] && (filter['currentStatus'] = { $in: filter['currentStatus'] })
+  filter['locations'] && (filter['locations'] = { 'preferences.locations': { $in: filter['locations'] } })
+  filter['complexity'] && (filter['complexity'] = { 'scope.complexity': { $in: filter['complexity'] } })
+  filter['paymentType'] && (filter['paymentType'] = { 'payment.type': { $in: filter['paymentType'] } })
+  filter['skills'] && (filter['skills'] = { 'reqSkills.skill': { $in: filter['skills'] } })
+  filter['categories'] && (filter['categories'] = { categories: { $in: filter['categories'] } })
+  filter['tags'] && (filter['tags'] = { tags: { $in: filter['tags'] } })
+  filter['currentStatus'] && (filter['currentStatus'] = { currentStatus: { $in: filter['currentStatus'] } })
 
-  filter['scope.duration'] &&
-    (filter['scope.duration'] = queryGen.numRanges(filter['scope.duration']?.from, filter['scope.duration']?.to))
-  filter['budget'] && (filter['budget'] = queryGen.numRanges(filter['budget']?.from, filter['budget']?.to))
-  filter['payment.amount'] &&
-    (filter['payment.amount'] = queryGen.numRanges(filter['payment.amount']?.from, filter['payment.amount']?.to))
+  filter['duration'] &&
+    (filter['duration'] = {
+      'scope.duration': queryGen.numRanges(filter['duration']?.from, filter['duration']?.to),
+    })
+  filter['budget'] &&
+    (filter['budget'] = {
+      budget: queryGen.numRanges((filter['budget']?.from || 0) / 1000, (filter['budget']?.to || 0) / 1000),
+    })
+  filter['paymentAmount'] &&
+    (filter['paymentAmount'] = {
+      'payment.amount': queryGen.numRanges(
+        (filter['paymentAmount']?.from || 0) / 1000,
+        (filter['paymentAmount']?.to || 0) / 1000
+      ),
+    })
   filter['proposals'] &&
-    (filter['proposals'] = queryGen.numRanges(filter['nOProposals']?.from, filter['nOProposals']?.to))
-  filter['preferences.nOEmployee'] &&
-    (filter['preferences.nOEmployee'] = queryGen.numRanges(
-      filter['preferences.nOEmployee']?.from,
-      filter['preferences.nOEmployee']?.to
-    ))
-
+    (filter['proposals'] = { proposals: queryGen.numRanges(filter['nOProposals']?.from, filter['nOProposals']?.to) })
+  filter['nOEmployee'] &&
+    (filter['nOEmployee'] = {
+      'preferences.nOEmployee': queryGen.numRanges(filter['nOEmployee'] === 1 ? 0 : 2, filter['nOEmployee']),
+    })
+  const filterExtract = Object.keys(filter).map(f => filter[f])
   const queryFilter = {
-    $and: [filter, { isDeleted: { $ne: true } }, { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } }],
+    $and: [
+      {
+        $or: [
+          // { $text: { $search: `${searchText}`, $caseSensitive: false, $diacriticSensitive: true } },
+          { title: { $regex: `${searchText || ''}`, $options: 'si' } },
+          { description: { $regex: `${searchText}`, $options: 'i' } },
+        ],
+      },
+      ...filterExtract,
+      { isDeleted: { $ne: true } },
+    ],
   }
+
+  console.log('firstssssssssssssssssssssss', queryFilter)
 
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
@@ -183,8 +211,6 @@ export const getRcmdJob = async (
     ],
   }
 
-  console.log('first', filter)
-
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
@@ -203,8 +229,36 @@ export const getAllJob = async (): Promise<IJobDoc[] | null> => {
     .select(
       'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences'
     )
-    .populate([{ path: 'client', select: 'rating spent paymentVerified' }, { path: 'categories' }]).lean()
+    .populate([{ path: 'client', select: 'rating spent paymentVerified' }, { path: 'categories' }])
+    .lean()
 
+  return jobs
+}
+
+/**
+ * @returns {Promise<QueryResult | null>}
+ */
+export const getFavJobByFreelancer = async (
+  freelancerId: mongoose.Types.ObjectId,
+  options: IOptions
+): Promise<QueryResult | null> => {
+  const freelancer = await getFreelancerById(freelancerId)
+
+  if (!freelancer) {
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Not found freelancer')
+    }
+  }
+
+  const filter = { _id: { $in: freelancer?.favoriteJobs || [] } }
+
+  options.populate = 'client,categories,reqSkills.skill'
+  if (!options.projectBy) {
+    options.projectBy =
+      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+  }
+
+  const jobs = await Job.paginate(filter, options)
   return jobs
 }
 
@@ -245,7 +299,7 @@ export const getJobByOptions = async (Options: any): Promise<IJobDoc | null> =>
  * @returns {Promise<QueryResult>}
  */
 export const getSimilarJobs = async (jobId: mongoose.Types.ObjectId, options: IOptions): Promise<QueryResult> => {
-  const job = await getJobById(jobId)
+  const job = await Job.findById(jobId)
 
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not found job')
@@ -321,6 +375,68 @@ export const updateJobById = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
   Object.assign(job, updateBody)
+  await job.save()
+  return job
+}
+
+/**
+ * Update job by id
+ * @param {mongoose.Types.ObjectId} jobId
+ * @param {string} proposalId
+ * @returns {Promise<IJobDoc | null>}
+ */
+export const addProposaltoJobById = async (
+  jobId: mongoose.Types.ObjectId,
+  proposalId: string
+): Promise<IJobDoc | null> => {
+  try {
+    const job = await Job.findOneAndUpdate({ _id: jobId }, { $push: { proposals: proposalId } })
+    if (!job) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+    }
+    return job
+  } catch (err) {
+    throw new Error('cannot add proposals to job')
+  }
+}
+
+/**
+ * Update apply job by id
+ * @param {mongoose.Types.ObjectId} jobId
+ * @param {string} freelancerId
+ * @returns {Promise<IJobDoc | null>}
+ */
+export const addApplytoJobById = async (
+  jobId: mongoose.Types.ObjectId,
+  freelancerId: string
+): Promise<IJobDoc | null> => {
+  try {
+    const job = await Job.findOneAndUpdate({ _id: jobId }, { $push: { appliedFreelancers: freelancerId } })
+    if (!job) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+    }
+    return job
+  } catch (err) {
+    throw new Error('cannot add apply to job')
+  }
+}
+
+/**
+ * Update block job by id
+ * @param {mongoose.Types.ObjectId} jobId
+ * @param {string} freelancerId
+ * @returns {Promise<IJobDoc | null>}
+ */
+export const addBlocktoJobById = async (
+  jobId: mongoose.Types.ObjectId,
+  freelancerId: string
+): Promise<IJobDoc | null> => {
+  const job = await getJobById(jobId)
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  }
+  const blockFreelancers = job?.blockFreelancers || []
+  Object.assign(job, { blockFreelancers: [...blockFreelancers, freelancerId] })
   await job.save()
   return job
 }
@@ -408,14 +524,25 @@ export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IPro
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
-  if (job?.questions?.length !== Object.keys(proposal.answers).length) {
-    check = false
+  if (job?.questions?.length > 0) {
+    if (!proposal?.answers) {
+      check = false
+    } else if (job?.questions?.length !== Object.keys(proposal?.answers || {}).length) {
+      check = false
+    }
   }
   // eslint-disable-next-line no-unsafe-optional-chaining
   if (job?.proposals?.length * job?.preferences?.nOEmployee >= 15 * job?.preferences?.nOEmployee) {
     check = false
   }
-  return (
-    !!(job?.status?.at(-1)?.status === EJobStatus.PENDING || job?.status?.at(-1)?.status === EJobStatus.OPEN) && check
-  )
+
+  if (job?.appliedFreelancers?.includes(proposal.freelancer) || job?.blockFreelancers?.includes(proposal.freelancer)) {
+    throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'This user already applied or is not allowed to apply this job')
+  }
+
+  if (!(job?.currentStatus === EJobStatus.PENDING || job?.currentStatus === EJobStatus.OPEN)) {
+    check = false
+  }
+
+  return check
 }

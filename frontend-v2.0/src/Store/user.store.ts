@@ -4,6 +4,8 @@ import { IFreelancer } from "src/types/freelancer"
 import { IUser } from "src/types/user"
 
 export const userStore = createSubscription<IUser>({
+  id: "",
+  _id: "",
   name: "",
   username: "",
   email: "",
@@ -25,6 +27,7 @@ export const userStore = createSubscription<IUser>({
 })
 
 export const freelancerStore = createSubscription<IFreelancer>({
+  _id: "",
   user: "",
   name: "",
   intro: '',

@@ -37,6 +37,7 @@ const envVarsSchema = Joi.object()
     VNP_URL: Joi.string().description('VNP URL'),
     VNP_API: Joi.string().description('VNP API'),
     VNP_RETURNURL: Joi.string().description('VNP return url'),
+    PAYPAL_CLIENT_ID: Joi.string().description('PAYPAL client id'),
   })
   .unknown()
 
@@ -106,6 +107,9 @@ const config = {
     vnp_Url: envVars.VNP_URL,
     vnp_Api: envVars.VNP_API,
     vnp_ReturnUrl: envVars.VNP_RETURNURL,
+  },
+  PAYPAL: {
+    client_id: envVars.PAYPAL_CLIENT_ID,
   },
 }
 

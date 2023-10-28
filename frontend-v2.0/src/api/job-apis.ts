@@ -27,6 +27,10 @@ export const getRcmdJobs = (freelancerId: string, query?: IAdvancedGetJobsQuery,
   return Http.get(`jobs/rcmd`, {...query, categories, skills, freelancerId});
 }
 
+export const getFavJobsByUser = (freelancerId: string, query?: IAdvancedGetJobsQuery) => {
+  return Http.get(`jobs/fav`, {...query,  freelancerId});
+}
+
 export const getSimilarJobs = (id: string, query?: IAdvancedGetJobsQuery ) => {
   return Http.get(`jobs/similar`, {...query, id});
 }

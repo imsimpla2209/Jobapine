@@ -24,7 +24,7 @@ export default function JobDescriptionJobDetails({ job }) {
       <div className="bg-white py-lg-4 px-4 border border-1 row py-sm-3 py-2">
         <Space size={'middle'} wrap>
           {
-            job?.categories.map(c => (
+            job?.categories?.map(c => (
               <Link to="#" key={c?.name} className="advanced-search-link" style={{ fontWeight: 600, fontSize: 16 }}>
                 {c?.name}
               </Link>
@@ -34,8 +34,9 @@ export default function JobDescriptionJobDetails({ job }) {
 
         <p className="text-muted">
           {
-            job?.createdAt ? new Date(job?.createdAt * 1000).toLocaleString()
-              : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}
+            job?.createdAt ? new Date(`${job?.createdAt}`).toLocaleString()
+              : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()
+          }
         </p>
         <Space size={'small'} wrap>
           <i className="fas fa-street-view" style={{ color: "#14bff4" }}>
@@ -43,7 +44,7 @@ export default function JobDescriptionJobDetails({ job }) {
           </i>{" "}
           <Space size={'small'} wrap style={{ display: 'flex', }}>
             {
-              job?.preferences?.locations.map(l => (
+              job?.preferences?.locations?.map(l => (
                 <div key={l}>
                   {locations[Number(l)].name} |
                 </div>

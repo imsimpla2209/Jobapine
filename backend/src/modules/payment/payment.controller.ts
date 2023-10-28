@@ -12,6 +12,15 @@ export const createPayment = catchAsync(async (req: Request, res: Response) => {
   res.status(httpStatus.CREATED).send(payment)
 })
 
+export const buySickPoints = catchAsync(async (req: Request, res: Response) => {
+  const { sickPoints } = req.body
+  const buyer = new mongoose.Types.ObjectId(req.body.buyer)
+  delete req.body.sickPoints
+  delete req.body.buyer
+  const payment = await paymentService.buySickPoints(req.body, sickPoints, buyer)
+  res.status(httpStatus.CREATED).send({ ...payment, sickPoints, buyer })
+})
+
 export const getPayments = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'role'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
