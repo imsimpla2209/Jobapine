@@ -1,15 +1,49 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 
+import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { freelancerStore, userStore } from "src/Store/user.store";
+import { userStore } from "src/Store/user.store";
 import { logout } from "src/api/auth-apis";
 import { useSubscription } from "src/libs/global-state-hook";
 import img from "../../../assets/img/icon-user.svg";
 import LanguageList from "../../SharedComponents/LanguageBtn/LanguageList";
+import { getNotifies } from "src/api/message-api";
+import { useSocket } from "src/socket.io";
+import { ESocketEvent } from "src/utils/enum";
+import { Badge, Divider, Dropdown, MenuProps, Space } from "antd";
+import { timeAgo } from "src/utils/helperFuncs";
+import { AliwangwangFilled, BellFilled, MessageFilled } from "@ant-design/icons";
 
+export const NotifyPopup = (s, data) => {
+  const { t } = useTranslation(['main'])
+  return (
+    <div className="max-w-md w-100 bg-white shadow-lg rounded-lg pointer-events-auto flex border ring-1 ring-black ring-opacity-5">
+      <div className="w-100 p-4">
+        <div className="flex">
+          <div className="pt-0.5">
+            <img className="h-10 w-10 rounded-circle" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixqx=6GHAjsWpt9&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.2&w=160&h=160&q=80" alt="" />
+          </div>
+          <div className="ml-3 flex-1">
+            <p className="text-sm font-medium text-dark">
+              {t("Notification")}
+            </p>
+            <p className="mt-1 text-sm text-gray-500">
+              {data?.content} <span className="text-muted">{timeAgo(data?.created, t)}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="border-left border-gray-200">
+        <button className="w-100 border border-transparent rounded-none rounded-lg p-4 flex items-center justify-content-center text-sm font-medium text-primary hover-text-indigo focus-outline-none focus-ring-2 focus-ring-indigo" onClick={() => toast.dismiss(s.id)}>
+          Close
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export default function NavLargScreen() {
 
@@ -18,6 +52,9 @@ export default function NavLargScreen() {
   const { i18n, t } = useTranslation(['main']);
   const lang = i18n.language;
   const user = useSubscription(userStore).state;
+  const [notifies, setNotifies] = useState([])
+  const [unSeen, setUnSeen] = useState([])
+  const { appSocket } = useSocket()
 
   const handleLogout = () => {
     logout().then((res) => {
@@ -33,6 +70,49 @@ export default function NavLargScreen() {
       .catch((error) => {
         console.log(error.message);
       });
+  }
+
+  useEffect(() => {
+    getNotifies(user?.id || user?._id).then((res) => {
+      setNotifies(res.data.results)
+      setUnSeen(res.data.results?.filter(n => !n?.seen) || [])
+    })
+  }, [])
+
+  useEffect(() => {
+    // App socket
+    appSocket.on(ESocketEvent.SENDNOTIFY, (data) => {
+      console.log('Get Notify:', data)
+      if (data?.to === (user?.id || user?._id)) {
+
+        setNotifies(prev => [{ ...data, createdAt: new Date() }, ...prev])
+        setUnSeen(prev => [...prev, data])
+      }
+    })
+
+    // The listeners must be removed in the cleanup step, in order to prevent multiple event registrations
+    return () => {
+      appSocket.off(ESocketEvent.SENDNOTIFY)
+
+    }
+  }, [notifies, unSeen])
+
+  const items = useMemo(() => {
+    return notifies?.map((s, ix) => {
+      return {
+        label: <div className="row" style={{ width: 400 }}>
+          <Link className="col-8 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc"}} to={s?.path || '#'}>{s?.content}</Link>
+          <p className="col-4">{timeAgo(s?.createdAt, t)}</p>
+        </div>,
+        key: ix,
+      }
+    }) as MenuProps['items']
+  }, [notifies])
+
+  const onSeenNotify = (e) => {
+    if (e) {
+      setUnSeen([])
+    }
   }
 
   return (
@@ -72,11 +152,11 @@ export default function NavLargScreen() {
                   {t("Profile")}
                 </Link>
               </li>
-              {/* <li>
+              <li>
                 <Link className="dropdown-item" to="/my-stats">
                   My Stats
                 </Link>
-              </li> */}
+              </li>
             </ul>
           </li>
           <li className="nav-item hov-cn mx-3">
@@ -123,27 +203,27 @@ export default function NavLargScreen() {
                   {t("Overview")}
                 </Link>
               </li>
-              {/* <li>
+              <li>
                 <Link className={`dropdown-item  `} to="/my-reports">
                   {t("My Reports")}
                 </Link>
-              </li> */}
+              </li>
               <li>
                 <Link className={`dropdown-item  `} to="/life-time-billing">
                   {t("Lifetime Billings by Client")}
                 </Link>
               </li>
-              {/* <li>
+              <li>
                 <Link className={`dropdown-item  `} to="/connects-history">
                   {t("Connects History")}
                 </Link>
-              </li> */}
-              {/* <li>
+              </li>
+              <li>
                 <Link className={`dropdown-item  `} to="/transaction-history">
                   {t("Transaction History")}
                 </Link>
-              </li> */}
-              {/* <li><a className="dropdown-item" href="#">Certificate of Earnings</a></li> */}
+              </li>
+              <li><a className="dropdown-item" href="#">Certificate of Earnings</a></li>
             </ul>
           </li>
           {/* <li className="nav-item me-5">
@@ -157,32 +237,58 @@ export default function NavLargScreen() {
             </a>
           </li> */}
           <li className="nav-item ms-5 me-3">
-            <NavLink className="nav-link" to="/messages">
-              <i
-                className="far fa-paper-plane fs-5"
-                style={{ transform: "scaleX(-1)" }}
-              ></i>
+            <NavLink className="" style={{ padding: '9px 10px', borderRadius: 100, background: "#f5f0fa" }} to="/messages">
+              <MessageFilled style={{ fontSize: 18, }} />
             </NavLink>
           </li>
-          <li className="nav-item me-2">
-            <NavLink to="/notifications" className="nav-link">
-              <i className="far fa-bell fs-5"></i>
-            </NavLink>
+          <li className="pe-2">
+            <Badge
+              count={unSeen?.length || 0}
+              color={"purple"}
+              status="processing">
+              <Dropdown
+                menu={{ items }}
+                trigger={['click']}
+                onOpenChange={e => onSeenNotify(e)}
+                arrow={{ pointAtCenter: true }}
+                dropdownRender={(menu) => (
+                  <div style={{
+                    padding: 18,
+                    borderRadius: 10,
+                    background: "white",
+                    marginLeft: 24,
+                    boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px'
+                  }}>
+                    <h3>{t("Notification")}</h3>
+                    {React.cloneElement(menu as React.ReactElement, { style: { boxShadow: 'none' } })}
+                    <Divider style={{ margin: 0 }} />
+                    <Space style={{ padding: 8 }}>
+                      <Link to="/notifications" className="nav-link" type="primary">{t("View all")}</Link>
+                    </Space>
+                  </div>
+                )}
+              >
+                <NavLink to="/notifications" style={{ padding: 10, borderRadius: 100, background: "#f5f0fa" }} onClick={e => { e.preventDefault(); e.stopPropagation() }} className="">
+                  <BellFilled style={{ fontSize: 18 }} />
+                </NavLink>
+              </Dropdown>
+            </Badge>
+
           </li>
           <li className="ms-1 me-3">
             <LanguageList />
           </li>
           <li className="dropdown">
-              <a
-                className="nav-link dropdown-toggle"
-                href="#"
-                id="navbarDropdownMenuLink"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <img style={{ height: "40px", width: "40px", border: '1px solid #ccc' }} className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
-              </a>
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <img style={{ height: "40px", width: "40px", border: '1px solid #ccc' }} className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
+            </a>
             <ul
               style={{
                 border: '1px solid #ccc'

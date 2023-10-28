@@ -10,6 +10,7 @@ type Props = {
 }
 
 type IAuthContext = {
+	id: string;
 	login: (token: any, data: any) => void;
 	loading: boolean;
 	authenticated: boolean;
@@ -28,7 +29,7 @@ const AuthProvider = ({ children }: Props) => {
 	const [token, setToken] = useState<string>('')
 	const [loading, setLoading] = useState<boolean>(true)
 
-	const { setState } = useSubscription(userStore)
+	const { setState, state } = useSubscription(userStore)
 
 	const setFreelancer = useSubscription(freelancerStore).setState
 	const setClient = useSubscription(clientStore).setState
@@ -106,7 +107,7 @@ const AuthProvider = ({ children }: Props) => {
 		}
 	}, [authenticated, tokenExpirationDate, logout, token])
 	return (
-		<AuthContext.Provider value={{ login, authenticated, setAuthenticated, loading }}>
+		<AuthContext.Provider value={{ id: state?.id, login, authenticated, setAuthenticated, loading }}>
 			{children}
 		</AuthContext.Provider>
 	)

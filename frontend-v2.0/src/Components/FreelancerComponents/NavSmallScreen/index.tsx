@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 
 /* eslint-disable react-hooks/exhaustive-deps */
 import { fakeFreelancerState } from "Store/fake-state";
@@ -25,7 +26,7 @@ export default function NavSmallScreen() {
           </li>
           <li className="dropdown px-3">
             <a
-              className={`nav-link dropdown-toggle mt-4 pt-4 border-top-cn ${lang === 'vi' && "fs-4"}`}
+              className={`nav-link dropdown-toggle mt-4 pt-4 border-top-cn`}
               href="#"
               id="navbarDropdownMenuLink"
               role="button"
@@ -34,14 +35,14 @@ export default function NavSmallScreen() {
             >
               <img style={{ height: "50px", width: "50px" }} className="circle bg-white me-2" src={user?.profilePhoto ? user?.profilePhoto : img} alt="" />
               {user?.firstName + " " + user?.lastName}
-              {/* <i className="fa fa-sort-down text-white float-end"></i> */}
+              <i className="fa fa-sort-down text-white float-end"></i>
             </a>
-            {/* <ul
+            <ul
               id="acc-id"
               className="dropdown-menu"
               aria-labelledby="navbarDropdownMenuLink"
-            > */}
-            {/* <li className="px-4 py-3">
+            >
+            <li className="px-4 py-3">
                 <div
                   id="acc-btns-id"
                   className="btn-group w-100"
@@ -56,8 +57,8 @@ export default function NavSmallScreen() {
                     {t("Invisible")}
                   </button>
                 </div>
-              </li> */}
-            {/* <li>
+              </li>
+            <li>
                 <Link className="dropdown-item px-4" to="/find-work">
                   <div className="d-flex align-items-center">
                     <span style={{ marginLeft: "-5px" }}>
@@ -69,8 +70,8 @@ export default function NavSmallScreen() {
                     </div>
                   </div>
                 </Link>
-              </li> */}
-            {/* <li>
+              </li>
+            <li>
                 <Link
                   className="dropdown-item px-4 mb-1"
                   to="/home"
@@ -86,8 +87,8 @@ export default function NavSmallScreen() {
                     </div>
                   </div>
                 </Link>
-              </li> */}
-            {/* </ul> */}
+              </li>
+            </ul>
           </li>
           <li className="dropdown px-3">
             <a
@@ -125,26 +126,26 @@ export default function NavSmallScreen() {
                   {t("Profile")}
                 </Link>
               </li>
-              {/* <li>
+              <li>
                 <a className="dropdown-item" href="#">
                   {t("My Stats")}
                 </a>
-              </li> */}
-              {/* <li>
+              </li>
+              <li>
                 <a className="dropdown-item" href="#">
                   {t("JobSickers Readiness Test")}
                 </a>
-              </li> */}
-              {/* <li>
+              </li>
+              <li>
                 <a className="dropdown-item" href="#">
                   {t("My Project Dashboard")}
                 </a>
-              </li> */}
+              </li>
             </ul>
           </li>
           <li className="dropdown px-3">
             <a
-              className={`nav-link dropdown-toggle mt-2 pt-3 border-top-cn ${lang === 'vi' && "fs-4"}`}
+              className={`nav-link dropdown-toggle mt-2 pt-3 border-top-cn`}
               href="#"
               id="navbarDropdownMenuLink"
               role="button"
@@ -177,7 +178,7 @@ export default function NavSmallScreen() {
           </li>
           <li className="dropdown px-3">
             <a
-              className={`nav-link dropdown-toggle mt-2 pt-3 border-top-cn ${lang === 'vi' && "fs-4"}`}
+              className={`nav-link dropdown-toggle mt-2 pt-3 border-top-cn`}
               href="#"
               id="navbarDropdownMenuLink"
               role="button"
@@ -196,69 +197,69 @@ export default function NavSmallScreen() {
                   {t("Overview")}
                 </a>
               </li>
-              {/* <li>
+              <li>
                 <a className="dropdown-item" href="#">
                   {t("My Reports")}
                 </a>
-              </li> */}
+              </li>
               <li>
                 <a className="dropdown-item" href="#">
                   {t("Lifetime Billings by Client")}
                 </a>
               </li>
-              {/* <li>
+              <li>
                 <a className="dropdown-item" href="#">
                   {t("Connects History")}
                 </a>
-              </li> */}
-              {/* <li>
+              </li>
+              <li>
                 <a className="dropdown-item" href="#">
                   {t("Transaction History")}
                 </a>
-              </li> */}
-              {/* <li>
+              </li>
+              <li>
                 <a className="dropdown-item" href="#">
                   {t("Certificate of Earnings")}
                 </a>
-              </li> */}
+              </li>
             </ul>
           </li>
           <li className="nav-item px-3">
-            <Link className={`nav-link mt-2 pt-3 border-top-cn ${lang === 'vi' && "fs-4"}`} to="/messages">
+            <Link className={`nav-link mt-2 pt-3 border-top-cn`} to="/messages">
               {t("Messages")}
             </Link>
           </li>
-          {/* <li className="nav-item px-3">
-            <a className={`nav-link mt-2 pt-3 border-top-cn ${lang = 'vi' && "fs-4"}`} href="#">
+          <li className="nav-item px-3">
+            <a className={`nav-link mt-2 pt-3 border-top-cn`} href="#">
               {t("Help")}
               <i className="fas fa-question float-end"></i>
             </a>
-          </li> */}
+          </li>
           <li className="nav-item px-3">
-            <NavLink className={`nav-link mt-2 pt-3 border-top-cn ${lang === 'vi' && "fs-4"}`} to="/notifications">
+            <NavLink className={`nav-link mt-2 pt-3 border-top-cn`} to="/notifications">
               {t("Notification")}
               <i className="far fa-bell float-end"></i>
             </NavLink>
           </li>
-          {/* <li className="nav-item px-3">
-            <a className={`nav-link mt-2 pt-3 border-top-cn ${lang = 'vi' && "fs-4"}`} href="#">
+          <li className="nav-item px-3">
+            <a className={`nav-link mt-2 pt-3 border-top-cn`} href="#">
               {t("Direct Contracts")}
               <i
                 className="far fa-paper-plane float-end"
                 style={{ transform: "scaleX(-1)" }}
               ></i>
             </a>
-          </li> */}
-          {/* <li className="nav-item">
-            <a className={`dropdown-item mt-2 pt-3 border-top-cn ${lang = 'vi' && "fs-4"}`} href="#">
+          </li>
+          <li className="nav-item">
+            <a className={`dropdown-item mt-2 pt-3 border-top-cn`} href="#">
               <span>
                 <i className="fa fa-cog"></i>
               </span>
               <span className="ps-3">{t("Settings")}</span>
             </a>
-          </li> */}
+          </li>
           <li className="nav-item pb-2" onClick={logout}>
-            <a className={`dropdown-item mt-2 pt-3 border-top-cn ${lang === 'vi' && "fs-4"}`} href="#">
+            <a className={`dropdown-item mt-2 pt-3 border-top-cn`} href="#">
               <span>
                 <i className="fas fa-sign-out-alt"></i>
               </span>

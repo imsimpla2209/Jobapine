@@ -9,6 +9,8 @@ import clientRoute from './client.route'
 import proposalRoute from './proposal.route'
 import contractRoute from './contract.route'
 import paymentRoute from './payment.route'
+import messageRoute from './message.route'
+import notifyRoute from './notify.route'
 
 const router = express.Router()
 
@@ -49,6 +51,14 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/payments',
     route: paymentRoute,
+  },
+  {
+    path: '/notify',
+    route: notifyRoute,
+  },
+  {
+    path: '/messages',
+    route: messageRoute,
   },
 ]
 

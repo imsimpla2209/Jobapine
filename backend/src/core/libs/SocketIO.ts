@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as socketio from 'socket.io'
 import logger from 'common/logger/logger'
+import { ESocketEvent } from 'common/enums'
 
 export interface SocketIOData {
   socketio: SocketIO
@@ -11,7 +12,7 @@ export interface SocketIOData {
 export class SocketIO {
   private io: socketio.Socket
 
-  clients: any = {}
+  onlineUsers: any = {}
 
   constructor(server: Express.Application) {
     logger.info('Socket.io', 'Started')
@@ -27,8 +28,26 @@ export class SocketIO {
 
   private async init() {
     this.io.on('connect', async (socket: socketio.Socket) => {
-      logger.warning('NEW CONNECTION', socket.id)
-      this.clients[socket.id] = socket
+      logger.warn('NEW CONNECTION', socket.id)
+      socket.on(ESocketEvent.USER_CONNECTED, (user: any) => {
+        logger.warn(`USER CONNECTION: ${user?.userId}`)
+        this.onlineUsers[user?.userId] = { socketId: user?.socketId, socket }
+        /**
+         * OPTIONAL NOTE:
+         * BROADCAST IF NEW LOGGIN HAS BEEN RECEIVED
+         */
+        this.broadcastAll(ESocketEvent.USER_CONNECTED, { user })
+      })
+      socket.on(ESocketEvent.USER_DISCONNECTED, (user: any) => {
+        logger.warn(`USER OFFLINE: ${user?.userId}`)
+        delete this.onlineUsers[user?.userId]
+
+        /**
+         * OPTIONAL NOTE:
+         * BROADCAST IF NEW LOGGIN HAS BEEN RECEIVED
+         */
+        this.broadcastAll(ESocketEvent.USER_CONNECTED, { user })
+      })
       /**
        * OPTIONAL NOTE:
        * BROADCAST IF NEW CONNECTION HAS BEEN RECEIVED
@@ -39,12 +58,10 @@ export class SocketIO {
        * BROADCAST IF SOMEONE GOT DISCONNECTED EXCEPT SENDER
        */
       socket.on('disconnect', () => {
-        logger.error('SOCKET DISCONNECTED', socket.id)
+        logger.error('SOCKET DISCONNECTED', socket.id, this.onlineUsers)
 
         /** OPTIONAL NOTE: Implement disconnect event on client side */
         // socket.broadcast.emit('disconnect_connection', socket.id)
-
-        delete this.clients[socket.id]
       })
     })
   }
