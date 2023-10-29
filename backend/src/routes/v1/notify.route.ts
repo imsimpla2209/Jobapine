@@ -12,7 +12,7 @@ router
   .get(validate(notifyValidation.getNotifys), notifyController.getNotifys)
 
 router
-  .route('/:userId')
+  .route('/:id')
   .get(auth(), validate(notifyValidation.getNotify), notifyController.getNotify)
   .patch(auth(), validate(notifyValidation.updateNotify), notifyController.updateNotify)
   .delete(auth(), validate(notifyValidation.deleteNotify), notifyController.deleteNotify)

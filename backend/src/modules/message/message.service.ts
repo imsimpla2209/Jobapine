@@ -37,21 +37,27 @@ export const createMessageRoom = async (messageBody: NewCreatedMessageRoom): Pro
  */
 export const queryMessageRooms = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
   filter['proposal'] && (filter['proposal'] = { proposal: `${filter['proposal']}` })
-  filter['members'] && (filter['members'] = { members: { $in: filter['members'] } })
+  filter['member'] &&
+    (filter['member'] = { member: { $in: filter['member'].map(m => new mongoose.Types.ObjectId(m)) } })
 
   const filterExtract = Object.keys(filter).map(f => filter[f])
   const queryFilter = {
     $and: [...filterExtract, { isDeleted: { $ne: true } }],
   }
 
-  options.populate = 'proposal,members'
-  // if (!options.projectBy) {
-  //   options.projectBy =
-  //     'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
-  // }
+  options.populate = 'member,proposal'
+
+  if (!options.projectBy) {
+    options.projectBy =
+      'proposal, member, seen, isDeleted, proposalStatusCatalog, image, background, createdAt, updatedAt, attachments'
+  }
+
+  if (!options.sortBy) {
+    options.sortBy = 'createdAt:desc'
+  }
 
   if (!options.limit) {
-    options.limit = 1000
+    options.limit = 200
   }
 
   const messages = await MessageRoom.paginate(queryFilter, options)
@@ -75,14 +81,14 @@ export const getMessageRoomByOptions = async (Options: any): Promise<IMessageRoo
   MessageRoom.findOne(Options)
 
 /**
- * Update message by id
+ * Update message room by id
  * @param {mongoose.Types.ObjectId} messageId
- * @param {UpdateMessageBody} updateBody
+ * @param {NewCreatedMessageRoom} updateBody
  * @returns {Promise<IMessageRoomDoc | null>}
  */
 export const updateMessageRoomById = async (
   messageId: mongoose.Types.ObjectId,
-  updateBody: UpdateMessageBody
+  updateBody: NewCreatedMessageRoom
 ): Promise<IMessageRoomDoc | null> => {
   const message = await getMessageRoomById(messageId)
   if (!message) {
@@ -99,11 +105,7 @@ export const updateMessageRoomById = async (
  * @returns {Promise<IMessageRoomDoc | null>}
  */
 export const deleteMessageRoomById = async (messageId: mongoose.Types.ObjectId): Promise<IMessageRoomDoc | null> => {
-  const message = await getMessageRoomById(messageId)
-  if (!message) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Message not found')
-  }
-  await message.deleteOne()
+  const message = await updateMessageRoomById(messageId, { isDeleted: true })
   return message
 }
 
@@ -116,6 +118,9 @@ export const createMessage = async (messageBody: NewCreatedMessage): Promise<IMe
   // if (await Message.isUserSigned(messageBody.user)) {
   //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Message')
   // }
+  updateMessageRoomById(messageBody.room, {
+    seen: false,
+  })
   if (io.onlineUsers[messageBody?.to]) {
     logger.info(`user: ${messageBody?.from}  Send message to user: ${messageBody?.to}`)
     io.onlineUsers[messageBody?.to].socket.emit(ESocketEvent.SENDMSG, messageBody)
@@ -139,10 +144,9 @@ export const queryMessages = async (filter: Record<string, any>, options: IOptio
   }
 
   // options.populate = 'proposal,members'
-  // if (!options.projectBy) {
-  //   options.projectBy =
-  //     'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
-  // }
+  if (!options.projectBy) {
+    options.projectBy = 'from, to, room, isDeleted, content, attachments, createdAt, updatedAt, seen'
+  }
 
   const messages = await Message.paginate(queryFilter, options)
   return messages
@@ -202,10 +206,6 @@ export const updateMessageById = async (
  * @returns {Promise<IMessageDoc | null>}
  */
 export const deleteMessageById = async (messageId: mongoose.Types.ObjectId): Promise<IMessageDoc | null> => {
-  const message = await getMessageById(messageId)
-  if (!message) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Message not found')
-  }
-  await message.deleteOne()
+  const message = updateMessageById(messageId, { isDeleted: true })
   return message
 }

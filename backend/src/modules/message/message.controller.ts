@@ -13,7 +13,7 @@ export const createMessageRoom = catchAsync(async (req: Request, res: Response) 
 })
 
 export const getMessageRooms = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['members', 'proposal'])
+  const filter = pick(req.query, ['member', 'proposal'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await messageService.queryMessageRooms(filter, options)
   res.send(result)

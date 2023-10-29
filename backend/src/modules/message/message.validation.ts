@@ -29,7 +29,7 @@ export const createMessage = {
 export const getMessageRooms = {
   query: Joi.object().keys({
     proposal: Joi.string(),
-    members: Joi.array().items(Joi.string()),
+    member: Joi.array().items(Joi.string()),
     sortBy: Joi.string(),
     projectBy: Joi.string(),
     limit: Joi.number().integer(),
@@ -61,6 +61,22 @@ export const updateMessage = {
   body: Joi.object()
     .keys({
       content: Joi.string().max(969).required(),
+      attachments: Joi.array().items(Joi.string()),
+    })
+    .min(1),
+}
+
+export const updateMessageRoom = {
+  params: Joi.object().keys({
+    id: Joi.required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+      member: Joi.array().items(Joi.string()),
+      proposalStatusCatalog: Joi.array().items(Joi.string()),
+      proposal: Joi.string(),
+      background: Joi.string(),
+      image: Joi.string(),
       attachments: Joi.array().items(Joi.string()),
     })
     .min(1),

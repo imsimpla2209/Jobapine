@@ -11,7 +11,7 @@ router
   .get(validate(contractValidation.getContracts), contractController.getContracts)
 
 router
-  .route('/:userId')
+  .route('/:id')
   .get(auth(), validate(contractValidation.getContract), contractController.getContract)
   .patch(auth(), validate(contractValidation.updateContract), contractController.updateContract)
   .patch(auth(), validate(contractValidation.updateContractStatus), contractController.updateContractStatus)

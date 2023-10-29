@@ -25,8 +25,9 @@ const messageSchema = new mongoose.Schema<IMessageDoc, IMessageModel>(
 const messageRoomSchema = new mongoose.Schema<IMessageRoomDoc, IMessageRoomModel>(
   {
     isDeleted: { type: Boolean, default: false },
+    seen: { type: Boolean, default: false },
     proposal: { type: mongoose.Types.ObjectId, ref: 'Proposal' },
-    members: [{ type: mongoose.Types.ObjectId, ref: 'User' }],
+    member: [{ type: mongoose.Types.ObjectId, ref: 'User' }],
     proposalStatusCatalog: [{ type: String, required: 'false', default: [] }],
     background: {
       type: String,

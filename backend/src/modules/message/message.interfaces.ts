@@ -6,8 +6,8 @@ import { QueryResult } from '../../providers/paginate/paginate'
 import { AccessAndRefreshTokens } from '../token/token.interfaces'
 
 export interface IMessage {
-  from: IUserDoc['_id']
-  to: IUserDoc['_id']
+  from?: IUserDoc['_id']
+  to?: IUserDoc['_id']
   content?: string
   attachments?: string[]
   room?: IMessageRoomDoc['_id']
@@ -17,12 +17,13 @@ export interface IMessage {
 
 export interface IMessageRoom {
   proposalStatusCatalog?: string[]
-  members?: IUserDoc['_id'][]
+  member?: IUserDoc['_id'][]
   proposal?: IProposalDoc['_id']
   status?: [{ status: EStatus; date: Date }]
   background?: string
   image?: string
   isDeleted?: boolean
+  seen?: boolean
 }
 
 export interface IMessageDoc extends IMessage, Document {}
@@ -37,7 +38,7 @@ export interface IMessageModel extends Model<IMessageDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>
 }
 
-export type UpdateMessageBody = Omit<IMessage, 'freelancer' | 'job'>
+export type UpdateMessageBody = Omit<IMessage, 'from' | 'to'>
 
 export type NewCreatedMessage = Omit<
   IMessage,

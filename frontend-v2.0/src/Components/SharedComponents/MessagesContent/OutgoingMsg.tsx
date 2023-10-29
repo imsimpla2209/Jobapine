@@ -1,10 +1,16 @@
+import { useTranslation } from "react-i18next";
+import { timeAgo } from "src/utils/helperFuncs";
+import img from '../../../assets/img/icon-user.svg'
+
 export default function OutgoingMsg({ msg }) {
-    return (
-        <div className="outgoing_msg">
-            <div className="sent_msg">
-                <p>{msg.Msg}</p>
-                <span className="time_date">{new Date(msg.time.seconds * 1000).toLocaleString()}</span>
-            </div>
-        </div>
-    )
+	const { t } = useTranslation(['main'])
+	return (
+		<div className="outgoing_msg">
+			<div className="sent_msg">
+				<p>{msg.content}</p>
+				<span className="time_date">{timeAgo(msg?.createdAt, t)}</span>
+			</div>
+
+		</div>
+	)
 }

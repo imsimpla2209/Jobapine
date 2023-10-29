@@ -1,21 +1,21 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 
+import { BellFilled, MailFilled } from "@ant-design/icons";
+import { Badge, Divider, Dropdown, MenuProps, Space } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { userStore } from "src/Store/user.store";
 import { logout } from "src/api/auth-apis";
-import { useSubscription } from "src/libs/global-state-hook";
-import img from "../../../assets/img/icon-user.svg";
-import LanguageList from "../../SharedComponents/LanguageBtn/LanguageList";
 import { getNotifies } from "src/api/message-api";
+import { useSubscription } from "src/libs/global-state-hook";
 import { useSocket } from "src/socket.io";
 import { ESocketEvent } from "src/utils/enum";
-import { Badge, Divider, Dropdown, MenuProps, Space } from "antd";
 import { timeAgo } from "src/utils/helperFuncs";
-import { AliwangwangFilled, BellFilled, MessageFilled } from "@ant-design/icons";
+import img from "../../../assets/img/icon-user.svg";
+import LanguageList from "../../SharedComponents/LanguageBtn/LanguageList";
 
 export const NotifyPopup = (s, data) => {
   const { t } = useTranslation(['main'])
@@ -54,6 +54,7 @@ export default function NavLargScreen() {
   const user = useSubscription(userStore).state;
   const [notifies, setNotifies] = useState([])
   const [unSeen, setUnSeen] = useState([])
+  const [unSeenMSG, setUnSeenMSG] = useState(0)
   const { appSocket } = useSocket()
 
   const handleLogout = () => {
@@ -97,11 +98,28 @@ export default function NavLargScreen() {
     }
   }, [notifies, unSeen])
 
+  useEffect(() => {
+    // App socket
+    appSocket.on(ESocketEvent.SENDMSG, (data) => {
+      console.log('Get MSG:', data)
+      if (data?.to === (user?.id || user?._id)) {
+
+        setUnSeenMSG(prev => prev + 1)
+      }
+    })
+
+    // The listeners must be removed in the cleanup step, in order to prevent multiple event registrations
+    return () => {
+      appSocket.off(ESocketEvent.SENDMSG)
+
+    }
+  }, [])
+
   const items = useMemo(() => {
     return notifies?.map((s, ix) => {
       return {
         label: <div className="row" style={{ width: 400 }}>
-          <Link className="col-8 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc"}} to={s?.path || '#'}>{s?.content}</Link>
+          <Link className="col-8 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{s?.content}</Link>
           <p className="col-4">{timeAgo(s?.createdAt, t)}</p>
         </div>,
         key: ix,
@@ -237,11 +255,18 @@ export default function NavLargScreen() {
             </a>
           </li> */}
           <li className="nav-item ms-5 me-3">
-            <NavLink className="" style={{ padding: '9px 10px', borderRadius: 100, background: "#f5f0fa" }} to="/messages">
-              <MessageFilled style={{ fontSize: 18, }} />
-            </NavLink>
+            <Badge
+              count={unSeenMSG || 0}
+              color={"purple"}
+              status="processing">
+              <NavLink className="" 
+              onClick={() => setUnSeenMSG(0)}
+              style={{ padding: '10px 10px', borderRadius: 100, background: "#f5f0fa" }} to="/messages">
+                <MailFilled style={{ fontSize: 18, }} />
+              </NavLink>
+            </Badge>
           </li>
-          <li className="pe-2">
+          <li className="nav-item pe-2">
             <Badge
               count={unSeen?.length || 0}
               color={"purple"}
@@ -305,7 +330,7 @@ export default function NavLargScreen() {
                   role="group"
                   aria-label="Basic example"
                 >
-                  <button type="button" className={`btn ${lang === 'vi' && "fs-5 "}`}>
+                  <button type="button" className={`btn`}>
                     {t("Online")}
                   </button>
                   <span style={{ padding: "0 1px" }}></span>
@@ -315,7 +340,7 @@ export default function NavLargScreen() {
                 </div>
               </li>
               <li>
-                <NavLink className={`dropdown-item px-4 ${lang === 'vi' && "text-end"}`} to="/find-work">
+                <NavLink className={`dropdown-item px-4`} to="/find-work">
                   <div className="d-flex align-items-center">
                     <span style={{ marginLeft: "-5px" }}>
                       <img style={{ height: "30px", width: "30px" }} className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
@@ -329,12 +354,12 @@ export default function NavLargScreen() {
               </li>
               <li>
                 <NavLink
-                  className={`dropdown-item px-4 mb-1 ${lang === 'vi' && "text-end"}`}
+                  className={`dropdown-item px-4 mb-1`}
                   to="/home"
                 >
                   <div className="d-flex align-items-center">
                     <span style={{ marginLeft: "-5px" }}>
-                      <i className={`fa fa-user-circle fs-3 ${lang === 'vi' && "px-3"}`}></i>
+                      <i className={`fa fa-user-circle fs-3`}></i>
                     </span>
                     <div className="acc-cn ms-2">
                       <p className={``} >{t("Name")}</p>
@@ -344,17 +369,17 @@ export default function NavLargScreen() {
                 </NavLink>
               </li>
               <li>
-                <Link className={`dropdown-item px-4 ${lang === 'vi' && "fs-6 text-end"}`} to="settings">
+                <Link className={`dropdown-item px-4 `} to="settings">
                   <span>
-                    <i className={`fa fa-cog ${lang === 'vi' && "px-3 fs-5"}`}></i>
+                    <i className={`fa fa-cog`}></i>
                   </span>
                   <span className="ps-2">{t("Settings")}</span>
                 </Link>
               </li>
               <li>
-                <button className={`dropdown-item px-4 ${lang === 'vi' && "fs-6 text-end"}`} onClick={handleLogout}>
+                <button className={`dropdown-item px-4`} onClick={handleLogout}>
                   <span>
-                    <i className={`fas fa-sign-out-alt ${lang === 'vi' && "px-3 fs-5"}`}></i>
+                    <i className={`fas fa-sign-out-alt`}></i>
                   </span>
                   <span className="ps-2">{t("Log Out")}</span>
                 </button>
