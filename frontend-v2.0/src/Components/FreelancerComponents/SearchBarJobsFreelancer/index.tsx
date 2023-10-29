@@ -115,7 +115,7 @@ export default function SearchBarJobsFreelancer({ showPath = true, useIndexSearc
                   }}
                 >
                   <span>
-                    <p style={{ color: "#6600cc" }}>
+                    <p style={{ color: "#6600cc", paddingTop: 3 }}>
                       {s.suggestion}
                     </p>
                   </span>

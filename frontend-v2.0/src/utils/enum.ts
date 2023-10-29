@@ -64,6 +64,17 @@ export enum EPaymenType {
   WHENDONE = 'WhenDone',
 }
 
+export enum ESocketEvent {
+  SENDNOTIFY = 'Send_Notify',
+  USER_CONNECTED = 'User_Connected',
+  USER_DISCONNECTED = 'User_DisConnected',
+  SENDMSG = 'Send_Msg',
+  JOBCHANGE = 'Job_Change',
+  PROPOSALCHANGE = 'Proposal_Change',
+  CONTRACTCHANGE = 'Contract_Change',
+}
+
+
 export enum EJobType {
   ONE_TIME_PROJECT = 'one-time-project',
   ONGOING_PROJECT = 'ongoing-project',

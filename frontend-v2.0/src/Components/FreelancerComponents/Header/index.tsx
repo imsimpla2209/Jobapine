@@ -31,7 +31,7 @@ export default function Header() {
 			<header className="nav-bg-cn py-1">
 
 				{/* Header in large screen */}
-				<div id="nav-lg-id" className="ms-5 me-3 d-flex justify-content-between align-items-center">
+				<div id="nav-lg-id" className="ms-5 me-5 d-flex justify-content-between align-items-center">
 					<div className="d-flex justify-content-between">
 						<Logo />
 						<SearchBox />

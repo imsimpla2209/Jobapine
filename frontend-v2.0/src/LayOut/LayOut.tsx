@@ -7,16 +7,22 @@ import Loader from "./../Components/SharedComponents/Loader/Loader";
 import { useAuth } from "src/Components/Providers/AuthProvider";
 import { locationStore } from "src/Store/commom.store";
 import { useSubscription } from "src/libs/global-state-hook";
+import { useSocket } from "src/socket.io";
+import { ESocketEvent } from "src/utils/enum";
 
 export default function LayOut() {
-  const { authenticated, loading } = useAuth();
+  const { authenticated, loading, id } = useAuth();
   const [usrType, setUsrType] = useState("");
   const { setState } = useSubscription(locationStore);
-
+  const { appSocket } = useSocket();
 
   useEffect(() => {
     if (authenticated) {
       setUsrType(localStorage.getItem('userType') || '');
+      appSocket.emit(ESocketEvent.USER_CONNECTED, { socketId: appSocket.id, userId: id })
+    }
+    return () => {
+      appSocket.emit(ESocketEvent.USER_DISCONNECTED, { socketId: appSocket.id, userId: id })
     }
   }, [authenticated])
 

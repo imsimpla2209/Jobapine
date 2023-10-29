@@ -52,10 +52,9 @@ export default function SignUp() {
     await register(userInfo)
       .then(async res => {
         if (res.data?.user) {
-          login(res.data?.tokens.token, res.data?.user)
           localStorage.setItem('userType', userInfo.lastLoginAs)
           if (userInfo.lastLoginAs === EUserType.FREELANCER) {
-            registerAsFreelancer(
+            await registerAsFreelancer(
               {
                 user: res.data?.user?.id,
                 name: userInfo.name,
@@ -63,7 +62,7 @@ export default function SignUp() {
               }
             )
           } else if (userInfo.lastLoginAs === EUserType.CLIENT) {
-            registerAsClient(
+            await registerAsClient(
               {
                 user: res.data?.user?.id,
                 name: userInfo.name,
@@ -71,10 +70,11 @@ export default function SignUp() {
               }
             )
           }
-
+          return res
         }
-      }).then(() => {
+      }).then((res) => {
         // sendVerifyEmail();
+        login(res.data?.tokens.token, res.data?.user)
         localStorage.setItem("userType", userInfo?.lastLoginAs || "Freelancer");
         userInfo?.lastLoginAs === "Freelancer"
           ? navigate("/find-work")

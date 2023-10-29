@@ -1,12 +1,55 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 
-import React, { useEffect, useState } from "react";
+import { Tag } from "antd";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { getMessageRooms } from "src/api/message-api";
+import { useSocket } from "src/socket.io";
+import { ESocketEvent } from "src/utils/enum";
+import { timeAgo } from "src/utils/helperFuncs";
+import styled from "styled-components";
 
-export default function MessagesLeftSide({ freelancerID }) {
-	console.log(freelancerID);
+export enum EMSGTags {
+	CHAT = 'chat',
+	CONTACT = 'contact',
+}
 
-	const [freelancer, setFreelancer] = useState({});
+export default function MessagesLeftSide({ freelancerID, userID, selectedMessageRoom, setSelectedMessageRoom }: any) {
+	const { t } = useTranslation(['main'])
+	const [tab, setTab] = useState(EMSGTags.CHAT)
+	const [messageRooms, setMessageRooms] = useState<any[]>([]);
+	const { appSocket } = useSocket()
+
+
+	useEffect(() => {
+		// App socket
+		appSocket.on(ESocketEvent.SENDMSG, (data) => {
+			console.log('Get Message:', data)
+			if (data?.to === userID) {
+				const notifyMessage = messageRooms?.find((msg) => msg._id === data?.room)
+				const newSortedMSG = messageRooms?.filter((msg) => msg._id !== data?.room)
+				setMessageRooms([{ ...notifyMessage, updatedAt: new Date(), seen: false }, ...newSortedMSG])
+			}
+		})
+
+		// The listeners must be removed in the cleanup step, in order to prevent multiple event registrations
+		return () => {
+			appSocket.off(ESocketEvent.SENDMSG)
+
+		}
+	}, [userID])
+
+	useEffect(() => {
+		const member = [`${userID}`]
+		getMessageRooms({ member }).then((res) => {
+			setMessageRooms(res.data.results)
+		}).catch((err) => {
+			console.log('Get MSG ERROR: ', err)
+		})
+	}, [userID])
 
 	useEffect(() => {
 		if (freelancerID) {
@@ -61,7 +104,7 @@ export default function MessagesLeftSide({ freelancerID }) {
 								</ul>
 							</div>
 						</div>
-						<div className="col-6">
+						<div className="col-6 d-flex justify-content-center">
 							<div
 								className="btn-group border-gray rounded "
 								role="group"
@@ -73,6 +116,7 @@ export default function MessagesLeftSide({ freelancerID }) {
 									name="btnradio"
 									id="btnradio1"
 									autoComplete="off"
+									onClick={() => setTab(EMSGTags.CHAT)}
 									defaultChecked
 								/>
 								<label className="btn btn-outline-jobsicker" htmlFor="btnradio1">
@@ -93,6 +137,7 @@ export default function MessagesLeftSide({ freelancerID }) {
 									name="btnradio"
 									id="btnradio2"
 									autoComplete="off"
+									onClick={() => setTab(EMSGTags.CHAT)}
 								/>
 								<label className="btn btn-outline-jobsicker" htmlFor="btnradio2">
 									<svg
@@ -187,83 +232,59 @@ export default function MessagesLeftSide({ freelancerID }) {
 								</ul>
 							</div>
 							<ul className="list-group list-group-flush">
-								<li className="list-group-item d-flex justify-content-between align-items-center">
-									<div className="row">
-										<div className="col-3">
-											<div className="img_cont_msg">
-												<img
-													src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg"
-													className="rounded-circle user_img_msg"
-												/>
-												<span
-													className="online_icon_msg offline "
-													data-bs-toggle="tooltip"
-													data-bs-placement="right"
-													title="offline"
-												/>
-											</div>
-										</div>
-										<div className="col-9">
-											<span className="msg-uname">Belal Khaled, incen </span>
-											<span className="topic">
-												Design Blog articles in Elementor - Arabic speaker
-												<br />
-											</span>
-											<p className="smallmsg">You:ok sir</p>
-										</div>
-									</div>
-								</li>
-								<li className="list-group-item d-flex justify-content-between align-items-center">
-									<div className="row">
-										<div className="col-3">
-											<div className="img_cont_msg">
-												<img
-													src="https://2.bp.blogspot.com/-8ytYF7cfPkQ/WkPe1-rtrcI/AAAAAAAAGqU/FGfTDVgkcIwmOTtjLka51vineFBExJuSACLcBGAs/s320/31.jpg"
-													className="rounded-circle user_img_msg"
-												/>
-												<span
-													className="online_icon_msg"
-													data-bs-toggle="tooltip"
-													data-bs-placement="right"
-													title="online"
-												/>
-											</div>
-										</div>
-										<div className="col-9">
-											<span className="msg-uname">Belal Khaled, incen </span>
-											<span className="topic">
-												Design Blog articles in Elementor - Arabic speaker
-												<br />
-											</span>
-											<p className="smallmsg">You:ok sir</p>
-										</div>
-									</div>
-								</li>
+								{
+									messageRooms?.length ? <>
+										{
+											messageRooms?.map(mr => (
+												<li key={mr?._id} className="list-group-item">
+													<Wrapper className="row message-item"
+														style={{
+															backgroundColor: selectedMessageRoom?._id === mr?._id ? '#ffe0fb' : ''
+														}}
+														onClick={() => setSelectedMessageRoom(mr)}>
+														<div className="col-2">
+															<div className="img_cont_msg">
+																<img
+																	src={mr?.image || "https://simpletexting.com/wp-content/uploads/2022/05/text-messages-not-sending.jpeg"}
+																	className="rounded-circle user_img_msg"></img>
 
-								<li className="list-group-item d-flex justify-content-between align-items-center">
-									<div className="row">
-										<div className="col-3">
-											<button className="btn btn-circle btn-xl mx-auto border-gray bg-gray">
-												B
-											</button>
-										</div>
-										<div className="col-9">
-											<span className="msg-uname">Belal Khaled, incen </span>
-											<span className="topic">
-												Design Blog articles in Elementor - Arabic speaker
-												<br />
-											</span>
-											<p className="font-1 pt-2">You:ok sir</p>
-										</div>
-									</div>
-								</li>
-								<li className="list-group-item d-flex justify-content-between align-items-center">
+															</div>
+														</div>
+														<div className="col-10">
+															<span className="msg-uname">{
+																mr?.member?.filter(m => m?._id !== userID).map(m => (
+																	<span key={m?._id}>{m?.name}
+																	</span>
+																))
+															} </span>
+															<p className="smallmsg float-end">{timeAgo(mr?.updatedAt, t)}</p>
+															<span className="d-flex justify-content-between align-items-center w-100">
+																<span className="topic text-muted">
+																	{t("Single Direct Message")}
+																</span>
+																<span className="">
+																	{
+																		mr?.seen ?
+																			<Tag color="#108ee9">{t("Seen")}</Tag> : <Tag color="#87d068">{t("Unseen")}</Tag>
+																	}
+																</span>
+															</span>
+															<br />
+														</div>
+													</Wrapper>
+												</li>
+											))
+										}
+									</> : <></>
+								}
+
+								{/* <li className="list-group-item d-flex justify-content-between align-items-center">
 									s<span className="badge bg-jobsicker rounded-pill">2</span>
 								</li>
 								<li className="list-group-item d-flex justify-content-between align-items-center">
 									A third list item
 									<span className="badge bg-jobsicker rounded-pill">1</span>
-								</li>
+								</li> */}
 							</ul>
 						</div>
 					</div>
@@ -272,3 +293,11 @@ export default function MessagesLeftSide({ freelancerID }) {
 		</>
 	);
 }
+
+const Wrapper = styled.div`
+	cursor: pointer;
+	padding: 5px;
+  &:hover {
+    background: #ffe0fb;
+  }
+`

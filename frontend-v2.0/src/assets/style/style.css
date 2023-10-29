@@ -403,19 +403,17 @@ a:active {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  position: absolute;
-  left: 74px;
-  right: 30px;
-  top: 29px;
   font-weight: 400 !important;
   margin-right: 10px;
   line-height: 16px;
   cursor: pointer;
 }
 .smallmsg {
-  position: relative;
-  top: 1em;
   font-size: 0.8em;
+}
+
+.message-item:hover {
+  background: "#ccc"
 }
 
 /* ===================Chat style===================== */

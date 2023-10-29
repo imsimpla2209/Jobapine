@@ -1,23 +1,32 @@
 import { createContext, useContext, useEffect } from 'react'
 import { io } from 'socket.io-client'
+import { useAuth } from 'src/Components/Providers/AuthProvider'
 import { SERVER_ENPOINT } from 'src/api/server-url'
+import { ESocketEvent } from 'src/utils/enum'
 
-const socket = io(SERVER_ENPOINT, {
+export const socket = io(SERVER_ENPOINT, {
   transports: ['websocket', 'polling'],
 })
 
 const SocketContext = createContext(null)
 
 export const SocketProvider = props => {
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log('socket connected')
-    })
+  const { authenticated, id } = useAuth();
 
-    return () => {
-      socket.off('connect')
+  useEffect(() => {
+    if (authenticated) {
+      socket.on('connect', () => {
+        socket.emit(ESocketEvent.USER_CONNECTED, { socketId: socket.id, userId: id })
+        console.log('my socket id', socket.id);
+      })
     }
-  }, [])
+    return () => {
+      if (authenticated) {
+        socket.emit(ESocketEvent.USER_DISCONNECTED, { socketId: socket.id, userId: id })
+        socket.off('connect')
+      }
+    }
+  }, [authenticated, id])
 
   return <SocketContext.Provider value={{ appSocket: socket }}>{props.children}</SocketContext.Provider>
 }
