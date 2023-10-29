@@ -1,8 +1,9 @@
+import { DollarOutlined } from '@ant-design/icons'
 import { Button, Card, Checkbox, Col, Layout, Row, Skeleton, Space, Tag, theme } from 'antd'
 import type { CheckboxValueType } from 'antd/es/checkbox/Group'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Http } from 'src/api/http'
+import { getAllJobs } from 'src/api/job-apis'
 import styled from 'styled-components'
 
 interface SelectedValues {
@@ -19,7 +20,7 @@ export default function ListOfWork() {
   const [listJobs, setListJobs] = useState([])
   const getAllListJobs = async () => {
     setLoading(true)
-    await Http.get('/jobs/all')
+    await getAllJobs()
       .then(res => {
         setListJobs(res.data)
       })
@@ -135,19 +136,25 @@ export default function ListOfWork() {
                 <Row>
                   <h2>{item.title}</h2>
                 </Row>
-                <Row>
+                <Row style={{ marginBottom: '8px' }}>
                   <Button
                     className="btn signup-btn-cn px-3 py-2 "
                     type="primary"
                     shape="round"
                     size="large"
-                    onClick={() => navigate(`/job/details/${item._id}`)}
+                    onClick={() => navigate(`/freelance-jobs/${item._id}`)}
                   >
                     View job
                   </Button>
                 </Row>
 
                 <p>{item.description}</p>
+                <Row style={{ marginBottom: '8px' }}>
+                  <span>
+                    <DollarOutlined /> {item.payment.amount} {item.payment.type}
+                  </span>
+                </Row>
+
                 <div>
                   {item.categories.map(i => (
                     <Tag
