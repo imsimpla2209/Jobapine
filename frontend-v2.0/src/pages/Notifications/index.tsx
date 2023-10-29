@@ -2,28 +2,29 @@
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 import { useEffect, useState } from "react"
-// import { auth, db } from "../../firebase"
 import NotificationCard from "./NotificationCard";
+import { getNotifies } from "src/api/message-api";
+import { useSubscription } from "src/libs/global-state-hook";
+import { userStore } from "src/Store/user.store";
+import { useTranslation } from "react-i18next";
 
 export default function Notifications() {
+	const { t } = useTranslation(['main'])
 
-	const [notifications, setNotifications] = useState([])
 	const collectionName = localStorage.getItem('userType');
-
+	const user = useSubscription(userStore).state;
+  const [notifies, setNotifies] = useState([]);
+  const [unSeen, setUnSeen] = useState([]);
+	
 	useEffect(() => {
-		getNotifications();
-	}, [])
+    getNotifications()
+  }, [])
 
 	const getNotifications = () => {
-		const arr = [];
-		// db.collection(collectionName)
-		//     .doc(auth.currentUser.uid)
-		//     .collection("notification")
-		//     .orderBy("time", "desc")
-		//     .get().then(res => {
-		//         res.docs.map(notification => arr.push({ data: { ...notification.data() }, docID: notification.id }));
-		//         setNotifications([...arr])
-		//     })
+		getNotifies(user?.id || user?._id).then((res) => {
+      setNotifies(res.data.results)
+      setUnSeen(res.data.results?.filter(n => !n?.seen) || [])
+    })
 	}
 
 
@@ -37,8 +38,8 @@ export default function Notifications() {
 					<h5>Check what's new</h5>
 				</div>
 				{
-					notifications?.length > 0
-						? notifications.map((notification, index) =>
+					notifies?.length > 0
+						? notifies.map((notification, index) =>
 							<NotificationCard
 								notification={notification}
 								collectionName={collectionName}
@@ -48,7 +49,7 @@ export default function Notifications() {
 						)
 						:
 						<div className="row border border-1 bg-white py-4 px-3">
-							<p className="h3">No notifications to show</p>
+							<p className="h3">{t("No Notifications to show")}</p>
 						</div>
 				}
 

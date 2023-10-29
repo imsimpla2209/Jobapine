@@ -79,3 +79,13 @@ export enum EPaymentPurpose {
   RECHARGE = 'Recharge',
   ESCROW = 'Escrow',
 }
+
+export enum ESocketEvent {
+  USER_DISCONNECTED = 'User_DisConnected',
+  SENDNOTIFY = 'Send_Notify',
+  USER_CONNECTED = 'User_Connected',
+  SENDMSG = 'Send_Msg',
+  JOBCHANGE = 'Job_Change',
+  PROPOSALCHANGE = 'Proposal_Change',
+  CONTRACTCHANGE = 'Contract_Change',
+}

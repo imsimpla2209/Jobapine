@@ -121,8 +121,6 @@ export const queryAdvancedJobs = async (
     ],
   }
 
-  console.log('firstssssssssssssssssssssss', queryFilter)
-
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =

@@ -5,49 +5,47 @@ import mongoose, { Document, Model } from 'mongoose'
 import { QueryResult } from '../../providers/paginate/paginate'
 import { AccessAndRefreshTokens } from '../token/token.interfaces'
 
-export interface IMessage {
-  from?: IUserDoc['_id']
-  to?: IUserDoc['_id']
+export interface INotify {
+  to: IUserDoc['_id']
+  path?: string
   content?: string
-  attachments?: string[]
-  room?: IMessageRoomDoc['_id']
+  image?: string
   seen?: boolean
   isDeleted?: boolean
 }
 
-export interface IMessageRoom {
+export interface INotifyRoom {
   proposalStatusCatalog?: string[]
-  member?: IUserDoc['_id'][]
+  members?: IUserDoc['_id'][]
   proposal?: IProposalDoc['_id']
   status?: [{ status: EStatus; date: Date }]
   background?: string
   image?: string
   isDeleted?: boolean
-  seen?: boolean
 }
 
-export interface IMessageDoc extends IMessage, Document {}
-export interface IMessageRoomDoc extends IMessageRoom, Document {}
+export interface INotifyDoc extends INotify, Document {}
+export interface INotifyRoomDoc extends INotifyRoom, Document {}
 
-export interface IMessageRoomModel extends Model<IMessageRoomDoc> {
+export interface INotifyRoomModel extends Model<INotifyRoomDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>
 }
 
-export interface IMessageModel extends Model<IMessageDoc> {
-  isUserSigned(user: mongoose.Types.ObjectId, excludeMessageId?: mongoose.Types.ObjectId): Promise<boolean>
+export interface INotifyModel extends Model<INotifyDoc> {
+  isUserSigned(user: mongoose.Types.ObjectId, excludeNotifyId?: mongoose.Types.ObjectId): Promise<boolean>
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>
 }
 
-export type UpdateMessageBody = Omit<IMessage, 'from' | 'to'>
+export type UpdateNotifyBody = Omit<INotify, 'freelancer' | 'job'>
 
-export type NewCreatedMessage = Omit<
-  IMessage,
+export type NewCreatedNotify = Omit<
+  INotify,
   'status' | 'messages' | 'contract' | 'freelancerComment' | 'clientComment' | 'isDeleted'
 >
 
-export type NewCreatedMessageRoom = Partial<IMessageRoom>
+export type NewCreatedNotifyRoom = Partial<INotifyRoom>
 
-export interface IMessageWithTokens {
-  user: IMessageDoc
+export interface INotifyWithTokens {
+  user: INotifyDoc
   tokens: AccessAndRefreshTokens
 }

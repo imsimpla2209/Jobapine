@@ -2,38 +2,62 @@ import { EStatus } from 'common/enums'
 import mongoose from 'mongoose'
 import paginate from '../../providers/paginate/paginate'
 import toJSON from '../../common/toJSON/toJSON'
-import { IMessageDoc, IMessageEmployee, IMessageEmployeeModel, IMessageModel } from './message.interfaces'
+import { IMessageDoc, IMessageRoom, IMessageRoomModel, IMessageModel, IMessageRoomDoc } from './message.interfaces'
 
 const messageSchema = new mongoose.Schema<IMessageDoc, IMessageModel>(
   {
-    client: { type: mongoose.Types.ObjectId, ref: 'Freelancer' },
-    freelancer: { type: mongoose.Types.ObjectId, ref: 'Freelancer' },
+    from: { type: mongoose.Types.ObjectId, ref: 'User' },
+    to: { type: mongoose.Types.ObjectId, ref: 'User' },
+    room: { type: mongoose.Types.ObjectId, ref: 'MessageRoom' },
+    seen: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
     content: {
       type: String,
       required: true,
     },
-    proposalStatusCatalog: [{ type: String, required: 'false', default: [] }],
     attachments: [{ type: String, required: 'false', default: [] }],
-    proposal: { type: mongoose.Types.ObjectId, ref: 'Proposal' },
   },
   {
     timestamps: true,
   }
 )
 
-const messageEmployeeSchema = new mongoose.Schema<IMessageEmployee, IMessageEmployeeModel>(
+const messageRoomSchema = new mongoose.Schema<IMessageRoomDoc, IMessageRoomModel>(
   {
-    freelancer: { type: mongoose.Types.ObjectId, ref: 'Freelancer' },
-    message: { type: mongoose.Types.ObjectId, ref: 'Message' },
-    endDate: {
+    isDeleted: { type: Boolean, default: false },
+    seen: { type: Boolean, default: false },
+    proposal: { type: mongoose.Types.ObjectId, ref: 'Proposal' },
+    member: [{ type: mongoose.Types.ObjectId, ref: 'User' }],
+    proposalStatusCatalog: [{ type: String, required: 'false', default: [] }],
+    background: {
       type: String,
       default: '',
     },
-    status: {
+    image: {
       type: String,
-      enum: EStatus,
-      default: EStatus.PENDING,
+      default: '',
     },
+    status: [
+      {
+        type: {
+          status: {
+            type: String,
+            enum: EStatus,
+          },
+          date: {
+            type: Date,
+          },
+          comment: {
+            type: String,
+          },
+        },
+        default: {
+          date: new Date(),
+          status: EStatus.PENDING,
+          comment: '',
+        },
+      },
+    ],
   },
   {
     timestamps: true,
@@ -43,6 +67,10 @@ const messageEmployeeSchema = new mongoose.Schema<IMessageEmployee, IMessageEmpl
 // add plugin that converts mongoose to json
 messageSchema.plugin(toJSON)
 messageSchema.plugin(paginate)
+
+// add plugin that converts mongoose to json
+messageRoomSchema.plugin(toJSON)
+messageRoomSchema.plugin(paginate)
 
 /**
  * Check if email is taken
@@ -62,9 +90,6 @@ messageSchema.pre('save', async function (next) {
 
 const Message = mongoose.model<IMessageDoc, IMessageModel>('Message', messageSchema)
 
-export const MessageEmployee = mongoose.model<IMessageEmployee, IMessageEmployeeModel>(
-  'MessageEmployee',
-  messageEmployeeSchema
-)
+export const MessageRoom = mongoose.model<IMessageRoom, IMessageRoomModel>('MessageRoom', messageRoomSchema)
 
 export default Message
