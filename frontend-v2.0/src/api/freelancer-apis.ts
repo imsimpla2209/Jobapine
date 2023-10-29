@@ -22,11 +22,11 @@ export const getRcmdFreelancers = (data: {jobId: string}, query: filterFreelance
 }
 
 export const getFreelancer = (id: string ) => {
-  return instance.get(`freelancers:${id}`);
+  return instance.get(`freelancers/${id}`);
 }
 
 export const updateFreelancer = (data: UpdateFreelancer, id: string ) => {
-  return instance.patch(`freelancers:${id}`, data);
+  return instance.patch(`freelancers/${id}`, data);
 }
 
 export const deleteFreelancer = (id: string) => {
@@ -38,5 +38,5 @@ export const reviewUser = (data: IReview, id: string ) => {
 }
 
 export const forcedDeleteFreelancer = (id: string) => {
-  return instance.delete(`freelancers/admin/:${id}`);
+  return instance.delete(`freelancers/admin/${id}`);
 }

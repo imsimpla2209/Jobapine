@@ -282,6 +282,27 @@ export const reviewFreelancerById = async (
 }
 
 /**
+ * add proposals to freelancer by id
+ * @param {mongoose.Types.ObjectId} freelancerId
+ * @param {String} proposalId
+ * @returns {Promise<IFreelancerDoc | null>}
+ */
+export const addProposaltoFreelancerById = async (
+  freelancerId: mongoose.Types.ObjectId,
+  proposalId: string
+): Promise<IFreelancerDoc | null> => {
+  try {
+    const freelancer = await Freelancer.findOneAndUpdate({ _id: freelancerId }, { $push: { proposals: proposalId } })
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+    return freelancer
+  } catch (err) {
+    throw new Error(`cannot add proposals to freelancer ${err}`)
+  }
+}
+
+/**
  * update similar info for freelancer by id
  * @param {mongoose.Types.ObjectId} userId
  * @returns {Promise<IFreelancerDoc | null>}

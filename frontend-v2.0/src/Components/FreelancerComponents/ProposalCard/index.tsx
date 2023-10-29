@@ -1,20 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { fakeJobsState } from "Store/fake-state";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getJob } from "src/api/job-apis";
 import Loader from './../../SharedComponents/Loader/Loader';
+import { EStatus } from "src/utils/enum";
+import { useTranslation } from "react-i18next";
+import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
+import { BlueColorButton } from "src/Components/CommonComponents/custom-style-elements/button";
+import { isEmpty } from "lodash";
+import { Collapse } from "antd";
 
 export default function ProposalCard({ proposal, jobId, ind }) {
-
-  const jobData = fakeJobsState[0]
+  const { t } = useTranslation(['main'])
+  const [jobData, setJobData] = useState<any>({})
 
   useEffect(() => {
-    // db.collection("job")
-    //   .doc(jobId)
-    //   .onSnapshot(doc => {
-    //     setJobData(doc.data());
-    //   });
+    getJob(jobId).then(res => {
+      setJobData(res.data);
+    }).catch(err => console.log(err));
   }, []);
 
   return (
@@ -22,25 +26,89 @@ export default function ProposalCard({ proposal, jobId, ind }) {
       {
         jobId
           &&
-          jobData?.jobTitle ?
+          jobData?.title ?
           <div>
             <div className="row">
-              <div className="col">
+              <div className="col-md-7 col-12">
+                <Link
+                  to={`/job/review-proposal/${proposal._id}`}
+                  className={`fw-bold ${proposal?.currentStatus === EStatus.ACCEPTED ? "" : "pe-none"}`}
+                  style={{ color: "#6600cc" }}
+                >
+                  Proposals No.{ind + 1}
+                </Link>
                 <div>
-                  {
-                    proposal.status === "proposal"
-                      ? new Date(proposal.proposalTime?.seconds * 1000).toLocaleString()
-                      : new Date(proposal.startContractTime?.seconds * 1000).toLocaleString()
-                  }
+                  <strong className=" me-2">
+                    {t("Cover Letter")}:
+                  </strong>
+                  <span className="text-muted text-wrap">
+                    {proposal?.description}
+                  </span>
+                </div>
+                <div className="">
+                  <div className="d-flex flex-wrap">
+                    <strong className="me-2">{t("Submited Date")}: </strong>
+                    <div>
+                      {
+                        proposal?.currentStatus === EStatus.ACCEPTED
+                          ? new Date(proposal?.status?.date * 1000).toLocaleString()
+                          : (proposal?.createdAt ? new Date((proposal?.createdAt) * 10000).toLocaleString() : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString())
+                      }
+                    </div>
+                  </div>
+                  <div className="d-flex flex-wrap">
+                    <strong className="me-2">{t("Status")}: </strong>
+                    <span>
+                      {
+                        proposal?.currentStatus
+                      }
+                    </span>
+                  </div>
+                  <div className="d-flex flex-wrap">
+                    <strong className="me-2">{t("Expected Amount")}: </strong>
+                    <span>
+                      {
+                        currencyFormatter(proposal?.expectedAmount) + '/ ' + t(`${jobData?.payment?.type}`)
+                      }
+                    </span>
+                  </div>
+                  <div>
+                    {
+                      proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS
+                        ? <BlueColorButton>{t("Go to messaging")}</BlueColorButton>
+                        : <BlueColorButton>{t("Request to message")}</BlueColorButton>
+                    }
+                  </div>
+                  <div>
+                    {
+                      !isEmpty(proposal?.answers) && <>
+                        <strong className="me-2">{t("answers")}: </strong>
+                        <Collapse
+                          items={Object.keys(proposal?.answers)?.map((a, ix) => {
+                            return {
+                              key: ix,
+                              label: jobData?.questions[a],
+                              children: <p>{proposal?.answers[a]}</p>,
+                            }
+                          })} defaultActiveKey={[0]} />
+                      </>
+                    }
+                  </div>
                 </div>
               </div>
-              <Link
-                to={`/job/applied/${jobId}`}
-                className="col-6 fw-bold text-success "
-              >
-                {jobData.jobTitle}
-              </Link>
-              <div className="col text muted">{jobData.jobCategory}</div>
+              <div className="col-md-5 col-12 d-flex flex-column">
+                <strong className=" me-2">
+                  {t("Applied Job")}:
+                </strong>
+                <Link
+                  to={`/job/${jobId}`}
+                  className="fw-bold "
+                  style={{ color: "#6600cc" }}
+                >
+                  {jobData.title}
+                </Link>
+                <div className="text muted">{jobData?.description}</div>
+              </div>
             </div>
             <hr />
           </div>

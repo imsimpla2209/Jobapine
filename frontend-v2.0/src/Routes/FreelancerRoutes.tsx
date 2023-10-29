@@ -107,7 +107,7 @@ export default function FreelancerRoutes() {
             
               element={<TransactionHistory />}
             /> */}
-            <Route path="/messages" element={<Messages location={undefined} />} />
+            <Route path="/messages" element={<Messages />} />
             <Route path="/contract" element={<Contract location={undefined} />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="*" element={<PageNotFound />} />

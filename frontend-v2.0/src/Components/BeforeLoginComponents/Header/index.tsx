@@ -5,11 +5,25 @@ import Logo from 'src/Components/SharedComponents/Logo/Logo'
 import LanguageList from '../../SharedComponents/LanguageBtn/LanguageList'
 import './Header.css'
 import SearchBox from 'src/Components/SharedComponents/SearchBox'
+import { useEffect, useState } from 'react'
+import { getCategories, getSkills } from 'src/api/job-apis'
+import { pickName } from 'src/utils/helperFuncs'
 
 export default function Header() {
   const { i18n } = useTranslation(['main'])
   let lang = i18n.language
   const { t } = useTranslation(['main'])
+  const [skills, setSkills] = useState([])
+  const [cats, setCats] = useState([])
+
+  useEffect(() => {
+    getSkills().then(res => {
+      setSkills(res.data)
+    })
+    getCategories().then(res => {
+      setCats(res.data)
+    })
+  }, [])
 
   return (
     <header className="py-1 pt-2 fixed-top bg-white">
@@ -47,51 +61,23 @@ export default function Header() {
                     </a>
                     <ul
                       id="find-freelancer-dd-id"
-                      className={`dropdown-menu pb-4 ${lang === 'vi' && 'text-end'}`}
+                      className={`dropdown-menu pb-4 pe-4`}
                       aria-labelledby="navbarDropdownMenuLink"
                     >
-                      <ul className="mt-3 d-inline-block typeOfwork-cn">
-                        <span className="fw-bold">{t('TYPE OF WORK')}</span>
-                        <li>
-                          <Link className="dropdown-item" to="dev-it">
-                            {t('Development & IT')}
-                          </Link>
-                        </li>
-                        <li>
-                          <a className="dropdown-item" href="#">
-                            {t('Design & Creative')}
-                          </a>
-                        </li>
-                        <li>
-                          <a className="dropdown-item" href="#">
-                            {t('Sales & Marketing')}
-                          </a>
-                        </li>
-                        <li>
-                          <a className="dropdown-item" href="#">
-                            {t('Writing & Translation')}
-                          </a>
-                        </li>
-                        <li>
-                          <a className="dropdown-item" href="#">
-                            {t('Admin & Customer Support')}
-                          </a>
-                        </li>
-                        <li>
-                          <a className="dropdown-item" href="#">
-                            {t('Finance & Accounting')}
-                          </a>
-                        </li>
-                        <li>
-                          <a className="dropdown-item" href="#">
-                            {t('See all specializations')}
-                          </a>
-                        </li>
-                      </ul>
-                      {lang !== 'vi' && (
-                        <div className="mt-3 ms-5 ps-4 d-inline-block waysToHire-cn">
+                      <div className="d-flex">
+                        <ul className="mt-3 d-inline-block typeOfwork-cn">
+                          <span className="fw-bold">{t('TYPE OF WORK')}</span>
+                          {cats?.slice(3, 11)?.map(c => (
+                            <li key={c?._id}>
+                              <Link className="dropdown-item" to="dev-it">
+                                {c?.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-3 ps-4 d-inline-block waysToHire-cn">
                           <span className="fw-bold">{t('WAYS TO HIRE')}</span>
-                          <div className="d-flex mt-3 pb-5">
+                          <div className="d-flex mt-3">
                             <div>
                               <a href="#">
                                 <p className="fw-bold">{t('Freelancer Marketplace')}</p>
@@ -113,18 +99,14 @@ export default function Header() {
                               </a>
                             </div>
                           </div>
-                          <div className={`border-top mt-5 pt-4 ${lang === 'vi' && 'fs-6'}`}>
+                          <div className={`border-top mt-5 pt-4`}>
                             <a href="#">
                               {t('Learn how to hire on JobSickers')}
-                              <i
-                                className={`fa ${
-                                  lang === 'vi' ? 'fa-arrow-left pe-3 ' : 'fa-arrow-right'
-                                } ms-3 text-success `}
-                              ></i>
+                              <i className={`fa fa-arrow-right ms-3 text-success `}></i>
                             </a>
                           </div>
                         </div>
-                      )}
+                      </div>
                     </ul>
                   </li>
                   <li className="nav-item dropdown">
@@ -140,57 +122,32 @@ export default function Header() {
                       <i className="fa fa-sort-down ms-1  px-2"></i>
                     </a>
                     <ul id="find-work-dd-id" className="dropdown-menu pb-4" aria-labelledby="navbarDropdownMenuLink">
-                      <div className="d-flex text-end">
+                      <div className="d-flex ">
                         <ul className="mt-3 d-inline-block ">
-                          <span className="fw-bold">{t('TYPE OF WORK')}</span>
-                          <li>
-                            <Link className="dropdown-item mt-3" to="freelance-jobs">
-                              {t('Development & IT')}
-                            </Link>
-                          </li>
-                          <li>
-                            <a className="dropdown-item" href="#">
-                              {t('Design & Creative')}
-                            </a>
-                          </li>
-                          <li>
-                            <a className="dropdown-item" href="#">
-                              {t('Sales & Marketing')}
-                            </a>
-                          </li>
-                          <li>
-                            <a className="dropdown-item" href="#">
-                              {t('Writing & Translation')}
-                            </a>
-                          </li>
+                          <span className="fw-bold">{t('TOPSKILLS')}</span>
+                          {skills?.slice(0, 6)?.map((s, ix) => (
+                            <li key={s?._id}>
+                              <Link className={`dropdown-item ${ix === 0 ? 'mt-3' : ''}`} to="freelance-jobs">
+                                {pickName(s, lang)}
+                              </Link>
+                            </li>
+                          ))}
                         </ul>
                         <ul className="d-inline-block ms-5">
-                          <li>
-                            <a className="dropdown-item mt-5 pt-4" href="#">
-                              {t('Admin & Customer Support')}
-                            </a>
-                          </li>
-                          <li>
-                            <a className="dropdown-item" href="#">
-                              {t('Finance & Accounting')}
-                            </a>
-                          </li>
-                          <li>
-                            <a className="dropdown-item" href="#">
-                              {t('See all specializations')}
-                            </a>
-                          </li>
+                          {skills?.slice(7, 12)?.map((s, ix) => (
+                            <li key={s?._id}>
+                              <Link className={`dropdown-item ${ix === 0 ? 'mt-5 pt-4' : ''}`} to="freelance-jobs">
+                                {pickName(s, lang)}
+                              </Link>
+                            </li>
+                          ))}
                         </ul>
                       </div>
                       <div className="mt-3 ps-4 d-inline-block">
                         <div className="border-top pt-3">
-                          <a href="#" className={` pt-4 ${lang === 'vi' && 'fs-6'}`}>
+                          <a href="#" className={` pt-4`}>
                             {t('Learn how to get hired on JobSickers')}
-                            <i
-                              className={`fa ${
-                                lang === 'vi' ? 'fa-arrow-left pe-3 ' : 'fa-arrow-right'
-                              } ms-3 text-success `}
-                            ></i>
+                            <i className={`fa fa-arrow-right} ms-3 text-success `}></i>
                           </a>
                         </div>
                       </div>
@@ -208,13 +165,18 @@ export default function Header() {
                       {t('Why JobSickers')}
                       <i className="fa fa-sort-down ms-1  px-2"></i>
                     </a>
-                    <ul
-                      id="why-work-dd-id"
-                      className={`dropdown-menu mt-3 ${lang === 'vi' && 'fs-6 text-end'}`}
-                      aria-labelledby="navbarDropdownMenuLink"
-                    >
+                    <ul id="why-work-dd-id" className={`dropdown-menu mt-3 `} aria-labelledby="navbarDropdownMenuLink">
                       <li>
-                        <a className="dropdown-item py-2 mt-3" href="#">
+                        <a
+                          className="dropdown-item py-2 mt-3"
+                          href="#"
+                          onClick={e => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            const element = document.getElementById('success-story')
+                            element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                          }}
+                        >
                           {t('Success Stories')}
                         </a>
                       </li>
@@ -242,10 +204,10 @@ export default function Header() {
           <div className="d-flex justify-content-between col-7">
             <SearchBox />
             <div className="col-md-5 border-start ps-2 d-flex j justify-content-end">
-              <Link className={`btn login-btn-cn ${lang === 'vi' && 'fs-6'}`} to="/login">
+              <Link className={`btn login-btn-cn `} to="/login">
                 {t('Log In')}
               </Link>
-              <Link className={`btn signup-btn-cn px-3 py-2 ${lang === 'vi' && 'fs-6'}`} to="/sign-up">
+              <Link className={`btn signup-btn-cn px-3 py-2 `} to="/sign-up">
                 {t('Sign Up')}
               </Link>
               <LanguageList />

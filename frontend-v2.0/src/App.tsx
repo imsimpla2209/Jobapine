@@ -6,19 +6,24 @@ import "./App.css";
 import { AuthProvider } from "./Components/Providers/AuthProvider";
 import LayOut from "./LayOut/LayOut";
 import i18n from "./i18n";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { PAYPAL_CLIENT_ID } from './api/constants';
 
 function App() {
   return (
     <HashRouter>
       <AuthProvider>
         <I18nextProvider i18n={i18n}>
-          <div
-            // dir={i18n.language === 'vi' ? "rtl" : "ltr"}
-            lang={i18n.language === 'vi' ? 'vi' : "en"}
-            style={{ fontFamily: "'Cairo', sans-serif !important" }}>
-            <LayOut />
-          </div>
-          <Toaster />
+          <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID }}>
+            <div
+              // dir={i18n.language === 'vi' ? "rtl" : "ltr"}
+              lang={i18n.language === 'vi' ? 'vi' : "en"}
+              style={{ fontFamily: "'Cairo', sans-serif !important" }}>
+              <LayOut />
+            </div>
+            <Toaster />
+          </PayPalScriptProvider>
+
         </I18nextProvider >
       </AuthProvider>
     </HashRouter>

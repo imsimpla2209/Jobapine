@@ -26,7 +26,7 @@ export default function JobAppliedDetails() {
         </div>
         <div className="row ">
           <JobDescriptionJobDetails job={jobData} />
-          <RightSidebarJobDetails job={jobData} />
+          {/* <RightSidebarJobDetails job={jobData} /> */}
         </div>
       </div>
     </div>

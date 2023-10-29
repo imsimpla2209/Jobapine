@@ -17,7 +17,7 @@ import {
 
 const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
   {
-    client: { type: mongoose.Types.ObjectId, ref: 'Client' },
+    client: { type: String, ref: 'Client' },
     title: {
       type: String,
       required: true,
@@ -54,16 +54,18 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
           status: {
             type: String,
             enum: EJobStatus,
-            default: EJobStatus.PENDING,
           },
           date: {
             type: Date,
-            default: new Date(),
           },
           comment: {
             type: String,
-            default: '',
           },
+        },
+        default: {
+          date: new Date(),
+          status: EJobStatus.PENDING,
+          comment: '',
         },
       },
     ],
@@ -85,7 +87,7 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
       },
     ],
     checkLists: [{ type: String, default: [] }],
-    proposals: [{ type: mongoose.Types.ObjectId, ref: 'Proposal', default: [] }],
+    proposals: [{ type: String, ref: 'Proposal', default: [] }],
     attachments: [{ type: String, required: 'false', default: [] }],
     questions: [{ type: String, required: 'false', default: [] }],
     categories: [
@@ -125,6 +127,8 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
       type: String,
       default: 'short-term',
     },
+    appliedFreelancers: [{ type: String, default: [] }],
+    blockFreelancers: [{ type: String, default: [] }],
   },
   {
     timestamps: true,

@@ -4,11 +4,14 @@ import mongoose, { Document, Model } from 'mongoose'
 import { QueryResult } from '../../providers/paginate/paginate'
 
 export interface IPayment {
+  purpose: string
   from: IUserDoc['_id']
-  to: IUserDoc['_id']
+  to?: IUserDoc['_id']
+  isToAdmin?: boolean
   amount?: number
   status?: string
   paymentMethod?: string
+  note?: string
 }
 
 export interface IPaymentContract extends Document {

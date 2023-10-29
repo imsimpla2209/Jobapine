@@ -3,8 +3,9 @@ import { objectId, password } from '../../providers/validate/custom.validation'
 import { NewCreatedMessage } from './message.interfaces'
 
 const createMessageBody: Record<keyof NewCreatedMessage, any> = {
-  client: Joi.string().required(),
-  freelancer: Joi.string().required,
+  room: Joi.string().required(),
+  from: Joi.string().required(),
+  to: Joi.string().required,
   content: Joi.string().max(969).required(),
   proposalStatusCatalog: Joi.array().items(Joi.string()),
   proposal: Joi.string(),

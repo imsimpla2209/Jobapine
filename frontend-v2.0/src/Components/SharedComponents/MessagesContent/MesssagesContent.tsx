@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import IncomeMsg from "./IncomeMsg";
 import OutgoingMsg from "./OutgoingMsg";
-let unSubscribe;
 
 export default function MesssagesContent() {
 
@@ -13,7 +12,7 @@ export default function MesssagesContent() {
   useEffect(() => {
     getMsgs();
     return () => {
-      unSubscribe();
+      
     }
   }, []);
 

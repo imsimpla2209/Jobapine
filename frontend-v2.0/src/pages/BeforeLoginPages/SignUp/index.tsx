@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
 import SignupForm from "src/Components/BeforeLoginComponents/Signup Form";
 import SignUpSecondForm from "src/Components/BeforeLoginComponents/Signup Second Form";
@@ -72,14 +71,16 @@ export default function SignUp() {
               }
             )
           }
-          // sendVerifyEmail();
-          localStorage.setItem("userType", userInfo?.lastLoginAs || "Freelancer");
-          userInfo?.lastLoginAs === "Freelancer"
-            ? navigate("/find-work")
-            : navigate("/home");
-          toast.success('Welcome, mah bro');
-          // navigate("/sign-up/please-verify");
+
         }
+      }).then(() => {
+        // sendVerifyEmail();
+        localStorage.setItem("userType", userInfo?.lastLoginAs || "Freelancer");
+        userInfo?.lastLoginAs === "Freelancer"
+          ? navigate("/find-work")
+          : navigate("/home");
+        toast.success('Welcome, mah bro');
+        // navigate("/sign-up/please-verify");
       })
       .catch(err => {
         toast.error(err?.responseBody?.message);

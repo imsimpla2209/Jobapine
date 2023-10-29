@@ -15,11 +15,11 @@ export const searchClients = (data: {searchText: string}, query: filterFreelance
 }
 
 export const getClient = (id: string ) => {
-  return instance.get(`clients:${id}`);
+  return instance.get(`clients/${id}`);
 }
 
 export const updateClient = (data: IUpdateClientBody, id: string ) => {
-  return instance.patch(`clients:${id}`, data);
+  return instance.patch(`clients/${id}`, data);
 }
 
 export const deleteClient = (id: string) => {
@@ -31,5 +31,5 @@ export const reviewUser = (data: IReview, id: string ) => {
 }
 
 export const forcedDeleteClient = (id: string) => {
-  return instance.delete(`clients/admin/:${id}`);
+  return instance.delete(`clients/admin/${id}`);
 }

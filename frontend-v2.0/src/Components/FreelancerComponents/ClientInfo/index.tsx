@@ -42,7 +42,7 @@ export default function ClientInfo({ client }) {
           {
             client?.preferLocations?.map(l => (
               <span key={l} className="fw-bold me-4">
-                <i className="fas fa-map-marker-alt me-2" />{locations[Number(l)].name}
+                <i className="fas fa-map-marker-alt me-2" />{locations?.find(s => s.code === l.toString())?.name} |
               </span>
             ))
           }

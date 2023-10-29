@@ -1,4 +1,4 @@
-import { EStatus, EPaymentMethod } from 'common/enums'
+import { EStatus, EPaymentMethod, EPaymentPurpose } from 'common/enums'
 import mongoose from 'mongoose'
 import paginate from '../../providers/paginate/paginate'
 import toJSON from '../../common/toJSON/toJSON'
@@ -6,8 +6,14 @@ import { IPaymentDoc, IPaymentContract, IPaymentContractModel, IPaymentModel } f
 
 const paymentSchema = new mongoose.Schema<IPaymentDoc, IPaymentModel>(
   {
+    purpose: {
+      type: String,
+      enum: EPaymentPurpose,
+      default: EPaymentPurpose.RECHARGE,
+    },
     from: { type: mongoose.Types.ObjectId, ref: 'User' },
     to: { type: mongoose.Types.ObjectId, ref: 'User' },
+    isToAdmin: { type: Boolean, default: false },
     amount: {
       type: Number,
     },
@@ -15,6 +21,10 @@ const paymentSchema = new mongoose.Schema<IPaymentDoc, IPaymentModel>(
       type: String,
       enum: EStatus,
       default: EStatus.PENDING,
+    },
+    note: {
+      type: String,
+      default: '',
     },
     paymentMethod: {
       type: String,

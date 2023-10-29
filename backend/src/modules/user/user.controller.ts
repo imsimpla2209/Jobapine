@@ -1,3 +1,4 @@
+import { getClientByOptions } from '@modules/client/client.service'
 import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
 import { EUserType } from 'common/enums'
 import { Request, Response } from 'express'
@@ -57,7 +58,7 @@ export const switchToFreelancer = catchAsync(async (req: Request, res: Response)
 })
 
 export const switchToClient = catchAsync(async (req: Request, res: Response) => {
-  const clientProfile = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req.user?._id) })
+  const clientProfile = await getClientByOptions({ user: new mongoose.Types.ObjectId(req.user?._id) })
   userService.updateUserById(new mongoose.Types.ObjectId(req.user?._id), {
     lastLoginAs: EUserType.CLIENT,
   })

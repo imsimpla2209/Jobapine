@@ -126,16 +126,16 @@
   top: 53px;
   width: 750px;
 }
-[dir="rtl"] #find-freelancer-dd-id {
+/* [dir="rtl"] #find-freelancer-dd-id {
   width: 635px;
   left: -435px;
-}
+} */
 #find-freelancer-dd-id ul li a,
 #find-work-dd-id ul li a {
   padding: 12px 0;
   font-size: 13px;
 }
-[dir="rtl"] #find-work-dd-id {
+/* [dir="rtl"] #find-work-dd-id {
   left: -430px;
 }
 [dir="rtl"] #why-work-dd-id {
@@ -146,7 +146,7 @@
 [dir="rtl"] .waysToHire-cn div div a p,
 [dir="rtl"] #why-work-dd-id li a {
   font-size: 18px !important;
-}
+} */
 
 #find-freelancer-dd-id ul li a:hover,
 #find-work-dd-id ul li a:hover,
@@ -182,7 +182,7 @@
   top: 53px;
   width: 530px;
 }
-[dir="rtl"] .search-btnn-cn {
+/* [dir="rtl"] .search-btnn-cn {
   left: -320px;
 }
 
@@ -197,4 +197,4 @@
 [dir="rtl"] .navbar-dark .navbar-nav .nav-link.n-l-c-cn,
 [dir="rtl"] .second-nav-cn ul li a {
   font-size: 20px;
-}
+} */

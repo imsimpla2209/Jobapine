@@ -1,5 +1,5 @@
 
-import { ClockCircleFilled } from '@ant-design/icons'
+import { ClockCircleFilled, HeartFilled, HeartOutlined } from '@ant-design/icons'
 import { Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
@@ -10,15 +10,44 @@ import { EComplexityGet } from 'src/utils/enum'
 import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
 import StarsRating from '../../SharedComponents/StarsRating/StarsRating'
 import JobProposalsNumber from './JobProposalsNumber'
+import { useState } from 'react'
+import { updateFreelancer } from 'src/api/freelancer-apis'
+import { freelancerStore } from 'src/Store/user.store'
 
-export default function JobCard({ item, saveJob, freelancer, lang }) {
+export default function JobCard({ item, freelancer, lang }) {
   const { t } = useTranslation(['main'])
   const locations = useSubscription(locationStore).state;
+  const setState = useSubscription(freelancerStore).setState;
+  const [isLiked, setisliked] = useState(false)
 
+  const saveJob = (id) => {
+    setisliked(!isLiked)
+    if (!freelancer?.favoriteJobs.includes(id)) {
+      const favorJob = freelancer?.favoriteJobs || []
+      updateFreelancer({
+        favoriteJobs: [...favorJob, id]
+      }, freelancer?._id).then(() => {
+        setState({ ...freelancer, favoriteJobs: [...favorJob, id] })
+      })
+    }
+    else {
+      const favorJob = freelancer?.favoriteJobs
+      favorJob?.forEach((item, index) => {
+        if (item === id) {
+          favorJob?.splice(index, 1);
+          updateFreelancer({
+            favoriteJobs: favorJob || []
+          }, freelancer?._id).then(() => {
+            setState({ ...freelancer, favoriteJobs: favorJob || [] })
+          })
+        }
+      })
+    }
+  }
 
   return (
     <div style={{ borderRadius: 12, marginBottom: 16 }} className="card-job">
-      <div className="list-group-item px-4 py-2" style={{ border: '1px solid #ccc', background: "#fffcff"}}>
+      <div className="list-group-item px-4 py-2" style={{ border: '1px solid #ccc', background: "#fffcff" }}>
         <div className="row align-items-center">
           <div className="col-lg-9 pt-lg-2">
             <Link
@@ -32,19 +61,22 @@ export default function JobCard({ item, saveJob, freelancer, lang }) {
             <div className="btn-group float-sm-end mt-2">
               <button
                 type="button"
-                className="btn btn-light dropdown-toggle border border-1 rounded-circle collapsed"
+                className={`btn btn-light dropdown-toggle rounded-circle collapsed`}
+                style={{
+                  background: freelancer?.favoriteJobs?.includes(item._id || item?.id) ? '#6f00f7' : '#e5d3f5',
+                  border: freelancer?.favoriteJobs?.includes(item._id || item?.id) ? '3px solid #4fffc2' : '1px solid #ccc'
+                }}
                 data-toggle="collapse"
                 data-target="#collapse"
                 aria-expanded="false"
                 aria-controls="collapseTwo"
+                onClick={
+                  (e) => saveJob(item._id || item?.id)
+                }
               >
-                <i
-                  onClick={
-                    (e) => saveJob(e, item._id)
-                  }
-                  className={`${freelancer?.favoriteJobs?.includes(item._id) ? 'fas fa-heart text-jobsicker' : 'far fa-heart'}`
-                  } aria-hidden="true" />
-
+                {
+                  freelancer?.favoriteJobs?.includes(item._id || item?.id) ? <HeartFilled style={{ color: '#59ffc5' }} /> : <HeartOutlined />
+                }
               </button>
             </div>
           </div>
@@ -157,7 +189,7 @@ export default function JobCard({ item, saveJob, freelancer, lang }) {
               {
                 item?.preferences?.locations.map(l => (
                   <span key={l} style={{ marginLeft: 8 }}>
-                    {locations[Number(l)].name} |
+                    {locations?.find(s => s.code === l.toString())?.name} |
                   </span>
                 ))
               }

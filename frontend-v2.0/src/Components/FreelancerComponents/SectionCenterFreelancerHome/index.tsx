@@ -15,7 +15,6 @@ export default function SectionCenterFreelancerHome({ user }) {
 
   const { i18n, t } = useTranslation(['main']);
   const lang = i18n.language;
-  const [isliked, setisliked] = useState(false)
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
 
@@ -99,31 +98,14 @@ export default function SectionCenterFreelancerHome({ user }) {
     })
   }, [handleGetData, jobLoader, pageSize, setState])
 
-  const saveJob = (e, id) => {
-    setisliked(!isliked)
-    // if (e.target.className === 'far fa-heart') {
-    //   updateUserData("freelancer", { savedJobs: [...user?.savedJobs, id] });
-    //   e.target.className = 'fas fa-heart text-jobsicker'
-    // }
-    // else {
-    //   user?.savedJobs?.forEach((item, index) => {
-    //     if (item === id) {
-    //       user?.savedJobs?.splice(index, 1);
-    //       updateUserData("freelancer", { savedJobs: [...user?.savedJobs] });
-    //       e.target.className = 'far fa-heart'
-    //     }
-    //   })
-    // }
-  }
-
   return (
-    <div className="col-lg-8 col-xs-12 mb-4">
+    <div className="col-lg-8 col-xs-12 mb-4 px-lg-3">
       <HeadOfCenterSection />
       {
         !loading
           ? state?.map((item, index) => (
             <div key={index}>
-              <JobCard item={item} saveJob={saveJob} freelancer={user} lang={lang} />
+              <JobCard item={item} freelancer={user} lang={lang} />
             </div>
           ))
           : <div className="d-flex justify-content-center align-items-center" style={{ height: "10vh" }}>

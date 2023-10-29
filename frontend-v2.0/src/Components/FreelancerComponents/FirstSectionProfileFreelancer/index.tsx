@@ -9,6 +9,15 @@ import { updateUserData } from "../../../Network/Network";
 import img from "../../../assets/img/icon-user.svg";
 // import { db, storage } from "../../../firebase";
 import Loader from "../../SharedComponents/Loader/Loader";
+import { getFreelancer, updateFreelancer } from "src/api/freelancer-apis";
+import { useSubscription } from "src/libs/global-state-hook";
+import { freelancerStore, userStore } from "src/Store/user.store";
+import { getUser } from "src/api/user-apis";
+import { locationStore } from "src/Store/commom.store";
+import { currencyFormatter, pickName } from "src/utils/helperFuncs";
+import { Button, Space } from "antd";
+import SkillPicker from "src/Components/SharedComponents/SkillPicker";
+import Progress from "src/Components/SharedComponents/Progress";
 
 
 export default function FirstSectionProfileFreelancer() {
@@ -30,16 +39,33 @@ export default function FirstSectionProfileFreelancer() {
   const [EmpTitle, setEmpTitle] = useState("");
   const [EmpCompany, setEmpCompany] = useState("");
   const [EmpStillWork, setEmpStillWork] = useState(false);
-  let [user, setUser] = useState(null);
+  let [user, setUser] = useState<any>(null);
+  let [freelancer, setFreelancer] = useState<any>(null);
+  const userData = useSubscription(userStore).state;
+  const freelancerData = useSubscription(freelancerStore).state;
+  const locations = useSubscription(locationStore).state
 
   const [EmpList, setEmpList] = useState([]);
 
   useEffect(() => {
-    // db.collection("freelancer").doc(id).onSnapshot(doc => {
-    //   user = doc.data();
-    //   setUser(user)
-    // })
-    console.log("DSD");
+    if (id === 'me') {
+      setFreelancer(freelancerData);
+      setUser(userData);
+    }
+    else {
+      getFreelancer(id).then((res) => {
+        setFreelancer(res.data);
+        return res
+      }).then((res) => {
+        getUser(res?.data?.user).then((res) => {
+          setUser(res.data)
+        }).catch((err) => {
+          console.log('Error: cannot get this user', err)
+        })
+      }).catch((err) => {
+        console.log('Error: cannot get this freelancer', err)
+      })
+    }
   }, []);
 
   const getData = ({ target }) => {
@@ -75,12 +101,13 @@ export default function FirstSectionProfileFreelancer() {
   }
 
 
-  const addskills = () => {
+  const addskills = (e) => {
     if (inputVal !== "") {
       let arr2 = [...skillsList, inputVal];
       setskillsList(arr2);
       console.log(skillsList);
-      updateUserData("freelancer", { skills: [...user?.skills, ...arr2] })
+      const currSkills = freelancer?.skills ?? []
+      updateFreelancer({ skills: [...currSkills, e] }, freelancer?._id)
     }
   };
 
@@ -148,12 +175,12 @@ export default function FirstSectionProfileFreelancer() {
           <div className="container card mb-3 mt-5 ">
             <div className="row mt-3 ps-4 pt-2">
               <div className="col-lg-2 pt-lg-3">
-                <div className="ms-3 mb-3" style={{ width: "100px", height: "100px",borderRadius: "50%", overflow: "hidden" }}>
+                <div className="ms-3 mb-3" style={{ width: "100px", height: "100px", borderRadius: "50%", overflow: "hidden" }}>
                   <img
                     alt=""
                     style={{ width: "100px", }}
                     className=" avatar vertical-align-middle m-0 avatar-sm avatar-responsive"
-                    src={user?.profilePhoto ? user?.profilePhoto : img}
+                    src={user?.avatar ? user?.avatar : img}
                   />
                   {/* <span className="hotspotimg">
                 <span className="hotspotimg__btn"></span>
@@ -162,26 +189,27 @@ export default function FirstSectionProfileFreelancer() {
               </div>
               <div className="col-lg-4 pt-lg-3 mx-3">
                 <h2 className="fw-bold">
-                  {user?.firstName + " "} {user?.lastName}.
+                  {user?.name}.
                 </h2>
-                <div className={user?.location && "fas fa-map-marker-alt"}>
-                  <span>
-                    {user?.location && (
-                      <>
-                        {" "}
-                        {user?.location.city} -{" "}
-                        <strong>{user?.location.country} – </strong>
-                      </>
-                    )}
-                    {new Date().toLocaleTimeString()} {t("local time")}
-                  </span>
+                <div className="my-3">
+                  <div className="text-muted">{t("Location")}:</div>
+                  <div className="d-flex flex-wrap fw-bold">
+                    {
+                      freelancer?.currentLocations?.map(l => (
+                        <span key={l} className="fw-bold me-4">
+                          <i className="fas fa-map-marker-alt me-2" />{locations?.find(s => s.code === l.toString())?.name} |
+                        </span>
+                      ))
+                    }
+                  </div>
+
                 </div>
                 <div className="row py-3">
                   <div className="col">
                     <span>
                       {" "}
                       {
-                        user?.employmentHistory?.length !== 0 &&
+                        freelancer?.jobsDone?.number !== 0 &&
                         <svg
                           width="15px"
                           data-name="Layer 1"
@@ -197,10 +225,10 @@ export default function FirstSectionProfileFreelancer() {
                         </svg>
                       }
                     </span>
-                    <span className="text-primary">
+                    {/* <span className="text-primary">
                       {
-                        user?.employmentHistory?.length === 0
-                          ? user?.badge?.none
+                        user?.jobsDone?.number === 0
+                          ? user?.jobsDone?.number
                           : user?.employmentHistory?.legnth <= 5
                             ? (lang === 'vi' ? user?.badge?.risingFreelancerAr : user?.badge?.risingFreelancer)
                             : user?.employmentHistory?.legnth <= 10
@@ -209,35 +237,37 @@ export default function FirstSectionProfileFreelancer() {
                                 ? (lang === 'vi' ? user?.badge?.expertAr : user?.badge?.expert)
                                 : ""
                       }
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </div>
               <div className="col-2"></div>
 
-              {/* <div className="col py-3 mx-1 float-end ">
-                <Link to="/settings">
-                  <button type="button" className="btn btn-success px-4  mx-3">
-                    {t("Profile Settings")}
-                  </button>
-                </Link>
-              </div> */}
+              {
+                id === 'me' && <div className="col py-3 mx-1 float-end ">
+                  <Link to="/settings">
+                    <button type="button" className="btn px-4  mx-3" style={{ background: "#6600cc", color: "white"}}>
+                      {t("Profile Settings")}
+                    </button>
+                  </Link>
+                </div>
+              }
 
               <hr />
               <div className="row my-3">
                 <div className="col-3 row border-end border-2 me-1">
                   <div className="row">
-                    <div className="col">
-                      <div className="fw-bold fs-5">${user?.totalEarnings}</div>
+                    <div className="">
+                      <div className="fw-bold fs-5">{currencyFormatter(freelancer?.earned)}</div>
                       <div className="fs-6">{t("Earnings")}</div>
                     </div>
-                    <div className="col">
-                      <div className="fw-bold fs-5">{user?.totalJobs}</div>
+                    <div className="">
                       <div className="fs-6">{t("Total Jobs")}</div>
+                      <div className="fw-bold fs-5">{freelancer?.jobsDone?.number}</div>
                     </div>
-                    <div className="col">
-                      <div className="fw-bold fs-5">{user?.totalHours}</div>
-                      <div className="fs-6">{t("Total Hours")}</div>
+                    <div className="">
+                      <div className="fs-6">{t("Total Completed Jobs")}</div>
+                      <div className="fw-bold fs-5">{freelancer?.jobsDone?.success}</div>
                     </div>
                   </div>
                   <hr />
@@ -245,7 +275,7 @@ export default function FirstSectionProfileFreelancer() {
                     {t("Availability")}
                   </h5>
                   <h6 >
-                    {lang === 'vi' ? user?.availability === true ? "Đang rảnh" : "Đéo rảnh" : user?.availability === true ? "available" : "not available"}
+                    {lang === 'vi' ? freelancer?.available === true ? "Đang rảnh" : "Đéo rảnh" : freelancer?.available === true ? "available" : "not available"}
                   </h6>
                   {/* <p>
                     {lang === 'vi' ? user?.availability
@@ -257,27 +287,27 @@ export default function FirstSectionProfileFreelancer() {
 
 
                   <h5 className="fw-bold text-muted">{t("Languages")}</h5>
-                  <p><span className="text-muted">{t("English")}: </span> {lang === 'vi' ? user.englishProficiencyAr : user.englishProficiency}</p>
+                  <p><span className="text-muted">{t("Vietnamese")}: </span> {t("Expert")}</p>
                   {user?.otherLanguages?.map((langItem, ix) => <p key={ix}>
                     {lang === 'vi' ? [langItem.languageAr, ' ', ':', ' ', langItem.langProfAr] : [langItem.language, ' ', ':', ' ', langItem.langProf]}
                   </p>)}
 
 
                   <h5 className="fw-bold mt-3 text-muted">{t("Education")}</h5>
-                  <p><span className="text-muted">University: </span>{user?.education?.school}</p>
-                  <p><span className="text-muted">Study: </span>{user?.education?.areaOfStudy}</p>
-                  <p><span className="text-muted">Degree: </span>{user?.education?.degree}</p>
-                  <p><span className="text-muted">Year: </span>{user?.education?.gradYear}</p>
+                  <p><span className="text-muted">University: </span>Trường Đời</p>
+                  <p><span className="text-muted">Study: </span>420</p>
+                  <p><span className="text-muted">Degree: </span>Thạc sĩ xây dựng</p>
+                  <p><span className="text-muted">Year: </span>2019</p>
 
                 </div>
 
                 <div className="col-6 px-4">
-                  <h4 className="fw-bold"> {user?.title}</h4>
+                  <h4 className="fw-bold"> {t("Description")}</h4>
 
                   <ShowMore className="mb-0 mt-4" maxHeight={100} button={<button id="seemorebutton" className="advanced-search-link " style={{ color: 'green', position: 'absolute', left: 0 }}>
                     more
                   </button>}>
-                    {user?.overview}
+                    {freelancer?.intro}
                   </ShowMore>
 
 
@@ -314,7 +344,7 @@ export default function FirstSectionProfileFreelancer() {
                       <a className="advanced-search-link fw-bold">
                         I'm looking for video, carousel and image advertising
                         creation with branding to make facebook ads
-                  </a>
+                      </a>
                       <p className="my-3">
                         <svg
                           id="up-rs"
@@ -359,7 +389,7 @@ export default function FirstSectionProfileFreelancer() {
                         <span className="fw-bold"> 5.00</span>{" "}
                         <span className="text-muted">
                           Mar 22 2021 - April 21 2021
-                    </span>
+                        </span>
                       </p>
                       <div className="row mb-3">
                         <div className="col">
@@ -379,7 +409,7 @@ export default function FirstSectionProfileFreelancer() {
                       <a className="advanced-search-link fw-bold">
                         I'm looking for video, carousel and image advertising
                         creation with branding to make facebook ads
-                  </a>
+                      </a>
                       <p className="my-3">
                         <svg
                           id="up-rs"
@@ -424,7 +454,7 @@ export default function FirstSectionProfileFreelancer() {
                         <span className="fw-bold"> 5.00</span>{" "}
                         <span className="text-muted">
                           Mar 22 2021 - April 21 2021
-                    </span>
+                        </span>
                       </p>
                       <div className="row mb-3">
                         <div className="col">
@@ -504,17 +534,27 @@ export default function FirstSectionProfileFreelancer() {
                           </div>
                         </button>}
                     </div>
-                    <div className="my-4 d-flex justify-content-start flex-wrap">
-                      {user?.skills?.map((item, ix) =>
-                        <div className="chip mb-3 ms" key={ix}>
-                          <span>{item}</span>
-                        </div>
-                      )}
+                    <div className="bg-white py-lg-4 px-4 border border-1 row pb-sm-3 py-xs-5">
+                      <h5 className="fw-bold my-4">{t("Skills and experties")}</h5>
+                      <div className="col">
+                        {freelancer?.skills?.map((skill, index) => (
+                          <Space key={index} size={1} className="me-sm-5 " wrap={true}>
+                            <Button
+                              key={index}
+                              className="btn text-light btn-sm rounded-pill cats mx-1 my-1"
+                            >
+                              {pickName(skill?.skill, lang)}:
+                            </Button>
+                            <Progress done={skill?.level} />
+                          </Space>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-                <h5 className=" mt-2 fw-bold col-2"> {t("$")} {user?.hourlyRate} / {t("hr")}</h5>
-                <div className="col-1 d-flex justify-content-end">
+                <h5 className=" mt-2 fw-bold col-2"> {currencyFormatter(freelancer?.hourlyRate || 42)} / {t("hr")}</h5>
+                {
+                  id === 'me' && <div className="col-1 d-flex justify-content-end">
                   {!clientRoute &&
                     <button
                       type="button"
@@ -537,6 +577,7 @@ export default function FirstSectionProfileFreelancer() {
 
 
                 </div>
+                }
               </div>
             </div>
           </div>
@@ -597,7 +638,7 @@ export default function FirstSectionProfileFreelancer() {
                 <div className="modal-header">
                   <h5 className="modal-title" id="exampleModalLabel">
                     Edit Employment
-              </h5>
+                  </h5>
                   <button
                     type="button"
                     className="btn-close"
@@ -613,7 +654,7 @@ export default function FirstSectionProfileFreelancer() {
                         className="form-label fw-bold"
                       >
                         Company
-                  </label>
+                      </label>
                       <input
                         onChange={updateProfile}
                         name="EmpCompany"
@@ -628,7 +669,7 @@ export default function FirstSectionProfileFreelancer() {
                         className="form-label fw-bold"
                       >
                         Title
-                  </label>
+                      </label>
                       <input
                         onChange={updateProfile}
                         name="EmpTitle"
@@ -649,8 +690,8 @@ export default function FirstSectionProfileFreelancer() {
                           value=""
                           aria-label="Checkbox for following text input"
                         />
-                      I currently worked here
-                    </div>
+                        I currently worked here
+                      </div>
                     </div>
                   </form>
                 </div>
@@ -666,7 +707,7 @@ export default function FirstSectionProfileFreelancer() {
                     }}
                   >
                     Cancel
-              </button>
+                  </button>
                   <button
                     onClick={UpdateEditEmployment}
                     type="button"
@@ -691,7 +732,7 @@ export default function FirstSectionProfileFreelancer() {
                 <div className="modal-header">
                   <h5 className="modal-title" id="exampleModalLabel">
                     Edit Profile
-              </h5>
+                  </h5>
                   <button
                     type="button"
                     className="btn-close"
@@ -707,7 +748,7 @@ export default function FirstSectionProfileFreelancer() {
                         className="form-label fw-bold"
                       >
                         Profile title
-                  </label>
+                      </label>
                       <input
                         onChange={updateProfile}
                         name="title"
@@ -723,7 +764,7 @@ export default function FirstSectionProfileFreelancer() {
                         className="form-label"
                       >
                         Overview
-                  </label>
+                      </label>
                       <textarea
                         onChange={updateProfile}
                         name="overview"
@@ -747,9 +788,9 @@ export default function FirstSectionProfileFreelancer() {
                     }}
                   >
                     Cancel
-              </button>
+                  </button>
                   <button
-                    
+
                     onClick={UpdateEditprofileTitleOverView}
                     type="button"
                     className="btn btn-default border rounded-border"
@@ -772,7 +813,7 @@ export default function FirstSectionProfileFreelancer() {
                 <div className="modal-header">
                   <h5 className="modal-title" id="exampleModalLabel">
                     Add Portofolio Item
-              </h5>
+                  </h5>
                   <button
                     type="button"
                     className="btn-close"
@@ -788,7 +829,7 @@ export default function FirstSectionProfileFreelancer() {
                         className="form-label fw-bold"
                       >
                         Item Title
-                  </label>
+                      </label>
                       <input
                         onChange={updateProfile}
                         name="imgTitle"
@@ -803,7 +844,7 @@ export default function FirstSectionProfileFreelancer() {
                         className="form-label fw-bold"
                       >
                         Add Image
-                  </label>
+                      </label>
                       <input
                         onChange={updateProfile}
                         onInput={getData}
@@ -841,7 +882,7 @@ export default function FirstSectionProfileFreelancer() {
                     }}
                   >
                     Cancel
-              </button>
+                  </button>
                   <Link
                     to="/profile"
                     onClick={UpdateEditPortofolio}
@@ -866,7 +907,7 @@ export default function FirstSectionProfileFreelancer() {
                 <div className="modal-header">
                   <h5 className="modal-title" id="exampleModalLabel">
                     Add Skills
-              </h5>
+                  </h5>
                   <button
                     type="button"
                     className="btn-close"
@@ -874,34 +915,17 @@ export default function FirstSectionProfileFreelancer() {
                     aria-label="Close"
                   />
                 </div>
-                <div className="modal-body">
+                <div className="modal-body ">
                   <form>
-                    <div className="mb-3">
-                      <label
-                        htmlFor="exampleFormControlInput1"
-                        className="form-label fw-bold"
-                      >
-                        Skill name
-                  </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="exampleFormControlInput1"
-                        name="jobSkills"
-                        onChange={skillVal}
-                      />
+                    <div className="mb-3 ">
 
                     </div>
                   </form>
                 </div>
                 <div className="my-4 d-flex justify-content-start">
-                  {skillsList.map((item, ix) =>
-                    <div className="chip mb-3 ms" key={ix}>
-                      <span>{item}</span>
-                    </div>
-                  )}
+                  <SkillPicker handleChange={addskills}></SkillPicker>
                 </div>
-                <div className="modal-footer">
+                {/* <div className="modal-footer">
                   <button
                     type="button"
                     className="btn btn-link border rounded-border "
@@ -913,7 +937,7 @@ export default function FirstSectionProfileFreelancer() {
                     }}
                   >
                     Cancel
-              </button>
+                  </button>
                   <button
                     onClick={addskills}
                     type="button"
@@ -921,7 +945,7 @@ export default function FirstSectionProfileFreelancer() {
                   >
                     Add{" "}
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

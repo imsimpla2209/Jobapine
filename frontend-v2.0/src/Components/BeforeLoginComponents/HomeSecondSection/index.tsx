@@ -14,9 +14,9 @@ export default function HomeSecondSection() {
             <div className="fs-1 mt-4">
               <i className="fas fa-chevron-down scrol-d-icon-cn"></i>
             </div>
-            <p className={`my-5 fw-bold ss-p-cn ${lang==='vi'&& "fs-5"}`}>{t("FORCLIENTS")}</p>
+            <p className={`my-5 fw-bold ss-p-cn`}>{t("FORCLIENTS")}</p>
             <h2 className="ss-h2-cn">{t("Findfreelanceryourway")}</h2>
-            <p className={`my-5 ss-p2-cn ${lang==='vi'&& "fs-4"}`}>
+            <p className={`my-5 ss-p2-cn`}>
             {t("Developtrustedrelationships")}
             </p>
           </div>
@@ -26,7 +26,7 @@ export default function HomeSecondSection() {
             <div className="shadow my-4 ss-box-cn position-relative">
               <a className="d-inline-block p-5" href="#">
                 <h3>{t("Postajobandhireapro")}</h3>
-                <p className={`mb-5 pb-5 ${lang==='vi'&& "fs-5"}`}>{t("FreelancerMarketplace")}</p>
+                <p className={`mb-5 pb-5`}>{t("FreelancerMarketplace")}</p>
                 <div className="position-absolute py-3 px-4 fs-2">
                   <i className="fas fa-arrow-right"></i>
                 </div>
@@ -37,7 +37,7 @@ export default function HomeSecondSection() {
             <div className="shadow my-4 ss-box-cn position-relative">
               <a className="d-inline-block p-5" href="#">
                 <h3>{t("Browseandbuyprojects")}</h3>
-                <p className={`mb-5 pb-5 ${lang==='vi'&& "fs-5"}`}>{t("ProjectCatalog")}</p>
+                <p className={`mb-5 pb-5`}>{t("ProjectCatalog")}</p>
                 <div className="position-absolute py-3 px-4 fs-2">
                   <i className="fas fa-arrow-right"></i>
                 </div>
@@ -48,14 +48,14 @@ export default function HomeSecondSection() {
             <div className="shadow my-4 ss-box-cn position-relative">
               <a className="d-inline-block p-5" href="#">
                 <h3>{t("Letusfindtherightfreelancer")}</h3>
-                <p className={`mb-5 pb-5 ${lang==='vi'&& "fs-5"}`}>{t("FreelancerScout")}</p>
+                <p className={`mb-5 pb-5`}>{t("FreelancerScout")}</p>
                 <div className="position-absolute py-3 px-4 fs-2">
                   <i className="fas fa-arrow-right"></i>
                 </div>
               </a>
             </div>
           </div>
-          <p className={`text-center my-3 fw-bold ${lang==='vi'&& "fs-5"}`}>
+          <p className={`text-center my-3 fw-bold`}>
           {t("Needasolutionforlargeorganizations")}{" "}
             <a href="#" className="text-success">
             {t("EnterpriseSuitehasyoucovered")}

@@ -1,16 +1,28 @@
+import { EPaymentMethod, EPaymentPurpose } from 'common/enums'
 import Joi from 'joi'
 import { objectId, password } from '../../providers/validate/custom.validation'
 import { NewCreatedPayment } from './payment.interfaces'
 
 const createPaymentBody: Record<keyof NewCreatedPayment, any> = {
-  from: Joi.string().required(),
-  to: Joi.string().required(),
-  amount: Joi.number().required(),
-  paymentMethod: Joi.string(),
+  purpose: Joi.string().valid(...Object.values(EPaymentPurpose)),
+  from: Joi.string(),
+  to: Joi.string(),
+  isToAdmin: Joi.boolean(),
+  note: Joi.string(),
+  amount: Joi.number().required().positive(),
+  paymentMethod: Joi.string().valid(...Object.values(EPaymentMethod)),
 }
 
 export const createPayment = {
   body: Joi.object().keys(createPaymentBody),
+}
+
+export const buySickPoints = {
+  body: Joi.object().keys({
+    sickPoints: Joi.number().required().positive(),
+    buyer: Joi.string(),
+    ...createPaymentBody,
+  }),
 }
 
 export const getPayments = {

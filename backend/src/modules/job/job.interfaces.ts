@@ -2,6 +2,7 @@ import { IClientDoc } from '@modules/client/client.interfaces'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
 import { ILevelSkill } from '@modules/skill/skill.interfaces'
 import mongoose, { Document, Model } from 'mongoose'
+import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
 import { QueryResult } from '../../providers/paginate/paginate'
 import { AccessAndRefreshTokens } from '../token/token.interfaces'
 
@@ -33,6 +34,8 @@ export interface IJob {
   currentStatus?: string
   visibility?: string
   jobDuration?: 'short-term' | 'long-term'
+  appliedFreelancers: IFreelancerDoc['_id'][]
+  blockFreelancers: IFreelancerDoc['_id'][]
 }
 
 export interface IJobCategory extends Document {
@@ -77,7 +80,10 @@ export interface IJobTagModel extends Model<IJobTag> {
 
 export type UpdateJobBody = Omit<IJob, 'client'>
 
-export type NewCreatedJob = Omit<IJob, 'status' | 'proposals' | 'isDeleted' | 'currentStatus'>
+export type NewCreatedJob = Omit<
+  IJob,
+  'status' | 'proposals' | 'isDeleted' | 'currentStatus' | 'appliedFreelancers' | 'blockFreelancers'
+>
 
 export interface IJobWithTokens {
   user: IJobDoc

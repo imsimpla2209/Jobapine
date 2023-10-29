@@ -13,11 +13,11 @@ export const getContracts = (data: IContractQuery) => {
 }
 
 export const getContract = (id: string) => {
-  return instance.get(`contracts:${id}`);
+  return instance.get(`contracts/${id}`);
 }
 
 export const updateContract = (data: Omit<IContract, 'freelancer' | 'job'>, id: string) => {
-  return instance.patch(`contracts:${id}`, data);
+  return instance.patch(`contracts/${id}`, data);
 }
 
 export const deleteContract = (id: string) => {
@@ -25,5 +25,5 @@ export const deleteContract = (id: string) => {
 }
 
 export const forcedDeleteContract = (id: string) => {
-  return instance.delete(`contracts/admin/:${id}`);
+  return instance.delete(`contracts/admin/${id}`);
 }

@@ -45,6 +45,7 @@ export const createJob = {
 
 export const getJobs = {
   query: Joi.object().keys({
+    client: Joi.string(),
     title: Joi.string(),
     categories: Joi.array().items(Joi.string()),
     skills: Joi.array().items(Joi.string()),
@@ -62,20 +63,22 @@ export const getJobs = {
 export const advancedGetJobs = {
   body: Joi.object().keys({
     title: Joi.string(),
-    ['preferences.nOEmployee']: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
-    ['preferences.locations']: Joi.array().items(Joi.string()),
-    ['scope.complexity']: Joi.array().items(Joi.number().valid(...Object.values(EComplexity))),
-    ['scope.duration']: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
-    ['payment.amount']: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
+    nOEmployee: Joi.number().positive(),
+    locations: Joi.array().items(Joi.string()),
+    complexity: Joi.array().items(Joi.number().valid(...Object.values(EComplexity))),
+    duration: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
+    paymentAmount: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
     proposals: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
     clientInfo: Joi.array().items(Joi.string()),
     clientHistory: Joi.string(),
-    ['payment.type']: Joi.array().items(Joi.string().valid(...Object.values(EPaymenType))),
+    paymentType: Joi.array().items(Joi.string().valid(...Object.values(EPaymenType))),
     description: Joi.string(),
     budget: Joi.object().keys({ from: Joi.number(), to: Joi.number() }),
     categories: Joi.array().items(Joi.string()),
+    skills: Joi.array().items(Joi.string()),
     tags: Joi.array().items(Joi.string()),
     currentStatus: Joi.array().items(Joi.string()),
+    searchText: Joi.string(),
   }),
   query: Joi.object().keys({
     sortBy: Joi.string(),

@@ -4,7 +4,7 @@
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { userStore } from "src/Store/user.store";
+import { freelancerStore, userStore } from "src/Store/user.store";
 import { logout } from "src/api/auth-apis";
 import { useSubscription } from "src/libs/global-state-hook";
 import img from "../../../assets/img/icon-user.svg";
@@ -68,7 +68,7 @@ export default function NavLargScreen() {
                 </Link>
               </li>
               <li>
-                <Link className={`dropdown-item  `} to={`/profile/$42000`}>
+                <Link className={`dropdown-item  `} to={`/profile/me`}>
                   {t("Profile")}
                 </Link>
               </li>

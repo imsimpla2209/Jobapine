@@ -17,7 +17,7 @@ const freelancerSchema = new mongoose.Schema<IFreelancerDoc, IFreelancerModel>(
       type: String,
     },
     members: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
-    // tests: [{ type: mongoose.Types.ObjectId, ref: 'TestResult', default: [] }],
+    // tests: [{ type: String, ref: 'TestResult', default: [] }],
     skills: [
       {
         type: {

@@ -12,9 +12,9 @@ export default function HomeFourthSection() {
   const { i18n, t } = useTranslation(['main']);
     let lang = i18n.language;
   return (
-    <section>
+    <section id="success-story">
       <div className="container">
-        <p className={`my-5 fw-bold ss-p-cn text-center ${lang==='vi' && "fs-5"}`}>{t("WHATTHEYSAY")}</p>
+        <p className={`my-5 fw-bold ss-p-cn text-center`}>{t("WHATTHEYSAY")}</p>
         <div className="row">
           <div>
             <div className="position-relative">
