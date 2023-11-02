@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { fakeClientState } from "Store/fake-state";
@@ -8,11 +9,13 @@ import img from "../../../assets/img/icon-user.svg";
 import LanguageList from "../../SharedComponents/LanguageBtn/LanguageList";
 import { logout } from "src/api/auth-apis";
 import toast from "react-hot-toast";
+import { useSubscription } from "src/libs/global-state-hook";
+import { userStore } from "src/Store/user.store";
 
 export default function NavLargScreen() {
   const { t } = useTranslation(['main']);
   const navigate = useNavigate();
-  const user = fakeClientState;
+  const user = useSubscription(userStore).state;
   useEffect(() => {
   }, []);
 
@@ -33,8 +36,7 @@ export default function NavLargScreen() {
   };
 
   return (
-    <>
-      <div className="navbar-expand" id="navbarNav-id">
+    <div className="navbar-expand" id="navbarNav-id">
         <ul className="navbar-nav align-items-center">
           <li className="nav-item hov-cn">
             <NavLink className="nav-link" to="/home">
@@ -82,7 +84,7 @@ export default function NavLargScreen() {
               </li>
             </ul>
           </li>
-          {/* <li className="nav-item hov-cn">
+          <li className="nav-item hov-cn">
             <NavLink className="nav-link" to="/transaction-history">
               {t("Reports")}
             </NavLink>
@@ -160,7 +162,7 @@ export default function NavLargScreen() {
                 </div>
               </li>
             </ul>
-          </li> */}
+          </li>
           <li className="nav-item ms-5 me-3">
             <NavLink className="nav-link" to="/messages">
               <i
@@ -184,11 +186,11 @@ export default function NavLargScreen() {
               <i className="far fa-bell fs-5"></i>
             </NavLink>
           </li>
-          {/* <li className="nav-item border-start border-secondary ps-2">
+          <li className="nav-item border-start border-secondary ps-2">
             <a className="nav-link" href="#">
               <i className="fas fa-user-plus fs-5"></i>
             </a>
-          </li> */}
+          </li>
           <li className="me-3">
             <LanguageList />
           </li>
@@ -201,15 +203,15 @@ export default function NavLargScreen() {
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <img style={{ height: "40px", width: "40px" }} className="rounded-circle bg-white" src={user.profilePhoto ? user.profilePhoto : img} alt="" />
+              <img style={{ height: "50px", width: "50px" }} className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
             </a>
             <ul
               id="acc-id"
-              className="dropdown-menu"
+              className="dropdown-menu p-2"
               aria-labelledby="navbarDropdownMenuLink"
             >
               <div className="nav-dd-acc-cn"></div>
-              {/* <li className="px-4 py-3">
+              <li className="px-4 py-3">
                 <div
                   id="acc-btns-id"
                   className="btn-group w-100"
@@ -224,7 +226,7 @@ export default function NavLargScreen() {
                     {t("Invisible")}
                   </button>
                 </div>
-              </li> */}
+              </li>
               <li>
                 <NavLink
                   className="dropdown-item px-4"
@@ -232,16 +234,16 @@ export default function NavLargScreen() {
                 >
                   <div className="d-flex align-items-center">
                     <span style={{ marginLeft: "-5px" }}>
-                      <img style={{ height: "30px", width: "30px" }} className="rounded-circle bg-white" src={user.profilePhoto ? user.profilePhoto : img} alt="" />
+                      <img style={{ height: "30px", width: "30px" }} className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
                     </span>
                     <div className="acc-cn ms-2">
-                      <p>{user?.firstName + " " + user?.lastName}</p>
+                      <p>{user?.name}</p>
                       <p>{t("Client")}</p>
                     </div>
                   </div>
                 </NavLink>
               </li>
-              {/* <li>
+              <li>
                 <NavLink className="dropdown-item px-4 mb-1" to="/home">
                   <div className="d-flex align-items-center">
                     <span style={{ marginLeft: "-5px" }}>
@@ -249,19 +251,19 @@ export default function NavLargScreen() {
                     </span>
                     <div className="acc-cn ms-2">
                       <p>{t("Name")}</p>
-                      <p>{t("Client")}</p>
+                      <p>{t("Freelancer")}</p>
                     </div>
                   </div>
                 </NavLink>
-              </li> */}
-              {/* <li>
+              </li>
+              <li>
                 <a className="dropdown-item px-4" href="#">
                   <span>
                     <i className="fa fa-cog"></i>
                   </span>
                   <span className="ps-2">{t("Settings")}</span>
                 </a>
-              </li> */}
+              </li>
               <li style={{
                 cursor: 'pointer',
               }} onClick={handleLogout}>
@@ -276,6 +278,5 @@ export default function NavLargScreen() {
           </li>
         </ul>
       </div>
-    </>
   );
 }

@@ -34,6 +34,8 @@ export interface IUpdateClientBody {
 }
 
 export interface IClient {
+  id?: string;
+  _id?: string;
   user: string
   name?: string
   intro?: string
