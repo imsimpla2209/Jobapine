@@ -2,10 +2,14 @@
 
 /* eslint-disable no-script-url */
 
-import { fakeClientState, fakeJobsState } from "Store/fake-state";
-import { useState } from "react";
+import { Pagination } from "antd";
+import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { clientStore, userStore } from "src/Store/user.store";
+import { getJobs } from "src/api/job-apis";
+import { useSubscription } from "src/libs/global-state-hook";
 import s1 from "../../../assets/img/jobslide1.jpg";
 import { default as s2, default as s3 } from "../../../assets/img/jobslide2.jpg";
 import j1 from "../../../assets/svg/jobs1.svg";
@@ -13,124 +17,95 @@ import j2 from "../../../assets/svg/jobs2.svg";
 import j3 from "../../../assets/svg/jobs3.svg";
 import j4 from "../../../assets/svg/jobs4.svg";
 import Loader from "../../SharedComponents/Loader/Loader";
+import ClientJobCard from "../ClientJobCard";
 import "./HomeLayout.css";
 
 export default function HomeLayout() {
-  const { t } = useTranslation(['main']);
-  const user = fakeClientState;
-  const jobs = fakeJobsState;
+  const { t, i18n } = useTranslation(['main']);
+  const lang = i18n.language;
+  const client = useSubscription(clientStore).state
+  const user = useSubscription(userStore).state;
+  const [jobs, setJobs] = useState<any>([]);
   const [proposals, setProposals] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(10);
 
-  // useEffect(async () => {
-  //   await db.collection("job").doc(jobs[0]?.docID).collection("proposals").get().then(res => {
-  //     const length = res.docs.length;
-  //     setProposals(length)
-  //   })
-  // }, []);
+  useEffect(() => {
+    if (client?._id || client?.id) {
+      handleGetData();
+    }
+  }, [client]);
 
+  const handleGetData = (p?: number | undefined, ps?: number | undefined) => {
+    setLoading(true);
+    return getJobs({ client: client?._id || client?.id, page: p || page, limit: ps || pageSize }).then((res) => {
+      setJobs(res?.data?.results)
+      setTotal(res?.data?.totalResults)
+    }).catch(err => {
+      toast.error('something went wrong, ', err)
+    }).finally(() => setLoading(false));
+  }
 
-  const job = jobs[0];
+  const handleChangePageJob = useCallback((p: number) => {
+    if (p === page) return
+    setPage(p)
+    handleGetData(p)
+  }, [handleGetData, page])
+
+  const handleChangePageSizeJob = useCallback((ps: number) => {
+    if (ps === pageSize) return
+    setPageSize(ps)
+    handleGetData(undefined, ps)
+  }, [handleGetData, pageSize])
 
   return (
     <>
       {
-        user.firstName
+        user?.name
           ?
           <div className="container container-fluid-sm my-lg-4">
             <div className="row px-5 my-5">
               <div className="col-lg-8 col-xs-12">
                 <div className="row my-3">
                   <div className="col-4">
-                    <h4>{user.firstName + " " + user.lastName}</h4>
+                    <h4>{user.name}</h4>
                   </div>
                 </div>
-                <div className="list-group-item py-lg-4">
-                  <h4 className="d-inline-block">{t("My Postings")}</h4>
+                <div className="list-group-item py-lg-4 mb-2">
+                  <h4 className="d-inline-block">{t("My Job Postings")} {`(${total})`}</h4>
                   <Link to="/all-job-posts" className="float-sm-end mt-0">
-                    {t("All Posts")}
+                    {t("All Job Posts")}
                   </Link>
                 </div>
                 {jobs ? (
-                  <div className="list-group-item">
-                    <div>
-                      <div className="row">
-                        <div className="col-lg-5 col-md-6 col-sm-10 col-xs-9">
-                          <h4
-                            className="m-0-bottom"
-                            id="all-postings-list-opening-title-0"
-                          >
-                            <Link to={`/review-proposal/${jobs[0]?.docID}`}>{job?.jobTitle}</Link>
-                          </h4>
-                          <p
-                            className="m-xs-bottom m-0 text-muted ng-binding"
-                            id="all-postings-list-created-by-block-0"
-                          >
-                            Posted
-                            <span className="ms-2">
-                              {new Date(
-                                job?.postTime.seconds * 1000
-                              ).toLocaleString()}
-                            </span>
-                          </p>
-                          <p className="m-xs-bottom m-0-top ng-binding">
-                            <span
-                              className="text-capitalize"
-                              id="all-postings-list-opening-type-0"
-                            >
-                              {job?.jobPaymentType} - {job?.status}
-                            </span>
-                          </p>
-                        </div>
-                        <div className="d-block col-sm-2 col-xs-3">
-                        </div>
-                        <div className="d-block col-sm-2 col-xs-3">
-                          {/* <div className="fw-bold">0</div>
-                          <div className="text-muted">Messaged</div> */}
-                        </div>
-                        <div className="d-block col-sm-2 col-xs-3">
-                          {/* <div className="fw-bold">
-                            <span>{proposals}</span>
+                  <div className="border p-2">
+                    {
+                      !loading
+                        ? jobs?.map((item, index) => (
+                          <div key={index}>
+                            <ClientJobCard item={item} client={client} lang={lang} />
                           </div>
-                          <div className="text-muted">Proposals</div> */}
-                          {/* <div className="fw-bold">{job?.hired}</div>
-                          <div className="text-muted">Hired</div> */}
+                        ))
+                        : <div className="d-flex justify-content-center align-items-center" style={{ height: "10vh" }}>
+                          <Loader />
                         </div>
+                    }
 
-                        <div className="d-block col-sm-1 col-xs-3 btn-group float-sm-end ">
-                          <button
-                            type="button"
-                            className="btn btn-light dropdown-toggle border border-1 rounded-circle"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            <i className="fas fa-ellipsis-h " />
-                          </button>
-                          <ul className="dropdown-menu">
-                            <li>
-                              <Link className="dropdown-item" to={`/review-proposal/${job?.jobID}`}>
-                                View Proposals
-                              </Link>
-                            </li>
-                            {/* <li>
-                              <button className="dropdown-item" onClick={() => { db.collection("job").doc(job?.jobID).update({ status: "private" }) }} >
-                                Make Private
-                              </button>
-                            </li> */}
-
-                            <li>
-                              <Link className="dropdown-item" to={`/job-details/${job?.jobID}`}>
-                                View Job posting
-                              </Link>
-                            </li>
-
-                            {/* <li>
-                              <button className="dropdown-item" onClick={() => { db.collection("job").doc(job?.jobID).delete() }}>
-                                Remove posting
-                              </button>
-                            </li> */}
-                          </ul>
-                        </div>
-                      </div>
+                    <div style={{ display: 'flex', justifyContent: 'end' }}>
+                      <Pagination
+                        className="mt-5"
+                        total={total}
+                        pageSize={pageSize}
+                        current={page}
+                        showSizeChanger
+                        showQuickJumper
+                        responsive
+                        onChange={(p) => handleChangePageJob(p)}
+                        onShowSizeChange={(_, s) => handleChangePageSizeJob(s)}
+                        showTotal={(total) => `Total ${total} items`}
+                      />
                     </div>
                   </div>
                 ) : (
@@ -299,7 +274,10 @@ export default function HomeLayout() {
               </div>
               <div className="col d-none d-lg-block">
                 <div className="my-lg-1">
-                  <Link to="/post-job" className="btn bg-upwork">
+                  <Link to="/post-job" style={{
+                    padding: 4, color: "white",
+                    background: 'linear-gradient(92.88deg, #455eb5 9.16%, #5643cc 43.89%, #673fd7 64.72%)'
+                  }} className="btn bg-upwork">
                     {t("Post a job")}
                   </Link>
                 </div>

@@ -27,8 +27,7 @@ export default function Header() {
 	}
 
 	return (
-		<>
-			<header className="nav-bg-cn py-1">
+		<header className="nav-bg-cn py-1">
 
 				{/* Header in large screen */}
 				<div id="nav-lg-id" className="ms-5 me-5 d-flex justify-content-between align-items-center">
@@ -81,6 +80,5 @@ export default function Header() {
 					</ul>
 				</div>
 			</header>
-		</>
 	);
 }

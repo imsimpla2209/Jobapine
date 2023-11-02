@@ -65,8 +65,10 @@
   "Apply to jobs posted by clients": "Apply to jobs posted by clients",
   "Log In": "Log In",
   "Sign Up": "Sign Up",
-  "My Postings": "My Postings",
-  "All Posts": "All Posts",
+  "My Job Postings": "My Job Postings",
+  "All Job Posts": "All Job Posts on JobSickers",
+  "There are totally active jobs on JobSickers": "There are totally {{total}} active jobs on JobSickers",
+
   "How it works": "How it works",
   "1. Post a job to get free quotes": "1. Post a job to get free quotes",
   "Write a clear, detailed description of your job to share with qualified freelancers. Start receiving proposals in less than 24 hours": "Write a clear, detailed description of your job to share with qualified freelancers. Start receiving proposals in less than 24 hours",
