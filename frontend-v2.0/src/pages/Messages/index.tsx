@@ -14,8 +14,8 @@ export default function Messages() {
   return (
     <>
       <div className="container-fluid">
-        <div className="row">
-          <aside className="col-3 d-none-md">
+        <div className="row pt-4">
+          <aside className="col-12 col-md-3">
             <MessagesLeftSide
               freelancerID={freelancer?.state?._id}
               userID={user?.state?._id || user?.state?.id}

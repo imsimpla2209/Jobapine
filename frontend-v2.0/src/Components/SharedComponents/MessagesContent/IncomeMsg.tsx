@@ -13,8 +13,8 @@ export default function IncomeMsg({ msg, avatar }) {
 					alt="Profile Pic"
 				/>
 			</div>
-			<div className="received_msg">
-				<div className="received_withd_msg">
+			<div className="received_msg" >
+				<div className="received_withd_msg" >
 					<p>{msg?.content}</p>
 					<span className="time_date">{timeAgo(msg?.createdAt, t)}</span>
 				</div>
