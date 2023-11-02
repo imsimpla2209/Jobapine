@@ -70,7 +70,7 @@ export default function Header() {
 				<div className="container">
 					<NavSmallScreen />
 				</div>
-				<div className="second-nav-cn pt-2 pb-1">
+				<div className="second-nav-cn pt-2 pb-1 d-xl-block d-none">
 					<ul className="d-flex align-items-center container">
 						<li><a href="#" className="fs-7">{t("Development & IT")}</a></li>
 						<li><a href="#" className="fs-7">{t("Design & Creative")}</a></li>

@@ -11,7 +11,7 @@ import { BlueColorButton } from "src/Components/CommonComponents/custom-style-el
 import { isEmpty } from "lodash";
 import { Collapse } from "antd";
 
-export default function ProposalCard({ proposal, jobId, ind }) {
+export default function ProposalCard({ proposal, jobId, ind, isInMSG = false }) {
   const { t } = useTranslation(['main'])
   const [jobData, setJobData] = useState<any>({})
 
@@ -35,7 +35,9 @@ export default function ProposalCard({ proposal, jobId, ind }) {
                   className={`fw-bold ${proposal?.currentStatus === EStatus.ACCEPTED ? "" : "pe-none"}`}
                   style={{ color: "#6600cc" }}
                 >
-                  Proposals No.{ind + 1}
+                  {
+                    isInMSG ? "Proposal Information" : `Proposals No.${ind + 1}`
+                  }
                 </Link>
                 <div>
                   <strong className=" me-2">
@@ -72,13 +74,15 @@ export default function ProposalCard({ proposal, jobId, ind }) {
                       }
                     </span>
                   </div>
-                  <div>
-                    {
-                      proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS
-                        ? <BlueColorButton>{t("Go to messaging")}</BlueColorButton>
-                        : <BlueColorButton>{t("Request to message")}</BlueColorButton>
-                    }
-                  </div>
+                  {
+                    !isInMSG && <div>
+                      {
+                        (proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS)
+                          ? <Link to="/messages"><BlueColorButton>{t("Go to messaging")}</BlueColorButton></Link>
+                          : <BlueColorButton>{t("Request to message")}</BlueColorButton>
+                      }
+                    </div>
+                  }
                   <div>
                     {
                       !isEmpty(proposal?.answers) && <>

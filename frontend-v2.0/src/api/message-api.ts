@@ -36,6 +36,8 @@ export interface IMessageRoom {
   background?: string,
   image?: string,
   attachments?: string[],
+  seen?: boolean,
+  isDeleted?: boolean
 }
 
 export const createMessage = (data?: IMessage) => {
@@ -74,7 +76,7 @@ export const getMessageRoom = (id: string) => {
   return instance.get(`messages/rooms/${id}`);
 }
 
-export const updateMessageRoom = (data: Omit<IMessage, 'from' | 'to'>, id: string) => {
+export const updateMessageRoom = (data: Omit<IMessageRoom, 'proposal'>, id: string) => {
   return instance.patch(`messages/rooms/${id}`, data);
 }
 

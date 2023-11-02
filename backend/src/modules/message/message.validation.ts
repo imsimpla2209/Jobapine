@@ -78,6 +78,7 @@ export const updateMessageRoom = {
       background: Joi.string(),
       image: Joi.string(),
       attachments: Joi.array().items(Joi.string()),
+      seen: Joi.boolean(),
     })
     .min(1),
 }

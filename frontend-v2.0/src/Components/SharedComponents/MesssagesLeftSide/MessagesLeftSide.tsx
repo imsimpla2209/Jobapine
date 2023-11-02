@@ -6,7 +6,7 @@
 import { Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getMessageRooms } from "src/api/message-api";
+import { getMessageRooms, updateMessageRoom } from "src/api/message-api";
 import { useSocket } from "src/socket.io";
 import { ESocketEvent } from "src/utils/enum";
 import { timeAgo } from "src/utils/helperFuncs";
@@ -29,9 +29,15 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
 		appSocket.on(ESocketEvent.SENDMSG, (data) => {
 			console.log('Get Message:', data)
 			if (data?.to === userID) {
-				const notifyMessage = messageRooms?.find((msg) => msg._id === data?.room)
-				const newSortedMSG = messageRooms?.filter((msg) => msg._id !== data?.room)
-				setMessageRooms([{ ...notifyMessage, updatedAt: new Date(), seen: false }, ...newSortedMSG])
+				setMessageRooms(messageRooms?.map((mr) => {
+					if (mr?._id === data?.room) {
+						console.log('found here')
+						return {
+							...mr, seen: false, createdAt: new Date()
+						}
+					}
+					return mr
+				}))
 			}
 		})
 
@@ -44,7 +50,7 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
 
 	useEffect(() => {
 		const member = [`${userID}`]
-		getMessageRooms({ member }).then((res) => {
+		getMessageRooms({ member, sortBy: 'updatedAt:desc' }).then((res) => {
 			setMessageRooms(res.data.results)
 		}).catch((err) => {
 			console.log('Get MSG ERROR: ', err)
@@ -56,6 +62,16 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
 			// db.collection("freelancer").doc(freelancerID).get().then(doc => setFreelancer(doc.data()));
 		}
 	}, []);
+
+	const onSeen = (_id) => {
+		setMessageRooms(messageRooms?.map(m => {
+			if (m?._id === _id) {
+				return { ...m, seen: true }
+			}
+			return m;
+		}))
+		updateMessageRoom({ seen: true }, _id)
+	}
 
 	return (
 		<>
@@ -241,7 +257,14 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
 														style={{
 															backgroundColor: selectedMessageRoom?._id === mr?._id ? '#ffe0fb' : ''
 														}}
-														onClick={() => setSelectedMessageRoom(mr)}>
+														onClick={() => {
+															if (selectedMessageRoom?._id === mr?._id) {
+																onSeen(mr?._id)
+															} else {
+																onSeen(mr?._id)
+																setSelectedMessageRoom(mr)
+															}
+														}}>
 														<div className="col-2">
 															<div className="img_cont_msg">
 																<img
@@ -258,7 +281,7 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
 																))
 															} </span>
 															<p className="smallmsg float-end">{timeAgo(mr?.updatedAt, t)}</p>
-															<span className="d-flex justify-content-between align-items-center w-100">
+															<span className="d-md-flex justify-content-between align-items-center w-100 d-none">
 																<span className="topic text-muted">
 																	{t("Single Direct Message")}
 																</span>

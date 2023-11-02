@@ -99,21 +99,18 @@ export default function NavLargScreen() {
   }, [notifies, unSeen])
 
   useEffect(() => {
-    // App socket
     appSocket.on(ESocketEvent.SENDMSG, (data) => {
-      console.log('Get MSG:', data)
       if (data?.to === (user?.id || user?._id)) {
-
+        console.log('Get MSG:', data)
         setUnSeenMSG(prev => prev + 1)
       }
     })
 
-    // The listeners must be removed in the cleanup step, in order to prevent multiple event registrations
     return () => {
       appSocket.off(ESocketEvent.SENDMSG)
 
     }
-  }, [])
+  }, [unSeenMSG])
 
   const items = useMemo(() => {
     return notifies?.map((s, ix) => {
