@@ -7,17 +7,30 @@ import MyHires from '../../../Components/ClientComponents/MyHiresComponent'
 import Saved from '../../../Components/ClientComponents/SavedComponent'
 import SearchClient from '../SearchClient'
 import './Freelancer.css'
+import { getFreelancers } from 'src/api/freelancer-apis'
 
 export default function Freelancer() {
   const { t } = useTranslation(['main'])
   const client = fakeClientState
   const [isliked, setisliked] = useState(false)
+
+  const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const [listFreelancers, setListFreelancers] = useState([])
+
+  const getAllListJobs = async () => {
+    setLoading(true)
+    await getFreelancers({ limit: 10, page: page })
+      .then(res => {
+        setListFreelancers([...listFreelancers, ...res.data.results])
+      })
+      .finally(() => setLoading(false))
+  }
+  console.log('listFreelancers', listFreelancers)
+
   useEffect(() => {
-    // dispatch(clientDataAction());
+    getAllListJobs()
   }, [])
-  useEffect(() => {
-    // dispatch(clientDataAction());
-  }, [isliked])
 
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -57,6 +70,8 @@ export default function Freelancer() {
                     </NavLink>
                   </li>
                 </ul>
+                <SearchClient />
+
                 <Outlet />
               </div>
             </div>

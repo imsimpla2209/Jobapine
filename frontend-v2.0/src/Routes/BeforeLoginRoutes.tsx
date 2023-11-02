@@ -16,7 +16,6 @@ export default function BeforeLoginRoutes() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/job-sickers" element={<HomePage />} />
-        <Route path="/test" element={<WorkerList />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
