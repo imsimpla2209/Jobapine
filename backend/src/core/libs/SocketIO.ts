@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as socketio from 'socket.io'
@@ -12,11 +13,10 @@ export interface SocketIOData {
 export class SocketIO {
   private io: socketio.Socket
 
-  onlineUsers: any = {}
+  public onlineUsers: any = {}
 
   constructor(server: Express.Application) {
     logger.info('Socket.io', 'Started')
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
     this.io = require('socket.io')(server, {
       cors: {
         origin: '*',
