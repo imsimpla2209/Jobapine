@@ -43,6 +43,7 @@ export default function ClientRoutes() {
           <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
           <Route path="/post-job" element={<PostJob />} />
           <Route path="/freelancer" element={<FreelancerList />} />
+          <Route path="/saved-freelancer/" element={<FreelancerList />} />
           <Route path="/freelancer-profile/:id" element={<FreelancerProfile />} />
           <Route path="/review-proposal/:id" element={<ReviewProposals />} />
           <Route path="/billing-history" element={<Reports />} />
