@@ -1,4 +1,4 @@
-import { Button, Layout, Spin } from 'antd'
+import { Button, Layout, Row, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getFreelancers } from 'src/api/freelancer-apis'
@@ -38,9 +38,14 @@ export default function FreelancerList() {
             <Saved freelancer={freelancer} key={freelancer._id} />
           ))}
           {page && (
-            <Button type="primary" onClick={() => setPage(page + 1)}>
-              {t('Load more')}
-            </Button>
+            <Row
+              align="middle"
+              style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 10 }}
+            >
+              <Button type="primary" style={{ width: 300 }} onClick={() => setPage(page + 1)}>
+                {t('Load more')}
+              </Button>
+            </Row>
           )}
         </Layout>
       )}

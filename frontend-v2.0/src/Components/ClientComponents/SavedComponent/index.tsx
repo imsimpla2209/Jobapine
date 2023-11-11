@@ -1,3 +1,4 @@
+import { Rate } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
@@ -5,8 +6,6 @@ import { locationStore } from 'src/Store/commom.store'
 import { Level } from 'src/api/constants'
 import { useSubscription } from 'src/libs/global-state-hook'
 import ImgWithActiveStatus from '../ImgWithActiveStatus'
-import { StarOutlined } from '@ant-design/icons'
-import { Rate } from 'antd'
 
 export default function Saved({ freelancer }) {
   const { t } = useTranslation(['main'])
@@ -25,7 +24,7 @@ export default function Saved({ freelancer }) {
             href="#"
             id="job-title-home-page "
             className="link-dark job-title-hover "
-            onClick={() => navigate(`/freelancer-profile/${freelancer._id}`, { replace: true })}
+            onClick={() => navigate(`/freelancer-profile/${freelancer._id}`)}
           >
             <p className="fw-bold text-success">{freelancer?.name}</p>
           </a>
@@ -107,7 +106,7 @@ export default function Saved({ freelancer }) {
           >
             {freelancer?.overview}
           </ShowMore>
-          {freelancer?.skills?.length && (
+          {freelancer?.skills?.length ? (
             <div className="d-flex justify-content-start">
               {freelancer?.skills?.map((skill, index) => (
                 <div className="chip mb-3 ms" key={index}>
@@ -115,7 +114,7 @@ export default function Saved({ freelancer }) {
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
