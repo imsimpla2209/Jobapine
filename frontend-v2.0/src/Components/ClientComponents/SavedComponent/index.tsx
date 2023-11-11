@@ -5,12 +5,15 @@ import { locationStore } from 'src/Store/commom.store'
 import { Level } from 'src/api/constants'
 import { useSubscription } from 'src/libs/global-state-hook'
 import ImgWithActiveStatus from '../ImgWithActiveStatus'
+import { StarOutlined } from '@ant-design/icons'
+import { Rate } from 'antd'
 
 export default function Saved({ freelancer }) {
   const { t } = useTranslation(['main'])
   const navigate = useNavigate()
   const { state: locations } = useSubscription(locationStore)
   const jobDonePercent = (parseInt(freelancer.jobsDone.success) / parseInt(freelancer.jobsDone.number)) * 100
+
   return (
     <div>
       <div className="row border bg-white border-1">
@@ -34,6 +37,7 @@ export default function Saved({ freelancer }) {
               <div key={l}>{locations[Number(l)]?.name}, </div>
             ))}
           </span>
+          <Rate disabled defaultValue={freelancer?.rating || 0} />
           <div className="row py-3">
             <div className="col">
               <span className="fw-bold">${freelancer?.hourlyRate}</span>
@@ -82,18 +86,11 @@ export default function Saved({ freelancer }) {
               aria-expanded="false"
               aria-controls="collapseTwo"
             >
-              <i
-                // onClick={e => saveFreelancer(e, freelancer?.authID)}
-                className={`${
-                  // client?.savedFreelancers?.includes(freelancer?.authID)
-                  //   ? 'fas fa-heart text-jobsicker'
-                  'far fa-heart'
-                }`}
-                aria-hidden="true"
-              />
+              <i className={`${'far fa-heart'}`} aria-hidden="true" />
             </button>
           </div>
         </div>
+
         <div className="row px-5 mx-5">
           <ShowMore
             className=""

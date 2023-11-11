@@ -82,11 +82,11 @@ export default function NavLargScreen() {
                 {t('My Hires')}
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link className="dropdown-item" to="/freelancer/saved-freelancer">
                 {t('Saved Freelancer')}
               </Link>
-            </li>
+            </li> */}
           </ul>
         </li>
         <li className="nav-item hov-cn">
