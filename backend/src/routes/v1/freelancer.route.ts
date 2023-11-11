@@ -7,8 +7,8 @@ const router: Router = express.Router()
 
 router
   .route('/')
-  .post(auth(), validate(freelancerValidation.createFreelancer), freelancerController.registerFreelancer)
   .get(validate(freelancerValidation.getFreelancers), freelancerController.getFreelancers)
+  .post(auth(), validate(freelancerValidation.createFreelancer), freelancerController.registerFreelancer)
 router
   .route('/filter')
   .post(auth(), validate(freelancerValidation.getAdvancedFreelancers), freelancerController.getAdvancedFreelancers)
@@ -20,6 +20,7 @@ router
   .get(auth(), validate(freelancerValidation.getFreelancer), freelancerController.getFreelancer)
   .patch(auth(), validate(freelancerValidation.updateFreelancer), freelancerController.updateFreelancer)
   .delete(auth(), validate(freelancerValidation.deleteFreelancer), freelancerController.deleteFreelancer)
+
 router
   .route('/review/:id')
   .patch(auth(), validate(freelancerValidation.reviewFreelancer), freelancerController.reviewFreelancer)

@@ -117,6 +117,20 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       required: false,
       default: 20,
     },
+    posts: [
+      {
+        type: String,
+        required: false,
+        default: [],
+      },
+    ],
+    comments: [
+      {
+        type: String,
+        required: false,
+        default: [],
+      },
+    ],
     avatar: {
       type: String,
       required: false,

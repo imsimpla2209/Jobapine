@@ -53,6 +53,8 @@ const config = {
   apiHost: envVars.API_HOST,
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
+    slave: `${envVars.MONGODB_URL}backup`,
+    slaveName: `backup`,
     options: {
       useCreateIndex: true,
       useNewUrlParser: true,

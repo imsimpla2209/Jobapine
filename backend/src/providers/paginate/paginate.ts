@@ -16,27 +16,26 @@ export interface IOptions {
   limit?: number
   page?: number
 }
-
+/**
+ * @typedef {Object} QueryResult
+ * @property {Document[]} results - Results found
+ * @property {number} page - Current page
+ * @property {number} limit - Maximum number of results per page
+ * @property {number} totalPages - Total number of pages
+ * @property {number} totalResults - Total number of documents
+ */
+/**
+ * Query for documents with pagination
+ * @param {Object} [filter] - Mongo filter
+ * @param {Object} [options] - Query options
+ * @param {string} [options.sortBy] - Sorting criteria using the format: sortField:(desc|asc). Multiple sorting criteria should be separated by commas (,)
+ * @param {string} [options.populate] - Populate data fields. Hierarchy of fields should be separated by (.). Multiple populating criteria should be separated by commas (,)
+ * @param {number} [options.limit] - Maximum number of results per page (default = 10)
+ * @param {number} [options.page] - Current page (default = 1)
+ * @param {string} [options.projectBy] - Fields to hide or include (default = '')
+ * @returns {Promise<QueryResult>}
+ */
 const paginate = <T extends Document, U extends Model<U>>(schema: Schema<T>): void => {
-  /**
-   * @typedef {Object} QueryResult
-   * @property {Document[]} results - Results found
-   * @property {number} page - Current page
-   * @property {number} limit - Maximum number of results per page
-   * @property {number} totalPages - Total number of pages
-   * @property {number} totalResults - Total number of documents
-   */
-  /**
-   * Query for documents with pagination
-   * @param {Object} [filter] - Mongo filter
-   * @param {Object} [options] - Query options
-   * @param {string} [options.sortBy] - Sorting criteria using the format: sortField:(desc|asc). Multiple sorting criteria should be separated by commas (,)
-   * @param {string} [options.populate] - Populate data fields. Hierarchy of fields should be separated by (.). Multiple populating criteria should be separated by commas (,)
-   * @param {number} [options.limit] - Maximum number of results per page (default = 10)
-   * @param {number} [options.page] - Current page (default = 1)
-   * @param {string} [options.projectBy] - Fields to hide or include (default = '')
-   * @returns {Promise<QueryResult>}
-   */
   schema.static('paginate', async function (filter: Record<string, any>, options: IOptions): Promise<QueryResult> {
     let sort: string = ''
     if (options.sortBy) {
