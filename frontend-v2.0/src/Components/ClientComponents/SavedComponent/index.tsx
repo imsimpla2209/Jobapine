@@ -1,6 +1,6 @@
 import { Rate } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
 import { locationStore } from 'src/Store/commom.store'
 import { Level } from 'src/api/constants'
@@ -9,10 +9,9 @@ import ImgWithActiveStatus from '../ImgWithActiveStatus'
 
 export default function Saved({ freelancer }) {
   const { t } = useTranslation(['main'])
-  const navigate = useNavigate()
   const { state: locations } = useSubscription(locationStore)
   const jobDonePercent = (parseInt(freelancer.jobsDone.success) / parseInt(freelancer.jobsDone.number)) * 100
-
+  console.log(freelancer)
   return (
     <div>
       <div className="row border bg-white border-1">
@@ -20,14 +19,13 @@ export default function Saved({ freelancer }) {
           <ImgWithActiveStatus avatar={freelancer?.images?.[0]} />
         </div>
         <div className="col-lg-6 pt-lg-3 ">
-          <a
-            href="#"
+          <Link
             id="job-title-home-page "
             className="link-dark job-title-hover "
-            onClick={() => navigate(`/freelancer-profile/${freelancer._id}`)}
+            to={`/freelancer-profile/${freelancer._id}`}
           >
             <p className="fw-bold text-success">{freelancer?.name}</p>
-          </a>
+          </Link>
           <a href="#" id="job-title-home-page " className="link-dark">
             <p className="fw-bold ">{freelancer?.intro}</p>
           </a>

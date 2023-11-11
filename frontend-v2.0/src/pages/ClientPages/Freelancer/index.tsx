@@ -42,7 +42,16 @@ export default function FreelancerList() {
               align="middle"
               style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 10 }}
             >
-              <Button type="primary" style={{ width: 300 }} onClick={() => setPage(page + 1)}>
+              <Button
+                type="primary"
+                style={{
+                  width: 300,
+                  padding: 4,
+                  color: 'white',
+                  background: 'linear-gradient(92.88deg, #455eb5 9.16%, #5643cc 43.89%, #673fd7 64.72%)',
+                }}
+                onClick={() => setPage(page + 1)}
+              >
                 {t('Load more')}
               </Button>
             </Row>
