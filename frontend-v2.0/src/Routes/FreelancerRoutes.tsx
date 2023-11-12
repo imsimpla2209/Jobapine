@@ -1,6 +1,6 @@
 import Footer from 'Components/BeforeLoginComponents/Footer'
-import Header from 'Components/FreelancerComponents/Header'
 import ReviewProposalsCard from 'Components/ClientComponents/ReviewProposalsCard'
+import Header from 'Components/FreelancerComponents/Header'
 import { SearchContextProvider } from 'Context/SearchContext'
 import AllContracts from 'pages/ClientPages/AllContract'
 import Reports from 'pages/ClientPages/Reports'
@@ -26,13 +26,13 @@ import Messages from 'pages/Messages'
 import Notifications from 'pages/Notifications'
 import PageNotFound from 'pages/PageNotFound'
 import SubmitProposal from 'pages/Submit Proposal'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { getAllJobs } from 'src/api/job-apis'
 import JobDetails from 'src/pages/AdminPages/hire/job-details'
 import JobList from 'src/pages/AdminPages/hire/job-list'
-import { getAllJobs } from 'src/api/job-apis'
-import { miniSearch, handleCacheData, handleGetCacheData } from 'src/utils/handleData'
 import AllJobPosts from 'src/pages/ClientPages/AllJobPost'
+import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
 
 export default function FreelancerRoutes() {
   const [arr, setarr] = useState([])
@@ -79,6 +79,7 @@ export default function FreelancerRoutes() {
             <Route path="/Search" element={<Search />} />
             <Route path="/job/" element={<AllJobPosts />} />
             <Route path="/job/:id" element={<JobDetailsFreelancer />} />
+            <Route path="/job-details/:id" element={<JobDetailsFreelancer />} />
             <Route path="/fake-job" element={<JobDetails />} />
             <Route path="/fake-job-list" element={<JobList />} />
             <Route path="/job/apply/:id" element={<SubmitProposal />} />
