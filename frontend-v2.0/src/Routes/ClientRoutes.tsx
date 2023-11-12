@@ -46,7 +46,7 @@ export default function ClientRoutes() {
           <Route path="/freelancer" element={<FreelancerList />} />
           <Route path="/saved-freelancer" element={<FreelancerList />} />
           <Route path="/freelancer-profile/:id" element={<FreelancerProfile />} />
-          <Route path="/job/review-proposal/:id" element={<ReviewProposals />} />
+          <Route path="/all-proposals/:id" element={<ReviewProposals />} />
           <Route path="/billing-history" element={<Reports />} />
           <Route path="/transaction-history" element={<TransactionHistory />} />
           <Route path="/create-contract" element={<CreateContract location={undefined} />} />
