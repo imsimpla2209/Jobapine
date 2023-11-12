@@ -38,6 +38,7 @@ export default function ClientRoutes() {
           <Route path="/all-contracts" element={<AllContract />} />
           <Route path="/bring-your-own-freelancer" element={<BringYourFreelancer />} />
           <Route path="/job-details/:id" element={<JobDetailsBeforeProposals />} />
+          <Route path="/job/:id" element={<JobDetailsBeforeProposals />} />
           <Route path="/contract" element={<Contract location={undefined} />} />
           <Route path="/email-verification" element={<EmailVerified />} />
           <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
@@ -45,7 +46,7 @@ export default function ClientRoutes() {
           <Route path="/freelancer" element={<FreelancerList />} />
           <Route path="/saved-freelancer" element={<FreelancerList />} />
           <Route path="/freelancer-profile/:id" element={<FreelancerProfile />} />
-          <Route path="/review-proposal/:id" element={<ReviewProposals />} />
+          <Route path="/job/review-proposal/:id" element={<ReviewProposals />} />
           <Route path="/billing-history" element={<Reports />} />
           <Route path="/transaction-history" element={<TransactionHistory />} />
           <Route path="/create-contract" element={<CreateContract location={undefined} />} />

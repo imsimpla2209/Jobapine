@@ -41,13 +41,7 @@ export enum EComplexity {
   HELL = 3,
 }
 
-export const EComplexityGet = [
-  'easy',
-  'medium',
-  'hard',
-  'hell',
-]
-
+export const EComplexityGet = ['easy', 'medium', 'hard', 'hell']
 
 export enum EPriority {
   LOW = 0,
@@ -74,7 +68,6 @@ export enum ESocketEvent {
   CONTRACTCHANGE = 'Contract_Change',
 }
 
-
 export enum EJobType {
   ONE_TIME_PROJECT = 'one-time-project',
   ONGOING_PROJECT = 'ongoing-project',
@@ -96,6 +89,7 @@ export enum EError {
 export enum EUserType {
   FREELANCER = 'Freelancer',
   CLIENT = 'Client',
+  ADMIN = 'Admin',
 }
 
 export enum EPaymentMethod {
