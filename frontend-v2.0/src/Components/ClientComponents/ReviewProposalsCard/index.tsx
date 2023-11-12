@@ -4,10 +4,12 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { locationStore } from 'src/Store/commom.store'
+import { userStore } from 'src/Store/user.store'
 import { getFreelancers } from 'src/api/freelancer-apis'
 import { getSkills } from 'src/api/job-apis'
+import { createMessageRoom } from 'src/api/message-api'
 import { getAllProposalInJob } from 'src/api/proposal-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import img from '../../../assets/img/icon-user.svg'
@@ -15,6 +17,9 @@ import Loader from './../../SharedComponents/Loader/Loader'
 import ReviewProposalsPageHeader from './../ReviewProposalsPageHeader'
 
 export default function ReviewProposalsCard() {
+  const {
+    state: { id: clientID },
+  } = useSubscription(userStore)
   const { state: locations } = useSubscription(locationStore)
   const { t } = useTranslation(['main'])
   const { id } = useParams()
@@ -22,7 +27,7 @@ export default function ReviewProposalsCard() {
   const [proposals, setProposals] = useState([])
   const [freelancers, setFreelancers] = useState([])
   const [skills, setSkills] = useState([])
-
+  const navigate = useNavigate()
   useEffect(() => {
     setLoading(true)
     getFreelancers({}).then(res => setFreelancers(res.data.results))
@@ -31,6 +36,11 @@ export default function ReviewProposalsCard() {
       .then(res => setProposals(res.data.results))
       .finally(() => setLoading(false))
   }, [])
+
+  const sendMSG = async (freelancerID: string, proposalId: string) => {
+    await createMessageRoom({ member: [freelancerID, clientID], proposal: proposalId })
+    navigate(`/messages?proposalId=${proposalId}`)
+  }
 
   if (loading) return <Loader />
 
@@ -42,7 +52,6 @@ export default function ReviewProposalsCard() {
         proposals.map((proposal, index) => {
           const currentFreelancer = freelancers.find(({ _id }) => _id === proposal.freelancer)
           const currentSkills = skills.filter(({ _id }) => currentFreelancer?.skills?.find(item => item.skill === _id))
-
           console.log(currentFreelancer)
           return (
             <div className="row border bg-white border-1 ms-0 pt-2" key={index}>
@@ -97,12 +106,19 @@ export default function ReviewProposalsCard() {
                 </div>
               </div>
               <div className="col py-3">
-                <Link to={'/messages'} className="btn bg-white btn-outline-secondary">
+                <span
+                  className="btn bg-white btn-outline-secondary"
+                  onClick={() => sendMSG(currentFreelancer.user, proposal._id)}
+                >
                   <span className="text-success fw-bold">Messages</span>
-                </Link>
+                </span>
               </div>
               <div className="col py-3">
-                <Link type="button" className="btn bg-jobsicker px-5" to={'/create-contract'}>
+                <Link
+                  type="button"
+                  className="btn bg-jobsicker px-5"
+                  to={`/create-contract/${proposal._id}?freelancerID=${currentFreelancer?._id}`}
+                >
                   Hire
                 </Link>
               </div>

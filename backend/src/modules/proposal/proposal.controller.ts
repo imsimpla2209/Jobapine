@@ -20,13 +20,11 @@ export const getProposals = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const getProposal = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.proposalId === 'string') {
-    const proposal = await proposalService.getProposalById(new mongoose.Types.ObjectId(req.params.proposalId))
-    if (!proposal) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
-    }
-    res.send(proposal)
+  const proposal = await proposalService.getProposalById(new mongoose.Types.ObjectId(req.params.id))
+  if (!proposal) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
   }
+  res.send(proposal)
 })
 
 export const updateProposal = catchAsync(async (req: Request, res: Response) => {

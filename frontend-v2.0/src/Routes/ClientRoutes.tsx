@@ -49,7 +49,7 @@ export default function ClientRoutes() {
           <Route path="/all-proposals/:id" element={<ReviewProposals />} />
           <Route path="/billing-history" element={<Reports />} />
           <Route path="/transaction-history" element={<TransactionHistory />} />
-          <Route path="/create-contract" element={<CreateContract location={undefined} />} />
+          <Route path="/create-contract/:id" element={<CreateContract />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="**" element={<PageNotFound />} />
         </Routes>
