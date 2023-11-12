@@ -12,7 +12,7 @@ const createContractBody: Record<keyof NewCreatedContract, any> = {
   startDate: Joi.date().iso(),
   endDate: Joi.date().iso().min(Joi.ref('startDate')),
   paymentType: Joi.string(),
-  agreeAmount: Joi.string(),
+  agreeAmount: Joi.number(),
   catalogs: Joi.array().items(Joi.string()),
   attachments: Joi.array().items(Joi.string()),
 }
