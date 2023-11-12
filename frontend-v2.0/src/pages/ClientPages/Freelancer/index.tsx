@@ -37,7 +37,7 @@ export default function FreelancerList() {
           {listFreelancers.map(freelancer => (
             <Saved freelancer={freelancer} key={freelancer._id} />
           ))}
-          {page && (
+          {page ? (
             <Row
               align="middle"
               style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 10 }}
@@ -55,7 +55,7 @@ export default function FreelancerList() {
                 {t('Load more')}
               </Button>
             </Row>
-          )}
+          ) : null}
         </Layout>
       )}
     </>
