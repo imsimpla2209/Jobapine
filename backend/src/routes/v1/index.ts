@@ -1,16 +1,21 @@
-import express, { Router } from 'express'
 import config from '@config/config'
+import { adminRouter } from '@modules/forum/routers/admin.router'
+import { commentRouter } from '@modules/forum/routers/comment.router'
+import { departmentRouter } from '@modules/forum/routers/department.router'
+import { postRouter } from '@modules/forum/routers/post.router'
+import { specialEventRouter } from '@modules/forum/routers/specialEvent.router'
+import express, { Router } from 'express'
 import authRoute from './auth.route'
-import docsRoute from './swagger.route'
-import userRoute from './user.route'
-import jobRoute from './job.route'
-import freelancerRoute from './freelancer.route'
 import clientRoute from './client.route'
-import proposalRoute from './proposal.route'
 import contractRoute from './contract.route'
-import paymentRoute from './payment.route'
+import freelancerRoute from './freelancer.route'
+import jobRoute from './job.route'
 import messageRoute from './message.route'
 import notifyRoute from './notify.route'
+import paymentRoute from './payment.route'
+import proposalRoute from './proposal.route'
+import docsRoute from './swagger.route'
+import userRoute from './user.route'
 
 const router = express.Router()
 
@@ -59,6 +64,26 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/messages',
     route: messageRoute,
+  },
+  {
+    path: '/department',
+    route: departmentRouter,
+  },
+  {
+    path: '/event',
+    route: specialEventRouter,
+  },
+  {
+    path: '/posts',
+    route: postRouter,
+  },
+  {
+    path: '/postComments',
+    route: commentRouter,
+  },
+  {
+    path: '/admin',
+    route: adminRouter,
   },
 ]
 

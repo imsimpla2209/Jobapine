@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 /* eslint-disable @typescript-eslint/no-var-requires */
+import redis from 'predis'
 import env from '../libs/Env'
-
-const redis = require('predis')
 
 const REDIS_PORT = Number(env('REDIS_PORT', 6379))
 const REDIS_HOST = env('REDIS_HOST', '127.0.0.1')
@@ -12,7 +12,6 @@ const TTL = Number(env('REDIS_TTL', 3600))
 export default class Redis {
   protected client: any
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   public async getConnection(): Promise<void> {

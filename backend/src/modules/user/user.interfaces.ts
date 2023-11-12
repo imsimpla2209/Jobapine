@@ -29,6 +29,8 @@ export interface IUser {
   balance?: number
   lastLoginAs?: string
   sickPoints?: number
+  posts?: string[]
+  comments?: string[]
 }
 
 export interface IUserDoc extends IUser, Document {
@@ -54,11 +56,21 @@ export type NewRegisteredUser = Omit<
   | 'balance'
   | 'refreshToken'
   | 'sickPoints'
+  | 'posts'
+  | 'comments'
 >
 
 export type NewCreatedUser = Omit<
   IUser,
-  'refreshToken' | 'paymentInfo' | 'isVerified' | 'isActive' | 'lastLoginAs' | 'balance' | 'sickPoints'
+  | 'refreshToken'
+  | 'paymentInfo'
+  | 'isVerified'
+  | 'isActive'
+  | 'lastLoginAs'
+  | 'balance'
+  | 'sickPoints'
+  | 'posts'
+  | 'comments'
 >
 
 export interface IUserWithTokens {
