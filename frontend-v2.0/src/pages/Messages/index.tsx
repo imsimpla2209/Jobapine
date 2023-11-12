@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import "../../assets/style/style.css";
-import "./Messages.css";
-import MesssagesContent from "Components/SharedComponents/MessagesContent/MesssagesContent";
-import MessagesLeftSide from "Components/SharedComponents/MesssagesLeftSide/MessagesLeftSide";
-import { freelancerStore, userStore } from "src/Store/user.store";
-import { useSubscription } from "src/libs/global-state-hook";
+import MesssagesContent from 'Components/SharedComponents/MessagesContent/MesssagesContent'
+import MessagesLeftSide from 'Components/SharedComponents/MesssagesLeftSide/MessagesLeftSide'
+import { useState } from 'react'
+import { freelancerStore, userStore } from 'src/Store/user.store'
+import { useSubscription } from 'src/libs/global-state-hook'
+import '../../assets/style/style.css'
+import './Messages.css'
 
 export default function Messages() {
   const freelancer = useSubscription(freelancerStore)
@@ -24,13 +24,10 @@ export default function Messages() {
             />
           </aside>
           <div className="col-sm-12 col-md-9">
-            <MesssagesContent
-              userID={user?.state?._id || user?.state?.id}
-              selectedMessageRoom={selectedMessageRoom}
-            />
+            <MesssagesContent userID={user?.state?._id || user?.state?.id} selectedMessageRoom={selectedMessageRoom} />
           </div>
         </div>
       </div>
     </>
-  );
+  )
 }

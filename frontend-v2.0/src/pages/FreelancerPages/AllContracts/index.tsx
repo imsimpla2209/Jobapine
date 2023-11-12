@@ -1,53 +1,45 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
-import OneContract from "../../../Components/FreelancerComponents/OneContract";
-import { useTranslation } from "react-i18next";
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { clientStore, userStore } from 'src/Store/user.store'
+import { getContracts } from 'src/api/contract-apis'
+import { useSubscription } from 'src/libs/global-state-hook'
+import OneContract from '../../../Components/FreelancerComponents/OneContract'
 
 export default function AllContracts() {
+  const { t } = useTranslation(['main'])
+  const [contracts, setContracts] = useState([])
+  const {
+    state: { id: clientID },
+  } = useSubscription(userStore)
 
-  const { t } = useTranslation(['main']);
-  const [contracts, setContracts] = useState([]);
+  const client = useSubscription(clientStore).state
 
   useEffect(() => {
-    // db.collection("freelancer")
-    //   .doc(auth.currentUser.uid)
-    //   .collection("jobProposal")
-    //   .where("status", "==", "contract")
-    //   .onSnapshot(res => {
-    //     const arr = [];
-    //     res.docs.map(contract => {
-    //       if (contract.exists) {
-    //         arr.push(contract.data());
-    //       }
-    //     });
-    //     setContracts([...arr]);
-    //   });
-  }, []);
+    console.log(client)
+    getContracts({ client: clientID }).then(res => console.log(res.data))
+  }, [])
 
   return (
     <>
       <div className="bg-gray">
         <div className="container">
           <div className="row px-5">
-            <h4 className="col-12 mt-5">{t("Contracts")}</h4>
+            <h4 className="col-12 mt-5">{t('Contracts')}</h4>
             <div className="card mt-4 mb-5">
               {/* <div className="card-header bg-white p-3">
                 {data && <SearchContract />}
               </div> */}
               <div className="card-body row">
                 <div className="col-12 card-list">
-                  {
-                    contracts[0]?.jobId
-                      ?
-                      contracts.map((contract, index) => {
-                        return <OneContract contract={contract} key={index} ind={index} />
-                      })
-                      :
-                      <p className="h3 py-5">
-                        You haven't started any contracts yet.
-                      </p>
-                  }
+                  {contracts[0]?.jobId ? (
+                    contracts.map((contract, index) => {
+                      return <OneContract contract={contract} key={index} ind={index} />
+                    })
+                  ) : (
+                    <p className="h3 py-5">You haven't started any contracts yet.</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -55,5 +47,5 @@ export default function AllContracts() {
         </div>
       </div>
     </>
-  );
+  )
 }

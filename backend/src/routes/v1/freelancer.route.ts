@@ -17,7 +17,7 @@ router.route('/search').post(validate(freelancerValidation.searchFreelancers), f
 
 router
   .route('/:id')
-  .get(auth(), validate(freelancerValidation.getFreelancer), freelancerController.getFreelancer)
+  .get(validate(freelancerValidation.getFreelancer), freelancerController.getFreelancer)
   .patch(auth(), validate(freelancerValidation.updateFreelancer), freelancerController.updateFreelancer)
   .delete(auth(), validate(freelancerValidation.deleteFreelancer), freelancerController.deleteFreelancer)
 
