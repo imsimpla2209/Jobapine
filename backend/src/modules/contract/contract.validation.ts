@@ -18,7 +18,10 @@ const createContractBody: Record<keyof NewCreatedContract, any> = {
 }
 
 export const createContract = {
-  body: Joi.object().keys(createContractBody),
+  body: Joi.object().keys({
+    ...createContractBody,
+    isAgree: Joi.boolean(),
+  }),
 }
 
 export const getContracts = {

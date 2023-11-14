@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Http, LOCALSTORAGE } from '../api/http'
 import { useState, useCallback, useEffect } from 'react'
 import jwt_decode from 'jwt-decode'
@@ -61,7 +62,6 @@ export const useAuth = () => {
     } else {
       logout()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [login, setTokenVerified, tokenVerified])
   const fetchVerify = async (token: any) => {
     const result = await Http.post('/api/v1/auth/verifyToken', { token: token })

@@ -1,20 +1,66 @@
 import { getClientById } from '@modules/client/client.service'
-import { getFreelancerById } from '@modules/freelancer/freelancer.service'
+import { addJobtoFreelancer, getFreelancerById } from '@modules/freelancer/freelancer.service'
+import { IJobDoc } from '@modules/job/job.interfaces'
 import { getJobById } from '@modules/job/job.service'
-import { EJobStatus } from 'common/enums'
+import { createNotify } from '@modules/notify/notify.service'
+import { updateProposalStatusById } from '@modules/proposal/proposal.service'
+import { EJobStatus, EPaymenType, EStatus } from 'common/enums'
+import { FEMessage, FERoutes } from 'common/enums/constant'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
+import { getWorkTime } from 'utils/calculator'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IContractDoc, NewCreatedContract, UpdateContractBody } from './contract.interfaces'
 import Contract from './contract.model'
 
+export const validateContract = (contractBody: NewCreatedContract, job: IJobDoc) => {
+  let checkFlag = true
+
+  const workTime = getWorkTime(contractBody.startDate, contractBody.endDate, contractBody?.paymentType)
+  switch (contractBody?.paymentType) {
+    case EPaymenType.PERHOURS:
+    case EPaymenType.PERMONTH:
+      if (workTime * contractBody.agreeAmount > job?.budget) {
+        checkFlag = false
+      }
+      break
+    case EPaymenType.PERTASK:
+      break
+    case EPaymenType.PERWEEK:
+      break
+    case EPaymenType.WHENDONE:
+      break
+    default:
+      checkFlag = false
+  }
+
+  return checkFlag
+}
+
+/**
+ * close all contract
+ * @param {NewCreatedContract} jobId
+ * @param {bool} isAgree
+ * @returns {Promise<IContractDoc>}
+ */
+export const closeAllContract = (
+  jobId: mongoose.Types.ObjectId,
+  contractId?: mongoose.Types.ObjectId
+): Promise<any> => {
+  return Contract.updateMany(
+    { _id: { $ne: contractId }, job: jobId, currentStatus: EStatus.PENDING },
+    { currentStatus: EStatus.REJECTED }
+  )
+}
+
 /**
  * create a contract
  * @param {NewCreatedContract} contractBody
+ * @param {bool} isAgree
  * @returns {Promise<IContractDoc>}
  */
-export const createContract = async (contractBody: NewCreatedContract): Promise<IContractDoc> => {
+export const createContract = async (contractBody: NewCreatedContract, isAgree?: boolean): Promise<IContractDoc> => {
   const job = await getJobById(contractBody?.job)
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
@@ -22,34 +68,51 @@ export const createContract = async (contractBody: NewCreatedContract): Promise<
 
   const client = await getClientById(contractBody?.client)
   const freelancer = await getFreelancerById(contractBody?.freelancer)
-  if (!client || !freelancer) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Client or Freelancer not found')
-  }
+
+  if (contractBody?.agreeAmount)
+    if (!client || !freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Client or Freelancer not found')
+    }
 
   if (client?.user === freelancer?.user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Done self-make silly contract')
   }
 
-  // TODO: payment feature
-  // if (client.balance < payment_amount) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Lack of balance')
-  // }
-
   if (!(job.currentStatus === EJobStatus.OPEN || job.currentStatus === EJobStatus.PENDING)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not open or pending')
   }
-  return Contract.create(contractBody)
-}
 
-/**
- * Query for contracts
- * @param {Object} filter - Mongo filter
- * @param {Object} options - Query options
- * @returns {Promise<QueryResult>}
- */
-export const queryContracts = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
-  const contracts = await Contract.paginate(filter, options)
-  return contracts
+  const acceptedContracts = await Contract.countDocuments({ job: job?._id, currentStatus: EStatus.ACCEPTED })
+
+  if (acceptedContracts >= job?.preferences?.nOEmployee) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not in recruiment anymore')
+  }
+
+  await updateProposalStatusById(contractBody?.proposal, EStatus.ACCEPTED, 'Accept from client and create contract')
+
+  createNotify({
+    to: freelancer?.user,
+    path: isAgree ? FERoutes.myJobs : `${FERoutes.allProposals}jobInfo?._id`,
+    content: isAgree ? FEMessage.gotJob : FEMessage.createContract,
+  })
+
+  if (isAgree) {
+    addJobtoFreelancer(job._id, freelancer?._id, client?._id)
+    const createdContract = await Contract.create({
+      ...contractBody,
+      status: {
+        status: EStatus.ACCEPTED,
+        date: new Date(),
+        comment: 'Initially Accepted by both side',
+      },
+    })
+    if ((job?.preferences?.nOEmployee ?? 1) - 1 === acceptedContracts) {
+      closeAllContract(createdContract?._id, job._id)
+    }
+    return createdContract
+  }
+
+  return Contract.create(contractBody)
 }
 
 /**
@@ -58,48 +121,14 @@ export const queryContracts = async (filter: Record<string, any>, options: IOpti
  * @returns {Promise<IContractDoc | null>}
  */
 export const getContractById = async (id: mongoose.Types.ObjectId): Promise<IContractDoc | null> =>
-  Contract.findById(id)
-
-/**
- * Get contract by contractname
- * @param {string} contractname
- * @returns {Promise<IContractDoc | null>}
- */
-export const getContractByContractname = async (contractname: string): Promise<IContractDoc | null> =>
-  Contract.findOne({ contractname })
-
-/**
- * Get contract by email
- * @param {string} email
- * @returns {Promise<IContractDoc | null>}
- */
-export const getContractByEmail = async (email: string): Promise<IContractDoc | null> => Contract.findOne({ email })
+  Contract.findById(id).lean()
 
 /**
  * Get contract by option
  * @param {object} options
  * @returns {Promise<IContractDoc | null>}
  */
-export const getContractByOptions = async (Options: any): Promise<IContractDoc | null> => Contract.findOne(Options)
-
-/**
- * Update contract by id
- * @param {mongoose.Types.ObjectId} contractId
- * @param {UpdateContractBody} updateBody
- * @returns {Promise<IContractDoc | null>}
- */
-export const updateContractById = async (
-  contractId: mongoose.Types.ObjectId,
-  updateBody: UpdateContractBody
-): Promise<IContractDoc | null> => {
-  const contract = await getContractById(contractId)
-  if (!contract) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Contract not found')
-  }
-  Object.assign(contract, updateBody)
-  await contract.save()
-  return contract
-}
+export const getContractsByOptions = async (Options: any): Promise<IContractDoc | null> => Contract.find(Options).lean()
 
 /**
  * Change status contract by id
@@ -122,6 +151,98 @@ export const changeStatusContractById = async (
   if (!contract) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Contract not found')
   }
+  return contract
+}
+
+/**
+ * create a contract
+ * @param {mongoose.Types.ObjectId} contractId
+ * @returns {Promise<IContractDoc>}
+ */
+export const acceptContract = async (contractId: mongoose.Types.ObjectId): Promise<IContractDoc> => {
+  const contract = await getContractById(contractId)
+  if (!contract) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'contract not found')
+  }
+
+  const job = await getJobById(contract?.job)
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  }
+
+  if (!(job.currentStatus === EJobStatus.OPEN || job.currentStatus === EJobStatus.PENDING)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not open or pending')
+  }
+
+  const acceptedContracts = await Contract.countDocuments({ job: job?._id, currentStatus: EStatus.ACCEPTED })
+
+  if (acceptedContracts >= job?.preferences?.nOEmployee) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not in recruiment anymore')
+  } else if ((job?.preferences?.nOEmployee ?? 1) - 1 === acceptedContracts) {
+    closeAllContract(contractId, job._id)
+  }
+
+  const acceptedContract = await changeStatusContractById(contractId, EStatus.ACCEPTED, 'Accepted from Both side')
+  addJobtoFreelancer(job._id, contract?.freelancer, job?.client)
+  createNotify({
+    to: job?.client?.user,
+    path: `${FERoutes.allContract}`,
+    content: FEMessage.acceptContract,
+  })
+
+  return acceptedContract
+}
+
+/**
+ * Query for contracts
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @returns {Promise<QueryResult>}
+ */
+export const queryContracts = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
+  const contracts = await Contract.paginate(filter, options)
+  return contracts
+}
+
+/**
+ * Get contract by contractname
+ * @param {string} contractname
+ * @returns {Promise<IContractDoc | null>}
+ */
+export const getContractByContractname = async (contractname: string): Promise<IContractDoc | null> =>
+  Contract.findOne({ contractname })
+
+/**
+ * Get contract by email
+ * @param {string} email
+ * @returns {Promise<IContractDoc | null>}
+ */
+export const getContractByEmail = async (email: string): Promise<IContractDoc | null> => Contract.findOne({ email })
+
+/**
+ * Get contract by option
+ * @param {object} options
+ * @returns {Promise<IContractDoc | null>}
+ */
+export const getContractByOptions = async (Options: any): Promise<IContractDoc | null> =>
+  Contract.findOne(Options).lean()
+
+/**
+ * Update contract by id
+ * @param {mongoose.Types.ObjectId} contractId
+ * @param {UpdateContractBody} updateBody
+ * @returns {Promise<IContractDoc | null>}
+ */
+export const updateContractById = async (
+  contractId: mongoose.Types.ObjectId,
+  updateBody: UpdateContractBody
+): Promise<IContractDoc | null> => {
+  const contract = await getContractById(contractId)
+  if (!contract) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Contract not found')
+  }
+  Object.assign(contract, updateBody)
+  await contract.save()
   return contract
 }
 

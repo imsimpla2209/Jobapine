@@ -33,7 +33,7 @@ export const deleteFreelancer = (id: string) => {
   return instance.delete(`freelancers/${id}`);
 }
 
-export const reviewUser = (data: IReview, id: string ) => {
+export const reviewFreelancer = (data: IReview, id: string ) => {
   return instance.patch(`freelancers/review/${id}`, data);
 }
 

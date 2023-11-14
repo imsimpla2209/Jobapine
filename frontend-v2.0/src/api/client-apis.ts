@@ -26,7 +26,7 @@ export const deleteClient = (id: string) => {
   return instance.delete(`clients/${id}`);
 }
 
-export const reviewUser = (data: IReview, id: string ) => {
+export const reviewClient = (data: IReview, id: string ) => {
   return instance.patch(`clients/review/${id}`, data);
 }
 

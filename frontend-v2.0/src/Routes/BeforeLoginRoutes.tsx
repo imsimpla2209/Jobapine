@@ -13,57 +13,55 @@ import JobDetailsBeforeProposals from 'src/pages/ClientPages/JobDetailsBeforePro
 
 export default function BeforeLoginRoutes() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/job-sickers" element={<HomePage />} />
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/job-sickers" element={<HomePage />} />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route
-          path="/freelancer"
-          element={
-            <div>
-              <Header />
-              <FreelancerList />
-              <Footer />
-            </div>
-          }
-        />
-        <Route
-          path="/freelancer-profile/:id"
-          element={
-            <div>
-              <Header />
-              <FreelancerProfile />
-              <Footer />
-            </div>
-          }
-        />
-        <Route
-          path="/find-work"
-          element={
-            <div>
-              <Header />
-              <AllJobPosts />
-              <Footer />
-            </div>
-          }
-        />
-        <Route
-          path="/job-details/:id"
-          element={
-            <div>
-              <Header />
-              <JobDetailsBeforeProposals />
-              <Footer />
-            </div>
-          }
-        />
+      <Route path="/login" element={<Login />} />
+      <Route path="/sign-up" element={<SignUp />} />
+      <Route
+        path="/freelancer"
+        element={
+          <div>
+            <Header />
+            <FreelancerList />
+            <Footer />
+          </div>
+        }
+      />
+      <Route
+        path="/freelancer-profile/:id"
+        element={
+          <div>
+            <Header />
+            <FreelancerProfile />
+            <Footer />
+          </div>
+        }
+      />
+      <Route
+        path="/find-work"
+        element={
+          <div>
+            <Header />
+            <AllJobPosts />
+            <Footer />
+          </div>
+        }
+      />
+      <Route
+        path="/job-details/:id"
+        element={
+          <div>
+            <Header />
+            <JobDetailsBeforeProposals />
+            <Footer />
+          </div>
+        }
+      />
 
-        <Route path="/dev-it" element={<DevelopmentItFreelancer />} />
-        <Route path="*" element={<PageNotFoundBeforeLogin />} />
-      </Routes>
-    </>
+      <Route path="/dev-it" element={<DevelopmentItFreelancer />} />
+      <Route path="*" element={<PageNotFoundBeforeLogin />} />
+    </Routes>
   )
 }

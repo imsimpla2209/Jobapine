@@ -28,7 +28,9 @@ export const SocketProvider = props => {
     }
   }, [authenticated, id])
 
-  return <SocketContext.Provider value={{ appSocket: socket }}>{props.children}</SocketContext.Provider>
+  return <SocketContext.Provider value={{ appSocket: socket }}>
+    {props.children}
+  </SocketContext.Provider>
 }
 
 export const useSocket = () => {

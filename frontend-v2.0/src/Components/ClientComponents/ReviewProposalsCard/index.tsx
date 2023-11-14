@@ -57,6 +57,7 @@ export default function ReviewProposalsCard() {
             <div className="row border bg-white border-1 ms-0 pt-2" key={index}>
               <div className="col-1 pt-lg-3">
                 <img
+                  alt=""
                   className="circle"
                   src={currentFreelancer?.img?.[0] ? currentFreelancer?.img?.[0] : img}
                   style={{ width: '70px', height: '70px' }}

@@ -11,6 +11,10 @@ router
   .post(auth(), validate(proposalValidation.createProposal), proposalController.createProposal)
 
 router
+  .route('/status/:id')
+  .patch(auth(), validate(proposalValidation.updateProposalStatus), proposalController.updateProposalStatus)
+
+router
   .route('/:id')
   .get(auth(), validate(proposalValidation.getProposal), proposalController.getProposal)
   .patch(auth(), validate(proposalValidation.updateProposal), proposalController.updateProposal)

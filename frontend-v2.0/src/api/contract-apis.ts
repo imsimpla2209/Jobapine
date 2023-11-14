@@ -1,11 +1,23 @@
 import { IContract, IContractQuery } from "src/types/contract";
 import { Http, instance } from "./http";
+import { EStatus } from "src/utils/enum";
 
 export const createContract = (data?: Omit<
   IContract,
   'status' | 'messages' | 'paymentHistory' | 'currentStatus'
->) => {
-  return instance.post('contracts', data);
+>, isAgree: boolean = false) => {
+  return instance.post('contracts', { ...data, isAgree });
+}
+
+export const acceptStatusContract = (id: string, statusData: {
+  status: EStatus
+  comment: string
+}) => {
+  return instance.post(`contracts/status/${id}`, statusData);
+}
+
+export const acceptContract = (id: string) => {
+  return instance.patch(`contracts/accept/${id}`);
 }
 
 export const getContracts = (data: IContractQuery) => {

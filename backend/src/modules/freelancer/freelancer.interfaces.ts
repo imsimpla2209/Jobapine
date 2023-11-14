@@ -1,3 +1,4 @@
+import { IClientDoc } from '@modules/client/client.interfaces'
 import { IJobCategory, IJobDoc } from '@modules/job/job.interfaces'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
 import { ILevelSkill } from '@modules/skill/skill.interfaces'
@@ -15,6 +16,8 @@ export interface IFreelancer {
   skills?: ILevelSkill[]
   certificate?: string
   proposals?: IProposalDoc['_id'][]
+  jobs?: IJobDoc['_id'][]
+  relevantClients?: IClientDoc['_id'][]
   images?: string[]
   reviews?: IReview[]
   favoriteJobs?: IJobDoc['_id'][]
@@ -59,4 +62,6 @@ export type NewRegisteredFreelancer = Omit<
   | 'jobsDone'
   | 'earned'
   | 'available'
+  | 'jobs'
+  | 'relevantClients'
 >
