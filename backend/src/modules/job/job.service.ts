@@ -392,7 +392,7 @@ export const addProposaltoJobById = async (
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
     }
-    return job
+    return job.populate('client')
   } catch (err) {
     throw new Error('cannot add proposals to job')
   }
