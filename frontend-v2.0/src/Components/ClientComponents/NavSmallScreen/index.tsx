@@ -1,16 +1,15 @@
-
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { fakeClientState } from "Store/fake-state";
-import { useTranslation } from "react-i18next";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import img from "../../../assets/img/icon-user.svg";
-import HeaderSearchSm from "../../SharedComponents/HeaderSearchSm/HeaderSearchSm";
+import { fakeClientState } from 'Store/fake-state'
+import { useTranslation } from 'react-i18next'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import img from '../../../assets/img/icon-user.svg'
+import HeaderSearchSm from '../../SharedComponents/HeaderSearchSm/HeaderSearchSm'
 
 export default function NavSmallScreen() {
-  const { t } = useTranslation(['main']);
-  const navigate = useNavigate();
-  const user = fakeClientState;
+  const { t } = useTranslation(['main'])
+  const navigate = useNavigate()
+  const user = fakeClientState
 
   const logout = () => {
     // firebaseApp
@@ -25,8 +24,8 @@ export default function NavSmallScreen() {
     //   .catch((error) => {
     //     console.log(error.message);
     //   });
-    console.log("bo may logout")
-  };
+    console.log('bo may logout')
+  }
 
   return (
     <>
@@ -44,8 +43,13 @@ export default function NavSmallScreen() {
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <img style={{ height: "40px", width: "40px" }} className="rounded-circle bg-white" src={user.profilePhoto ? user.profilePhoto : img} alt="" />
-              <span className="ms-2">{user?.firstName + " " + user?.lastName}</span>
+              <img
+                style={{ height: '40px', width: '40px' }}
+                className="rounded-circle bg-white"
+                src={user.profilePhoto ? user.profilePhoto : img}
+                alt=""
+              />
+              <span className="ms-2">{user?.firstName + ' ' + user?.lastName}</span>
             </a>
             {/* <ul
               id="acc-id"
@@ -109,26 +113,23 @@ export default function NavSmallScreen() {
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              {t("Jobs")}
+              {t('Jobs')}
               <i className="fa fa-sort-down text-white float-end"></i>
             </a>
-            <ul
-              className="dropdown-menu sub-drop-cn"
-              aria-labelledby="navbarDropdownMenuLink"
-            >
+            <ul className="dropdown-menu sub-drop-cn" aria-labelledby="navbarDropdownMenuLink">
               <li>
                 <Link className="dropdown-item" to="/home">
-                  {t("My Jobs")}
+                  {t('My Jobs')}
                 </Link>
               </li>
               <li>
                 <Link className="dropdown-item" to="/all-job-posts">
-                  {t("All Jobs Posts")}
+                  {t('All Jobs Posts')}
                 </Link>
               </li>
               <li>
                 <Link className="dropdown-item" to="/all-contracts">
-                  {t("All Contracts")}
+                  {t('All Contracts')}
                 </Link>
               </li>
               {/* <li>
@@ -138,7 +139,7 @@ export default function NavSmallScreen() {
               </li> */}
               <li>
                 <Link className="dropdown-item" to="/post-job">
-                  {t("Post a Job")}
+                  {t('Post a Job')}
                 </Link>
               </li>
             </ul>
@@ -152,21 +153,23 @@ export default function NavSmallScreen() {
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              {t("Freelancer")}
+              {t('Freelancer')}
               <i className="fa fa-sort-down text-white float-end"></i>
             </a>
-            <ul
-              className="dropdown-menu sub-drop-cn"
-              aria-labelledby="navbarDropdownMenuLink"
-            >
+            <ul className="dropdown-menu sub-drop-cn" aria-labelledby="navbarDropdownMenuLink">
+              <li>
+                <Link className="dropdown-item" to="/freelancer">
+                  {t('All freelancers')}
+                </Link>
+              </li>
               <li>
                 <Link className="dropdown-item" to="/freelancer/my-hires">
-                  {t("My Hires")}
+                  {t('My Hires')}
                 </Link>
               </li>
               <li>
                 <Link className="dropdown-item" to="/freelancer/saved-freelancer">
-                  {t("Saved Freelancer")}
+                  {t('Saved Freelancer')}
                 </Link>
               </li>
             </ul>
@@ -265,7 +268,7 @@ export default function NavSmallScreen() {
           </li> */}
           <li className="nav-item px-3">
             <NavLink className="nav-link mt-2 pt-3 border-top-cn" to="/messages">
-              {t("Messages")}
+              {t('Messages')}
             </NavLink>
           </li>
           {/* <li className="nav-item px-3">
@@ -276,7 +279,7 @@ export default function NavSmallScreen() {
           </li> */}
           <li className="nav-item px-3">
             <NavLink className="nav-link mt-2 pt-3 border-top-cn" to="/notifications">
-              {t("Notification")}
+              {t('Notification')}
               <i className="far fa-bell float-end"></i>
             </NavLink>
           </li>
@@ -302,11 +305,11 @@ export default function NavSmallScreen() {
               <span>
                 <i className="fas fa-sign-out-alt"></i>
               </span>
-              <span className="ps-3">{t("Log Out")}</span>
+              <span className="ps-3">{t('Log Out')}</span>
             </a>
           </li>
         </ul>
       </div>
     </>
-  );
+  )
 }

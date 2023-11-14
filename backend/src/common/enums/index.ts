@@ -66,6 +66,7 @@ export enum EError {
 export enum EUserType {
   FREELANCER = 'Freelancer',
   CLIENT = 'Client',
+  ADMIN = 'Admin',
 }
 
 export enum EPaymentMethod {
