@@ -176,17 +176,19 @@ export default function ClientJobDetails({ job }) {
       <div className="bg-white py-lg-2 py-md-4 px-4 border border-1 row py-xs-5 h-100">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h5 className="fw-bold my-4">{t('Activity on this job')}</h5>
-          <Link
-            to={`/all-proposals/${job?._id}`}
-            style={{
-              width: 150,
-              padding: 4,
-              color: 'white',
-              background: 'linear-gradient(92.88deg, #455eb5 9.16%, #5643cc 43.89%, #673fd7 64.72%)',
-            }}
-          >
-            {t('View all proposals')}
-          </Link>
+          {job?.proposals?.length ? (
+            <Link
+              to={`/all-proposals/${job?._id}`}
+              style={{
+                width: 150,
+                padding: 4,
+                color: 'white',
+                background: 'linear-gradient(92.88deg, #455eb5 9.16%, #5643cc 43.89%, #673fd7 64.72%)',
+              }}
+            >
+              {t('View all proposals')}
+            </Link>
+          ) : null}
         </div>
         <div className="pb-5">
           <p className="my-lg-1">
