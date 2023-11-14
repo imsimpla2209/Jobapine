@@ -123,7 +123,7 @@ export default function MesssagesContent({ selectedMessageRoom, userID }: any) {
       <div className="mesgs position-relative h-100" style={{ borderRadius: 20 }}>
         <Skeleton loading={loading} active avatar >
           {
-            !isEmpty && <Button type="primary" onClick={() => setOpen(true)} style={{
+            !isEmpty(selectedMessageRoom) && <Button type="primary" onClick={() => setOpen(true)} style={{
               position: 'absolute',
               top: 10,
               right: 26,

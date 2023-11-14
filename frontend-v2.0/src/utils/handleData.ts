@@ -27,7 +27,9 @@ export const handleFilter = (sortType: any, key?: any) => {
 const miniSearch = new MiniSearch({
   fields: ['title', 'description'],
   idField: '_id',
-  storeFields: ['client', 'categories', 'title', 'description', 'locations', 'complexity', 'payment', 'budget', 'createdAt', 'nOProposals', 'nOEmployee', 'preferences'],
+  storeFields: ['client', 'categories', 'title', 'description', 'locations', 
+  'complexity', 'payment', 'budget', 'createdAt', 'nOProposals', 
+  'nOEmployee', 'preferences'],
   processTerm: (term) =>
   stopWords.has(term) ? null : term.toLowerCase(),
   searchOptions: {

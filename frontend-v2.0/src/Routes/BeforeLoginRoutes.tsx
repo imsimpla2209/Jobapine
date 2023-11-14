@@ -12,30 +12,28 @@ import Login from './../pages/BeforeLoginPages/Login'
 
 export default function BeforeLoginRoutes() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/job-sickers" element={<HomePage />} />
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/job-sickers" element={<HomePage />} />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route
-          path="/freelance-jobs"
-          element={
-            <div>
-              <Header />
-              <Outlet />
-              <Footer />
-            </div>
-          }
-        >
-          <Route path="" element={<FindFreelancingJob />} />
-          <Route path=":id" element={<JobDetails />} />
-        </Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/sign-up" element={<SignUp />} />
+      <Route
+        path="/freelance-jobs"
+        element={
+          <div>
+            <Header />
+            <Outlet />
+            <Footer />
+          </div>
+        }
+      >
+        <Route path="" element={<FindFreelancingJob />} />
+        <Route path=":id" element={<JobDetails />} />
+      </Route>
 
-        <Route path="/dev-it" element={<DevelopmentItFreelancer />} />
-        <Route path="*" element={<PageNotFoundBeforeLogin />} />
-      </Routes>
-    </>
+      <Route path="/dev-it" element={<DevelopmentItFreelancer />} />
+      <Route path="*" element={<PageNotFoundBeforeLogin />} />
+    </Routes>
   )
 }
