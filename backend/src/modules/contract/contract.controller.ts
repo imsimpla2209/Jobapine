@@ -8,8 +8,15 @@ import { IOptions } from '../../providers/paginate/paginate'
 import * as contractService from './contract.service'
 
 export const createContract = catchAsync(async (req: Request, res: Response) => {
-  const contract = await contractService.createContract(req.body)
+  const contract = await contractService.createContract(req.body, req.body?.isAgree)
   res.status(httpStatus.CREATED).send(contract)
+})
+
+export const acceptContract = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const contract = await contractService.acceptContract(new mongoose.Types.ObjectId(req.params.id))
+    res.status(httpStatus.CREATED).send(contract)
+  }
 })
 
 export const getContracts = catchAsync(async (req: Request, res: Response) => {
@@ -20,8 +27,8 @@ export const getContracts = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const getContract = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.contractId === 'string') {
-    const contract = await contractService.getContractById(new mongoose.Types.ObjectId(req.params.contractId))
+  if (typeof req.params?.id === 'string') {
+    const contract = await contractService.getContractById(new mongoose.Types.ObjectId(req.params.id))
     if (!contract) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Contract not found')
     }
@@ -30,19 +37,16 @@ export const getContract = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const updateContract = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.contractId === 'string') {
-    const contract = await contractService.updateContractById(
-      new mongoose.Types.ObjectId(req.params.contractId),
-      req.body
-    )
+  if (typeof req.params?.id === 'string') {
+    const contract = await contractService.updateContractById(new mongoose.Types.ObjectId(req.params.id), req.body)
     res.send(contract)
   }
 })
 
 export const updateContractStatus = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.contractId === 'string') {
+  if (typeof req.params?.id === 'string') {
     const contract = await contractService.changeStatusContractById(
-      new mongoose.Types.ObjectId(req.params.contractId),
+      new mongoose.Types.ObjectId(req.params.id),
       req.body?.status,
       req.body?.comment
     )
@@ -51,8 +55,8 @@ export const updateContractStatus = catchAsync(async (req: Request, res: Respons
 })
 
 export const deleteContract = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.contractId === 'string') {
-    await contractService.deleteContractById(new mongoose.Types.ObjectId(req.params.contractId))
+  if (typeof req.params?.id === 'string') {
+    await contractService.deleteContractById(new mongoose.Types.ObjectId(req.params.id))
     res.status(httpStatus.NO_CONTENT).send()
   }
 })

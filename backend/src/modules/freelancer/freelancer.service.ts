@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import queryGen from '@core/libs/queryGennerator'
 import { JobCategory, JobTag } from '@modules/job/job.model'
-import { getJobById } from '@modules/job/job.service'
+import { addApplytoJobById, getJobById } from '@modules/job/job.service'
 import { Skill } from '@modules/skill'
 import { IReview } from 'common/interfaces/subInterfaces'
 import httpStatus from 'http-status'
@@ -363,6 +363,38 @@ export const updateSimilarById = async (userId: mongoose.Types.ObjectId): Promis
   similarDoc.save()
 
   return freelancer
+}
+
+/**
+ * Update apply job by id
+ * @param {mongoose.Types.ObjectId} jobId
+ * @param {string} freelancerId
+ * @param {string} clientId
+ * @returns {Promise<IJobDoc | null>}
+ */
+export const addJobtoFreelancer = async (
+  jobId: mongoose.Types.ObjectId,
+  freelancerId: mongoose.Types.ObjectId,
+  clientId: mongoose.Types.ObjectId
+): Promise<IFreelancerDoc | null> => {
+  try {
+    addApplytoJobById(jobId, freelancerId.toString())
+    const freelancer = await getFreelancerById(new mongoose.Types.ObjectId(freelancerId))
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'freelancer not found')
+    }
+    const jobs = freelancer?.jobs ? [...freelancer.jobs, jobId] : [jobId]
+    const relevantClients = freelancer?.relevantClients ? [...freelancer.relevantClients, clientId] : [clientId]
+    freelancer.jobsDone.number = (freelancer?.jobsDone?.number ?? 0) + 1
+    freelancer['jobs'] = jobs
+    freelancer['relevantClients'] = relevantClients
+
+    await freelancer.save()
+
+    return freelancer
+  } catch (err) {
+    throw new Error('cannot add job to freelancer')
+  }
 }
 
 /**

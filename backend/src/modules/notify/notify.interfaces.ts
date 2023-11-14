@@ -8,7 +8,7 @@ import { AccessAndRefreshTokens } from '../token/token.interfaces'
 export interface INotify {
   to: IUserDoc['_id']
   path?: string
-  content?: string
+  content?: any
   image?: string
   seen?: boolean
   isDeleted?: boolean

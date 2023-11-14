@@ -11,6 +11,11 @@ router
   .get(validate(contractValidation.getContracts), contractController.getContracts)
 
 router
+  .route('/status/:id')
+  .patch(auth(), validate(contractValidation.updateContractStatus), contractController.updateContractStatus)
+router.route('/accept/:id').post(auth(), validate(contractValidation.getContract), contractController.acceptContract)
+
+router
   .route('/:id')
   .get(auth(), validate(contractValidation.getContract), contractController.getContract)
   .patch(auth(), validate(contractValidation.updateContract), contractController.updateContract)

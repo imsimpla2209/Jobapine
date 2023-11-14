@@ -10,7 +10,7 @@ const notifySchema = new mongoose.Schema<INotifyDoc, INotifyModel>(
     seen: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
     content: {
-      type: String,
+      type: Object,
       required: true,
     },
     image: { type: String, default: '' },

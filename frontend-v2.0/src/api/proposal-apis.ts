@@ -1,10 +1,18 @@
 import { IProposal, IProposalQuery } from 'src/types/proposal'
 import { Http, instance } from './http'
+import { EStatus } from 'src/utils/enum'
 
 export const createProposal = (
   data?: Omit<IProposal, 'status' | 'messages' | 'contract' | 'freelancerComment' | 'clientComment' | 'currentStatus'>
 ) => {
   return instance.post('proposals', data)
+}
+
+export const acceptStatusProposal = (id: string, statusData: {
+  status: EStatus
+  comment: string
+}) => {
+  return instance.patch(`contracts/status/${id}`, statusData);
 }
 
 export const getProposals = (data: IProposalQuery) => {

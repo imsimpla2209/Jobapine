@@ -3,8 +3,10 @@ import { deleteContractByOptions } from '@modules/contract/contract.service'
 import { addProposaltoFreelancerById, getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
 import { addApplytoJobById, addProposaltoJobById, isJobOpened } from '@modules/job/job.service'
 import { Message } from '@modules/message'
+import { createNotify } from '@modules/notify/notify.service'
 import { updateSickPointsById } from '@modules/user/user.service'
 import { EStatus } from 'common/enums'
+import { FEMessage, FERoutes } from 'common/enums/constant'
 import { logger } from 'common/logger'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
@@ -34,9 +36,15 @@ export const createProposal = async (
     //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Proposal')
     // }
     newProposal = await Proposal.create(proposalBody)
-    await addProposaltoJobById(proposalBody.job, newProposal._id)
+    const jobInfo = await addProposaltoJobById(proposalBody.job, newProposal._id)
     await addProposaltoFreelancerById(proposalBody.freelancer, newProposal._id)
     await addApplytoJobById(proposalBody.job, proposalBody.freelancer)
+
+    createNotify({
+      to: jobInfo?.client?.user,
+      path: FERoutes.allProposals + (jobInfo?._id || ''),
+      content: FEMessage.createProposal,
+    })
     return newProposal
   } catch (err: any) {
     Proposal.findByIdAndDelete(newProposal?._id)
@@ -70,7 +78,7 @@ export const queryProposals = async (filter: Record<string, any>, options: IOpti
  * @returns {Promise<IProposalDoc | null>}
  */
 export const getProposalById = async (id: mongoose.Types.ObjectId): Promise<IProposalDoc | null> =>
-  await Proposal.findById(id).populate('job').exec()
+  Proposal.findById(id)
 
 /**
  * Get proposals by Job id
@@ -97,16 +105,20 @@ export const updateProposalById = async (
   proposalId: mongoose.Types.ObjectId,
   updateBody: UpdateProposalBody
 ): Promise<IProposalDoc | null> => {
-  const proposal = await getProposalById(proposalId)
-  if (!proposal) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
+  try {
+    const proposal = await getProposalById(proposalId)
+    if (!proposal) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
+    }
+    if (proposal.currentStatus === EStatus.ACCEPTED) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Proposal is already accepted')
+    }
+    Object.assign(proposal, updateBody)
+    await proposal.save()
+    return proposal
+  } catch (e) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `cannot updated, ${e}`)
   }
-  if (proposal.currentStatus === EStatus.ACCEPTED) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Proposal is already accepted')
-  }
-  Object.assign(proposal, updateBody)
-  await proposal.save()
-  return proposal
 }
 
 /**
@@ -130,11 +142,13 @@ export const deleteProposalById = async (proposalId: mongoose.Types.ObjectId): P
  * Delete proposal by id
  * @param {mongoose.Types.ObjectId} proposalId
  * @param {string} status
+ * @param {string} comment
  * @returns {Promise<IProposalDoc | null>}
  */
 export const updateProposalStatusById = async (
   proposalId: mongoose.Types.ObjectId,
-  status: string
+  status: string,
+  comment?: string
 ): Promise<IProposalDoc | null> => {
   const proposal = await getProposalById(proposalId)
   if (!proposal) {
@@ -143,6 +157,7 @@ export const updateProposalStatusById = async (
   Object.assign(proposal, {
     status: {
       status,
+      comment,
       date: new Date(),
     },
   })
