@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import Carbon from '@core/libs/Carbon'
 import { io } from '@core/libs/SocketIO'
 import { ESocketEvent, EStatus } from 'common/enums'
 import { logger } from 'common/logger'
@@ -155,8 +154,9 @@ export const createInvitation = async (invitationBody: IInvitation): Promise<IIn
   //   // .to(io.onlineUsers[invitationBody?.to]?.socketId)
   // }
   if (!invitationBody?.dueDate) {
-    const inThirtyDays = Carbon.moment().add('days', 30).millisecond()
-    invitationBody['dueDate'] = inThirtyDays
+    const future = new Date()
+    future.setTime(future.getTime() + 30 * 24 * 60 * 60 * 1000)
+    invitationBody['dueDate'] = future.toString()
   }
   return Invitation.create(invitationBody)
 }
@@ -169,6 +169,7 @@ export const createInvitation = async (invitationBody: IInvitation): Promise<IIn
  */
 export const queryInvitations = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
   filter['to'] && (filter['to'] = { to: `${filter['to']}` })
+  filter['from'] && (filter['from'] = { from: `${filter['from']}` })
   filter['seen'] && (filter['seen'] = { seen: `${filter['seen']}` })
   filter['currentStatus'] && (filter['currentStatus'] = { currentStatus: `${filter['currentStatus']}` })
   filter['type'] && (filter['type'] = { type: `${filter['type']}` })
@@ -180,7 +181,7 @@ export const queryInvitations = async (filter: Record<string, any>, options: IOp
 
   // options.populate = 'proposal,members'
   if (!options.projectBy) {
-    options.projectBy = 'to, path, seen, isDeleted, content, image, createdAt,'
+    options.projectBy = 'to, background, seen, isDeleted, content, image, createdAt, type, attachments, dueDate, from'
   }
 
   if (!options.sortBy) {
@@ -192,10 +193,10 @@ export const queryInvitations = async (filter: Record<string, any>, options: IOp
   }
 
   const invitations = await Invitation.paginate(queryFilter, options)
-  const now = Carbon.moment()
+  const now = new Date().getTime()
 
   invitations.results = invitations?.results?.map((i: any) => {
-    if (i?.dueDate >= now) {
+    if (Number(i?.dueDate) >= now && (i.currentStatus === EStatus.PENDING || i.currentStatus === EStatus.INPROGRESS)) {
       Object.assign(i, {
         status: {
           status: EStatus.LATE,
@@ -263,8 +264,8 @@ export const updateInvitationStatusById = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Invitation not found')
   }
 
-  const now = Carbon.moment()
-  if (invitation.dueDate >= now) {
+  const now = new Date().getTime()
+  if (Number(invitation.dueDate) < now) {
     Object.assign(invitation, {
       status: {
         status: EStatus.LATE,

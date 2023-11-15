@@ -10,16 +10,34 @@ import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
 import { BlueColorButton } from "src/Components/CommonComponents/custom-style-elements/button";
 import { isEmpty } from "lodash";
 import { Collapse } from "antd";
+import { requestMessageRoom } from "src/api/message-api";
+import { useSubscription } from "src/libs/global-state-hook";
+import { userStore } from "src/Store/user.store";
 
 export default function ProposalCard({ proposal, jobId, ind, isInMSG = false }) {
   const { t } = useTranslation(['main'])
   const [jobData, setJobData] = useState<any>({})
+  const [isSendRequest, setSendRequest] = useState<any>(false)
+  const user = useSubscription(userStore).state
 
   useEffect(() => {
     getJob(jobId).then(res => {
       setJobData(res.data);
     }).catch(err => console.log(err));
   }, []);
+
+  const createRequestMSGRoom = () => {
+    requestMessageRoom({
+      from: (user?.id || user?._id),
+      to: jobData?.client?.user,
+      proposal: proposal._id,
+      text: 'Accept me please!'
+    }).then(() => {
+      setSendRequest(true)
+    }).catch((err) => {
+      console.log('ERROR: Could not send request', err)
+    })
+  }
 
   return (
     <>
@@ -79,7 +97,12 @@ export default function ProposalCard({ proposal, jobId, ind, isInMSG = false }) 
                       {
                         (proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS)
                           ? <Link to="/messages"><BlueColorButton>{t("Go to messaging")}</BlueColorButton></Link>
-                          : <BlueColorButton>{t("Request to message")}</BlueColorButton>
+                          : <BlueColorButton style={{
+                            pointerEvents: (isSendRequest || proposal?.msgRequestSent) ? "none" : "auto",
+                            background: (isSendRequest || proposal?.msgRequestSent) ? "gray" : "",
+                          }} className="" onClick={createRequestMSGRoom}>
+                            {(isSendRequest || proposal?.msgRequestSent) ? <>{t("Sent")}</> : <>{t("Request to message")}</>} 
+                          </BlueColorButton>
                       }
                     </div>
                   }

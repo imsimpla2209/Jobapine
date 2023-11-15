@@ -16,8 +16,12 @@ export const acceptStatusContract = (id: string, statusData: {
   return instance.post(`contracts/status/${id}`, statusData);
 }
 
-export const acceptContract = (id: string) => {
-  return instance.patch(`contracts/accept/${id}`);
+export const acceptContract = (id: string, invitationId) => {
+  return Http.get(`contracts/accept/${id}`, { invitationId });
+}
+
+export const rejectContract = (id: string, invitationId) => {
+  return Http.get(`contracts/accept/${id}`, { invitationId });
 }
 
 export const getContracts = (data: IContractQuery) => {

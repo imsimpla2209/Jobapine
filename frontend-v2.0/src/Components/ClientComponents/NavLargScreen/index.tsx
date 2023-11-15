@@ -18,6 +18,7 @@ import { MailFilled, BellFilled } from '@ant-design/icons'
 import { Badge, Dropdown, Divider, Space, MenuProps } from 'antd'
 import React from 'react'
 import { pickName, timeAgo } from 'src/utils/helperFuncs'
+import notiIcon from "../../../assets/img/notifyicon.png";
 
 export default function NavLargScreen() {
   const { t, i18n } = useTranslation(['main'])
@@ -75,8 +76,9 @@ export default function NavLargScreen() {
     return notifies?.map((s, ix) => {
       return {
         label: <div className="row" style={{ width: 400 }}>
-          <Link className="col-8 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)}</Link>
-          <p className="col-4">{timeAgo(s?.createdAt, t)}</p>
+          <img className="col-2" height={36} width={36} src={s.image || notiIcon} alt="sss" />
+          <Link className="col-7 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)}</Link>
+          <p className="col-3">{timeAgo(s?.createdAt, t)}</p>
         </div>,
         key: ix,
       }

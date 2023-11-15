@@ -21,6 +21,7 @@ import PageNotFound from 'pages/PageNotFound'
 import { useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Header from 'src/Components/ClientComponents/Header'
+import Offers from 'src/pages/FreelancerPages/Offers'
 
 export default function ClientRoutes() {
   const [freelancerArr, setfreelancerArr] = useState([])
@@ -51,6 +52,7 @@ export default function ClientRoutes() {
           <Route path="/transaction-history" element={<TransactionHistory />} />
           <Route path="/create-contract/:id" element={<CreateContract />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/invitations" element={<Offers />} />
           <Route path="**" element={<PageNotFound />} />
         </Routes>
       </SearchContextProvider>

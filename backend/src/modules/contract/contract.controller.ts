@@ -23,6 +23,16 @@ export const acceptContract = catchAsync(async (req: Request, res: Response) => 
   }
 })
 
+export const rejectContract = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const contract = await contractService.rejectContract(
+      new mongoose.Types.ObjectId(req.params.id),
+      new mongoose.Types.ObjectId(pick(req.query, ['invitationId'])['invitationId'])
+    )
+    res.status(httpStatus.CREATED).send(contract)
+  }
+})
+
 export const getContracts = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['job', 'proposal', 'client', 'freelancer', 'currentStatus'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
