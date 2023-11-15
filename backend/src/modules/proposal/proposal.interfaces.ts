@@ -21,6 +21,7 @@ export interface IProposal {
   answers?: Record<number, string>
   priority?: number
   currentStatus?: string
+  msgRequestSent?: boolean
 }
 
 export interface IProposalEmployee extends Document {
@@ -44,7 +45,7 @@ export type UpdateProposalBody = Omit<IProposal, 'freelancer' | 'job'>
 
 export type NewCreatedProposal = Omit<
   IProposal,
-  'status' | 'messages' | 'contract' | 'freelancerComment' | 'clientComment' | 'currentStatus'
+  'status' | 'messages' | 'contract' | 'freelancerComment' | 'clientComment' | 'currentStatus' | 'msgRequestSent'
 >
 
 export interface IProposalWithTokens {

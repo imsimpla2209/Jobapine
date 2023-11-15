@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/dot-notation */
 import { deleteContractByOptions } from '@modules/contract/contract.service'
 import { addProposaltoFreelancerById, getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
@@ -68,6 +69,14 @@ export const queryProposals = async (filter: Record<string, any>, options: IOpti
     $and: [freelancerFilter, jobFilter, statusFilter],
   }
 
+  if (!options.projectBy) {
+    options.projectBy =
+      'job, freelancer, expectedAmount, description, status, clientComment, freelancerComment, createdAt, attachments, contract, messages, answers, priority, currentStatus,  msgRequestSent '
+  }
+
+  if (!options.sortBy) {
+    options.sortBy = 'createdAt:desc'
+  }
   const proposals = await Proposal.paginate(queryFilter, options)
   return proposals
 }
@@ -78,7 +87,7 @@ export const queryProposals = async (filter: Record<string, any>, options: IOpti
  * @returns {Promise<IProposalDoc | null>}
  */
 export const getProposalById = async (id: mongoose.Types.ObjectId): Promise<IProposalDoc | null> =>
-  Proposal.findById(id)
+  Proposal.findById(id).populate('job')
 
 /**
  * Get proposals by Job id

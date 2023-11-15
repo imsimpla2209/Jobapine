@@ -28,7 +28,7 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
 
   useEffect(() => {
     setSelectedMessageRoom(messageRooms.find(message => message.proposal._id === proposalId))
-  }, [proposalId, messageRooms])
+  }, [proposalId])
 
   useEffect(() => {
     // App socket

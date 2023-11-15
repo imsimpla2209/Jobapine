@@ -23,6 +23,15 @@ export const createMessageRoom = {
   }),
 }
 
+export const requestMessageRoom = {
+  body: Joi.object().keys({
+    from: Joi.string().required(),
+    to: Joi.string().required(),
+    proposal: Joi.string(),
+    text: Joi.string(),
+  }),
+}
+
 export const createMessage = {
   body: Joi.object().keys(createMessageBody),
 }

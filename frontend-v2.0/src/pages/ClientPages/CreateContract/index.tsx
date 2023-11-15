@@ -114,7 +114,7 @@ export default function CreateContract() {
                   <div className="mb-3">
                     <span className="bg-cat-cn py-1 px-2 me-3 rounded-pill">
                       <Space size={'middle'}>
-                        {jobData?.categories.map(c => (
+                        {jobData?.categories?.map(c => (
                           <Link
                             to="#"
                             key={c?.name}

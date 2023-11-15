@@ -21,6 +21,18 @@ export interface IMessageQuery {
   page?: number,
 }
 
+export interface IInvitationsQuery {
+  to?: string,
+  from?: string,
+  type?: string,
+  seen?: boolean,
+  currentStatus?: EStatus,
+  sortBy?: string,
+  projectBy?: string,
+  limit?: number,
+  page?: number,
+}
+
 export interface IMessageRoomQuery {
   proposals?: string,
   member?: string[],
@@ -61,9 +73,14 @@ export const acceptMessageRoom = (id: string) => {
   return instance.post(`messages/rooms/accept/${id}`);
 }
 
-export const requestMessageRoom = (data: IMessage) => {
+export const rejectMessageRoom = (id: string) => {
+  return instance.post(`messages/rooms/reject/${id}`);
+}
+
+export const requestMessageRoom = (data: any) => {
   return instance.post(`messages/rooms/request`, data);
 }
+
 
 export const updateMessage = (data: Omit<IMessage, 'from' | 'to'>, id: string) => {
   return instance.patch(`messages/${id}`, data);
@@ -110,29 +127,29 @@ export const getNotifies = (id: string) => {
 }
 
 export const updateNotifies = (id: string, options: any) => {
-  return Http.patch(`notify?to=${id}`, { options });
+  return Http.patch(`notify?to=${id}`, options);
 }
 
 export const deleteNotify = (id: string) => {
   return instance.delete(`notify/${id}`);
 }
 
-export const getInvitations = (id: string) => {
-  return Http.get('notify/invitations', { to: id });
+export const getInvitations = (data: IInvitationsQuery) => {
+  return Http.get('notify/invitation', data);
 }
 
 export const updateInvitations = (id: string, options: any) => {
-  return Http.patch(`notify/invitations?to=${id}`, { options });
+  return Http.patch(`notify/invitation?to=${id}`, options);
 }
 
 export const deleteInvitation = (id: string) => {
-  return instance.delete(`notify/invitations/${id}`);
+  return instance.delete(`notify/invitation/${id}`);
 }
 
 export const updateStatusInvitation = (id: string, statusData: {
   status: EStatus
   comment: string
 }) => {
-  return instance.patch(`notify/invitations/status/${id}`, statusData);
+  return instance.patch(`notify/invitation/status/${id}`, statusData);
 }
 

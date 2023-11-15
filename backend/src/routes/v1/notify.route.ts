@@ -12,7 +12,7 @@ router
   .get(validate(notifyValidation.getNotifys), notifyController.getNotifys)
 
 router
-  .route('/invitation/')
+  .route('/invitation')
   .post(validate(notifyValidation.createInvitation), notifyController.createInvitation)
   .patch(validate(notifyValidation.createInvitation), notifyController.updateManyInvitation)
   .get(validate(notifyValidation.getInvitations), notifyController.getInvitations)

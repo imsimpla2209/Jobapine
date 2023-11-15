@@ -55,7 +55,7 @@ export const createInvitation = catchAsync(async (req: Request, res: Response) =
 })
 
 export const getInvitations = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['to', 'seen', 'type', 'currentStatus'])
+  const filter = pick(req.query, ['to', 'from', 'seen', 'type', 'currentStatus'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await notifyService.queryInvitations(filter, options)
   res.send(result)

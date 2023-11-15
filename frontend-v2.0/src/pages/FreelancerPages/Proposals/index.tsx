@@ -57,7 +57,7 @@ export default function Proposals() {
           </div>
           <div className="list-group-item py-lg-4 mt-3">
             <h4>
-              {t("Submited proposals")} ({proposals?.submited?.length})
+              {t("Submitted proposals")} ({proposals?.submited?.length})
               <span className="text-jobsicker ms-2">
                 <i className="fas fa-question-circle"></i>
               </span>
