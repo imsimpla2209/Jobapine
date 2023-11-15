@@ -59,9 +59,9 @@ export const forcedDeleteJob = (id: string) => {
   return instance.delete(`jobs/admin/${id}`);
 }
 
-export const getCategories = () => {
-  return instance.get(`jobs/categories`);
+export const getCategories = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/categories`, data);
 }
-export const getSkills = () => {
-  return instance.get(`jobs/skills`);
+export const getSkills = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/skills`, data);
 }

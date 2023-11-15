@@ -16,15 +16,28 @@ router
   .get(validate(messageValidation.getMessageRooms), messageController.getMessageRooms)
 
 router
-  .route('/:id')
-  .get(auth(), validate(messageValidation.getMessage), messageController.getMessage)
-  .patch(auth(), validate(messageValidation.updateMessage), messageController.updateMessage)
-  .delete(auth(), validate(messageValidation.deleteMessage), messageController.deleteMessage)
+  .route('/rooms/check')
+  .post(auth(), validate(messageValidation.createMessageRoom), messageController.checkMessageRoom)
+router
+  .route('/rooms/request')
+  .post(auth(), validate(messageValidation.createMessageRoom), messageController.checkMessageRoom)
+router
+  .route('/rooms/accept/:id')
+  .post(auth(), validate(messageValidation.getMessage), messageController.acceptMessageRequest)
+router
+  .route('/rooms/status/:id')
+  .post(auth(), validate(messageValidation.updateStatus), messageController.updateMessageRoomStatus)
 
 router
   .route('/rooms/:id')
   .get(auth(), validate(messageValidation.getMessageRooms), messageController.getMessageRooms)
   .patch(auth(), validate(messageValidation.updateMessageRoom), messageController.updateMessageRoom)
   .delete(auth(), validate(messageValidation.deleteMessage), messageController.deleteMessageRoom)
+
+router
+  .route('/:id')
+  .get(auth(), validate(messageValidation.getMessage), messageController.getMessage)
+  .patch(auth(), validate(messageValidation.updateMessage), messageController.updateMessage)
+  .delete(auth(), validate(messageValidation.deleteMessage), messageController.deleteMessage)
 
 export default router

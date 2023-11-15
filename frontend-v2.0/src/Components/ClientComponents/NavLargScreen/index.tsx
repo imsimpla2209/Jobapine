@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { fakeClientState } from 'Store/fake-state'
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import img from '../../../assets/img/icon-user.svg'
@@ -11,12 +11,23 @@ import { logout } from 'src/api/auth-apis'
 import toast from 'react-hot-toast'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { userStore } from 'src/Store/user.store'
+import { useSocket } from 'src/socket.io'
+import { getNotifies } from 'src/api/message-api'
+import { ESocketEvent } from 'src/utils/enum'
+import { MailFilled, BellFilled } from '@ant-design/icons'
+import { Badge, Dropdown, Divider, Space, MenuProps } from 'antd'
+import React from 'react'
+import { pickName, timeAgo } from 'src/utils/helperFuncs'
 
 export default function NavLargScreen() {
-  const { t } = useTranslation(['main'])
+  const { t, i18n } = useTranslation(['main'])
   const navigate = useNavigate()
   const user = useSubscription(userStore).state
-  useEffect(() => {}, [])
+  const [notifies, setNotifies] = useState([])
+  const [unSeen, setUnSeen] = useState([])
+  const [unSeenMSG, setUnSeenMSG] = useState(0)
+  const { appSocket } = useSocket()
+  const lang = i18n.language;
 
   const handleLogout = () => {
     logout()
@@ -33,6 +44,49 @@ export default function NavLargScreen() {
       .catch(error => {
         console.log(error.message)
       })
+  }
+
+  useEffect(() => {
+    getNotifies(user?.id || user?._id).then((res) => {
+      setNotifies(res.data.results)
+      setUnSeen(res.data.results?.filter(n => !n?.seen) || [])
+    })
+  }, [])
+
+  useEffect(() => {
+    // App socket
+    appSocket.on(ESocketEvent.SENDNOTIFY, (data) => {
+      console.log('Get Notify:', data)
+      if (data?.to === (user?.id || user?._id)) {
+
+        setNotifies(prev => [{ ...data, createdAt: new Date() }, ...prev])
+        setUnSeen(prev => [...prev, data])
+      }
+    })
+
+    // The listeners must be removed in the cleanup step, in order to prevent multiple event registrations
+    return () => {
+      appSocket.off(ESocketEvent.SENDNOTIFY)
+
+    }
+  }, [notifies, unSeen])
+
+  const items = useMemo(() => {
+    return notifies?.map((s, ix) => {
+      return {
+        label: <div className="row" style={{ width: 400 }}>
+          <Link className="col-8 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)}</Link>
+          <p className="col-4">{timeAgo(s?.createdAt, t)}</p>
+        </div>,
+        key: ix,
+      }
+    }) as MenuProps['items']
+  }, [notifies])
+
+  const onSeenNotify = (e) => {
+    if (e) {
+      setUnSeen([])
+    }
   }
 
   return (
@@ -146,25 +200,51 @@ export default function NavLargScreen() {
           </ul>
         </li>
         <li className="nav-item ms-5 me-3">
-          <NavLink className="nav-link" to="/messages">
-            <i className="far fa-paper-plane fs-5" style={{ transform: 'scaleX(-1)' }}></i>
-          </NavLink>
-        </li>
-        {/* <li className="nav-item me-5">
-            <NavLink className="nav-link" to="/messages">
-              {t("Messages")}
-            </NavLink>
-          </li> */}
-        {/* <li className="nav-item">
-            <a className="nav-link" href="#">
-              <i className="fas fa-question fs-5"></i>
-            </a>
-          </li> */}
-        <li className="nav-item me-3">
-          <NavLink to="/notifications" className="nav-link">
-            <i className="far fa-bell fs-5"></i>
-          </NavLink>
-        </li>
+            <Badge
+              count={unSeenMSG || 0}
+              color={"purple"}
+              status="processing">
+              <NavLink className="" 
+              onClick={() => setUnSeenMSG(0)}
+              style={{ padding: '10px 10px', borderRadius: 100, background: "#f5f0fa" }} to="/messages">
+                <MailFilled style={{ fontSize: 18, }} />
+              </NavLink>
+            </Badge>
+          </li>
+          <li className="nav-item pe-2">
+            <Badge
+              count={unSeen?.length || 0}
+              color={"purple"}
+              status="processing">
+              <Dropdown
+                menu={{ items }}
+                trigger={['click']}
+                onOpenChange={e => onSeenNotify(e)}
+                arrow={{ pointAtCenter: true }}
+                dropdownRender={(menu) => (
+                  <div style={{
+                    padding: 18,
+                    borderRadius: 10,
+                    background: "white",
+                    marginLeft: 24,
+                    boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px'
+                  }}>
+                    <h3>{t("Notification")}</h3>
+                    {React.cloneElement(menu as React.ReactElement, { style: { boxShadow: 'none' } })}
+                    <Divider style={{ margin: 0 }} />
+                    <Space style={{ padding: 8 }}>
+                      <Link to="/notifications" className="nav-link" type="primary">{t("View all")}</Link>
+                    </Space>
+                  </div>
+                )}
+              >
+                <NavLink to="/notifications" style={{ padding: 10, borderRadius: 100, background: "#f5f0fa" }} onClick={e => { e.preventDefault(); e.stopPropagation() }} className="">
+                  <BellFilled style={{ fontSize: 18 }} />
+                </NavLink>
+              </Dropdown>
+            </Badge>
+
+          </li>
         <li className="nav-item border-start border-secondary ps-2">
           <a className="nav-link" href="#">
             <i className="fas fa-user-plus fs-5"></i>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 import httpStatus from 'http-status'
 import { Request, Response } from 'express'
 import mongoose from 'mongoose'
@@ -14,7 +15,10 @@ export const createContract = catchAsync(async (req: Request, res: Response) => 
 
 export const acceptContract = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
-    const contract = await contractService.acceptContract(new mongoose.Types.ObjectId(req.params.id))
+    const contract = await contractService.acceptContract(
+      new mongoose.Types.ObjectId(req.params.id),
+      new mongoose.Types.ObjectId(pick(req.query, ['invitationId'])['invitationId'])
+    )
     res.status(httpStatus.CREATED).send(contract)
   }
 })

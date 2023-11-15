@@ -8,6 +8,7 @@ export enum EStatus {
   CANCELLED = 'cancelled',
   PAID = 'paid',
   LATE = 'late',
+  ARCHIVE = 'archive',
 }
 
 export enum EJobStatus {
@@ -67,6 +68,12 @@ export enum EUserType {
   FREELANCER = 'Freelancer',
   CLIENT = 'Client',
   ADMIN = 'Admin',
+}
+
+export enum EInvitationType {
+  CONTRACT = 'Contract',
+  WORK = 'Work',
+  MESSAGE = 'Message',
 }
 
 export enum EPaymentMethod {

@@ -17,7 +17,6 @@ export const activeMailer = async (name: any, email: any, date: any, ideaId: any
     ).toUTCString()}.  Check now by click the link bellow`
     const url = `https://main--leaks-app.netlify.app/staff/post?id=${ideaId}`
     const isSent: any = await sendNotification(email, content, title, date, url)
-    console.log(isSent)
     if (isSent.status === 400) {
       return new ApiErrorResponse(
         `Send Email Failed, status code: ${isSent.status}, \nData: ${isSent.response} \n`,

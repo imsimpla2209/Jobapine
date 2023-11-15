@@ -28,19 +28,16 @@ export const getProposal = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const updateProposal = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.proposalId === 'string') {
-    const proposal = await proposalService.updateProposalById(
-      new mongoose.Types.ObjectId(req.params.proposalId),
-      req.body
-    )
+  if (typeof req.params?.id === 'string') {
+    const proposal = await proposalService.updateProposalById(new mongoose.Types.ObjectId(req.params.id), req.body)
     res.send(proposal)
   }
 })
 
 export const updateProposalStatus = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.proposalId === 'string') {
+  if (typeof req.params?.id === 'string') {
     const proposal = await proposalService.updateProposalStatusById(
-      new mongoose.Types.ObjectId(req.params.proposalId),
+      new mongoose.Types.ObjectId(req.params.id),
       req.body?.status
     )
     res.send(proposal)
@@ -48,8 +45,8 @@ export const updateProposalStatus = catchAsync(async (req: Request, res: Respons
 })
 
 export const deleteProposal = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.proposalId === 'string') {
-    await proposalService.deleteProposalById(new mongoose.Types.ObjectId(req.params.proposalId))
+  if (typeof req.params?.id === 'string') {
+    await proposalService.deleteProposalById(new mongoose.Types.ObjectId(req.params.id))
     res.status(httpStatus.NO_CONTENT).send()
   }
 })

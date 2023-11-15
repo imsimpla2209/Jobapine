@@ -1,4 +1,5 @@
 // import { IMessage, IMessageQuery } from "src/types/Message";
+import { EStatus } from "src/utils/enum";
 import { Http, instance } from "./http";
 
 export interface IMessage {
@@ -52,6 +53,18 @@ export const getMessage = (id: string) => {
   return instance.get(`messages/${id}`);
 }
 
+export const checkMessageRoom = (data: IMessage) => {
+  return instance.post(`messages/rooms/check`, data);
+}
+
+export const acceptMessageRoom = (id: string) => {
+  return instance.post(`messages/rooms/accept/${id}`);
+}
+
+export const requestMessageRoom = (data: IMessage) => {
+  return instance.post(`messages/rooms/request`, data);
+}
+
 export const updateMessage = (data: Omit<IMessage, 'from' | 'to'>, id: string) => {
   return instance.patch(`messages/${id}`, data);
 }
@@ -72,6 +85,14 @@ export const getMessageRooms = (data: IMessageRoomQuery) => {
     });
 }
 
+export const updateStatusMessageRoom = (id: string, statusData: {
+  status: EStatus
+  comment: string
+}) => {
+  return instance.patch(`messages/rooms/status/${id}`, statusData);
+}
+
+
 export const getMessageRoom = (id: string) => {
   return instance.get(`messages/rooms/${id}`);
 }
@@ -91,3 +112,27 @@ export const getNotifies = (id: string) => {
 export const updateNotifies = (id: string, options: any) => {
   return Http.patch(`notify?to=${id}`, { options });
 }
+
+export const deleteNotify = (id: string) => {
+  return instance.delete(`notify/${id}`);
+}
+
+export const getInvitations = (id: string) => {
+  return Http.get('notify/invitations', { to: id });
+}
+
+export const updateInvitations = (id: string, options: any) => {
+  return Http.patch(`notify/invitations?to=${id}`, { options });
+}
+
+export const deleteInvitation = (id: string) => {
+  return instance.delete(`notify/invitations/${id}`);
+}
+
+export const updateStatusInvitation = (id: string, statusData: {
+  status: EStatus
+  comment: string
+}) => {
+  return instance.patch(`notify/invitations/status/${id}`, statusData);
+}
+

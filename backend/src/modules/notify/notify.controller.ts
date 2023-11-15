@@ -47,3 +47,55 @@ export const deleteNotify = catchAsync(async (req: Request, res: Response) => {
     res.status(httpStatus.NO_CONTENT).send()
   }
 })
+
+// Invitation Controllers ----------------------------------------------------------------
+export const createInvitation = catchAsync(async (req: Request, res: Response) => {
+  const notify = await notifyService.createInvitation(req.body)
+  res.status(httpStatus.CREATED).send(notify)
+})
+
+export const getInvitations = catchAsync(async (req: Request, res: Response) => {
+  const filter = pick(req.query, ['to', 'seen', 'type', 'currentStatus'])
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const result = await notifyService.queryInvitations(filter, options)
+  res.send(result)
+})
+
+export const getInvitation = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const notify = await notifyService.getInvitationById(new mongoose.Types.ObjectId(req.params.id))
+    if (!notify) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Invitation not found')
+    }
+    res.send(notify)
+  }
+})
+
+export const updateInvitationStatus = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const invitation = await notifyService.updateInvitationStatusById(
+      new mongoose.Types.ObjectId(req.params.id),
+      req.body?.status
+    )
+    res.send(invitation)
+  }
+})
+
+export const updateInvitation = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const notify = await notifyService.updateInvitationById(new mongoose.Types.ObjectId(req.params.id), req.body)
+    res.send(notify)
+  }
+})
+
+export const updateManyInvitation = catchAsync(async (req: Request, res: Response) => {
+  const notify = await notifyService.updateManyInvitationByOptions(pick(req.query, ['to', 'seen']), req.body)
+  res.send(notify)
+})
+
+export const deleteInvitation = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    await notifyService.deleteNotifyById(new mongoose.Types.ObjectId(req.params.id))
+    res.status(httpStatus.NO_CONTENT).send()
+  }
+})

@@ -53,7 +53,7 @@ const messageRoomSchema = new mongoose.Schema<IMessageRoomDoc, IMessageRoomModel
         },
         default: {
           date: new Date(),
-          status: EStatus.PENDING,
+          status: EStatus.INPROGRESS,
           comment: '',
         },
       },

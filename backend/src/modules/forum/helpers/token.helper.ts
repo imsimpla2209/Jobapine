@@ -1,4 +1,4 @@
-import {sign, verify} from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken'
 
 export const generateJWToken = (payload: any, secret: any, expires: any) => {
   return sign(payload, secret, {

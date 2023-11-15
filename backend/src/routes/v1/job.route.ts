@@ -17,8 +17,8 @@ router.route('/search').get(validate(jobValidation.searchJob), jobController.sea
 router.route('/rcmd').get(validate(jobValidation.getRcmdJob), jobController.getRcmdJobs)
 router.route('/fav').get(validate(jobValidation.getRcmdJob), jobController.getFavJobsByUser)
 router.route('/similar').get(validate(jobValidation.getSimilarJobs), jobController.getSimilarJobs)
-router.route('/categories').get(jobController.getCategories)
-router.route('/skills').get(getSkills)
+router.route('/categories').get(validate(jobValidation.getSimilarJobs), jobController.getCategories)
+router.route('/skills').get(validate(jobValidation.getSimilarJobs), getSkills)
 
 router
   .route('/:id')

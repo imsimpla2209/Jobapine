@@ -1,3 +1,4 @@
+import { EStatus } from 'common/enums'
 import Joi from 'joi'
 import { objectId } from '../../providers/validate/custom.validation'
 import { NewCreatedMessage } from './message.interfaces'
@@ -35,6 +36,17 @@ export const getMessageRooms = {
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
   }),
+}
+
+export const updateStatus = {
+  params: Joi.object().keys({
+    id: Joi.required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+      status: Joi.string().valid(...Object.values(EStatus)),
+    })
+    .min(1),
 }
 
 export const getMessages = {

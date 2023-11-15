@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import { EInvitationType, EStatus } from 'common/enums'
 import { objectId } from '../../providers/validate/custom.validation'
 import { NewCreatedNotify } from './notify.interfaces'
 
@@ -10,25 +11,47 @@ const createNotifyBody: Record<keyof NewCreatedNotify, any> = {
   seen: Joi.boolean(),
 }
 
-export const createNotifyRoom = {
+export const createInvitation = {
   body: Joi.object().keys({
-    member: Joi.array().items(Joi.string()),
-    proposalStatusCatalog: Joi.array().items(Joi.string()),
-    proposal: Joi.string(),
+    to: Joi.string(),
+    content: Joi.any(),
+    type: Joi.string(),
+    seen: Joi.boolean(),
+    status: Joi.object().keys({
+      status: Joi.string()
+        .valid(...Object.values(EStatus))
+        .required(),
+      comment: Joi.string(),
+    }),
+    dueDate: Joi.number(),
+    isDeleted: Joi.boolean(),
     background: Joi.string(),
     image: Joi.string(),
     attachments: Joi.array().items(Joi.string()),
   }),
 }
 
+export const updateStatus = {
+  params: Joi.object().keys({
+    id: Joi.required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+      status: Joi.string().valid(...Object.values(EStatus)),
+    })
+    .min(1),
+}
+
 export const createNotify = {
   body: Joi.object().keys(createNotifyBody),
 }
 
-export const getNotifyRooms = {
+export const getInvitations = {
   query: Joi.object().keys({
     to: Joi.string(),
+    type: Joi.string().valid(...Object.values(EInvitationType)),
     seen: Joi.boolean(),
+    currentStatus: Joi.string().valid(...Object.values(EStatus)),
     content: Joi.string(),
     sortBy: Joi.string(),
     projectBy: Joi.string(),
@@ -72,7 +95,7 @@ export const updateNotify = {
 export const updateManyNotify = {
   query: Joi.object().keys({
     to: Joi.string().required(),
-    seen: Joi.string().required(),
+    seen: Joi.string(),
   }),
   body: Joi.object()
     .keys({

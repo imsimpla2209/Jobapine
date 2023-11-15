@@ -12,6 +12,42 @@ export const createMessageRoom = catchAsync(async (req: Request, res: Response) 
   res.status(httpStatus.CREATED).send(message)
 })
 
+export const createRequestMessage = catchAsync(async (req: Request, res: Response) => {
+  const message = await messageService.createRequestMessage(
+    req.body.from,
+    req.body.to,
+    req.body.proposal,
+    req.body?.text
+  )
+  res.status(httpStatus.CREATED).send(message)
+})
+
+export const acceptMessageRequest = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const message = await messageService.acceptMessageRequest(new mongoose.Types.ObjectId(req.params.id))
+    if (!message) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'MessageRoom not found')
+    }
+    res.send(message)
+  }
+})
+
+export const updateMessageRoomStatus = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const message = await messageService.changeStatusMessageRoomById(
+      new mongoose.Types.ObjectId(req.params.id),
+      req.body?.status,
+      req.body?.comment
+    )
+    res.send(message)
+  }
+})
+
+export const checkMessageRoom = catchAsync(async (req: Request, res: Response) => {
+  const message = await messageService.checkMessage(req.body)
+  res.send(message)
+})
+
 export const getMessageRooms = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['member', 'proposal'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])

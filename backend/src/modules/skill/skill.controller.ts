@@ -14,8 +14,8 @@ export const createSkill = catchAsync(async (req: Request, res: Response) => {
 
 export const getSkills = catchAsync(async (req: Request, res: Response) => {
   // const filter = pick(req.query, ['name', 'role'])
-  // const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
-  const result = await skillService.querySkills()
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const result = await skillService.querySkills(options)
   res.send(result)
 })
 

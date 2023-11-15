@@ -8,7 +8,7 @@ export const createProposal = (
   return instance.post('proposals', data)
 }
 
-export const acceptStatusProposal = (id: string, statusData: {
+export const updateStatusProposal = (id: string, statusData: {
   status: EStatus
   comment: string
 }) => {

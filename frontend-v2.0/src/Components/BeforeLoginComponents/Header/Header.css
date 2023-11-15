@@ -98,13 +98,13 @@
 }
 
 .second-nav-cn ul li a {
-  color: #222;
+  color: #efe0ff;
   font-size: 14px;
   margin-right: 22px;
 }
 
 .second-nav-cn ul li a:hover {
-  color: #5b14b8;
+  color: #bb7aff;
 }
 
 .login-btn-cn:hover {
