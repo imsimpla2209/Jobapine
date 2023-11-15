@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Form, Input, Space } from 'antd'
+import { Button, Col, Form, Input, InputNumber, Layout, Select, Space, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { DefaultUpload } from 'src/Components/CommonComponents/upload/upload'
 import SubmitProposalFixed from 'src/Components/FreelancerComponents/SubmitProposalFixed'
 import SubmitProposalHourly from 'src/Components/FreelancerComponents/SubmitProposalHourly'
@@ -11,6 +11,7 @@ import Progress from 'src/Components/SharedComponents/Progress'
 import { createContract } from 'src/api/contract-apis'
 import { getSkills } from 'src/api/job-apis'
 import { getProposal } from 'src/api/proposal-apis'
+import { defaultPaymenType } from 'src/utils/constants'
 import { EComplexityGet, EPaymenType } from 'src/utils/enum'
 import { randomDate } from 'src/utils/helperFuncs'
 
@@ -28,19 +29,24 @@ export default function CreateContract() {
 
   const [contract, setContract] = useState({
     overview: '',
-    jobPaymentType: '',
+    paymentType: '',
     agreeAmount: 0,
     startDate: '',
     endDate: '',
   })
 
   const [skills, setSkills] = useState([])
-
+  const navigate = useNavigate()
   useEffect(() => {
     getSkills().then(res => setSkills(res.data))
     getProposal(proposalID).then(res => {
       setJobData(res.data.job)
       setProposalData(res.data)
+      setContract({
+        ...contract,
+        agreeAmount: res.data?.expectedAmount || 0,
+        paymentType: res.data?.job?.payment?.type,
+      })
     })
   }, [proposalID])
 
@@ -48,12 +54,6 @@ export default function CreateContract() {
     const val = target.value
     const name = target.name
     switch (name) {
-      case 'jobPaymentType':
-        setContract({ ...contract, jobPaymentType: val })
-        break
-      case 'budget':
-        setContract({ ...contract, agreeAmount: parseInt(val) })
-        break
       case 'startDate':
         console.log(val)
         setContract({ ...contract, startDate: val })
@@ -65,7 +65,7 @@ export default function CreateContract() {
         break
     }
   }
-  console.log('proposalData', proposalData)
+
   const startContract = async () => {
     await createContract({
       proposal: proposalID,
@@ -78,6 +78,13 @@ export default function CreateContract() {
       paymentType: jobData.payment.type,
       agreeAmount: jobData.payment.amount,
     })
+      .then(res => {
+        if (res) {
+          message.success('Created contract successfully')
+          navigate('')
+        }
+      })
+      .catch(e => console.error(e))
   }
   const handlVal = e => {
     setContract({ ...contract, overview: e.target.value })
@@ -91,7 +98,7 @@ export default function CreateContract() {
   }
 
   const handlewithdrawProposal = async () => {}
-
+  console.log(contract)
   if (!proposalData) return <Loader />
 
   return (
@@ -180,61 +187,49 @@ export default function CreateContract() {
             </div>
           </div>
           <div className="row mt-5">
-            {/* <div className="col"> */}
             <div className="bg-white border" style={{ borderRadius: 16 }}>
               <h2 className="h4 border-bottom p-4">{t('Terms')}</h2>
-              <label className="text-center d-block mt-4">
-                Start date:
-                <input
-                  className="form2-control d-inline w-50 my-3 ms-2"
-                  type="date"
-                  name="startDate"
-                  value={contract.startDate}
-                  onInput={setDataContract}
-                />
-              </label>
-              <label className="text-center d-block mt-4">
-                End date:
-                <input
-                  className="form-control d-inline w-50 my-3 ms-2"
-                  type="date"
-                  name="endDate"
-                  value={contract.endDate}
-                  onInput={setDataContract}
-                />
-              </label>
-              <div className="ps-4 pt-2 d-flex flex-md-row flex-column">
-                {jobData?.payment?.type === EPaymenType.WHENDONE ? (
-                  <SubmitProposalFixed rate={rate} setrate={setrate} />
-                ) : (
-                  <SubmitProposalHourly rate={rate} setrate={setrate} currentValue={jobData?.payment?.amount} />
-                )}
+              <Form layout="horizontal" labelCol={{ span: 4 }} wrapperCol={{ span: 14 }} style={{ padding: 16 }}>
+                <Form.Item label="Start date:">
+                  <input
+                    className="form-control d-inline w-50 "
+                    type="date"
+                    name="startDate"
+                    value={contract.startDate}
+                    onInput={e => setContract({ ...contract, startDate: (e.target as any).value })}
+                  />
+                </Form.Item>
+                <Form.Item label="End date:">
+                  <input
+                    className="form-control d-inline w-50 "
+                    type="date"
+                    name="endDate"
+                    value={contract.endDate}
+                    onInput={e => setContract({ ...contract, endDate: (e.target as any).value })}
+                  />
+                </Form.Item>
 
-                <div className="w-25 m-3 ps-3 d-flex flex-column justify-content-center align-items-center">
-                  <svg width="120px" role="img" viewBox="0 0 145 130" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M72.5.5L16.8 17.6v61c0 5.6 1.4 11.2 4.2 16.1 6.1 10.8 20.3 27.5 51.5 34.8 31.2-7.2 45.4-24 51.5-34.8 2.8-4.9 4.2-10.5 4.2-16.1v-61L72.5.5z"
-                      fill="#6600cc"
-                    />
-                    <path
-                      d="M128.2 78.6v-61L72.5.5v129c31.2-7.2 45.4-24 51.5-34.8 2.8-4.9 4.2-10.4 4.2-16.1z"
-                      fill="#34ba08"
-                    />
-                    <path
-                      d="M75.9 75.9c2.8-.4 4.4-1.6 4.4-4 0-2-1.2-3.2-4.4-4.9l-6.1-1.6C61 62.9 56.5 59.7 56.5 52c0-6.9 5.3-11.3 13.3-12.5v-3.6h6.5v3.6c4.4.4 8.1 2 11.7 4.4l-4 7.3c-2.4-1.6-5.3-2.8-7.7-3.6 0 0-2-.8-6.1-.4-3.2.4-4.4 2-4.4 4s.8 3.2 4.4 4.4l6.1 1.6C86 59.6 90 63.7 90 70.5c0 6.9-5.3 11.7-13.3 12.5v4h-6.5v-4c-6.1-.4-11.3-2.4-15.4-5.7l4.9-7.3c3.2 2.4 6.5 4.4 10.1 5.3 4.1 1 6.1.6 6.1.6z"
-                      fill="#fff"
-                    />
-                  </svg>
-                  <p className="ms-5">
-                    Includes JobSickers Hourly Protection
-                    <a className="upw-c-cn" href="#">
-                      Learn more
-                    </a>
-                  </p>
-                </div>
-              </div>
+                <Form.Item label="Payment amount:">
+                  <InputNumber
+                    min={0}
+                    addonBefore={'$'}
+                    addonAfter={
+                      <Select
+                        defaultValue={contract?.paymentType || 'PerHour'}
+                        style={{ width: 120 }}
+                        onChange={val => {
+                          setContract({ ...contract, paymentType: val })
+                        }}
+                        options={defaultPaymenType}
+                      />
+                    }
+                    defaultValue={contract?.agreeAmount || 0}
+                    value={contract?.agreeAmount || 0}
+                    onChange={val => setContract({ ...contract, agreeAmount: val })}
+                  />
+                </Form.Item>
+              </Form>
             </div>
-            {/* </div> */}
           </div>
           <div className="row mt-5 pb-5">
             <div className="bg-white border" style={{ borderRadius: 16 }}>

@@ -89,6 +89,7 @@ export const queryProposals = async (filter: Record<string, any>, options: IOpti
 export const getProposalById = async (id: mongoose.Types.ObjectId): Promise<IProposalDoc | null> =>
   Proposal.findById(id).populate('job')
 
+
 /**
  * Get proposals by Job id
  * @param {mongoose.Types.ObjectId} job

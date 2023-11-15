@@ -15,6 +15,7 @@ import { useSubscription } from 'src/libs/global-state-hook'
 import img from '../../../assets/img/icon-user.svg'
 import Loader from './../../SharedComponents/Loader/Loader'
 import ReviewProposalsPageHeader from './../ReviewProposalsPageHeader'
+import { Button } from 'antd'
 
 export default function ReviewProposalsCard() {
   const {
@@ -36,7 +37,7 @@ export default function ReviewProposalsCard() {
       .then(res => setProposals(res.data.results))
       .finally(() => setLoading(false))
   }, [])
-
+  console.log('proposals', proposals)
   const sendMSG = async (freelancerID: string, proposalId: string) => {
     await createMessageRoom({ member: [freelancerID, clientID], proposal: proposalId })
     navigate(`/messages?proposalId=${proposalId}`)
@@ -86,11 +87,11 @@ export default function ReviewProposalsCard() {
                 <div className="row py-3">
                   <div className="col">
                     <span className="text-muted">Hourly Rate:</span>
-                    <span className="fw-bold"> {currentFreelancer?.expectedAmount} /hr</span>
+                    <span className="fw-bold"> ${currentFreelancer?.expectedAmount} /hr</span>
                   </div>
                   <div className="col">
                     <span className="text-muted">Earned: </span>
-                    <span className="fw-bold">{currentFreelancer?.earned}</span>
+                    <span className="fw-bold">${currentFreelancer?.earned}</span>
                   </div>
                 </div>
               </div>
@@ -106,26 +107,20 @@ export default function ReviewProposalsCard() {
                   </ul>
                 </div>
               </div>
-              <div className="col py-3">
-                <span
-                  className="btn bg-white btn-outline-secondary"
-                  onClick={() => sendMSG(currentFreelancer.user, proposal._id)}
-                >
-                  <span className="text-success fw-bold">Messages</span>
-                </span>
+
+              <div className="col py-3" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Button onClick={() => sendMSG(currentFreelancer.user, proposal._id)}>Messages</Button>
+                <Button type="primary" danger>
+                  Reject
+                </Button>
+                <Button type="primary">
+                  <Link to={`/create-contract/${proposal._id}?freelancerID=${currentFreelancer?._id}`}>Accept</Link>
+                </Button>
               </div>
-              <div className="col py-3">
-                <Link
-                  type="button"
-                  className="btn bg-jobsicker px-5"
-                  to={`/create-contract/${proposal._id}?freelancerID=${currentFreelancer?._id}`}
-                >
-                  Hire
-                </Link>
-              </div>
+
               <div className="col-lg-1 pt-lg-3"></div>
               <div className="col-lg-10 pt-lg-3 mx-3">
-                <p>
+                <div>
                   <span className="text-muted">Skills:</span>
                   <div className="d-flex justify-content-start">
                     {currentSkills?.map((skill, index) => (
@@ -134,17 +129,17 @@ export default function ReviewProposalsCard() {
                       </div>
                     ))}
                   </div>
-                </p>
+                </div>
                 <p>
-                  <span className="text-muted">Certificate:</span>
+                  <span className="text-muted">Certificate: </span>
                   <span className="fw-bold"> {currentFreelancer?.certificate}</span>
                 </p>
                 <p>
-                  <span className="text-muted">Proposed bid:</span>
-                  <span className="fw-bold"> {proposal?.expectedAmount}</span>
+                  <span className="text-muted">Expected wage: </span>
+                  <span className="fw-bold">${proposal?.expectedAmount}</span>
                 </p>
                 <p id="Cover-Letter">
-                  <span className="text-muted">Cover Letter - </span>
+                  <span className="text-muted">Cover Letter: </span>
                   <span className="fw-bold">{proposal.description}</span>
                 </p>
               </div>
