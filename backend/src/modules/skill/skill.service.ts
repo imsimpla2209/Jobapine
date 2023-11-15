@@ -1,9 +1,9 @@
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
-import Skill from './skill.model'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
-import { UpdateSkillBody, ISkillDoc, NewCreatedSkill } from './skill.interfaces'
+import { ISkillDoc, NewCreatedSkill, UpdateSkillBody } from './skill.interfaces'
+import Skill from './skill.model'
 
 /**
  * Register a skill
@@ -23,8 +23,10 @@ export const createSkill = async (skillBody: NewCreatedSkill): Promise<ISkillDoc
  * @param {Object} options - Query options
  * @returns {Promise<QueryResult>}
  */
-export const querySkills = async (): Promise<ISkillDoc[]> => {
-  const skills = await Skill.find().lean()
+export const querySkills = async (options: IOptions): Promise<ISkillDoc[]> => {
+  const skills = await Skill.find()
+    .limit(options?.limit || 10000)
+    .lean()
   return skills
 }
 

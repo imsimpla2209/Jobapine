@@ -2,7 +2,11 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { io } from '@core/libs/SocketIO'
-import { ESocketEvent } from 'common/enums'
+import { createInvitation, createNotify, updateInvitationStatusById } from '@modules/notify/notify.service'
+import { getProposalById, updateProposalStatusById } from '@modules/proposal/proposal.service'
+import { getUserById } from '@modules/user/user.service'
+import { EInvitationType, ESocketEvent, EStatus } from 'common/enums'
+import { FEMessage, FERoutes } from 'common/enums/constant'
 import logger from 'common/logger/logger'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
@@ -99,6 +103,95 @@ export const updateMessageRoomById = async (
   return message
 }
 
+export const createRequestMessage = async (from: any, to: any, proposalId?: any, text?: any) => {
+  try {
+    const fromUser = await getUserById(new mongoose.Types.ObjectId(from))
+    const toUser = await getUserById(new mongoose.Types.ObjectId(to))
+    let proposal
+    if (!fromUser || !toUser) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'From or To user not found')
+    }
+    if (proposalId) {
+      proposal = await getProposalById(new mongoose.Types.ObjectId(proposalId))
+      if (!proposal) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
+      }
+    }
+    const request = await createInvitation({
+      to: toUser?._id,
+      type: EInvitationType.MESSAGE,
+      content: {
+        content: FEMessage(fromUser?.name ?? fromUser.username).requestMessage,
+        letter: text,
+        jobId: proposal?.job,
+        from: fromUser?._id,
+        proposal: proposalId,
+      },
+    })
+    createNotify({
+      to: toUser,
+      path: `${FERoutes.allInvitation}`,
+      content: FEMessage(fromUser?.name ?? fromUser.username).requestMessage,
+    })
+    return request
+  } catch (err) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot create request')
+  }
+}
+
+export const acceptMessageRequest = async (invitationId?: any) => {
+  try {
+    const invitation = await updateInvitationStatusById(
+      new mongoose.Types.ObjectId(invitationId),
+      EStatus.ACCEPTED,
+      'Accepted'
+    )
+    const messageRoom = await createMessageRoom({
+      member: [invitation?.content?.from, invitation?.content?.to],
+      proposal: invitation?.content?.proposal,
+    })
+    if (invitation?.content?.proposal) {
+      updateProposalStatusById(invitation?.content?.proposal, EStatus.INPROGRESS, 'Message Request is Accepted')
+    }
+    createNotify({
+      to: invitation?.content?.from,
+      path: `${FERoutes.allMessages}?proposalId=${invitation?.content?.proposal}`,
+      content: FEMessage().acceptRequest,
+    })
+    return messageRoom
+  } catch (err) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot create request')
+  }
+}
+
+export const checkMessage = async (member: any[], proposalId?: any) => {
+  if (member?.length < 2) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot check msg')
+  }
+  const msgRoom = await getMessageRoomByOptions({
+    $and: [
+      { member: { $all: member.map(m => new mongoose.Types.ObjectId(m)) } },
+      { proposal: new mongoose.Types.ObjectId(proposalId) },
+    ],
+  })
+  if (!msgRoom) {
+    const fromUser = await getUserById(new mongoose.Types.ObjectId(member[0]))
+    const toUser = await getUserById(new mongoose.Types.ObjectId(member[1]))
+    if (!fromUser || !toUser) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'From or To user not found')
+    }
+    const invi = await createRequestMessage(
+      new mongoose.Types.ObjectId(member[0]),
+      new mongoose.Types.ObjectId(member[1]),
+      new mongoose.Types.ObjectId(proposalId),
+      'Request create message'
+    )
+    return { item: invi, exist: false }
+  }
+
+  return { item: msgRoom, exist: true }
+}
+
 /**
  * Delete message by id
  * @param {mongoose.Types.ObjectId} messageId
@@ -150,6 +243,30 @@ export const queryMessages = async (filter: Record<string, any>, options: IOptio
 
   const messages = await Message.paginate(queryFilter, options)
   return messages
+}
+
+/**
+ * Change status job by id
+ * @param {mongoose.Types.ObjectId} messageRoomId
+ * @param {string} status
+ * @returns {Promise<IMessageRoomDoc | null>}
+ */
+export const changeStatusMessageRoomById = async (
+  messageRoomId: mongoose.Types.ObjectId,
+  status: string,
+  comment: string
+): Promise<IMessageRoomDoc | null> => {
+  const messageRoom = await MessageRoom.findByIdAndUpdate(messageRoomId, {
+    status: {
+      status,
+      date: new Date(),
+      comment: comment || '',
+    },
+  })
+  if (!messageRoom) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'MessageRoom not found')
+  }
+  return messageRoom
 }
 
 /**

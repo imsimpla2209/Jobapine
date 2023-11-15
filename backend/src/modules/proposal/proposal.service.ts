@@ -43,7 +43,7 @@ export const createProposal = async (
     createNotify({
       to: jobInfo?.client?.user,
       path: FERoutes.allProposals + (jobInfo?._id || ''),
-      content: FEMessage.createProposal,
+      content: FEMessage().createProposal,
     })
     return newProposal
   } catch (err: any) {

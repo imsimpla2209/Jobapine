@@ -13,7 +13,7 @@ router
 router
   .route('/status/:id')
   .patch(auth(), validate(contractValidation.updateContractStatus), contractController.updateContractStatus)
-router.route('/accept/:id').post(auth(), validate(contractValidation.getContract), contractController.acceptContract)
+router.route('/accept/:id').post(auth(), validate(contractValidation.acceptContract), contractController.acceptContract)
 
 router
   .route('/:id')

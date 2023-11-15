@@ -73,7 +73,7 @@ export default function FreelancerRoutes() {
         <div>
           <Routes>
             <Route path="/create-profile" element={<CreateProfile />} />
-            <Route path="/find-work" element={<AllJobPosts />} />
+            <Route path="/find-work" element={<HomeFreelancer />} />
             <Route path="/" element={<HomeFreelancer />} />
             <Route path="/Search/:searchValue" element={<Search />} />
             <Route path="/Search" element={<Search />} />
@@ -93,7 +93,7 @@ export default function FreelancerRoutes() {
             <Route path="/my-stats" element={<MyStats />} />
             <Route path="/my-jobs" element={<MyJobs />} />
             <Route path="/all-contract" element={<AllContracts />} />
-            <Route path="/offers" element={<Offers />} />
+            <Route path="/invitations" element={<Offers />} />
             <Route path="/overview" element={<OverviewReports />} />
             <Route path="/my-reports" element={<Reports />} />
             <Route path="/life-time-billing" element={<BillingByClients />} />

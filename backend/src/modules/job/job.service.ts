@@ -291,13 +291,23 @@ export const getJobByOptions = async (Options: any): Promise<IJobDoc | null> =>
     .lean()
 
 /**
+ * Get job by option
+ * @param {object} options
+ * @returns {Promise<IJobDoc | null>}
+ */
+export const getJobsByOptions = async (Options: any): Promise<IJobDoc[] | null> =>
+  Job.find({ ...Options, isDeleted: { $ne: true } })
+    .populate(['client', 'categories', 'reqSkills.skill', 'proposals'])
+    .lean()
+
+/**
  * manually get similar jobs based on job input(low level vcl)
  * @param {mongoose.Types.ObjectId} jobId
  * @param {Object} options
  * @returns {Promise<QueryResult>}
  */
 export const getSimilarJobs = async (jobId: mongoose.Types.ObjectId, options: IOptions): Promise<QueryResult> => {
-  const job = await Job.findById(jobId)
+  const job = await Job.findById(jobId).lean()
 
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not found job')

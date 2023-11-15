@@ -134,6 +134,8 @@ export const getAllJobs = catchAsync(async (req: Request, res: Response) => {
 // ================================Categories Controller================================= //
 
 export const getCategories = catchAsync(async (req: Request, res: Response) => {
-  const result = await categoryService.getAll()
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  console.log('first', options?.limit)
+  const result = await categoryService.getAll(options?.limit)
   res.send(result)
 })

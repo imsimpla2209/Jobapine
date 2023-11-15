@@ -1,10 +1,10 @@
 import { getClientById } from '@modules/client/client.service'
-import { addJobtoFreelancer, getFreelancerById } from '@modules/freelancer/freelancer.service'
+import { addJobtoFreelancer, getFreelancerById, updateSimilarById } from '@modules/freelancer/freelancer.service'
 import { IJobDoc } from '@modules/job/job.interfaces'
 import { getJobById } from '@modules/job/job.service'
-import { createNotify } from '@modules/notify/notify.service'
+import { createInvitation, createNotify, updateInvitationStatusById } from '@modules/notify/notify.service'
 import { updateProposalStatusById } from '@modules/proposal/proposal.service'
-import { EJobStatus, EPaymenType, EStatus } from 'common/enums'
+import { EInvitationType, EJobStatus, EPaymenType, EStatus } from 'common/enums'
 import { FEMessage, FERoutes } from 'common/enums/constant'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
@@ -92,9 +92,13 @@ export const createContract = async (contractBody: NewCreatedContract, isAgree?:
 
   createNotify({
     to: freelancer?.user,
-    path: isAgree ? FERoutes.myJobs : `${FERoutes.allProposals}jobInfo?._id`,
-    content: isAgree ? FEMessage.gotJob : FEMessage.createContract,
+    path: isAgree ? FERoutes.myJobs : `${FERoutes.allProposals}${job?._id}`,
+    content: isAgree ? FEMessage().gotJob : FEMessage().createContract,
   })
+
+  if (contractBody?.proposal) {
+    updateProposalStatusById(contractBody?.proposal, EStatus.ACCEPTED, 'Accepted by Client')
+  }
 
   if (isAgree) {
     addJobtoFreelancer(job._id, freelancer?._id, client?._id)
@@ -111,8 +115,20 @@ export const createContract = async (contractBody: NewCreatedContract, isAgree?:
     }
     return createdContract
   }
-
-  return Contract.create(contractBody)
+  const createdCX = await Contract.create(contractBody)
+  createInvitation({
+    to: freelancer?.user,
+    type: EInvitationType?.CONTRACT,
+    content: {
+      content: FEMessage().createContract,
+      contractID: createdCX?._id,
+      job,
+      from: client,
+      proposal: contractBody?.proposal,
+    },
+  })
+  updateSimilarById(freelancer._id)
+  return createdCX
 }
 
 /**
@@ -157,9 +173,13 @@ export const changeStatusContractById = async (
 /**
  * create a contract
  * @param {mongoose.Types.ObjectId} contractId
+ * @param {mongoose.Types.ObjectId} invitationId
  * @returns {Promise<IContractDoc>}
  */
-export const acceptContract = async (contractId: mongoose.Types.ObjectId): Promise<IContractDoc> => {
+export const acceptContract = async (
+  contractId: mongoose.Types.ObjectId,
+  invitationId: mongoose.Types.ObjectId
+): Promise<IContractDoc> => {
   const contract = await getContractById(contractId)
   if (!contract) {
     throw new ApiError(httpStatus.NOT_FOUND, 'contract not found')
@@ -178,7 +198,11 @@ export const acceptContract = async (contractId: mongoose.Types.ObjectId): Promi
 
   if (acceptedContracts >= job?.preferences?.nOEmployee) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not in recruiment anymore')
-  } else if ((job?.preferences?.nOEmployee ?? 1) - 1 === acceptedContracts) {
+  }
+
+  await updateInvitationStatusById(invitationId, EStatus.ACCEPTED, 'Accepted by User')
+
+  if ((job?.preferences?.nOEmployee ?? 1) - 1 === acceptedContracts) {
     closeAllContract(contractId, job._id)
   }
 
@@ -187,9 +211,10 @@ export const acceptContract = async (contractId: mongoose.Types.ObjectId): Promi
   createNotify({
     to: job?.client?.user,
     path: `${FERoutes.allContract}`,
-    content: FEMessage.acceptContract,
+    content: FEMessage().acceptContract,
   })
 
+  updateSimilarById(contract?.freelancer)
   return acceptedContract
 }
 

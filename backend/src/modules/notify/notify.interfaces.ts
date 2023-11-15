@@ -14,6 +14,26 @@ export interface INotify {
   isDeleted?: boolean
 }
 
+export interface IInvitation {
+  to: IUserDoc['_id']
+  content?: any
+  type?: string
+  image?: string
+  background?: string
+  seen?: boolean
+  status?: [
+    {
+      status: EStatus
+      date: Date
+      comment: string
+    }
+  ]
+  dueDate?: any
+  isDeleted?: boolean
+  currentStatus?: string
+  attachments?: string[]
+}
+
 export interface INotifyRoom {
   proposalStatusCatalog?: string[]
   members?: IUserDoc['_id'][]
@@ -26,6 +46,11 @@ export interface INotifyRoom {
 
 export interface INotifyDoc extends INotify, Document {}
 export interface INotifyRoomDoc extends INotifyRoom, Document {}
+export interface IInvitationDoc extends IInvitation, Document {}
+
+export interface IInvitationModel extends Model<IInvitationDoc> {
+  paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>
+}
 
 export interface INotifyRoomModel extends Model<INotifyRoomDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>

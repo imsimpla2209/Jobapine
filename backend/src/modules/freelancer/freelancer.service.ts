@@ -1,16 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-useless-computed-key */
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import queryGen from '@core/libs/queryGennerator'
 import { JobCategory, JobTag } from '@modules/job/job.model'
-import { addApplytoJobById, getJobById } from '@modules/job/job.service'
+import { addApplytoJobById, getJobById, getJobsByOptions } from '@modules/job/job.service'
 import { Skill } from '@modules/skill'
 import { IReview } from 'common/interfaces/subInterfaces'
 import httpStatus from 'http-status'
 import keywordExtractor from 'keyword-extractor'
 import { union } from 'lodash'
 import mongoose from 'mongoose'
+import { IJobDoc } from '@modules/job/job.interfaces'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import {
@@ -302,13 +304,48 @@ export const addProposaltoFreelancerById = async (
   }
 }
 
+export const updateSimilarData = (
+  freelancerJobs?: IJobDoc[],
+  foundCats?: any[],
+  foundSkills?: any[],
+  preferLocation?: any[],
+  newDescription?: string
+) => {
+  if (freelancerJobs) {
+    freelancerJobs.forEach(j => {
+      j?.categories?.forEach(c => {
+        if (!foundCats?.includes(c?._id)) {
+          foundCats.push(c?._id)
+        }
+      })
+      j?.reqSkills?.forEach(c => {
+        if (!foundSkills?.includes(c?.skill?._id)) {
+          foundCats.push(c?.skill?._id)
+        }
+      })
+      j?.preferences?.locations?.forEach(l => {
+        if (!preferLocation?.includes(l)) {
+          preferLocation?.push(l)
+        }
+      })
+      newDescription += `${j?.description} ${j?.title}`
+    })
+  }
+}
+
 /**
  * update similar info for freelancer by id
- * @param {mongoose.Types.ObjectId} userId
+ * @param {mongoose.Types.ObjectId} freelancerId
  * @returns {Promise<IFreelancerDoc | null>}
  */
-export const updateSimilarById = async (userId: mongoose.Types.ObjectId): Promise<any | null> => {
-  const freelancer = await getFreelancerById(userId)
+export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): Promise<any | null> => {
+  const freelancer = await Freelancer.findById(freelancerId)
+    .populate(['favoriteJobs', 'proposals'])
+    .populate({
+      path: 'relevantClients',
+      populate: { path: 'jobs' },
+    })
+    .lean()
 
   if (!freelancer) {
     throw new Error('Freelancer not found')
@@ -327,6 +364,8 @@ export const updateSimilarById = async (userId: mongoose.Types.ObjectId): Promis
     keyWords = keyWords.map(k => `.*${k}.*`).join('|')
     keyWords = new RegExp(keyWords, 'i')
   }
+
+  let newDescription
 
   let foundCats = await JobCategory.find({ name: { $regex: `${keyWords}`, $options: 'si' } })
   let foundSkills = (await Skill.find({ name: { $regex: `${keyWords}`, $options: 'si' } })) || []
@@ -350,11 +389,56 @@ export const updateSimilarById = async (userId: mongoose.Types.ObjectId): Promis
     [].concat(...extraSimilarSkills)?.map(sk => sk._id)
   )
 
+  const preferLocation = freelancer?.currentLocations || []
+
+  if (freelancer?.jobs?.length) {
+    const freelancerJobs = await getJobsByOptions({ appliedFreelancers: { $in: freelancer?._id } })
+    updateSimilarData(freelancerJobs, foundCats, foundSkills, newDescription)
+  }
+  if (freelancer?.proposals?.length) {
+    const freelancerJobs = await getJobsByOptions({
+      appliedFreelancers: { $in: freelancer?.proposals?.map(p => p.job) },
+    })
+    updateSimilarData(freelancerJobs, foundCats, foundSkills, newDescription)
+  }
+  if (freelancer?.favoriteJobs) {
+    updateSimilarData(freelancer?.favoriteJobs, foundCats, foundSkills, newDescription)
+  }
+  if (freelancer?.relevantClients) {
+    const freelancerJobs = await getJobsByOptions({ client: { $in: freelancer?.relevantClients?.map(c => c?._id) } })
+    updateSimilarData(freelancerJobs, foundCats, foundSkills, newDescription)
+    freelancer?.relevantClients?.forEach(e => {
+      e?.preferJobType?.forEach(c => {
+        if (!foundCats?.includes(c)) {
+          foundCats.push(c)
+        }
+      })
+      updateSimilarData(e?.jobs, foundCats, foundSkills, newDescription)
+
+      e?.preferLocations?.forEach(l => {
+        if (!preferLocation?.includes(l)) {
+          preferLocation?.push(l)
+        }
+      })
+      newDescription += `${e?.intro}`
+    })
+  }
+
+  keyWords = keywordExtractor.extract(`${freelancer?.intro} ${newDescription}`, {
+    language: 'english',
+    remove_digits: true,
+    return_changed_case: true,
+    remove_duplicates: true,
+  })
+
+  keyWords = keyWords.map(k => `.*${k}.*`).join('|')
+  keyWords = new RegExp(keyWords, 'i')
+
   const similarDoc = new SimilarFreelancer({
     freelancer: freelancer._id,
     similarKeys: keyWords || '',
     similarJobCats: foundCats || [],
-    similarLocations: freelancer?.currentLocations || [],
+    similarLocations: preferLocation,
     similarSkills: foundSkills || [],
     similarTags: foundTags || [],
     similarClients: [],

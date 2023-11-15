@@ -8,6 +8,7 @@ export enum EStatus {
   CANCELLED = 'cancelled',
   PAID = 'paid',
   LATE = 'late',
+  ARCHIVE = 'archive',
 }
 
 export enum EJobStatus {

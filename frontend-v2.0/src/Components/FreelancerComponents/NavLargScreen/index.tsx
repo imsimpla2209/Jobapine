@@ -13,7 +13,7 @@ import { getNotifies } from "src/api/message-api";
 import { useSubscription } from "src/libs/global-state-hook";
 import { useSocket } from "src/socket.io";
 import { ESocketEvent } from "src/utils/enum";
-import { timeAgo } from "src/utils/helperFuncs";
+import { pickName, timeAgo } from "src/utils/helperFuncs";
 import img from "../../../assets/img/icon-user.svg";
 import LanguageList from "../../SharedComponents/LanguageBtn/LanguageList";
 
@@ -116,7 +116,7 @@ export default function NavLargScreen() {
     return notifies?.map((s, ix) => {
       return {
         label: <div className="row" style={{ width: 400 }}>
-          <Link className="col-8 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{s?.content}</Link>
+          <Link className="col-8 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)}</Link>
           <p className="col-4">{timeAgo(s?.createdAt, t)}</p>
         </div>,
         key: ix,
@@ -131,8 +131,7 @@ export default function NavLargScreen() {
   }
 
   return (
-    <>
-      <div className="navbar-expand" id="navbarNav-id">
+    <div className="navbar-expand" id="navbarNav-id">
         <ul className="navbar-nav align-items-center">
           <li className="nav-item hov-cn ">
             <NavLink
@@ -200,7 +199,7 @@ export default function NavLargScreen() {
               </li>
               <li>
                 <Link className={`dropdown-item  `} to="/offers">
-                  {t("Offers")}
+                  {t("Invitations")}
                 </Link>
               </li>
             </ul>
@@ -385,6 +384,5 @@ export default function NavLargScreen() {
           </li>
         </ul>
       </div>
-    </>
   );
 }

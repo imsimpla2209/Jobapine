@@ -44,6 +44,15 @@ export const getContract = {
   }),
 }
 
+export const acceptContract = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
+  query: Joi.object().keys({
+    invitationId: Joi.string(),
+  }),
+}
+
 export const updateContract = {
   params: Joi.object().keys({
     id: Joi.required().custom(objectId),

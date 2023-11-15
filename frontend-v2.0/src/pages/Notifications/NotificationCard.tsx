@@ -2,20 +2,15 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import img from "../../assets/img/icon-user.svg";
 import { useTranslation } from 'react-i18next';
-import { timeAgo } from 'src/utils/helperFuncs';
+import { pickName, timeAgo } from 'src/utils/helperFuncs';
+import { Button, Popconfirm } from 'antd';
+import { DeleteFilled, QuestionCircleOutlined } from '@ant-design/icons';
 // import { auth, db } from '../../firebase';
 
 
-export default function NotificationCard({ notification, collectionName, getNotifications }) {
-	const { t } = useTranslation(['main'])
-
-	const remove = () => {
-		// db.collection(collectionName)
-		//     .doc(auth.currentUser.uid)
-		//     .collection("notification")
-		//     .doc(docID)
-		//     .delete().then(res => getNotifications())
-	}
+export default function NotificationCard({ notification, collectionName, getNotifications, remove }) {
+	const { t, i18n } = useTranslation(['main'])
+	const lang = i18n.language
 
 	const updateShow = () => {
 		// db.collection(collectionName)
@@ -37,11 +32,18 @@ export default function NotificationCard({ notification, collectionName, getNoti
 				onClick={updateShow}
 			>
 				<p className="col-5">
-					{notification?.content}
+					{pickName(notification?.content, lang)}
 				</p>
 			</Link>
 			<div className="col-1" style={{ cursor: "pointer" }} onClick={remove}>
-				<i className="fas fa-times text-danger fs-4"></i>
+				<Popconfirm
+					title="Delete this notification"
+					description="Are you sure?"
+					onConfirm={() => remove(notification?._id)}
+					icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+				>
+					<Button icon={<DeleteFilled />} danger></Button>
+				</Popconfirm>
 			</div>
 		</div>
 	)

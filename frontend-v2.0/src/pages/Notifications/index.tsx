@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/anchor-has-content */
 import { useEffect, useState } from "react"
 import NotificationCard from "./NotificationCard";
-import { getNotifies } from "src/api/message-api";
+import { deleteNotify, getNotifies, updateNotifies } from "src/api/message-api";
 import { useSubscription } from "src/libs/global-state-hook";
 import { userStore } from "src/Store/user.store";
 import { useTranslation } from "react-i18next";
@@ -17,6 +17,10 @@ export default function Notifications() {
   const [unSeen, setUnSeen] = useState([]);
 	
 	useEffect(() => {
+		updateNotifies((user?._id || user?.id), { seen: true })
+	}, [])
+	
+	useEffect(() => {
     getNotifications()
   }, [])
 
@@ -25,6 +29,11 @@ export default function Notifications() {
       setNotifies(res.data.results)
       setUnSeen(res.data.results?.filter(n => !n?.seen) || [])
     })
+	}
+
+	const removeNotify = (id: string) => {
+		deleteNotify(id)
+		setNotifies(notifies?.filter(n => n?._id !== id))
 	}
 
 
@@ -45,6 +54,7 @@ export default function Notifications() {
 								collectionName={collectionName}
 								getNotifications={getNotifications}
 								key={index}
+								remove={removeNotify}
 							/>
 						)
 						:

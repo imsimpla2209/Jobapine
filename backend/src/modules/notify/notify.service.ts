@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import Carbon from '@core/libs/Carbon'
 import { io } from '@core/libs/SocketIO'
-import { ESocketEvent } from 'common/enums'
+import { ESocketEvent, EStatus } from 'common/enums'
 import { logger } from 'common/logger'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
-import { INotifyDoc, NewCreatedNotify, UpdateNotifyBody } from './notify.interfaces'
-import Notify from './notify.model'
+import { IInvitation, IInvitationDoc, INotifyDoc, NewCreatedNotify, UpdateNotifyBody } from './notify.interfaces'
+import Notify, { Invitation } from './notify.model'
 
 /**
  * Register a notify
@@ -135,4 +136,181 @@ export const deleteNotifyById = async (notifyId: mongoose.Types.ObjectId): Promi
   }
   await notify.deleteOne()
   return notify
+}
+
+// <----- Invitation ----->
+
+/**
+ * Create a invitation
+ * @param {NewCreatedInvitation} invitationBody
+ * @returns {Promise<IInvitationDoc>}
+ */
+export const createInvitation = async (invitationBody: IInvitation): Promise<IInvitationDoc> => {
+  // if (await Invitation.isUserSigned(invitationBody.user)) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Invitation')
+  // }
+  // if (io.onlineUsers[invitationBody?.to]) {
+  //   logger.info(`Send invitation to user: ${invitationBody?.to}`)
+  //   io.onlineUsers[invitationBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, invitationBody)
+  //   // .to(io.onlineUsers[invitationBody?.to]?.socketId)
+  // }
+  if (!invitationBody?.dueDate) {
+    const inThirtyDays = Carbon.moment().add('days', 30).millisecond()
+    invitationBody['dueDate'] = inThirtyDays
+  }
+  return Invitation.create(invitationBody)
+}
+
+/**
+ * Query for invitations
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @returns {Promise<QueryResult>}
+ */
+export const queryInvitations = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
+  filter['to'] && (filter['to'] = { to: `${filter['to']}` })
+  filter['seen'] && (filter['seen'] = { seen: `${filter['seen']}` })
+  filter['currentStatus'] && (filter['currentStatus'] = { currentStatus: `${filter['currentStatus']}` })
+  filter['type'] && (filter['type'] = { type: `${filter['type']}` })
+
+  const filterExtract = Object.keys(filter).map(f => filter[f])
+  const queryFilter = {
+    $and: [...filterExtract, { isDeleted: { $ne: true } }],
+  }
+
+  // options.populate = 'proposal,members'
+  if (!options.projectBy) {
+    options.projectBy = 'to, path, seen, isDeleted, content, image, createdAt,'
+  }
+
+  if (!options.sortBy) {
+    options.sortBy = 'createdAt:desc'
+  }
+
+  if (!options.limit) {
+    options.limit = 20
+  }
+
+  const invitations = await Invitation.paginate(queryFilter, options)
+  const now = Carbon.moment()
+
+  invitations.results = invitations?.results?.map((i: any) => {
+    if (i?.dueDate >= now) {
+      Object.assign(i, {
+        status: {
+          status: EStatus.LATE,
+          comment: 'Invitation is expired',
+          date: new Date(),
+        },
+      })
+      i.save()
+      return i
+    }
+    return i
+  })
+  return invitations
+}
+
+/**
+ * Get invitation by id
+ * @param {mongoose.Types.ObjectId} id
+ * @returns {Promise<IInvitationDoc | null>}
+ */
+export const getInvitationById = async (id: mongoose.Types.ObjectId): Promise<IInvitationDoc | null> =>
+  Invitation.findById(id)
+
+/**
+ * Get invitation by option
+ * @param {object} options
+ * @returns {Promise<IInvitationDoc | null>}
+ */
+export const getInvitationByOptions = async (Options: any): Promise<IInvitationDoc | null> =>
+  Invitation.findOne(Options)
+
+/**
+ * Update invitation by id
+ * @param {mongoose.Types.ObjectId} invitationId
+ * @param {UpdateInvitationBody} updateBody
+ * @returns {Promise<IInvitationDoc | null>}
+ */
+export const updateInvitationById = async (
+  invitationId: mongoose.Types.ObjectId,
+  updateBody: IInvitation
+): Promise<IInvitationDoc | null> => {
+  const invitation = await getInvitationById(invitationId)
+  if (!invitation) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Invitation not found')
+  }
+  Object.assign(invitation, updateBody)
+  await invitation.save()
+  return invitation
+}
+
+/**
+ * Delete invitation by id
+ * @param {mongoose.Types.ObjectId} invitationId
+ * @param {string} status
+ * @param {string} comment
+ * @returns {Promise<IInvitationDoc | null>}
+ */
+export const updateInvitationStatusById = async (
+  invitationId: mongoose.Types.ObjectId,
+  status: string,
+  comment?: string
+): Promise<IInvitationDoc | null> => {
+  const invitation = await getInvitationById(invitationId)
+  if (!invitation) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Invitation not found')
+  }
+
+  const now = Carbon.moment()
+  if (invitation.dueDate >= now) {
+    Object.assign(invitation, {
+      status: {
+        status: EStatus.LATE,
+        comment: 'Invitation is expired',
+        date: new Date(),
+      },
+    })
+    await invitation.save()
+    throw new ApiError(httpStatus.NOT_FOUND, 'Invitation is Expired')
+  }
+  Object.assign(invitation, {
+    status: {
+      status,
+      comment,
+      date: new Date(),
+    },
+  })
+  await invitation.save()
+  return invitation
+}
+
+/**
+ * Update many invitation by options
+ * @param {any} options
+ * @param {UpdateInvitationBody} updateBody
+ * @returns {Promise<any | null>}
+ */
+export const updateManyInvitationByOptions = async (options: any, updateBody: IInvitation): Promise<any | null> => {
+  try {
+    const invitation = await Invitation.updateMany(options, updateBody)
+    return invitation
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Cannot update these notifies')
+  }
+}
+
+/**
+ * Delete invitation by id
+ * @param {mongoose.Types.ObjectId} invitationId
+ * @returns {Promise<IInvitationDoc | null>}
+ */
+export const deleteInvitationById = async (invitationId: mongoose.Types.ObjectId): Promise<IInvitationDoc | null> => {
+  const invitation = await getInvitationById(invitationId)
+  if (!invitation) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Invitation not found')
+  }
+  await invitation.deleteOne()
+  return invitation
 }
