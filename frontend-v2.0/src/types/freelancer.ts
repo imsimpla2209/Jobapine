@@ -1,18 +1,18 @@
 export interface SkillBody {
-  skill: string;
-  level: number;
+  skill: string
+  level: number
 }
 
 export interface NewRegisteredFreelancer {
-  user: string;
-  name: string;
-  intro?: string;
-  skills?: SkillBody[];
-  certificate?: string;
-  images?: string[];
-  preferJobType?: string[];
-  currentLocations?: string[];
-  preferencesURL?: string[];
+  user: string
+  name: string
+  intro?: string
+  skills?: SkillBody[]
+  certificate?: string
+  images?: string[]
+  preferJobType?: string[]
+  currentLocations?: string[]
+  preferencesURL?: string[]
 }
 
 export interface IFreelancer {
@@ -38,52 +38,52 @@ export interface IFreelancer {
 }
 
 export interface UpdateFreelancer {
-  name?: string;
-  intro?: string;
-  skills?: SkillBody[];
-  certificate?: string;
-  images?: string[];
-  preferJobType?: string[];
-  currentLocations?: string[];
-  preferencesURL?: string[];
-  available?: boolean;
-  favoriteJobs?: any[];
+  name?: string
+  intro?: string
+  skills?: SkillBody[]
+  certificate?: string
+  images?: string[]
+  preferJobType?: string[]
+  currentLocations?: string[]
+  preferencesURL?: string[]
+  available?: boolean
+  favoriteJobs?: any[]
 }
 
 export interface QueryParams {
-  name?: string;
-  skills?: SkillBody[];
-  preferJobType?: string[];
-  currentLocations?: string[];
-  sortBy?: string;
-  projectBy?: string;
-  limit?: number;
-  page?: number;
+  name?: string
+  skills?: SkillBody[]
+  preferJobType?: string[]
+  currentLocations?: string[]
+  sortBy?: string
+  projectBy?: string
+  limit?: number
+  page?: number
 }
 
 export interface filterFreelancersBody {
-  name?: string;
-  intro?: string;
-  skills?: SkillBody[];
-  preferJobType?: string[];
-  currentLocations?: string[];
-  'jobsDone.number'?: number;
-  'jobsDone.success'?: number;
-  earned?: number;
-  rating?: number;
-  available?: boolean;
+  name?: string
+  intro?: string
+  skills?: SkillBody[]
+  preferJobType?: string[]
+  currentLocations?: string[]
+  'jobsDone.number'?: number
+  'jobsDone.success'?: number
+  earned?: { from: number; to: number }
+  rating?: number
+  available?: boolean
 }
 
 export interface filterFreelancersQuery {
-  sortBy?: string;
-  projectBy?: string;
-  limit?: number;
-  page?: number;
+  sortBy?: string
+  projectBy?: string
+  limit?: number
+  page?: number
 }
 
 export interface IReview {
-  creator: string;
-  content: string;
-  rating?: number;
-  isAnonymous?: boolean;
+  creator: string
+  content: string
+  rating?: number
+  isAnonymous?: boolean
 }

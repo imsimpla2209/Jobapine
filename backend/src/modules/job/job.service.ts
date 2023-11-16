@@ -57,7 +57,7 @@ export const queryJobs = async (filter: Record<string, any>, options: IOptions):
   if (!options.projectBy) {
     options.populate = 'client,categories,reqSkills.skill'
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, locations, complexity, payment, budget, createdAt, proposals, nOEmployee, preferences'
   }
   const jobs = await Job.paginate(queryFilter, options)
   return jobs

@@ -4,10 +4,7 @@ import Joi from 'joi'
 import { objectId } from '../../providers/validate/custom.validation'
 import { NewRegisteredFreelancer } from './freelancer.interfaces'
 
-const skillBody = Joi.object({
-  skill: Joi.string(),
-  level: Joi.number().positive(),
-})
+const skillBody = Joi.string()
 
 const createFreelancerBody: Record<keyof NewRegisteredFreelancer, any> = {
   user: Joi.string().required(),
@@ -47,8 +44,8 @@ export const getAdvancedFreelancers = {
     currentLocations: Joi.array().items(Joi.string()),
     ['jobsDone.number']: Joi.number().positive(),
     ['jobsDone.success']: Joi.number().positive(),
-    earned: Joi.number().positive(),
-    rating: Joi.number().positive(),
+    earned: { from: Joi.number(), to: Joi.number() },
+    rating: { from: Joi.number(), to: Joi.number() },
     available: Joi.boolean(),
   }),
   query: Joi.object().keys({
