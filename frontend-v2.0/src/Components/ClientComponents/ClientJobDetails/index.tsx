@@ -41,9 +41,9 @@ export default function ClientJobDetails({ job }) {
           <i className="fas fa-street-view" style={{ color: '#14bff4' }}>
             {' '}
           </i>{' '}
-          <Space size={'small'} wrap style={{ display: 'flex' }}>
+          <Space size={'small'} wrap style={{ display: 'flex', gap: 8 }}>
             {job?.preferences?.locations?.map(l => (
-              <div key={l}>{locations[Number(l)].name} |</div>
+              <div key={l}>{locations.find(loc => loc.code === l).name} | </div>
             ))}
           </Space>
         </Space>

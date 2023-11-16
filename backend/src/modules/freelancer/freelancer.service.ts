@@ -67,8 +67,8 @@ export const queryAdvancedFreelancers = async (
   filter['name'] && (filter['name'] = { $search: `${filter['name']}`, $diacriticSensitive: true })
   filter['intro'] && (filter['intro'] = { $regex: `${filter['intro']}`, $options: 'i' })
 
-  filter['skills'] && (filter['skills'] = { $in: filter['skills'] })
-  filter['preferJobType'] && (filter['preferJobType'] = { $in: filter['preferJobType'] })
+  filter['skills'] && (filter['skills'] = { 'skills.skill.name': { $in: filter['skills'] } })
+  filter['preferJobType'] && (filter['preferJobType'] = { 'preferJobType.name': { $in: filter['preferJobType'] } })
   filter['currentLocations'] && (filter['currentLocations'] = { $in: filter['currentLocations'] })
   filter['categories'] && (filter['categories'] = { $in: filter['categories'] })
   filter['tags'] && (filter['tags'] = { $in: filter['tags'] })
@@ -82,8 +82,7 @@ export const queryAdvancedFreelancers = async (
 
   options.populate = 'user,preferJobType,skills.skill'
   if (!options.projectBy) {
-    options.projectBy =
-      'user, name, intro, members, skills.skill, preferJobType, currentLocations, rating, jobsDone, available, earned'
+    options.projectBy = 'user, name, intro, members, skills, currentLocations, rating, jobsDone, available, earned'
   }
 
   const freelancers = await Freelancer.paginate(filter, options)

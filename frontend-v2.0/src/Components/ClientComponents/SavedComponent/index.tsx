@@ -29,9 +29,9 @@ export default function Saved({ freelancer }) {
           <a href="#" id="job-title-home-page " className="link-dark">
             <p className="fw-bold ">{freelancer?.intro}</p>
           </a>
-          <span className="text-muted d-flex">
+          <span className="text-muted d-flex" style={{ gap: 8 }}>
             {freelancer?.currentLocations?.map(l => (
-              <div key={l}>{locations[Number(l)]?.name}, </div>
+              <div key={l}>{locations.find(loc => loc.code === l).name} |</div>
             ))}
           </span>
           <Rate disabled defaultValue={freelancer?.rating || 0} />

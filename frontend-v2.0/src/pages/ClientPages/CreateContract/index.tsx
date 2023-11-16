@@ -1,18 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Col, Form, Input, InputNumber, Layout, Select, Space, message } from 'antd'
+import { Button, Form, Input, InputNumber, Select, Space, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { DefaultUpload } from 'src/Components/CommonComponents/upload/upload'
-import SubmitProposalFixed from 'src/Components/FreelancerComponents/SubmitProposalFixed'
-import SubmitProposalHourly from 'src/Components/FreelancerComponents/SubmitProposalHourly'
 import Loader from 'src/Components/SharedComponents/Loader/Loader'
 import Progress from 'src/Components/SharedComponents/Progress'
 import { createContract } from 'src/api/contract-apis'
 import { getSkills } from 'src/api/job-apis'
 import { getProposal } from 'src/api/proposal-apis'
 import { defaultPaymenType } from 'src/utils/constants'
-import { EComplexityGet, EPaymenType } from 'src/utils/enum'
+import { EComplexityGet } from 'src/utils/enum'
 import { randomDate } from 'src/utils/helperFuncs'
 
 export default function CreateContract() {
@@ -22,8 +20,6 @@ export default function CreateContract() {
   const [files, setFiles] = useState([])
   const [answer, setAnswer] = useState<Record<number, string>>({})
   const [proposalData, setProposalData] = useState(null)
-  let [rate, setrate] = useState(0)
-
   const [searchParams] = useSearchParams()
   const freelancerID = searchParams.get('freelancerID')
 
@@ -49,22 +45,6 @@ export default function CreateContract() {
       })
     })
   }, [proposalID])
-
-  const setDataContract = ({ target }) => {
-    const val = target.value
-    const name = target.name
-    switch (name) {
-      case 'startDate':
-        console.log(val)
-        setContract({ ...contract, startDate: val })
-        break
-      case 'endDate':
-        setContract({ ...contract, endDate: val })
-        break
-      default:
-        break
-    }
-  }
 
   const startContract = async () => {
     await createContract({
@@ -97,8 +77,6 @@ export default function CreateContract() {
     return e
   }
 
-  const handlewithdrawProposal = async () => {}
-  console.log(contract)
   if (!proposalData) return <Loader />
 
   return (

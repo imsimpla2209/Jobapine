@@ -1,14 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Toaster } from 'react-hot-toast';
-import { I18nextProvider } from "react-i18next";
-import { HashRouter } from "react-router-dom";
-import "./App.css";
-import { AuthProvider } from "./Components/Providers/AuthProvider";
-import LayOut from "./LayOut/LayOut";
-import i18n from "./i18n";
-import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { PAYPAL_CLIENT_ID } from './api/constants';
-import { SocketProvider } from './socket.io';
+import { Toaster } from 'react-hot-toast'
+import { I18nextProvider } from 'react-i18next'
+import { HashRouter } from 'react-router-dom'
+import './App.css'
+import { AuthProvider } from './Components/Providers/AuthProvider'
+import LayOut from './LayOut/LayOut'
+import i18n from './i18n'
+import { PayPalScriptProvider } from '@paypal/react-paypal-js'
+import { PAYPAL_CLIENT_ID } from './api/constants'
+import { SocketProvider } from './socket.io'
+import { ConfigProvider } from 'antd'
 
 function App() {
   return (
@@ -17,20 +18,37 @@ function App() {
         <SocketProvider>
           <I18nextProvider i18n={i18n}>
             <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID }}>
-              <div
-                // dir={i18n.language === 'vi' ? "rtl" : "ltr"}
-                lang={i18n.language === 'vi' ? 'vi' : "en"}
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Slider: {
+                      // railBg: '#8558e0',
+                      railSize: 7,
+                    },
+                  },
+                  token: {
+                    colorBorder: '#930cc9',
+                    colorText: '#6600cc',
+                    colorPrimary: '#930cc9',
+                    fontSize: 16,
+                  },
+                }}
+              >
+                {' '}
+                <div
+                  // dir={i18n.language === 'vi' ? "rtl" : "ltr"}
+                  lang={i18n.language === 'vi' ? 'vi' : 'en'}
                 >
-                <LayOut />
-              </div>
-              <Toaster />
+                  <LayOut />
+                </div>
+                <Toaster />
+              </ConfigProvider>
             </PayPalScriptProvider>
-
-          </I18nextProvider >
+          </I18nextProvider>
         </SocketProvider>
       </AuthProvider>
     </HashRouter>
-  );
+  )
 }
 
-export default App;
+export default App

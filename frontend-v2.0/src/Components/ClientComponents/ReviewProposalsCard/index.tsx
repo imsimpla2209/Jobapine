@@ -1,6 +1,8 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 
+import { CheckCircleTwoTone } from '@ant-design/icons'
+import { Button, Space, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
@@ -9,13 +11,14 @@ import { locationStore } from 'src/Store/commom.store'
 import { userStore } from 'src/Store/user.store'
 import { getFreelancers } from 'src/api/freelancer-apis'
 import { getSkills } from 'src/api/job-apis'
-import { createMessageRoom } from 'src/api/message-api'
+import { checkMessageRoom } from 'src/api/message-api'
 import { getAllProposalInJob } from 'src/api/proposal-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import img from '../../../assets/img/icon-user.svg'
 import Loader from './../../SharedComponents/Loader/Loader'
 import ReviewProposalsPageHeader from './../ReviewProposalsPageHeader'
-import { Button } from 'antd'
+
+export const { Text } = Typography
 
 export default function ReviewProposalsCard() {
   const {
@@ -39,7 +42,7 @@ export default function ReviewProposalsCard() {
   }, [])
   console.log('proposals', proposals)
   const sendMSG = async (freelancerID: string, proposalId: string) => {
-    await createMessageRoom({ member: [freelancerID, clientID], proposal: proposalId })
+    await checkMessageRoom({ from: clientID, to: freelancerID })
     navigate(`/messages?proposalId=${proposalId}`)
   }
 
@@ -78,9 +81,9 @@ export default function ReviewProposalsCard() {
                 </p>
                 <div>
                   <span className="text-muted">Country: </span>
-                  <span className="text-muted  fw-bold d-flex">
+                  <span className="text-muted  fw-bold d-flex" style={{ gap: 8 }}>
                     {currentFreelancer?.currentLocations?.map(l => (
-                      <div key={l}>{locations[Number(l)]?.name}, </div>
+                      <div key={l}>{locations.find(loc => loc.code === l).name} | </div>
                     ))}
                   </span>
                 </div>
@@ -95,30 +98,29 @@ export default function ReviewProposalsCard() {
                   </div>
                 </div>
               </div>
-              <div className="col py-3">
-                <div className="btn-group float-end "></div>
-                <div className="btn-group float-start">
-                  <ul className="dropdown-menu ">
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Candidate will not be notified
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+              <div className="col py-3" style={{ justifyContent: 'end', display: 'flex', alignItems: 'start' }}>
+                <Space>
+                  <Button onClick={() => sendMSG(currentFreelancer.user, proposal._id)}>Messages</Button>
+                  {proposal.currentStatus === 'accepted' ? (
+                    <Space>
+                      <CheckCircleTwoTone twoToneColor="#52c41a" />
+                      <Text type="success">Accepted</Text>
+                    </Space>
+                  ) : (
+                    <>
+                      <Button type="primary" danger>
+                        Reject
+                      </Button>
+                      <Button type="primary">
+                        <Link to={`/create-contract/${proposal._id}?freelancerID=${currentFreelancer?._id}`}>
+                          Accept
+                        </Link>
+                      </Button>
+                    </>
+                  )}
+                </Space>
               </div>
 
-              <div className="col py-3" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Button onClick={() => sendMSG(currentFreelancer.user, proposal._id)}>Messages</Button>
-                <Button type="primary" danger>
-                  Reject
-                </Button>
-                <Button type="primary">
-                  <Link to={`/create-contract/${proposal._id}?freelancerID=${currentFreelancer?._id}`}>Accept</Link>
-                </Button>
-              </div>
-
-              <div className="col-lg-1 pt-lg-3"></div>
               <div className="col-lg-10 pt-lg-3 mx-3">
                 <div>
                   <span className="text-muted">Skills:</span>

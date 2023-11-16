@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { Select, Space } from 'antd';
-import { useSubscription } from 'src/libs/global-state-hook';
-import { locationStore } from 'src/Store/commom.store';
+import React, { useEffect, useState } from 'react'
+import { Select, Space } from 'antd'
+import { useSubscription } from 'src/libs/global-state-hook'
+import { locationStore } from 'src/Store/commom.store'
 
 const LocationPicker = ({ handleChange, reset = false }: any) => {
   const [locations, setLocations] = useState([])
-  const locationData = useSubscription(locationStore).state;
+  const locationData = useSubscription(locationStore).state
 
   const [selected, setSelected] = useState<any>([])
 
   useEffect(() => {
-    if(reset) {
+    if (reset) {
       setSelected([])
     }
   }, [reset])
 
   useEffect(() => {
-    setLocations(locationData.map((loc: any) => {
-      return {
-        label: loc.name,
-        value: loc.code,
-      }
-    }));
+    setLocations(
+      locationData.map((loc: any) => {
+        return {
+          label: loc.name,
+          value: loc.code,
+        }
+      })
+    )
   }, [locationData])
 
   return (
-    <Space style={{ width: '100%' }} direction="vertical" >
+    <Space style={{ width: '100%' }} direction="vertical">
       <Select
         mode="multiple"
         value={selected}
@@ -33,7 +35,7 @@ const LocationPicker = ({ handleChange, reset = false }: any) => {
         style={{ width: '100%' }}
         placeholder="Please select"
         defaultValue={[]}
-        onChange={(e) => {
+        onChange={e => {
           handleChange(e)
           setSelected(e)
         }}
@@ -42,4 +44,4 @@ const LocationPicker = ({ handleChange, reset = false }: any) => {
     </Space>
   )
 }
-export default LocationPicker;
+export default LocationPicker
