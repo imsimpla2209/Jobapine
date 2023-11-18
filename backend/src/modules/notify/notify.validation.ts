@@ -14,6 +14,7 @@ const createNotifyBody: Record<keyof NewCreatedNotify, any> = {
 export const createInvitation = {
   body: Joi.object().keys({
     to: Joi.string(),
+    from: Joi.string(),
     content: Joi.any(),
     type: Joi.string(),
     seen: Joi.boolean(),
@@ -49,6 +50,7 @@ export const createNotify = {
 export const getInvitations = {
   query: Joi.object().keys({
     to: Joi.string(),
+    from: Joi.string(),
     type: Joi.string().valid(...Object.values(EInvitationType)),
     seen: Joi.boolean(),
     currentStatus: Joi.string().valid(...Object.values(EStatus)),

@@ -24,6 +24,7 @@ const notifySchema = new mongoose.Schema<INotifyDoc, INotifyModel>(
 const invitationSchema = new mongoose.Schema<IInvitationDoc, IInvitationModel>(
   {
     to: { type: mongoose.Types.ObjectId, ref: 'User' },
+    from: { type: mongoose.Types.ObjectId, ref: 'User' },
     content: {
       type: Object,
       required: true,
@@ -46,8 +47,8 @@ const invitationSchema = new mongoose.Schema<IInvitationDoc, IInvitationModel>(
       },
     ],
     dueDate: {
-      type: Number,
-      default: '',
+      type: String,
+      default: '0',
     },
     image: {
       type: String,
@@ -99,6 +100,14 @@ notifySchema.pre('save', async function (next) {
   // if (!user.isVerified) {
   //   throw new Error(`User is not verified`)
   // }
+  next()
+})
+
+invitationSchema.pre('save', async function (next) {
+  if (this.isModified('status')) {
+    const status = this.get('status')?.at(-1)?.status
+    this.set('currentStatus', status)
+  }
   next()
 })
 

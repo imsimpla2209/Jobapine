@@ -20,10 +20,13 @@ router
   .post(auth(), validate(messageValidation.createMessageRoom), messageController.checkMessageRoom)
 router
   .route('/rooms/request')
-  .post(auth(), validate(messageValidation.createMessageRoom), messageController.checkMessageRoom)
+  .post(auth(), validate(messageValidation.requestMessageRoom), messageController.createRequestMessage)
 router
   .route('/rooms/accept/:id')
   .post(auth(), validate(messageValidation.getMessage), messageController.acceptMessageRequest)
+router
+  .route('/rooms/reject/:id')
+  .post(auth(), validate(messageValidation.getMessage), messageController.rejectMessageRequest)
 router
   .route('/rooms/status/:id')
   .post(auth(), validate(messageValidation.updateStatus), messageController.updateMessageRoomStatus)

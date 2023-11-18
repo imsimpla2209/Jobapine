@@ -16,6 +16,7 @@ import { ESocketEvent } from "src/utils/enum";
 import { pickName, timeAgo } from "src/utils/helperFuncs";
 import img from "../../../assets/img/icon-user.svg";
 import LanguageList from "../../SharedComponents/LanguageBtn/LanguageList";
+import notiIcon from "../../../assets/img/notifyicon.png";
 
 export const NotifyPopup = (s, data) => {
   const { t } = useTranslation(['main'])
@@ -116,8 +117,9 @@ export default function NavLargScreen() {
     return notifies?.map((s, ix) => {
       return {
         label: <div className="row" style={{ width: 400 }}>
-          <Link className="col-8 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)}</Link>
-          <p className="col-4">{timeAgo(s?.createdAt, t)}</p>
+          <img className="col-2" height={36} width={36} src={s.image || notiIcon} alt="sss" />
+          <Link className="col-7 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)}</Link>
+          <p className="col-3">{timeAgo(s?.createdAt, t)}</p>
         </div>,
         key: ix,
       }
@@ -178,7 +180,7 @@ export default function NavLargScreen() {
               className={
                 `nav-link
                 
-                ${pathname === "/all-contract" || pathname === "/offers" ? "active" : ""}`
+                ${pathname === "/all-contract" || pathname === "/invitations" ? "active" : ""}`
               }
 
               to="/my-jobs"
@@ -198,7 +200,7 @@ export default function NavLargScreen() {
                 </Link>
               </li>
               <li>
-                <Link className={`dropdown-item  `} to="/offers">
+                <Link className={`dropdown-item  `} to="/invitations">
                   {t("Invitations")}
                 </Link>
               </li>

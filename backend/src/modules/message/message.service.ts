@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { io } from '@core/libs/SocketIO'
 import { createInvitation, createNotify, updateInvitationStatusById } from '@modules/notify/notify.service'
-import { getProposalById, updateProposalStatusById } from '@modules/proposal/proposal.service'
+import { updateProposalById, updateProposalStatusById } from '@modules/proposal/proposal.service'
 import { getUserById } from '@modules/user/user.service'
 import { EInvitationType, ESocketEvent, EStatus } from 'common/enums'
 import { FEMessage, FERoutes } from 'common/enums/constant'
@@ -53,7 +53,7 @@ export const queryMessageRooms = async (filter: Record<string, any>, options: IO
 
   if (!options.projectBy) {
     options.projectBy =
-      'proposal, member, seen, isDeleted, proposalStatusCatalog, image, background, createdAt, updatedAt, attachments'
+      '_id, proposal, member, seen, isDeleted, proposalStatusCatalog, image, background, createdAt, updatedAt, attachments'
   }
 
   if (!options.sortBy) {
@@ -112,7 +112,7 @@ export const createRequestMessage = async (from: any, to: any, proposalId?: any,
       throw new ApiError(httpStatus.NOT_FOUND, 'From or To user not found')
     }
     if (proposalId) {
-      proposal = await getProposalById(new mongoose.Types.ObjectId(proposalId))
+      proposal = await updateProposalById(new mongoose.Types.ObjectId(proposalId), { msgRequestSent: true })
       if (!proposal) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
       }
@@ -126,16 +126,18 @@ export const createRequestMessage = async (from: any, to: any, proposalId?: any,
         jobId: proposal?.job,
         from: fromUser?._id,
         proposal: proposalId,
+        fromUser,
       },
+      from: fromUser?._id,
     })
     createNotify({
-      to: toUser,
+      to: toUser?._id,
       path: `${FERoutes.allInvitation}`,
       content: FEMessage(fromUser?.name ?? fromUser.username).requestMessage,
     })
     return request
   } catch (err) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot create request')
+    throw new ApiError(httpStatus.NOT_FOUND, `Cannot create request${err}`)
   }
 }
 
@@ -146,8 +148,11 @@ export const acceptMessageRequest = async (invitationId?: any) => {
       EStatus.ACCEPTED,
       'Accepted'
     )
+    if (!invitation?.from || !invitation?.to) {
+      throw new Error('Not found from or to User')
+    }
     const messageRoom = await createMessageRoom({
-      member: [invitation?.content?.from, invitation?.content?.to],
+      member: [invitation?.from, invitation?.to],
       proposal: invitation?.content?.proposal,
     })
     if (invitation?.content?.proposal) {
@@ -160,7 +165,33 @@ export const acceptMessageRequest = async (invitationId?: any) => {
     })
     return messageRoom
   } catch (err) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot create request')
+    throw new ApiError(httpStatus.NOT_FOUND, `Cannot create request ${err}`)
+  }
+}
+
+export const rejectMessageRequest = async (invitationId?: any) => {
+  try {
+    const invitation = await updateInvitationStatusById(
+      new mongoose.Types.ObjectId(invitationId),
+      EStatus.REJECTED,
+      'Rejected by user'
+    )
+    createNotify({
+      to: invitation?.content?.from,
+      path: `${FERoutes.allInvitation}`,
+      content: FEMessage().acceptRequest,
+    })
+    if (invitation?.content?.proposal) {
+      const proposal = await updateProposalById(new mongoose.Types.ObjectId(invitation?.content?.proposal), {
+        msgRequestSent: false,
+      })
+      if (!proposal) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
+      }
+    }
+    return invitation
+  } catch (err) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot reject')
   }
 }
 
@@ -239,7 +270,7 @@ export const queryMessages = async (filter: Record<string, any>, options: IOptio
 
   // options.populate = 'proposal,members'
   if (!options.projectBy) {
-    options.projectBy = 'from, to, room, isDeleted, content, attachments, createdAt, updatedAt, seen'
+    options.projectBy = '_id, from, to, room, isDeleted, content, attachments, createdAt, updatedAt, seen'
   }
 
   const messages = await Message.paginate(queryFilter, options)

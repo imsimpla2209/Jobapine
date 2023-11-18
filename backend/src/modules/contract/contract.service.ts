@@ -126,6 +126,7 @@ export const createContract = async (contractBody: NewCreatedContract, isAgree?:
       from: client,
       proposal: contractBody?.proposal,
     },
+    from: client?.user,
   })
   updateSimilarById(freelancer._id)
   return createdCX
@@ -216,6 +217,42 @@ export const acceptContract = async (
 
   updateSimilarById(contract?.freelancer)
   return acceptedContract
+}
+
+/**
+ * reject a contract
+ * @param {mongoose.Types.ObjectId} contractId
+ * @param {mongoose.Types.ObjectId} invitationId
+ * @returns {Promise<IContractDoc>}
+ */
+export const rejectContract = async (
+  contractId: mongoose.Types.ObjectId,
+  invitationId: mongoose.Types.ObjectId
+): Promise<IContractDoc> => {
+  const contract = await getContractById(contractId)
+  if (!contract) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'contract not found')
+  }
+
+  const job = await getJobById(contract?.job)
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  }
+
+  if (!(job.currentStatus === EJobStatus.OPEN || job.currentStatus === EJobStatus.PENDING)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not open or pending')
+  }
+
+  await updateInvitationStatusById(invitationId, EStatus.REJECTED, 'Reject by User')
+
+  const rejectdContract = await changeStatusContractById(contractId, EStatus.REJECTED, 'Reject by User')
+  createNotify({
+    to: job?.client?.user,
+    path: `${FERoutes.allContract}`,
+    content: FEMessage().rejectContract,
+  })
+
+  return rejectdContract
 }
 
 /**

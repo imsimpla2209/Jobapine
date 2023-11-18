@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import img from "../../assets/img/icon-user.svg";
+import img from "../../assets/img/notifyicon.png";
 import { useTranslation } from 'react-i18next';
 import { pickName, timeAgo } from 'src/utils/helperFuncs';
 import { Button, Popconfirm } from 'antd';
@@ -21,7 +21,13 @@ export default function NotificationCard({ notification, collectionName, getNoti
 
 
 	return (
-		<div className="row border border-1 py-4 px-2" style={{ backgroundColor: !notification.isDeleted ? "white" : "#e1f5b1" }}>
+		<div className="border border-1 py-4 px-2" style={{
+			backgroundColor: !notification.isDeleted ? "white" : "#e1f5b1",
+			display: 'flex',
+			justifyContent: 'space-around',
+			alignItems: 'center',
+			alignContent: 'center',
+		}}>
 			<div className="col-1">
 				<img style={{ height: "40px", width: "40px" }} className="rounded-circle bg-white" src={notification?.image ? notification?.image : img} alt="" />
 			</div>

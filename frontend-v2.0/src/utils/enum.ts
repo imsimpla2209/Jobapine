@@ -104,3 +104,9 @@ export enum EPaymentPurpose {
   RECHARGE = 'Recharge',
   ESCROW = 'Escrow',
 }
+
+export enum EInvitationType {
+  CONTRACT = 'Contract',
+  WORK = 'Work',
+  MESSAGE = 'Message',
+}

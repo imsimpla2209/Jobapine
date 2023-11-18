@@ -16,6 +16,7 @@ export interface INotify {
 
 export interface IInvitation {
   to: IUserDoc['_id']
+  from: IUserDoc['_id']
   content?: any
   type?: string
   image?: string

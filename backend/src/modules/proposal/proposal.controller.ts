@@ -38,7 +38,8 @@ export const updateProposalStatus = catchAsync(async (req: Request, res: Respons
   if (typeof req.params?.id === 'string') {
     const proposal = await proposalService.updateProposalStatusById(
       new mongoose.Types.ObjectId(req.params.id),
-      req.body?.status
+      req.body?.status,
+      req.body?.comment
     )
     res.send(proposal)
   }

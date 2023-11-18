@@ -32,6 +32,16 @@ export const acceptMessageRequest = catchAsync(async (req: Request, res: Respons
   }
 })
 
+export const rejectMessageRequest = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const message = await messageService.rejectMessageRequest(new mongoose.Types.ObjectId(req.params.id))
+    if (!message) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'MessageRoom not found')
+    }
+    res.send(message)
+  }
+})
+
 export const updateMessageRoomStatus = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
     const message = await messageService.changeStatusMessageRoomById(
