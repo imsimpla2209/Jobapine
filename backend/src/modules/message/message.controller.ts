@@ -54,7 +54,7 @@ export const updateMessageRoomStatus = catchAsync(async (req: Request, res: Resp
 })
 
 export const checkMessageRoom = catchAsync(async (req: Request, res: Response) => {
-  const message = await messageService.checkMessage(req.body)
+  const message = await messageService.checkMessage(req.body?.member, req.body?.proposal)
   res.send(message)
 })
 

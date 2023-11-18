@@ -43,7 +43,7 @@ export default function ClientJobDetails({ job }) {
           </i>{' '}
           <Space size={'small'} wrap style={{ display: 'flex', gap: 8 }}>
             {job?.preferences?.locations?.map(l => (
-              <div key={l}>{locations.find(loc => loc.code === l).name} | </div>
+              <div key={l}>{locations.find(loc => loc.code === l)?.name} | </div>
             ))}
           </Space>
         </Space>

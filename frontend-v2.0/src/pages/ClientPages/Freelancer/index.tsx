@@ -1,5 +1,5 @@
 import { FrownOutlined, SmileOutlined } from '@ant-design/icons'
-import { Checkbox, InputNumber, Layout, Radio, Slider, Space } from 'antd'
+import { Card, Checkbox, InputNumber, Layout, Radio, Slider, Space } from 'antd'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import LocationPicker from 'src/Components/SharedComponents/LocationPicker'
@@ -53,107 +53,110 @@ export default function FreelancerList() {
   }, [filterOption])
 
   return (
-    <Layout style={{ marginTop: 150 }}>
-      <Layout.Sider width={300} style={{ background: '#ffffff', padding: 16, borderRight: '1px solid #dee2e6' }}>
-        <div>
-          <h5 className="mb-lg-4 display-inline-block">{t('FilterBy')}</h5>
-          <hr />
+    <Layout>
+      <Layout.Sider width={300} style={{ padding: 16, borderRight: '1px solid #dee2e6' }}>
+        <div style={{ display: 'grid', gap: 16 }}>
+          <Card>
+            <h6 className=" display-inline-block  fw-bold">{t('Skills')}</h6>
+            <MultiSkillPicker reset={refresh} handleChange={onSkillsChange} istakeValue={true}></MultiSkillPicker>
+          </Card>
 
-          <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('Skills')}</h6>
-          <MultiSkillPicker reset={refresh} handleChange={onSkillsChange} istakeValue={true}></MultiSkillPicker>
-          <hr />
+          <Card>
+            <h6 className="display-inline-block fw-bold">{t('Freelancer Location')}</h6>
+            <div className="input-group rounded-3">
+              <LocationPicker reset={refresh} handleChange={onLocationChange}></LocationPicker>
+            </div>
+          </Card>
 
-          <h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">{t('Freelancer Location')}</h6>
-          <div className="input-group rounded-3">
-            <LocationPicker reset={refresh} handleChange={onLocationChange}></LocationPicker>
-          </div>
-          <hr />
+          <Card>
+            <h6 className=" display-inline-block fw-bold">{t('Prefer payment type')}</h6>
+            <Checkbox.Group style={{ width: '100%' }} onChange={onPayTypeChange} value={filterOption?.preferJobType}>
+              <Space direction="vertical">
+                {Object.keys(EPaymenType).map(l => (
+                  <span key={l}>
+                    <Checkbox value={EPaymenType[l]}>{t(`${EPaymenType[l]}`)}</Checkbox>
+                  </span>
+                ))}
+              </Space>
+            </Checkbox.Group>
+          </Card>
 
-          <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('Prefer payment type')}</h6>
-          <Checkbox.Group style={{ width: '100%' }} onChange={onPayTypeChange} value={filterOption?.preferJobType}>
-            <Space direction="vertical">
-              {Object.keys(EPaymenType).map(l => (
-                <span key={l}>
-                  <Checkbox value={EPaymenType[l]}>{t(`${EPaymenType[l]}`)}</Checkbox>
-                </span>
-              ))}
+          <Card>
+            <h6 className="display-inline-block  fw-bold">
+              {t('Earned')} {`(${t('VND')})`}
+            </h6>
+            <Space wrap>
+              <InputNumber
+                prefix="From"
+                addonBefore=""
+                addonAfter={<> VND</>}
+                defaultValue={0}
+                placeholder="Enter a number"
+                controls
+                onKeyPress={event => {
+                  if (!/[0-9]/.test(event.key)) {
+                    event.preventDefault()
+                  }
+                }}
+                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                min={0}
+                value={filterOption?.earned?.from >= 0 ? filterOption?.earned?.from : null}
+                onChange={(v: any) => handleEarnedAmountFrom(v)}
+                decimalSeparator=","
+                max={filterOption?.earned?.to || Number.MAX_SAFE_INTEGER}
+              />
+              <InputNumber
+                prefix="To"
+                addonBefore=""
+                addonAfter={<> VND</>}
+                placeholder="Enter a number"
+                value={filterOption?.earned?.to >= 0 ? filterOption?.earned?.to : null}
+                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                onKeyPress={event => {
+                  if (!/[0-9]/.test(event.key)) {
+                    event.preventDefault()
+                  }
+                }}
+                onChange={(v: any) => handleEarnedAmountTo(v)}
+                min={filterOption?.earned?.from || 1}
+                controls
+              />
             </Space>
-          </Checkbox.Group>
-          <hr />
+          </Card>
 
-          <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-            {t('Earned')} {`(${t('VND')})`}
-          </h6>
-          <Space wrap>
-            <InputNumber
-              prefix="From"
-              addonBefore=""
-              addonAfter={<> VND</>}
-              defaultValue={0}
-              placeholder="Enter a number"
-              controls
-              onKeyPress={event => {
-                if (!/[0-9]/.test(event.key)) {
-                  event.preventDefault()
-                }
-              }}
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-              min={0}
-              value={filterOption?.earned?.from >= 0 ? filterOption?.earned?.from : null}
-              onChange={(v: any) => handleEarnedAmountFrom(v)}
-              decimalSeparator=","
-              max={filterOption?.earned?.to || Number.MAX_SAFE_INTEGER}
-            />
-            <InputNumber
-              prefix="To"
-              addonBefore=""
-              addonAfter={<> VND</>}
-              placeholder="Enter a number"
-              value={filterOption?.earned?.to >= 0 ? filterOption?.earned?.to : null}
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-              onKeyPress={event => {
-                if (!/[0-9]/.test(event.key)) {
-                  event.preventDefault()
-                }
-              }}
-              onChange={(v: any) => handleEarnedAmountTo(v)}
-              min={filterOption?.earned?.from || 1}
-              controls
-            />
-          </Space>
-          <hr />
+          <Card>
+            <h6 className=" display-inline-block fw-bold">{t('Rating')}</h6>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <FrownOutlined className={preColorCls} />
+              <Slider
+                style={{ flex: 1 }}
+                max={5}
+                min={0}
+                range={true}
+                defaultValue={[0, 5]}
+                onChange={val => setValue({ from: val[0], to: val[1] })}
+                value={[value.from, value.to]}
+              />
+              <SmileOutlined className={nextColorCls} />
+            </div>
+          </Card>
 
-          <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('Rating')}</h6>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <FrownOutlined className={preColorCls} />
-            <Slider
-              style={{ flex: 1 }}
-              max={5}
-              min={0}
-              range={true}
-              defaultValue={[0, 5]}
-              onChange={val => setValue({ from: val[0], to: val[1] })}
-              value={[value.from, value.to]}
-            />
-            <SmileOutlined className={nextColorCls} />
-          </div>
-          <hr />
-
-          <h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">Availability</h6>
-          <Radio.Group onChange={onAvailabilityChange} value={filterOption?.available}>
-            <Radio style={{ display: 'block' }} value={undefined}>
-              {t('All')}
-            </Radio>
-            <Radio style={{ display: 'block' }} value={true}>
-              {t('Available')}
-            </Radio>
-            <Radio style={{ display: 'block' }} value={false}>
-              {t('Unavailable')}
-            </Radio>
-          </Radio.Group>
-          <hr />
+          <Card>
+            <h6 className="display-inline-block fw-bold">Availability</h6>
+            <Radio.Group onChange={onAvailabilityChange} value={filterOption?.available}>
+              <Radio style={{ display: 'block' }} value={undefined}>
+                {t('All')}
+              </Radio>
+              <Radio style={{ display: 'block' }} value={true}>
+                {t('Available')}
+              </Radio>
+              <Radio style={{ display: 'block' }} value={false}>
+                {t('Unavailable')}
+              </Radio>
+            </Radio.Group>
+          </Card>
         </div>
       </Layout.Sider>
       <FreelancerListCards filterOption={filterOption} />

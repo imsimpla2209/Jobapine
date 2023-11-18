@@ -199,6 +199,7 @@ export const checkMessage = async (member: any[], proposalId?: any) => {
   if (member?.length < 2) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Cannot check msg')
   }
+
   const msgRoom = await getMessageRoomByOptions({
     $and: [
       { member: { $all: member.map(m => new mongoose.Types.ObjectId(m)) } },

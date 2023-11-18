@@ -25,6 +25,10 @@ export default function FreelancerListCards({ filterOption }) {
 
   const getFilteredListFreelancers = async () => {
     setLoading(true)
+    if (!filterOption?.skills?.length) delete filterOption?.skills
+    if (!filterOption?.preferJobType?.length) delete filterOption?.preferJobType
+    if (!filterOption?.currentLocations?.length) delete filterOption?.currentLocations
+
     await filterFreelancers(filterOption, { limit: 10, page: page })
       .then(res => {
         setListFreelancers(res.data.results)

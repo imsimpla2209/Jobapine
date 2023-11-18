@@ -42,7 +42,7 @@ export default function ReviewProposalsCard() {
   }, [])
   console.log('proposals', proposals)
   const sendMSG = async (freelancerID: string, proposalId: string) => {
-    await checkMessageRoom({ from: clientID, to: freelancerID })
+    await checkMessageRoom({ member: [clientID, freelancerID], proposal: proposalId })
     navigate(`/messages?proposalId=${proposalId}`)
   }
 
