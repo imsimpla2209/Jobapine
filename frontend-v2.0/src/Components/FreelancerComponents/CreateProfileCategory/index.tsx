@@ -1,90 +1,67 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { updateUserData } from "../../../Network/Network";
+import { Form } from "antd";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import CategoriesPicker from "src/Components/SharedComponents/CategoriesPicker";
+import SkillPicker from "src/Components/SharedComponents/SkillPicker";
+import { useSubscription } from "src/libs/global-state-hook";
+import { EStep, profileFreelancerData, profileStepStore } from "src/pages/FreelancerPages/CreateProfile";
 
-export default function CreateProfileCategory({ setBtns, btns }) {
-  const [inputVal, setinputVal] = useState("");
+export default function CreateProfileCategory() {
+  const { setState, state } = useSubscription(profileFreelancerData);
   const [skillsList, setskillsList] = useState([]);
-  let [cat, setCat] = useState("");
-  const catVal = ({ target }) => {
-    cat = target.value;
-    setCat(cat);
+  let [cat, setCat] = useState([]);
+  const profileStep = useSubscription(profileStepStore).setState
+
+  const { t } = useTranslation(['main']);
+
+  const catVal = (data) => {
+    setCat(data);
   };
-  const skillVal = ({ target }) => {
-    setinputVal(target.value)
-  }
+
+  useEffect(() => {
+    setCat(state.preferJobType?.map(c => c?._id));
+    setskillsList(state?.skills?.map(s => { return { skill: s?.skill?._id, level: s.level } }))
+  }, [])
 
   const addData = () => {
-    updateUserData("freelancer", {
-      jobCategory: cat,
-      jobCategoryAr: cat === "Graphic Design" ? "تصميم الجرافيك" : cat === "Web Development" ? "تطوير الويب" : cat === "Front-End Development" ? "تطوير الواجهة الأمامية" : cat === "Web Design" ? "تصميم الويب" : "تطوير الهاتف",
-      skills: skillsList,
-      profileCompletion: 20
-    });
-    setBtns({ ...btns, expertiseLevel: false })
+    setState({
+      ...state, skills: skillsList, preferJobType: cat, profileCompletion: 20,
+    })
+    profileStep({ step: EStep.EXPERTISELEVEL })
   }
-  const addskills = () => {
-    let arr2 = [...skillsList, inputVal];
-    setskillsList(arr2);
-    setinputVal("")
+
+  const addskills = (sk) => {
+    setskillsList(sk);
     console.log(skillsList);
   };
 
   return (
     <section className=" bg-white border rounded mt-3 pt-4">
       <div className="border-bottom ps-4 pb-3">
-        <h4>Category</h4>
+        <h4>{t("Category")}</h4>
       </div>
-      <div className="p-4 my-3">
-        <h5 className="fw-bold mb-4">Tell us about the work you do</h5>
-        <p className="fw-bold">What is the main service you offer?</p>
-        <select
-          className="form-select form-select-lg mb-3 shadow-none"
-          aria-label=".form-select-lg example"
-          onChange={catVal}
-        >
-          <option selected value="Select a category">Select a category</option>
-          <option value="Front-End Development">Front-End Development</option>
-          <option value="Web Development">Web Development</option>
-          <option value="Web Design">Web Design</option>
-          <option value="Graphic Design">Graphic Design</option>
-          <option value="Mobile Development">Mobile Development</option>
-        </select>
-        <>
-          <p className="fw-bold mt-2">About your skills?</p>
-          <div className="my-4 d-flex justify-content-between">
-            <input
-              className="form-control w-75 shadow-none"
-              type="text"
-              name="jobSkills"
-              value={inputVal}
-              onChange={skillVal}
-            />
-            <button className="btn bg-jobsicker px-5" onClick={addskills} disabled={!inputVal}>
-              Add
-            </button>
-          </div>
-          <div className="my-4 d-flex justify-content-start flex-wrap">
-            {skillsList.map((item) =>
-              <div className="chip mb-3 ms">
-                <span>{item}</span>
-              </div>
-            )}
-          </div>
-        </>
-      </div>
-      <div className="px-4 my-3 pt-4 border-top d-flex justify-content-end">
-        <button className={`btn ${cat === "" || cat === "Select a category" ? "disabled" : ""}`}>
-          <Link
-            className="btn bg-jobsicker px-5"
-            to="/create-profile/expertise-level"
-            onClick={addData}
+      <Form>
+        <div className="p-4 my-3">
+          <h5 className="fw-bold mb-4">Tell us about the work you do</h5>
+          <p className="fw-bold">What is the main service you offer?</p>
+          <CategoriesPicker handleChange={catVal} data={state.preferJobType?.map(c => (c?._id || c))}></CategoriesPicker>
+          <p className="fw-bold mt-2">{t("Skills and experties")}</p>
+          <Form.Item
+            name="skills"
+            label={t('Skills')}
+            rules={[{ required: true, message: 'Please choose the skills' }]}
           >
-            Next
-        </Link>
+            <SkillPicker handleChange={addskills} data={state?.skills?.map(s => { return { skill: (s?.skill?._id || s?.skill), level: s.level } })}></SkillPicker>
+          </Form.Item>
+        </div>
+      </Form>
+      <div className="px-4 my-3 pt-4 border-top d-flex justify-content-end">
+        <button className={`btn bg-jobsicker px-5 ${(!state?.skills?.length && !state?.preferJobType?.length && !cat?.length && !skillsList?.length) ? "disabled" : ""}`
+        } onClick={addData}>
+          {t("Next")}
         </button>
       </div>
-    </section>
+    </section >
   );
 }

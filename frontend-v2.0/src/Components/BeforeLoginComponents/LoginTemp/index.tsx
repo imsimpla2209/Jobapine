@@ -6,6 +6,8 @@ import { postLogin } from "src/api/auth-apis";
 import { useAuth } from "src/Components/Providers/AuthProvider";
 import { ResponseStatus } from "src/api/constants";
 import toast from 'react-hot-toast';
+import { Input } from "antd";
+import { EyeTwoTone, EyeInvisibleOutlined } from "@ant-design/icons";
 
 export default function LoginTemp() {
   const [user, setUser] = useState({ email: "", password: "" });
@@ -113,10 +115,11 @@ export default function LoginTemp() {
               <form>
                 <div className="form-group col-8 mx-auto mt-3">
                   <span className="text-danger">{emailError}</span>
-                  <input
+                  <Input
+                    size={'large'}
                     type="email"
                     name="email"
-                    className={`form-control shadow-none ${emailError ? "border-danger" : ""
+                    className={`shadow-none ${emailError ? "border-danger" : ""
                       }`}
                     aria-describedby="emailHelp"
                     placeholder={t("User name or Email")}
@@ -125,14 +128,15 @@ export default function LoginTemp() {
                 </div>
                 <div className="form-group col-8 mx-auto mt-3">
                   <span className="text-danger">{PasswordError}</span>
-                  <input
+                  <Input.Password
+                    size={'large'}
                     type="password"
                     name="password"
-                    className={`form-control shadow-none ${PasswordError ? "border-danger" : ""
-                      }`}
+                    className={`shadow-none ${PasswordError ? "border-danger" : ""}`}
                     aria-describedby="emailHelp"
                     placeholder={t("Password")}
                     onInput={getUserData}
+                    iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                   />
                 </div>
                 {/* <div className="form-group col-8 mx-auto mt-3 d-flex justify-content-between">

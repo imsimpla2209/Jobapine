@@ -156,7 +156,7 @@ export const createInvitation = async (invitationBody: IInvitation): Promise<IIn
   if (!invitationBody?.dueDate) {
     const future = new Date()
     future.setTime(future.getTime() + 30 * 24 * 60 * 60 * 1000)
-    invitationBody['dueDate'] = future.toString()
+    invitationBody['dueDate'] = future.getTime().toString()
   }
   return Invitation.create(invitationBody)
 }
@@ -181,7 +181,7 @@ export const queryInvitations = async (filter: Record<string, any>, options: IOp
 
   // options.populate = 'proposal,members'
   if (!options.projectBy) {
-    options.projectBy = 'to, background, seen, isDeleted, content, image, createdAt, type, attachments, dueDate, from'
+    options.projectBy = 'to, background, seen, isDeleted, content, image, createdAt, type, attachments, dueDate, from, currentStatus'
   }
 
   if (!options.sortBy) {

@@ -33,6 +33,7 @@ const googleStrategy = new GoogleStrategy(
             phone: '',
             nationalId: '',
             dob: profile?.birthday,
+            isPhoneVerified: false,
           }).then(createdUser => {
             return done(null, createdUser)
           })

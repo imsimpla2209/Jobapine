@@ -1,12 +1,18 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { updateUserData } from "../../../Network/Network";
+import { Form, Select } from "antd";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSubscription } from "src/libs/global-state-hook";
+import { EStep, profileFreelancerData, profileStepStore } from "src/pages/FreelancerPages/CreateProfile";
 
-export default function CreateProfileEducationAndEmployment({ setBtns, btns }) {
+export default function CreateProfileEducationAndEmployment() {
+  const profileStep = useSubscription(profileStepStore).setState
+  const { setState, state } = useSubscription(profileFreelancerData);
+
+  const { t } = useTranslation(['main']);
 
   const [user, setuser] = useState({
     education: { school: "", areaOfStudy: "", degree: "", gradYear: "" },
-    company: [{ companyName: "", jobTitle: "", stillWork: false }],
+    job: [{ jobName: "", jobTitle: "", stillWork: false }],
     profileCompletion: 40,
   });
 
@@ -21,22 +27,22 @@ export default function CreateProfileEducationAndEmployment({ setBtns, btns }) {
         setuser({ ...user, education: { ...user.education, areaOfStudy: val } });
         break;
       case "degree":
-        setuser({ ...user, education: { ...user.education, degree: val } });
+        setuser({ ...user, education: { ...user.education, degree: e } });
         break;
       case "year":
         console.log(val);
         setuser({ ...user, education: { ...user.education, gradYear: val } });
         break;
-      case "company":
-        setuser({ ...user, company: [{ ...user.company[0], companyName: val }] });
+      case "job":
+        setuser({ ...user, job: [{ ...user.job[0], jobName: val }] });
         break;
       case "title":
-        setuser({ ...user, company: [{ ...user.company[0], jobTitle: val }] });
+        setuser({ ...user, job: [{ ...user.job[0], jobTitle: val }] });
         break;
       case "stillwork":
         setuser({
           ...user,
-          company: [{ ...user.company[0], stillWork: e.target.checked }],
+          job: [{ ...user.job[0], stillWork: e.target.checked }],
         });
         break;
       default:
@@ -46,49 +52,57 @@ export default function CreateProfileEducationAndEmployment({ setBtns, btns }) {
 
   const updateUser = () => {
     console.log(user);
-    updateUserData("freelancer", user);
-    setBtns({ ...btns, language: false });
+    setState({ ...state, education: user.education, historyWork: user.job });
+    profileStep({ step: EStep.LANGUAGE })
   };
 
   return (
     <section className="bg-white border rounded mt-3 pt-4">
       <div className="border-bottom ps-4 pb-3">
-        <h4>Education & Employment</h4>
+        <h4>{t("Education")} & {t("Employment history")}</h4>
       </div>
       <div className="px-4 my-4">
         <div>
-          <p className="fw-bold">Add School</p>
+          <p className="fw-bold">{t("Education")}</p>
           <label className="w-100">
-            School <span className="text-danger">*</span>
+            School
             <input
+              defaultValue={user?.education?.school}
               className="form-control shadow-none"
               name="school"
-              placeholder="Ex: Northwestern University"
+              placeholder="E.g: Greenwich University or Cau Giay High School"
               onInput={getUserData}
             />
           </label>
           <label className="w-100 my-2">
             Area of study
             <input
+              defaultValue={user?.education?.areaOfStudy}
               className="form-control shadow-none"
               name="area"
-              placeholder="Ex: Economy"
+              placeholder="E.g: IT"
               onInput={getUserData}
             />
           </label>
           <label className="w-100">
             Degree
-            <input
-              className="form-control shadow-none"
-              name="degree"
-              placeholder="Ex: Bachelor of commerce"
-              onInput={getUserData}
-            />
+            <Form.Item name="degree" >
+              <Select defaultValue={user?.education?.degree} size="large" placeholder="E.g: Bachelor of commerce or high-school graduation" onChange={getUserData}>
+                <Select.Option value="Bachelour/Cử nhân đại học">Bachelour/Cử nhân đại học</Select.Option>
+                <Select.Option value="M.A/Thạc sĩ">M.A/Thạc sĩ</Select.Option>
+                <Select.Option value="PhD/Tiến sĩ">PhD/Tiến sĩ</Select.Option>
+                <Select.Option value="College/Cao đẳng">College/Cao đẳng</Select.Option>
+                <Select.Option value="High-School/Cấp ba">High-School/Cấp ba</Select.Option>
+                <Select.Option value="Middle-School/Cấp hai">Middle-School/Cấp hai</Select.Option>
+                <Select.Option value="None/Chưa từng đi học">None/Chưa từng đi học</Select.Option>
+              </Select>
+            </Form.Item>
           </label>
           <label className="w-100 my-2">
             Graduation year
             <input
               type="date"
+              defaultValue={user?.education?.gradYear}
               className="form-control shadow-none"
               name="year"
               onInput={getUserData}
@@ -97,18 +111,20 @@ export default function CreateProfileEducationAndEmployment({ setBtns, btns }) {
         </div>
         <div className="my-4"></div>
         <div>
-          <p className="fw-bold">Add your past work experience</p>
+          <p className="fw-bold">{t("Add your past work experience")}</p>
           <label className="w-100">
-            Company
+            Job
             <input
+              defaultValue={user?.job[0]?.jobName}
               className="form-control shadow-none"
-              name="company"
+              name="job"
               onInput={getUserData}
             />
           </label>
           <label className="w-100 mt-3">
             Title
             <input
+              defaultValue={user?.job[0]?.jobTitle}
               className="form-control shadow-none"
               name="title"
               onInput={getUserData}
@@ -119,6 +135,7 @@ export default function CreateProfileEducationAndEmployment({ setBtns, btns }) {
             <input
               type="checkbox"
               name="stillwork"
+              defaultChecked={user?.job[0]?.stillWork}
               className="form-check shadow-none"
               onChange={getUserData}
             />
@@ -126,19 +143,17 @@ export default function CreateProfileEducationAndEmployment({ setBtns, btns }) {
         </div>
       </div>
       <div className="px-4 my-3 pt-4 border-top d-flex justify-content-between">
-        <button className="btn">
-          <Link className="btn border text-success me-4 px-5 fw-bold" to="/create-profile/expertise-level">
-            Back
-        </Link>
+        <button className="btn" onClick={() => profileStep({ step: EStep.EXPERTISELEVEL })
+        }>
+          {t("Back")}
         </button>
-        <button className={`btn ${user?.education?.school === "" && "disabled"}`}>
-          <Link
+        <button className={`btn }`}>
+          <button
             className="btn bg-jobsicker px-5"
-            to="/create-profile/language"
             onClick={updateUser}
           >
-            Next
-        </Link>
+            {t("Next")}
+          </button>
         </button>
       </div>
     </section>

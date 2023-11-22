@@ -15,35 +15,9 @@ import useWindowSize from 'utils/useWindowSize'
 import HashtagInput from './create-new-idea/HastagInput'
 import Tags from './create-new-idea/tag'
 import FileDisplay from './idea-detail/file-display'
+import { fetchAllToCL } from 'src/utils/helperFuncs'
 
 const { Title } = Typography
-
-const fetchPresignedUrl = async (url: any, file: any) => {
-  try {
-    const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1)
-    const type = file.type
-    const requestUrl = url + `?ext=${fileExtension}&type=${type}`
-    const uploadConfig = await Http.get(requestUrl)
-    // const uploadFileToS3 = await axios.put(uploadConfig.data.url, file.originFileObj, {
-    //   headers: {
-    //     'Content-Type': type,
-    //   },
-    // })
-
-    return `https://yessir-bucket-tqt.s3.ap-northeast-1.amazonaws.com/${uploadConfig.data.key}`
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-const fetchAllToS3 = async (files: any) => {
-  const url = '/api/v1/idea/preSignUrl'
-  const requests = files.map(async (file: any) => {
-    return await fetchPresignedUrl(url, file).then(result => result)
-  })
-
-  return Promise.all(requests)
-}
 
 export default function EditIdea() {
   const [data, setData] = useState([])
@@ -129,7 +103,7 @@ export default function EditIdea() {
       return message.error('You must agree to the terms and conditions')
     }
     if (files) {
-      let fileNameList = await fetchAllToS3(files)
+      let fileNameList = await fetchAllToCL(files)
       postForm['files'] = fileNameList
     }
 

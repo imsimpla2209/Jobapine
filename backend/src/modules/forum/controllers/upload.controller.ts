@@ -5,15 +5,14 @@ import archiver from 'archiver'
 import AWS from 'aws-sdk'
 import { PassThrough } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
+import BEConfig from '@config/config'
+import httpStatus from 'http-status'
+import { ApiError } from 'common/errors'
 import Post from '../models/Post'
 import ApiErrorResponse from '../utils/ApiErrorResponse'
-// const config = {
-//   credentials: {
-//     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-//   },
-//   region: "us-east-1",
-// };
+
+const cloudinary = require('cloudinary').v2
+
 const initS3AWS = () => {
   const accesskeyId = process.env.AWS_S3_ACCESS_KEY
   const secretAccessKey = process.env.AWS_S3_SECRET_KEY
@@ -30,6 +29,12 @@ const initS3AWS = () => {
 
   return s3
 }
+
+cloudinary.config({
+  cloud_name: BEConfig.Cloudinary.cloudName,
+  api_key: BEConfig.Cloudinary.accessKey,
+  api_secret: BEConfig.Cloudinary.secretKey,
+})
 
 export const getPresignedUrl = (req: any, res: any, next: any) => {
   const s3 = initS3AWS()
@@ -95,5 +100,30 @@ export const downloadFiles = async (req: any, res: any, next: any) => {
     mfstream.finalize()
   } catch (err: any) {
     return next(new ApiErrorResponse(`${err.message}`, 500))
+  }
+}
+
+export const getCLPresignedUrl = async (req: any, res: any, next: any) => {
+  try {
+    const timestamp = Math.round(new Date().getTime() / 1000)
+    const key = `${req?.user?._id}/${uuidv4()}`
+    const signature = await cloudinary.utils.api_sign_request(
+      {
+        timestamp,
+        // eager: 'w_400,h_300,c_pad|w_260,h_200,c_crop',
+        // public_id: key,
+        // upload_preset: 'uploadProfilePicture',
+      },
+      BEConfig.Cloudinary.secretKey
+    )
+    res.status(httpStatus.CREATED).send({
+      timestamp,
+      signature,
+      key,
+      cloudName: BEConfig.Cloudinary.cloudName,
+      apiKey: BEConfig.Cloudinary.accessKey,
+    })
+  } catch (e) {
+    throw new ApiError(httpStatus.BAD_GATEWAY, `cannot generate presign error ${e}`)
   }
 }

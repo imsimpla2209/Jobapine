@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Select, Space } from 'antd';
 import { getCategories } from 'src/api/job-apis';
 
-const CategoriesPicker = ({handleChange, istakeValue=false, reset=false}: any) => {
+const CategoriesPicker = ({handleChange, data, istakeValue=false, reset=false}: any) => {
   const [categories, setcategories] = useState([])
-  const [selected, setSelected] = useState([])
+  const [selected, setSelected] = useState(data || [])
 
   useEffect(() => {
     if(reset) {

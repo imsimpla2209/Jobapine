@@ -1,13 +1,20 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { updateUserData } from "../../../Network/Network";
+import { useSubscription } from "src/libs/global-state-hook";
+import { EStep, profileFreelancerData, profileStepStore } from "src/pages/FreelancerPages/CreateProfile";
 
-export default function CreateProfileTitleAndOverview({ setBtns, btns }) {
+export default function CreateProfileTitleAndOverview() {
+  const { setState, state } = useSubscription(profileFreelancerData);
   const [data, setData] = useState({
-    title: "",
-    overview: "",
+    title: state?.title || "",
+    intro: state?.intro || "",
     profileCompletion: 70,
   });
+
+  const { t } = useTranslation(['main'])
+
+  const profileStep = useSubscription(profileStepStore).setState
 
   const getData = (e) => {
     const name = e.target.name;
@@ -17,7 +24,7 @@ export default function CreateProfileTitleAndOverview({ setBtns, btns }) {
         setData({ ...data, title: val });
         break;
       case "overview":
-        setData({ ...data, overview: val });
+        setData({ ...data, intro: val });
         break;
       default:
         break;
@@ -25,15 +32,14 @@ export default function CreateProfileTitleAndOverview({ setBtns, btns }) {
   };
 
   const addData = () => {
-    console.log(data);
-    updateUserData("freelancer", data);
-    setBtns({ ...btns, profilePhoto: false })
+    setState({ ...state, title: data?.title, intro: data?.intro })
+    profileStep({ step: EStep.PROFILEPHOTO })
   };
 
   return (
     <section className="bg-white border rounded mt-3 pt-4">
       <div className="border-bottom ps-4 pb-3">
-        <h4>Title & Overview</h4>
+        <h4>{t("Title & Overview")}</h4>
       </div>
       <div className="px-4 my-4">
         <p>
@@ -51,6 +57,7 @@ export default function CreateProfileTitleAndOverview({ setBtns, btns }) {
               type="text"
               className="form-control shadow-none w-50"
               name="title"
+              defaultValue={data.title}
               onInput={getData}
             />
           </label>
@@ -61,6 +68,7 @@ export default function CreateProfileTitleAndOverview({ setBtns, btns }) {
             <textarea
               name="overview"
               rows={7}
+              defaultValue={data.intro}
               className="form-control shadow-none"
               placeholder="Highlight your top skills, experience, and interests. This is one of the first things clients will see on your profile."
               onInput={getData}
@@ -70,22 +78,13 @@ export default function CreateProfileTitleAndOverview({ setBtns, btns }) {
         </div>
       </div>
       <div className="px-4 my-3 pt-4 border-top d-flex justify-content-between">
-        <button className="btn">
-          <Link
-            className="btn border text-success me-4 px-5 fw-bold"
-            to="/create-profile/hourly-rate"
-          >
-            Back
-          </Link>
+        <button className="btn" onClick={() => profileStep({ step: EStep.HOURLYRATE })
+        }>
+
+          {t("Back")}
         </button>
-        <button className={`btn ${data.title === "" || data.overview === "" ? "disabled" : ""}`}>
-          <Link
-            className="btn bg-jobsicker px-5"
-            to="/create-profile/profile-photo"
-            onClick={addData}
-          >
-            Next
-        </Link>
+        <button className={`btn bg-jobsicker px-5 ${data.title === "" || data.intro === "" ? "disabled" : ""}`} onClick={() => addData()}>
+          {t("Next")}
         </button>
       </div>
     </section>

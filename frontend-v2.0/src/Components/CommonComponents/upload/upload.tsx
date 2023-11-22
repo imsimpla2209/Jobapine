@@ -27,7 +27,7 @@ const validFileType = [
   'application/vnd.ms-excel',
 ]
 
-const checkFileFunc = (file: any) => {
+export const checkFileFunc = (file: any) => {
   const checkType = validFileType.includes(file.type)
   const checkSize = file.size <= 50000000
   console.log('size', checkSize, file.size)

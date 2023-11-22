@@ -37,4 +37,8 @@ export interface IContractQuery {
   client?: string,
   job?: string,
   currentStatus?: EStatus,
+  sortBy?: string
+  projectBy?: string
+  limit?: number
+  page?: number
 }

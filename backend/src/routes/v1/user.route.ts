@@ -5,6 +5,7 @@ import { userController, userValidation } from '../../modules/user'
 
 const router: Router = express.Router()
 
+router.route('/checkUnique').get(userController.checkUserUniqueField)
 router.route('/to-freelancer').get(auth(), userController.switchToFreelancer)
 router.route('/to-client').get(auth(), userController.switchToClient)
 

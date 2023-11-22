@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
 import Token from '../token/token.model'
-import { generateAuthTokens, verifyToken } from '../token/token.service'
+import { generateAuthTokens, verifySMSToken, verifyToken } from '../token/token.service'
 import tokenTypes from '../token/token.types'
 import { IUserDoc, IUserWithTokens } from '../user/user.interfaces'
 import { getUserById, getUserByOptions, getUserByUsername, updateUserById } from '../user/user.service'
@@ -95,6 +96,29 @@ export const verifyEmail = async (verifyEmailToken: any): Promise<IUserDoc | nul
     await Token.deleteMany({ user: user.id, type: tokenTypes.VERIFY_EMAIL })
     const updatedUser = await updateUserById(user.id, { isEmailVerified: true })
     return updatedUser
+  } catch (error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Email verification failed')
+  }
+}
+
+/**
+ * Verify phone
+ * @param {string} verifySMSToken
+ * @returns {Promise<IUserDoc | null>}
+ */
+export const verifyPhoneSMS = async (SMSToken: any, userId: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
+  try {
+    const verifySMSTokenDoc = await verifySMSToken(SMSToken, new mongoose.Types.ObjectId(userId))
+    const user = await getUserById(new mongoose.Types.ObjectId(verifySMSTokenDoc.user))
+    if (!user) {
+      throw new Error()
+    }
+    await Token.deleteMany({ user: user.id, type: tokenTypes.VERIFY_EMAIL })
+    if (!user.isPhoneVerified) {
+      const updatedUser = await updateUserById(user.id, { isPhoneVerified: true })
+      return updatedUser
+    }
+    return user
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Email verification failed')
   }

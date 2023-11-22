@@ -30,6 +30,7 @@ const facebookStrategy = new FacebookStrategy(
             phone: '',
             nationalId: '',
             dob: profile?.birthday,
+            isPhoneVerified: false,
           }).then(createdUser => {
             return done(null, createdUser)
           })

@@ -158,7 +158,7 @@ export default function SearchBarJobsFreelancer({ showPath = true, useIndexSearc
         </div> */}
       {
         showPath && <span className="d-block pt-2">
-          <Link to='/Search' className="advanced-search-link" style={{ fontSize: '17px', color: '#8529cc', fontWeight: "600" }}>
+          <Link to='/Search' className="advanced-search-link" style={{ fontSize: '17px', color: '#cccccc', fontWeight: "600" }}>
             {t("AdvancedSearch")}
           </Link>
         </span>

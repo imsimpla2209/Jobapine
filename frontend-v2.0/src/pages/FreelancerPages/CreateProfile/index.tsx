@@ -1,84 +1,87 @@
-import CreateProfileAside from 'Components/FreelancerComponents/CreateProfileAside';
-import CreateProfileCategory from 'Components/FreelancerComponents/CreateProfileCategory';
-import CreateProfileEducationAndEmployment from 'Components/FreelancerComponents/CreateProfileEducationAndEmployment';
-import CreateProfileExpertiseLevel from 'Components/FreelancerComponents/CreateProfileExpertiseLevel';
-import CreateProfileGetStart from 'Components/FreelancerComponents/CreateProfileGetStart';
-import CreateProfileHourlyRate from 'Components/FreelancerComponents/CreateProfileHourlyRate';
-import CreateProfileLanguage from 'Components/FreelancerComponents/CreateProfileLanguage';
-import CreateProfileLocation from 'Components/FreelancerComponents/CreateProfileLocation';
-import CreateProfilePhoneNumber from 'Components/FreelancerComponents/CreateProfilePhoneNumber';
-import CreateProfilePhoto from 'Components/FreelancerComponents/CreateProfilePhoto';
-import CreateProfileSubmit from 'Components/FreelancerComponents/CreateProfileSubmit';
-import CreateProfileTitleAndOverview from 'Components/FreelancerComponents/CreateProfileTitleAndOverview';
-import React, { useState } from 'react'
-import { Route } from 'react-router'
-import { useLocation, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import CreateProfileAside from 'src/Components/FreelancerComponents/CreateProfileAside';
+import { freelancerStore, userStore } from 'src/Store/user.store';
+import { createSubscription, useSubscription } from 'src/libs/global-state-hook';
+import { IFreelancer } from 'src/types/freelancer';
+import { IUser } from 'src/types/user';
+
+
+export enum EStep {
+  START = 0,
+  CATEGORY = 1,
+  EXPERTISELEVEL = 2,
+  EDUANDEMP = 3,
+  LANGUAGE = 4,
+  HOURLYRATE = 5,
+  TITLEANDOVERVIEW = 6,
+  PROFILEPHOTO = 7,
+  LOCATION = 8,
+  PHONENUMBER = 9,
+  SUBMIT = 10,
+}
+
+// Import components dynamically
+const components = {
+  [EStep.START]: () => import('Components/FreelancerComponents/CreateProfileGetStart'),
+  [EStep.CATEGORY]: () => import('Components/FreelancerComponents/CreateProfileCategory'),
+  [EStep.EXPERTISELEVEL]: () => import('Components/FreelancerComponents/CreateProfileExpertiseLevel'),
+  [EStep.EDUANDEMP]: () => import('Components/FreelancerComponents/CreateProfileEducationAndEmployment'),
+  [EStep.LANGUAGE]: () => import('Components/FreelancerComponents/CreateProfileLanguage'),
+  [EStep.HOURLYRATE]: () => import('Components/FreelancerComponents/CreateProfileHourlyRate'),
+  [EStep.TITLEANDOVERVIEW]: () => import('Components/FreelancerComponents/CreateProfileTitleAndOverview'),
+  [EStep.PROFILEPHOTO]: () => import('Components/FreelancerComponents/CreateProfilePhoto'),
+  [EStep.LOCATION]: () => import('Components/FreelancerComponents/CreateProfileLocation'),
+  [EStep.PHONENUMBER]: () => import('Components/FreelancerComponents/CreateProfilePhoneNumber'),
+  [EStep.SUBMIT]: () => import('Components/FreelancerComponents/CreateProfileSubmit'),
+};
+
+
+
+export const profileStepStore = createSubscription<{ step: EStep }>({ step: EStep.START || 0 });
+export const profileFreelancerData = createSubscription<IFreelancer>({} as IFreelancer);
+export const userData = createSubscription<IUser>({} as IUser);
 
 export default function CreateProfile() {
+  const profileStep = useSubscription(profileStepStore).state;
+  const profilesetStep = useSubscription(profileStepStore).setState;
+  const setState = useSubscription(profileFreelancerData).setState;
+  const setStateUser = useSubscription(userData).setState;
+  const currentFreelancerData = useSubscription(freelancerStore).state;
+  const currentUserData = useSubscription(userStore).state;
 
-    const { pathname } = useLocation();
+  const DynamicComponent = components[profileStep.step];
+  const [Component, setComponent] = useState<React.ComponentType | null>(null);
 
-    const [btns, setBtns] = useState({
-        category: true,
-        expertiseLevel: true,
-        eduAndEmp: true,
-        language: true,
-        hourlyRate: true,
-        titleAndOverview: true,
-        profilePhoto: true,
-        location: true,
-        PhoneNumber: true,
-    })
+  useEffect(() => {
+    console.log('current profile', currentFreelancerData)
+    setState(currentFreelancerData)
+    setStateUser(currentUserData)
+  }, [currentFreelancerData?._id, currentUserData?._id])
 
-    return (
-        <section className="p-4" style={{ backgroundColor: "#F1F2F4" }}>
-            <div className="container">
-                <div className="row">
-                    {
-                        pathname !== "/create-profile/submit" &&
-                        <div className="col-lg-3">
-                            <CreateProfileAside btns={btns} />
-                        </div>
-                    }
-                    <div className={pathname === "/create-profile/submit" ? "col-lg-12" : "col-lg-9"}>
-                        <Routes>
-                            <Route path="/create-profile" >
-                                <CreateProfileGetStart setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/category" >
-                                <CreateProfileCategory setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/expertise-level" >
-                                <CreateProfileExpertiseLevel setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/education-and-employment" >
-                                <CreateProfileEducationAndEmployment setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/language" >
-                                <CreateProfileLanguage setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/hourly-rate" >
-                                <CreateProfileHourlyRate setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/title-and-overview" >
-                                <CreateProfileTitleAndOverview setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/profile-photo" >
-                                <CreateProfilePhoto setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/location" >
-                                <CreateProfileLocation setBtns={setBtns} btns={btns} />
-                            </Route>
-                            <Route path="/create-profile/phone-number" >
-                                <CreateProfilePhoneNumber />
-                            </Route>
-                            <Route path="/create-profile/submit" >
-                                <CreateProfileSubmit />
-                            </Route>
-                        </Routes>
-                    </div>
-                </div>
+  useEffect(() => {
+		console.log(profileStep.step)
+    const loadComponent = async () => {
+      const dynamicComponent = await DynamicComponent();
+      setComponent(() => dynamicComponent.default);
+    };
+
+    loadComponent();
+  }, [DynamicComponent]);
+
+  return (
+    <section className="p-4" style={{ backgroundColor: "#F1F2F4" }}>
+      <div className="container">
+        <div className="row">
+          {profileStep.step !== EStep.SUBMIT &&
+            <div className="col-lg-3">
+              <CreateProfileAside profileStep={profilesetStep} step={profileStep.step} />
             </div>
-        </section>
-    )
+          }
+          <div className={profileStep.step === EStep.SUBMIT ? "col-lg-12" : "col-lg-9"}>
+            {Component && <Component/>}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }

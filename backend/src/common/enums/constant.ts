@@ -40,5 +40,6 @@ export const FEMessage = (extra?: any) => {
       name: 'Your proposed contract has been rejected',
       name_vi: 'Đề nghị hợp đồng làm việc của bạn đã bị từ chối',
     },
+    phoneSMSVerify: `JobSickers-Biggest Application Marketplace \n\nYour OTP verification code is/Mã xác thực số điện thoại của bạn là [ ${extra} ]`,
   }
 }

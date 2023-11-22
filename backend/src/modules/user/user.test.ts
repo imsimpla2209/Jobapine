@@ -65,6 +65,8 @@ describe('User routes', () => {
         role: 'user',
         username: '420ppppp',
         isEmailVerified: false,
+        isPhoneVerified: false,
+
         phone: '',
         nationalId: '',
         dob: '',

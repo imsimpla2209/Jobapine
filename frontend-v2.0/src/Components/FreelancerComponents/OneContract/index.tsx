@@ -4,14 +4,13 @@ import { fakeClientState, fakeJobsState } from "Store/fake-state";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import StarsRating from "../../SharedComponents/StarsRating/StarsRating";
+import { currencyFormatter } from "src/utils/helperFuncs";
+import { useTranslation } from "react-i18next";
 
 export default function OneContract({ contract, ind }) {
 
-  const job = fakeJobsState[0];
-  const client = fakeClientState;
-  const [clientContract, setClientContract] = useState();
   const navigate = useNavigate();
-
+  const { t } = useTranslation(['main'])
 
   useEffect(() => {
     // db.collection("job")
@@ -34,7 +33,6 @@ export default function OneContract({ contract, ind }) {
     //         })
     //     }
     //   });
-    console.log(client);
   }, []);
 
   return (
@@ -49,14 +47,12 @@ export default function OneContract({ contract, ind }) {
 
                   onClick={(e) => {
                     e.preventDefault();
-										e.stopPropagation();
-                    navigate("/contract", {
-                      state: { job, client, clientContract }
-                    })
+                    e.stopPropagation();
+                    navigate(`/contract/${contract?._id}`)
                   }}
                   className="m-0 fw-bold"
                 >
-                  {job?.jobTitle!}
+                  {contract?.job?.title!}
                 </Link>
               </div>
             </div>
@@ -64,7 +60,7 @@ export default function OneContract({ contract, ind }) {
               <div className="col-xs-6">
                 <strong className="m-0 ellipsis d-block ng-binding">
                   {
-                    client?.firstName + " " + client?.lastName
+                    contract?.client?.name
                   }
                 </strong>
               </div>
@@ -73,9 +69,9 @@ export default function OneContract({ contract, ind }) {
               <div className="col-xs-12">
                 <small className="text-muted ">
                   <span>
-                    {new Date(contract?.startContractTime?.seconds * 1000).toLocaleString()}
+                    {new Date(contract?.startDate).toLocaleString()}
                   </span> - <span>
-                    {contract?.endContractTime ? new Date(contract?.endContractTime?.seconds * 1000).toLocaleString() : "active"}
+                    {contract?.endDate ? new Date(contract?.endDate).toLocaleString() : "active"}
                   </span>
                 </small>
               </div>
@@ -86,18 +82,22 @@ export default function OneContract({ contract, ind }) {
           <div className="row">
             <div className="col-xs-6 qa-wm-fl-cl-terms col-xs-12">
               <div>
-                <span className="text-muted">Budget: </span><strong>${job?.jobBudget}</strong> {job?.jobPaymentType === "Hourly" && "/hr"}
+                <span className="text-muted">{t("Budget")}: </span><strong>{currencyFormatter(contract?.job?.budget)}</strong>
+
+              </div>
+              <div>
+                {currencyFormatter(contract?.agreeAmount)}/{t(`${contract?.paymentType}`)}
               </div>
               {
-                job?.status === false &&
+                contract?.job?.status === false &&
                 <>
                   <p className="m-0-top-bottom mt-2">Completed Feb 4</p>
                   <div>
-                    <StarsRating clientReview={job?.clientAllReviews} index={1} />
-                    <StarsRating clientReview={job?.clientAllReviews} index={2} />
-                    <StarsRating clientReview={job?.clientAllReviews} index={3} />
-                    <StarsRating clientReview={job?.clientAllReviews} index={4} />
-                    <StarsRating clientReview={job?.clientAllReviews} index={5} />
+                    <StarsRating clientReview={contract?.job?.clientAllReviews} index={1} />
+                    <StarsRating clientReview={contract?.job?.clientAllReviews} index={2} />
+                    <StarsRating clientReview={contract?.job?.clientAllReviews} index={3} />
+                    <StarsRating clientReview={contract?.job?.clientAllReviews} index={4} />
+                    <StarsRating clientReview={contract?.job?.clientAllReviews} index={5} />
                   </div>
                 </>
               }

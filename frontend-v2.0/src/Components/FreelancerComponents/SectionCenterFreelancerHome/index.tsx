@@ -113,7 +113,9 @@ export default function SectionCenterFreelancerHome({ user }) {
           </div>
       }
 
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
+      <div style={{ display: 'flex', justifyContent: 'end', 
+      background: 'white', alignContent: 'center', 
+      alignItems: 'center', padding: 16, borderRadius: 10 }}>
         <Pagination
           className="mt-5"
           total={total}

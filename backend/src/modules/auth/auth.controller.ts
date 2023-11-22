@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import config from '@config/config'
+import { sendSMS } from '@modules/forum/controllers/sms.controller'
+import {
+  sendResetPasswordEmail,
+  sendSuccessfulRegistration,
+  sendVerificationEmailFunc,
+} from '@modules/forum/utils/mailer'
 import { getUserById } from '@modules/user/user.service'
+import { FEMessage } from 'common/enums/constant'
 import { ApiError } from 'common/errors'
 import { Request, Response } from 'express'
 import httpStatus from 'http-status'
-import { emailService } from '../../providers/email'
+import mongoose from 'mongoose'
 import catchAsync from '../../utils/catchAsync'
 import { tokenService } from '../token'
 import { userService } from '../user'
@@ -16,6 +23,8 @@ export const register = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.registerUser(req.body)
   const tokens = await tokenService.generateAuthTokens(user)
   await userService.setUserRefreshToken(user._id, tokens.refresh.token)
+  const verifyEmailToken = await tokenService.generateVerifyEmailToken(user)
+  await sendSuccessfulRegistration(req.body.email, verifyEmailToken, req.body.name)
   res.cookie('Authentication', tokens.access, {
     domain: '.localhost',
     httpOnly: cookiConfigs.httpOnly,
@@ -78,10 +87,10 @@ export const refreshTokens = catchAsync(async (req: Request, res: Response) => {
 
 export const forgotPassword = catchAsync(async (req: Request, res: Response) => {
   const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email)
-  const to = {
-    email: req.user.email,
-  }
-  await emailService.sendResetPasswordEmail(to, resetPasswordToken)
+  // const to = {
+  //   email: req.user.email,
+  // }
+  await sendResetPasswordEmail(req.user.email, resetPasswordToken)
   res.status(httpStatus.NO_CONTENT).send()
 })
 
@@ -92,11 +101,27 @@ export const resetPassword = catchAsync(async (req: Request, res: Response) => {
 
 export const sendVerificationEmail = catchAsync(async (req: Request, res: Response) => {
   const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.user)
-  const to = {
-    email: req.user.email,
-  }
-  await emailService.sendVerificationEmail(to, verifyEmailToken, req.user.name)
+  await sendVerificationEmailFunc(req.user.email, verifyEmailToken, req.user.name)
   res.status(httpStatus.NO_CONTENT).send()
+})
+
+export const sendPhoneSMS = catchAsync(async (req: Request, res: Response) => {
+  try {
+    const smsToken = await tokenService.generateSMSToken(new mongoose.Types.ObjectId(req.user?._id))
+    await sendSMS(req.params.phone, FEMessage(smsToken.token).phoneSMSVerify)
+    res.status(httpStatus.NO_CONTENT).send(true)
+  } catch (e) {
+    res.status(httpStatus.BAD_REQUEST).send(false)
+  }
+})
+
+export const verifySMS = catchAsync(async (req: Request, res: Response) => {
+  try {
+    await authService.verifyPhoneSMS(req.params?.token, new mongoose.Types.ObjectId(req.user?._id))
+    res.status(httpStatus.NO_CONTENT).send({ result: true })
+  } catch {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Wrong OTP Code')
+  }
 })
 
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {

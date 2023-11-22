@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function NewLang(props) {
   let [language, setlanguage] = useState("");
@@ -8,7 +7,6 @@ export default function NewLang(props) {
     setlanguage(language);
     console.log(language)
   };
-  const navigate = useNavigate()
   let [proficiency, setproficiency] = useState("");
   const prof = (e) => {
     proficiency = e.target.value;
@@ -17,8 +15,7 @@ export default function NewLang(props) {
   };
   const add = () => {
     props.toggleAddLang();
-    props.addlangToList({ "language": language, "languageAr": language === "Arabic" ? "اللغة العربية" : language === "French" ? "اللغة الفرنسية" : language === "Spanish" ? "اللغة الأسبانية" : "اللغة الهندية", "langProf": proficiency, "langProfAr": proficiency === "proficiency" ? "إجادة اللغة" : proficiency === "Basic" ? "أساسي" : proficiency === "Conversational" ? "محادثة" : proficiency === "Fluent" ? "فصيح" : "اللغة الأم" });
-    navigate("/create-profile/hourly-rate")
+    props.addlangToList({ "language": language, "langProf": proficiency });
   }
   return (
     <>
@@ -30,10 +27,10 @@ export default function NewLang(props) {
           onChange={lang}
         >
           <option selected>Select Language</option>
-          <option value="Arabic">Arabic</option>
-          <option value="French">French</option>
-          <option value="Spanish">Spanish</option>
-          <option value="Hindi">Hindi</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
+          <option value="Russia">Russia</option>
         </select>
         <div className="col-4 mx-auto">
           <i className="fas fa-trash fs-2" onClick={props.toggleAddLang}></i>
@@ -46,11 +43,12 @@ export default function NewLang(props) {
         aria-label=".form-select-lg example"
         onChange={prof}
       >
-        <option selected>Select proficiency</option>
-        <option value="Basic">Basic</option>
-        <option value="Conversational">Conversational</option>
-        <option value="Fluent">Fluent</option>
-        <option value="Native">Native</option>
+        <option value="English proficiency">English proficiency</option>
+        <option value="Basic/Cơ bản">Basic/Cơ bản</option>
+        <option value="Conversational/Giao tiếp">Conversational/Giao tiếp</option>
+        <option value="Fluent/Thông thạo">Fluent/Thông thạo</option>
+        <option value="Native/Như bản địa">Native/Như bản địa</option>
+        <option value="None/Chả biết gì">None/Chả biết gì</option>
       </select>
       <button
         className="btn bg-jobsicker px-5"

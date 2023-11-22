@@ -14,17 +14,21 @@ import { requestMessageRoom } from "src/api/message-api";
 import { useSubscription } from "src/libs/global-state-hook";
 import { userStore } from "src/Store/user.store";
 
-export default function ProposalCard({ proposal, jobId, ind, isInMSG = false }) {
+export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = false }: any) {
   const { t } = useTranslation(['main'])
   const [jobData, setJobData] = useState<any>({})
   const [isSendRequest, setSendRequest] = useState<any>(false)
   const user = useSubscription(userStore).state
 
   useEffect(() => {
-    getJob(jobId).then(res => {
-      setJobData(res.data);
-    }).catch(err => console.log(err));
-  }, []);
+    if (job) {
+      setJobData(job)
+    } else if (jobId) {
+      getJob(jobId).then(res => {
+        setJobData(res.data);
+      }).catch(err => console.log(err));
+    }
+  }, [job, jobId]);
 
   const createRequestMSGRoom = () => {
     requestMessageRoom({
@@ -42,7 +46,7 @@ export default function ProposalCard({ proposal, jobId, ind, isInMSG = false }) 
   return (
     <>
       {
-        jobId
+        jobId || job
           &&
           jobData?.title ?
           <div>
@@ -71,8 +75,8 @@ export default function ProposalCard({ proposal, jobId, ind, isInMSG = false }) 
                     <div>
                       {
                         proposal?.currentStatus === EStatus.ACCEPTED
-                          ? new Date(proposal?.status?.date * 1000).toLocaleString()
-                          : (proposal?.createdAt ? new Date((proposal?.createdAt) * 10000).toLocaleString() : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString())
+                          ? new Date(proposal?.updatedAt).toLocaleString()
+                          : (proposal?.createdAt ? new Date((proposal?.createdAt)).toLocaleString() : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString())
                       }
                     </div>
                   </div>
@@ -96,12 +100,12 @@ export default function ProposalCard({ proposal, jobId, ind, isInMSG = false }) 
                     !isInMSG && <div>
                       {
                         (proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS)
-                          ? <Link to="/messages"><BlueColorButton>{t("Go to messaging")}</BlueColorButton></Link>
+                          ? <Link to={`/messages?proposalId=${proposal?._id}`}><BlueColorButton>{t("Go to messaging")}</BlueColorButton></Link>
                           : <BlueColorButton style={{
                             pointerEvents: (isSendRequest || proposal?.msgRequestSent) ? "none" : "auto",
                             background: (isSendRequest || proposal?.msgRequestSent) ? "gray" : "",
                           }} className="" onClick={createRequestMSGRoom}>
-                            {(isSendRequest || proposal?.msgRequestSent) ? <>{t("Sent")}</> : <>{t("Request to message")}</>} 
+                            {(isSendRequest || proposal?.msgRequestSent) ? <>{t("Sent")}</> : <>{t("Request to message")}</>}
                           </BlueColorButton>
                       }
                     </div>
