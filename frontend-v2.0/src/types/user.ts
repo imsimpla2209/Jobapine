@@ -19,12 +19,12 @@ export interface IUserInfo {
 export interface IUser {
   id?: string
   _id?: string
-  name: string
-  username: string
-  email: string
+  name?: string
+  username?: string
+  email?: string
   phone?: string
   nationalId?: string
-  role: string
+  role?: string
   isEmailVerified?: boolean
   oAuth?: any
   refreshToken?: string

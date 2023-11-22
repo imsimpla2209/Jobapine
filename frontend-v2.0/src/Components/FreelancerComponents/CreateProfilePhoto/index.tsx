@@ -1,103 +1,100 @@
 
-import { useState } from "react";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Modal, Upload, UploadFile } from "antd";
+import { RcFile } from "antd/es/upload";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import { auth, storage } from "../../../firebase";
-import { updateUserData } from "../../../Network/Network";
-import React from "react";
+import { checkFileFunc } from "src/Components/CommonComponents/upload/upload";
+import { useSubscription } from "src/libs/global-state-hook";
+import { EStep, profileStepStore, userData } from "src/pages/FreelancerPages/CreateProfile";
+import { getBase64 } from "src/utils/helperFuncs";
 
-export default function CreateProfilePhoto({ setBtns, btns }) {
-	const [imgUrl, setimgUrl] = useState(null);
-	const [progress, setprogress] = useState(0);
+export default function CreateProfilePhoto() {
+	const profileStep = useSubscription(profileStepStore).setState
+	const { setState: setUser, state: user } = useSubscription(userData);
+	const [files, setFiles] = useState(null)
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
+	const handleCancel = () => setPreviewOpen(false);
+	const [loading, setLoading] = useState(false);
 
-	const getData = ({ target }) => {
-		if (target.files[0]) {
-			// const uploadStep = storage.ref(`images/${target.files[0].name}`).put(target.files[0]);
-			// uploadStep.on(
-			// 	"state_changed",
-			// 	(snapshot) => {
-			// 		const progress = Math.round(
-			// 			(snapshot.bytesTransferred / snapshot.totalBytes) * 100
-			// 		);
-			// 		setprogress(progress);
-			// 	},
-			// 	(err) => {
-			// 		console.log(err);
-			// 	},
-			// 	() => {
-			// 		storage
-			// 			.ref("images")
-			// 			.child(target.files[0].name)
-			// 			.getDownloadURL()
-			// 			.then((URL) => {
-			// 				let imgu = URL;
-			// 				setimgUrl(imgu);
-			// 				URL &&
-			// 					updateUserData("freelancer", {
-			// 						profilePhoto: URL,
-			// 						profileCompletion: 80,
-			// 					});
-			// 				URL && auth.currentUser.updateProfile({ photoURL: URL });
-			// 			});
-			// 	}
-			// );
+	useEffect(() => {
+		if (user?.avatar) {
+			setFiles(user?.avatar)
 		}
-	};
+	}, [])
 
-
+	const addData = async () => {
+		setLoading(true);
+		try {
+			setUser({ ...user, avatar: files })
+		} catch (error) {
+			console.error(error)
+		} finally {
+			setLoading(false)
+		}
+		profileStep({ step: EStep.LOCATION })
+	}
+	const handlePreview = async (file: UploadFile) => {
+		if (!file.url && !file.preview) {
+			file.preview = await getBase64(file.originFileObj as RcFile);
+		}
+		setPreviewImage(file.url || (file.preview as string));
+		setPreviewOpen(true);
+	}
 
 	return (
-		<section className="bg-white border rounded mt-3 pt-4">
-			<div className="border-bottom ps-4 pb-3">
-				<h4>Profile Photo</h4>
-			</div>
-			<div className="px-4 my-4">
-				<p>
-					Please upload a professional portrait that clearly shows your face.{" "}
-					<Link to="">
-						<i className="fas fa-info-circle"></i>
-					</Link>
-				</p>
-				<div className="w-25 text-center mt-5">
-					{/* <progress className="w-100" value={progress} max="100" /> */}
-					<div className="mb-3" style={{ width: progress * 2, height: "5px", backgroundColor: "#5b14b8" }}></div>
-					{imgUrl ? (
-						<div style={{ width: "100px", height: "100px", margin: "0 auto" }}>
-							<img className="w-100 h-100 circle" src={imgUrl} />
-						</div>
-					) : (
-						<i
-							className="fas fa-user-circle fa-7x"
-							style={{ color: "#A0A0A0" }}
-						></i>
-					)}
-				</div>
-				<label
-					className="btn border border-2 mt-4 rounded-5"
-					htmlFor="img"
-					style={{ color: "#5b14b8" }}
-				>
+	<section className="bg-white border rounded mt-3 pt-4">
+		<div className="border-bottom ps-4 pb-3">
+			<h4>Profile Photo</h4>
+		</div>
+		<div className="px-4 my-4" style={{ width: "100%", display: 'flex', alignItems: 'center', alignContent: 'center', flexDirection: 'column' }}>
+			<p>
+				Please upload a professional portrait that clearly shows your face.{" "}
+				<Link to="">
+					<i className="fas fa-info-circle"></i>
+				</Link>
+			</p>
+		</div>
+		<div
 
-					<i className="fas fa-plus me-3"></i>Add Profile Photo
-				</label>
-				<input
-					id="img"
-					className="d-none"
-					type="file"
-					onInput={getData}
-				/>
-			</div>
-			<div className="px-4 my-3 pt-4 border-top d-flex justify-content-between">
-				<button className="btn">
-					<Link className="btn border text-success me-4 px-5 fw-bold" to="/home">
-						Back
-					</Link>
-				</button>
-				<button className={`btn ${progress < 100 && "disabled"}`}>
-					<Link className="btn bg-jobsicker px-5" to="/create-profile/location" onClick={() => setBtns({ ...btns, location: false })}>
-						Next
-					</Link>
-				</button>
-			</div>
-		</section>
-	);
+		>
+			<Upload
+				name="avatar"
+				listType="picture-card"
+				className="avatar-uploader ms-5"
+				defaultFileList={files ? [files] : []}
+				onPreview={handlePreview}
+				accept="image/*"
+				beforeUpload={file => {
+					const checkedFile = checkFileFunc(file);
+					console.log('checkedFile', checkedFile)
+					if (checkedFile) {
+						setFiles([file])
+					}
+					return false
+				}}
+				maxCount={1}
+			>
+				<div>
+					<PlusOutlined />
+					<div style={{ marginTop: 8 }}>Upload</div>
+				</div>
+			</Upload>
+			<Modal open={previewOpen} title={'Avatar'} footer={null} onCancel={handleCancel}>
+				<img alt="example" style={{ width: '100%' }} src={previewImage} />
+			</Modal>
+		</div>
+		<div className="px-4 my-3 pt-4 border-top d-flex justify-content-between">
+			<button className="btn border me-4 px-5 fw-bold" onClick={() => profileStep({ step: EStep.TITLEANDOVERVIEW })}>
+				Back
+			</button>
+			<Button loading={loading} className={`btn bg-jobsicker px-5 ${!files && "disabled"}`} onClick={() => {
+				addData()
+			}}>
+				Next
+			</Button>
+		</div>
+	</section>
+);
 }

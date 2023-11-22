@@ -47,7 +47,7 @@ export default function HeadOfCenterSection() {
                 marginLeft: 14,
               }}>
                 <h3 style={{ fontSize: 23, fontWeight: 600, color: "#fc2683" }}>
-                  {t("HOT!!! This November")}
+                  {t("HOT!!! This December")}
                 </h3>
                 <p style={{ fontSize: 20, fontWeight: 600, color: "#6e6247", lineHeight: 2 }}>
                   {t("Start launching a money-making contest at home for girls")}
@@ -61,8 +61,10 @@ export default function HeadOfCenterSection() {
               ...contentStyle, background: `url(${conversation})`,
               backgroundRepeat: 'no-repeat',
               backgroundSize: 'cover',
+              padding: 28,
+              color: "#cccccc"
             }}>
-
+              {t("Engage with confidence")}
             </h3>
           </div>
           <div>
@@ -85,7 +87,7 @@ export default function HeadOfCenterSection() {
                   {t("Why so serious")}
                 </h3>
                 <p style={{ fontSize: 20, fontWeight: 600, color: "#11403d", lineHeight: 2 }}>
-                  {t("If you’re good at something, never do it for free.")}
+                  {t("If you're good at something, never do it for free.")}
                 </p>
               </div>
             </div>

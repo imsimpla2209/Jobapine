@@ -1,5 +1,5 @@
 import { ILevelSkill } from '@modules/skill/skill.interfaces'
-import { ELevel } from 'common/enums'
+import { EComplexity, ELevel, EPaymenType } from 'common/enums'
 import { IReview } from 'common/interfaces/subInterfaces'
 import mongoose from 'mongoose'
 import toJSON from '../../common/toJSON/toJSON'
@@ -10,6 +10,10 @@ const freelancerSchema = new mongoose.Schema<IFreelancerDoc, IFreelancerModel>(
   {
     user: { type: mongoose.Types.ObjectId, ref: 'User' },
     intro: {
+      type: String,
+      default: 'Nothing :))',
+    },
+    title: {
       type: String,
       default: 'Nothing :))',
     },
@@ -62,13 +66,29 @@ const freelancerSchema = new mongoose.Schema<IFreelancerDoc, IFreelancerModel>(
       type: Number,
       default: 0,
     },
+    isProfileVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isSubmitProfile: {
+      type: Boolean,
+      default: false,
+    },
     proposals: [{ type: mongoose.Types.ObjectId, ref: 'Proposal', default: [] }],
+    expertiseLevel: { type: Number, enum: EComplexity, default: EComplexity.EASY },
+    expectedAmount: { type: Number, default: 0 },
+    expectedPaymentType: { type: String, enum: EPaymenType, default: EPaymenType.PERHOURS },
     images: [{ type: String, required: 'false', default: [] }],
     reviews: [{ type: {} as IReview, default: [] }],
     preferJobType: [{ type: mongoose.Types.ObjectId, ref: 'JobCategory', default: [] }],
     currentLocations: [{ type: String, required: 'false', default: [] }],
     preferencesURL: [{ type: String, required: 'false', default: [] }],
     available: { type: Boolean, default: true },
+    education: { type: Object, default: {} },
+    historyWork: { type: Object, default: {} },
+    englishProficiency: { type: String, default: '' },
+    otherLanguages: [{ type: String, default: {} }],
+    profileCompletion: { type: Number, default: 0 },
   },
   {
     timestamps: true,

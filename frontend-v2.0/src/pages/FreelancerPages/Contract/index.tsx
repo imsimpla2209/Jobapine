@@ -2,26 +2,30 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { fakeClientState, fakeFreelancerState, fakeJobsState } from "Store/fake-state";
 import { useEffect, useState } from "react";
-import { NavLink, Route, Routes } from "react-router-dom";
+import { NavLink, Route, Routes, useParams } from "react-router-dom";
 import ContractEarnings from '../../../Components/FreelancerComponents/ContractEarnings';
 import ContractFeedback from '../../../Components/FreelancerComponents/ContractFeedback';
 import StarsRating from "../../../Components/SharedComponents/StarsRating/StarsRating";
 import img from "../../../assets/img/icon-user.svg";
 import "../../ClientPages/Freelancer/Freelancer.css";
+import { useSubscription } from "src/libs/global-state-hook";
+import { freelancerStore } from "src/Store/user.store";
+import { locationStore } from "src/Store/commom.store";
+import { getContract } from "src/api/contract-apis";
 
-export default function Contract({ location }) {
-	const user = fakeFreelancerState;
-	const [data, setData] = useState({ job: {}, client: {}, clientContract: {} })
+export default function Contract() {
+	const { id } = useParams()
+	const freelancer = useSubscription(freelancerStore).state;
+	const [data, setData] = useState<any>({})
+	const locations = useSubscription(locationStore).state
 
 	useEffect(() => {
-		const { job, client, clientContract } = location?.state;
-		setData({ job, client, clientContract });
-	}, [])
-
-	const { clientContract } = data;
-	const job = fakeJobsState[0];
-	const client = fakeClientState;
-
+		if(id) {
+			getContract(id).then((res) => {
+				setData(res.data)
+			});
+		}
+	}, [id])
 
 	const askPayment = () => {
 		// db.collection("client")
@@ -69,28 +73,34 @@ export default function Contract({ location }) {
 			<div className="row bg-white border border-rounded border-1 bg-gray mx-3">
 				<div className="row p-5">
 					<div className="col-9">
-						<h3 className="">{job?.jobTitle}</h3>
-						{
-							job?.clientJobReview[0]?.review &&
+						<h3 className="">{data?.job?.title}</h3>
+						{/* {
+							data?.job?.review?.at(0)?.review &&
 							<div>
 								<small>
 									<i className="fas fa-check-circle text-success"> </i>
 									{"  "}Completed Feb 21{"  "}
-									<StarsRating clientReview={job?.clientJobReview[0]?.review} index={1} />
-									<StarsRating clientReview={job?.clientJobReview[0]?.review} index={2} />
-									<StarsRating clientReview={job?.clientJobReview[0]?.review} index={3} />
-									<StarsRating clientReview={job?.clientJobReview[0]?.review} index={4} />
-									<StarsRating clientReview={job?.clientJobReview[0]?.review} index={5} />
+									<StarsRating clientReview={data?.job?.review?.at(0)?.review} index={1} />
+									<StarsRating clientReview={data?.job?.review?.at(0)?.review} index={2} />
+									<StarsRating clientReview={data?.job?.review?.at(0)?.review} index={3} />
+									<StarsRating clientReview={data?.job?.review?.at(0)?.review} index={4} />
+									<StarsRating clientReview={data?.job?.review?.at(0)?.review} index={5} />
 								</small>
 							</div>
-						}
+						} */}
 					</div>
 					<div className="col-3">
 						<img style={{ height: "40px", width: "40px" }} className="circle bg-white" src={img} alt="" />
 						<span className="h4 ms-3">
-							{client?.firstName + " " + client?.lastName}
+							{data?.client?.name}
 						</span>
-						<p className="text-muted text-center">{client?.location.city}</p>
+						<p className="text-muted text-center">{
+							data?.client?.preferLocations?.map(l => (
+								<span key={l} style={{ marginLeft: 2 }}>
+									{locations?.find(s => s.code === l.toString())?.name} |
+								</span>
+							))
+						}</p>
 					</div>
 				</div>
 
@@ -114,7 +124,7 @@ export default function Contract({ location }) {
 							</NavLink>
 						</li>
 						{
-							job?.status !== false &&
+							data?.job?.currentStatus !== false &&
 							<li className="nav-item ms-3">
 								<button
 									type="button"
@@ -138,11 +148,11 @@ export default function Contract({ location }) {
 						}
 					</ul>
 					<Routes>
-						<Route path="/contract">
-							<ContractEarnings job={job} client={client} clientContract={clientContract} />
+						<Route path="/contract" element={<ContractEarnings job={data?.job} client={data?.client} clientContract={data?.client} />}>
+
 						</Route>
-						<Route path="/contract/feedback">
-							<ContractFeedback job={job} />
+						<Route path="/contract/feedback" element={<ContractFeedback job={data?.job} />
+						}>
 						</Route>
 					</Routes>
 				</div>

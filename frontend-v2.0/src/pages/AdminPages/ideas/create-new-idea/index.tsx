@@ -1,6 +1,5 @@
 import { ArrowLeftOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { Button, Card, Checkbox, Divider, Form, Input, Select, Space, Switch, Typography, message } from 'antd'
-import FormItem from 'antd/es/form/FormItem'
 import { EditorState, convertToRaw } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
 import HashtagInput from './HastagInput'
@@ -15,34 +14,10 @@ import useRoleNavigate from 'libs/use-role-navigate'
 import { useState, useEffect } from 'react'
 import { useQuery } from 'utils/use-query'
 import useWindowSize from 'utils/useWindowSize'
+import FormItem from 'antd/es/form/FormItem'
+import { fetchAllToCL } from 'src/utils/helperFuncs'
 
 const { Title } = Typography
-
-const fetchPresignedUrl = async (url: any, file: any) => {
-  try {
-    const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1)
-    const type = file.type
-    const requestUrl = url + `?ext=${fileExtension}&type=${type}`
-    const uploadConfig = await Http.get(requestUrl)
-    const uploadFileToS3 = await axios.put(uploadConfig.data.url, file.originFileObj, {
-      headers: {
-        'Content-Type': type,
-      },
-    })
-    return `https://yessir-bucket-tqt.s3.ap-northeast-1.amazonaws.com/${uploadConfig.data.key}`
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-export const fetchAllToS3 = async (files: any) => {
-  const url = '/api/v1/idea/preSignUrl'
-  const requests = files.map(async (file: any) => {
-    return await fetchPresignedUrl(url, file).then(result => result)
-  })
-
-  return Promise.all(requests)
-}
 
 export default function CreateIdea() {
   const [form] = Form.useForm()
@@ -126,7 +101,7 @@ export default function CreateIdea() {
       return message.error('You must agree to the terms and conditions')
     }
     if (files) {
-      let fileNameList = await fetchAllToS3(files)
+      let fileNameList = await fetchAllToCL(files)
       postForm['files'] = fileNameList
     }
 

@@ -1,5 +1,6 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Rate, Select, Space } from 'antd';
+import { Button, Form, Select, Slider, Space } from 'antd';
+import { SliderMarks } from 'antd/es/slider';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getSkills } from 'src/api/job-apis';
@@ -17,10 +18,18 @@ const formItemLayout = {
   },
 };
 
-const desc = ['terrible', 'bad', 'normal', 'good', 'Goat'];
+const desc = ['Terrible', 'Bad', 'Normal', 'Good', 'Goat'];
 
-const SkillPicker = ({ handleChange }: any) => {
-  const [rates, setRates] = useState<SkillBody[]>([]);
+const marks: SliderMarks = {
+  1: desc[0],
+  2: desc[1],
+  3: desc[2],
+  4: desc[3],
+  5: desc[4],
+};
+
+const SkillPicker = ({ handleChange, data }: any) => {
+  const [rates, setRates] = useState<SkillBody[]>(data || []);
   const [skills, setSkills] = useState<any[]>([])
   
   const { i18n } = useTranslation(['main'])
@@ -46,6 +55,7 @@ const SkillPicker = ({ handleChange }: any) => {
       style={{ maxWidth: '100%', width: '100%' }}
     >
       <Form.List
+        initialValue={data}
         name="names"
         rules={[
           {
@@ -79,6 +89,8 @@ const SkillPicker = ({ handleChange }: any) => {
                       message: "Please input skill or delete this field.",
                     },
                   ]}
+                  name={[field.name, 'skill']}
+
                   noStyle
                 >
                   <Select
@@ -99,11 +111,11 @@ const SkillPicker = ({ handleChange }: any) => {
                     options={skills}
                   />
                 </Form.Item>
-                <Rate tooltips={desc} onChange={(s) => {
+                <Slider marks={marks} step={5} min={1} max={5} defaultValue={rates[index]?.level || 2} onChange={(s) => {
                   const rate = rates
                   rates[index].level = s
                   setRates(rate)
-                }} value={rates[index].level} style={{ marginRight: 20 }} />
+                }} style={{ marginRight: 20 }} />
                 {fields.length > 1 ? (
                   <MinusCircleOutlined
                     style={{ fontSize: 20, color: "gray" }}

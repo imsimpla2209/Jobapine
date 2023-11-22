@@ -6,7 +6,7 @@ import { Button, Checkbox, ConfigProvider, InputNumber, Pagination, Radio, Resul
 import { isArray, isEmpty } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import CategoriesPicker from "src/Components/SharedComponents/CategoriesPicker";
 import LocationPicker from "src/Components/SharedComponents/LocationPicker";
 import { MultiSkillPicker } from "src/Components/SharedComponents/SkillPicker";
@@ -46,16 +46,19 @@ export default function Search() {
 	const freelancer = useSubscription(freelancerStore).state;
 	const [filterOption, setfilterOption] = useState<IFilterOptions>({})
 	const [refresh, onRefresh] = useState<boolean>(false)
-	const [loading, setLoading] = useState<boolean>(false)
+	const [loading, setLoading] = useState<boolean>(true)
 
 	const advancedSearchData = useSubscription(advancedSearchJobs)
 	const advancedSearchPageData = useSubscription(advancedSearchPage)
 
+	const [searchParams, setSearchParams] = useSearchParams()
+	const skillParam = searchParams.get('skillId')
+	const categoryParam = searchParams.get('categoryId')
 
 	const handleSearh = useCallback((p?: number, ps?: number) => {
 		const filter = Object.fromEntries(Object.entries(advancedSearchData.state).filter(([_, v]) => v != null || (isArray(v) && v?.length === 0)));
 		advancedSearchPageData.setState({ ...advancedSearchPageData.state, isFirstLoad: false })
-		const searchText = !!text ? { searchText: text || '' } : null
+		const searchText = text ? { searchText: text || '' } : null
 		setLoading(true);
 		filterJobs({ ...filter, ...searchText }, {
 			limit: ps || advancedSearchPageData.state.pageSize,
@@ -70,8 +73,30 @@ export default function Search() {
 		})
 	}, [advancedSearchData, filterOption])
 
+
 	useEffect(() => {
-		if (!advancedSearchPageData?.state?.isFirstLoad) {
+		if (skillParam || categoryParam) {
+			const filter = {}
+			advancedSearchPageData.setState({ ...advancedSearchPageData.state, isFirstLoad: false })
+			skillParam && (filter['skills'] = [skillParam])
+			categoryParam && (filter['categories'] = [categoryParam])
+			filterJobs({ ...filter }, {
+				limit: 10,
+				page: 1
+			}).then((res) => {
+				setsearchData(res.data?.results)
+				setTotal(res.data?.totalResults)
+			}).catch(err => {
+				console.log('advanced search err', err)
+			}).finally(() => {
+				setSearchParams('')
+				setLoading(false);
+			})
+		}
+	}, [skillParam, categoryParam])
+
+	useEffect(() => {
+		if (!advancedSearchPageData?.state?.isFirstLoad && !skillParam && !categoryParam) {
 			handleSearh()
 		}
 	}, [])
@@ -167,251 +192,258 @@ export default function Search() {
 						},
 					}}
 				>
-					<div className="col">
-						<hr />
-						<h5 className="mb-lg-4 display-inline-block">{t("FilterBy")}</h5>
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">
-							{t("Category")}
-						</h6>
-						<ul
-							className="list-group sidebar-homebage-ul mb-lg-3 "
-							style={{ fontSize: "0.9em" }}
-						>
-							<CategoriesPicker reset={refresh} handleChange={onCatsChange} istakeValue={true}></CategoriesPicker>
-						</ul>
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">
-							Freelancers needed
-						</h6>
-						<Radio.Group onChange={onNoEmployeeChange} value={advancedSearchData.state?.nOEmployee}>
-							<Radio value={null}>{t("All")}</Radio>
-							<Radio value={1}>{t("Singlefreelancer")}</Radio>
-							<Radio value={1000}>{t("Multiplefreelancers")}</Radio>
-						</Radio.Group>
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("Complexity")}
-						</h6>
-						<Checkbox.Group style={{ width: '100%' }} onChange={handleChangeComp} value={advancedSearchData.state?.complexity}>
-							<Space direction="vertical">
-								{
-									EComplexityGet.map((l, ix) => (
-										<span key={l}>
-											<Checkbox value={ix}>{t(`${l}`)}</Checkbox>
-										</span>
-									))
-								}
-							</Space>
-						</Checkbox.Group>
-						<hr />
+					<div className="col" >
+						<div style={{ background: "white", height: 'auto', width: '100%', borderRadius: 8, padding: 10, paddingBottom: 10 }}>
+							<hr />
+							<h5 className="mb-lg-4 display-inline-block">{t("FilterBy")}</h5>
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">
+								{t("Category")}
+							</h6>
+							<ul
+								className="list-group sidebar-homebage-ul mb-lg-3 "
+								style={{ fontSize: "0.9em" }}
+							>
+								<CategoriesPicker reset={refresh} handleChange={onCatsChange} istakeValue={true}></CategoriesPicker>
+							</ul>
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">
+								Freelancers needed
+							</h6>
+							<Radio.Group onChange={onNoEmployeeChange} value={advancedSearchData.state?.nOEmployee}>
+								<Radio value={null}>{t("All")}</Radio>
+								<Radio value={1}>{t("Singlefreelancer")}</Radio>
+								<Radio value={1000}>{t("Multiplefreelancers")}</Radio>
+							</Radio.Group>
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("Complexity")}
+							</h6>
+							<Checkbox.Group style={{ width: '100%' }} onChange={handleChangeComp} value={advancedSearchData.state?.complexity}>
+								<Space direction="vertical">
+									{
+										EComplexityGet.map((l, ix) => (
+											<span key={l}>
+												<Checkbox value={ix}>{t(`${l}`)}</Checkbox>
+											</span>
+										))
+									}
+								</Space>
+							</Checkbox.Group>
+							<hr />
 
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("JobType")}
-						</h6>
-						<Checkbox.Group style={{ width: '100%' }} onChange={onPayTypeChange} value={advancedSearchData.state?.paymentType}>
-							<Space direction="vertical">
-								{
-									Object.keys(EPaymenType).map(l => (
-										<span key={l}>
-											<Checkbox value={EPaymenType[l]}>{t(`${EPaymenType[l]}`)}</Checkbox>
-										</span>
-									))
-								}
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("JobType")}
+							</h6>
+							<Checkbox.Group style={{ width: '100%' }} onChange={onPayTypeChange} value={advancedSearchData.state?.paymentType}>
+								<Space direction="vertical">
+									{
+										Object.keys(EPaymenType).map(l => (
+											<span key={l}>
+												<Checkbox value={EPaymenType[l]}>{t(`${EPaymenType[l]}`)}</Checkbox>
+											</span>
+										))
+									}
+								</Space>
+							</Checkbox.Group>
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("Payment Amount")} {`(${t('VND')})`}
+							</h6>
+							<Space wrap>
+								<InputNumber
+									prefix="From"
+									addonBefore=""
+									addonAfter={<> VND</>}
+									defaultValue={0}
+									controls
+									onKeyPress={(event) => {
+										if (!/[0-9]/.test(event.key)) {
+											event.preventDefault();
+										}
+									}}
+									formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+									parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+									min={0}
+									value={advancedSearchData.state?.paymentAmount?.from}
+									onChange={(v: any) => handlePayAmount(v)}
+									decimalSeparator=','
+									max={advancedSearchData.state?.paymentAmount?.to || Number.MAX_SAFE_INTEGER}
+								/>
+								<InputNumber
+									prefix="To"
+									addonBefore=""
+									addonAfter={<> VND</>}
+									defaultValue={1}
+									value={advancedSearchData.state?.paymentAmount?.to}
+									formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+									parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+									onKeyPress={(event) => {
+										if (!/[0-9]/.test(event.key)) {
+											event.preventDefault();
+										}
+									}}
+									onChange={(v: any) => handlePayAmount(advancedSearchData.state?.paymentAmount?.from || 0, v)}
+									min={advancedSearchData.state?.paymentAmount?.from || 1}
+									controls
+								/>
 							</Space>
-						</Checkbox.Group>
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("Payment Amount")} {`(${t('VND')})`}
-						</h6>
-						<Space wrap>
-							<InputNumber
-								prefix="From"
-								addonBefore=""
-								addonAfter={<> VND</>}
-								defaultValue={0}
-								controls
-								onKeyPress={(event) => {
-									if (!/[0-9]/.test(event.key)) {
-										event.preventDefault();
-									}
-								}}
-								formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-								parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
-								min={0}
-								value={advancedSearchData.state?.paymentAmount?.from}
-								onChange={(v: any) => handlePayAmount(v)}
-								decimalSeparator=','
-								max={advancedSearchData.state?.paymentAmount?.to || Number.MAX_SAFE_INTEGER}
-							/>
-							<InputNumber
-								prefix="To"
-								addonBefore=""
-								addonAfter={<> VND</>}
-								defaultValue={1}
-								value={advancedSearchData.state?.paymentAmount?.to}
-								formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-								parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
-								onKeyPress={(event) => {
-									if (!/[0-9]/.test(event.key)) {
-										event.preventDefault();
-									}
-								}}
-								onChange={(v: any) => handlePayAmount(advancedSearchData.state?.paymentAmount?.from || 0, v)}
-								min={advancedSearchData.state?.paymentAmount?.from || 1}
-								controls
-							/>
-						</Space>
-						{/* <Slider className="mb-5" marks={{ 0: 'From(0)', 3000: 'to(30Tr)' }} min={1} max={3000}
+							{/* <Slider className="mb-5" marks={{ 0: 'From(0)', 3000: 'to(30Tr)' }} min={1} max={3000}
 							onAfterChange={handlePayAmount}
 							range={{ draggableTrack: true }}
 							defaultValue={[1, 1]}
 							tooltip={{ formatter: (value: number) => `${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'VND' }).format(value * 10000)}` }} /> */}
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("Budget")} {`(${t('VND')})`}
-						</h6>
-						<Space wrap>
-							<InputNumber
-								prefix="From"
-								addonBefore=""
-								addonAfter={<> VND</>}
-								defaultValue={0}
-								controls
-								onKeyPress={(event) => {
-									if (!/[0-9]/.test(event.key)) {
-										event.preventDefault();
-									}
-								}}
-								formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-								parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
-								min={0}
-								value={advancedSearchData.state?.paymentAmount?.from}
-								onChange={(v: any) => handleBudgetAmount(v)}
-								decimalSeparator=','
-								max={advancedSearchData.state?.paymentAmount?.to || Number.MAX_SAFE_INTEGER}
-							/>
-							<InputNumber
-								prefix="To"
-								addonBefore=""
-								addonAfter={<> VND</>}
-								defaultValue={1}
-								value={advancedSearchData.state?.paymentAmount?.to}
-								formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-								parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
-								onKeyPress={(event) => {
-									if (!/[0-9]/.test(event.key)) {
-										event.preventDefault();
-									}
-								}}
-								onChange={(v: any) => handleBudgetAmount(advancedSearchData.state?.paymentAmount?.from || 0, v)}
-								min={advancedSearchData.state?.paymentAmount?.from || 1}
-								controls
-							/>
-						</Space>
-						{/* <Slider className="mb-5" marks={{ 0: 'From(0)', 3000: 'to(3T)' }} min={1} max={3000}
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("Budget")} {`(${t('VND')})`}
+							</h6>
+							<Space wrap>
+								<InputNumber
+									prefix="From"
+									addonBefore=""
+									addonAfter={<> VND</>}
+									defaultValue={0}
+									controls
+									onKeyPress={(event) => {
+										if (!/[0-9]/.test(event.key)) {
+											event.preventDefault();
+										}
+									}}
+									formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+									parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+									min={0}
+									value={advancedSearchData.state?.paymentAmount?.from}
+									onChange={(v: any) => handleBudgetAmount(v)}
+									decimalSeparator=','
+									max={advancedSearchData.state?.paymentAmount?.to || Number.MAX_SAFE_INTEGER}
+								/>
+								<InputNumber
+									prefix="To"
+									addonBefore=""
+									addonAfter={<> VND</>}
+									defaultValue={1}
+									value={advancedSearchData.state?.paymentAmount?.to}
+									formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+									parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+									onKeyPress={(event) => {
+										if (!/[0-9]/.test(event.key)) {
+											event.preventDefault();
+										}
+									}}
+									onChange={(v: any) => handleBudgetAmount(advancedSearchData.state?.paymentAmount?.from || 0, v)}
+									min={advancedSearchData.state?.paymentAmount?.from || 1}
+									controls
+								/>
+							</Space>
+							{/* <Slider className="mb-5" marks={{ 0: 'From(0)', 3000: 'to(3T)' }} min={1} max={3000}
 							onAfterChange={handleBudgetAmount}
 							range={{ draggableTrack: true }}
 							defaultValue={[1, 1]}
 							tooltip={{ formatter: (value: number) => `${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'VND' }).format(value * 1000000)}` }} /> */}
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("Skills")}
-						</h6>
-						<MultiSkillPicker reset={refresh} handleChange={onSkillsChange} istakeValue={true}></MultiSkillPicker>
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("Status")}
-						</h6>
-						<Checkbox.Group style={{ width: '100%' }} onChange={onStatusChange} value={advancedSearchData.state?.currentStatus}>
-							<Space direction="vertical">
-								{
-									Object.keys(EJobStatus).map(l => (
-										<span key={l}>
-											<Checkbox value={EJobStatus[l]}>{t(`${EJobStatus[l]}`)}</Checkbox>
-										</span>
-									))
-								}
-							</Space>
-						</Checkbox.Group>
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("NumberofProposals")}
-						</h6>
-						<Slider className="mb-5" marks={{ 0: 'From(0)', 40: 'To(40)' }} min={0} max={40}
-							onAfterChange={handleProposalsAmount}
-							range={{ draggableTrack: true }} defaultValue={[0, 0]} tooltip={{ formatter: (value: number) => `${value} ${t('Proposals')}` }} />
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("ClientInfo")}
-						</h6>
-						<div className="form-check py-2 my-0">
-							<input
-								className="form-check-input btn-outline-success"
-								type="checkbox"
-								defaultValue={''}
-								id="flexCheckDefault"
-							/>
-							<label className="form-check-label" htmlFor="flexCheckDefault">
-								{t("MyPreviousClients")}
-							</label>
-						</div>
-						<div className="form-check py-2 my-0">
-							<input
-								className="form-check-input btn-outline-success"
-								type="checkbox"
-								defaultValue={''}
-								id="flexCheckDefault"
-							/>
-							<label className="form-check-label" htmlFor="flexCheckDefault">
-								{t("PaymentVerified")}
-							</label>
-						</div>
-						<hr />
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("Skills")}
+							</h6>
+							<MultiSkillPicker reset={refresh} handleChange={onSkillsChange} istakeValue={true}></MultiSkillPicker>
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("Status")}
+							</h6>
+							<Checkbox.Group style={{ width: '100%' }} onChange={onStatusChange} value={advancedSearchData.state?.currentStatus}>
+								<Space direction="vertical">
+									{
+										Object.keys(EJobStatus).map(l => (
+											<span key={l}>
+												<Checkbox value={EJobStatus[l]}>{t(`${EJobStatus[l]}`)}</Checkbox>
+											</span>
+										))
+									}
+								</Space>
+							</Checkbox.Group>
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("NumberofProposals")}
+							</h6>
+							<div style={{ padding: '0 16px' }}>
+								<Slider className="mb-5" marks={{ 0: 'From(0)', 40: 'To(40)' }} min={0} max={40}
+									onAfterChange={handleProposalsAmount}
+									range={{ draggableTrack: true }} defaultValue={[0, 0]} tooltip={{ formatter: (value: number) => `${value} ${t('Proposals')}` }} />
+							</div>
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("ClientInfo")}
+							</h6>
+							<div className="form-check py-2 my-0">
+								<input
+									className="form-check-input btn-outline-success"
+									type="checkbox"
+									defaultValue={''}
+									id="flexCheckDefault"
+								/>
+								<label className="form-check-label" htmlFor="flexCheckDefault">
+									{t("MyPreviousClients")}
+								</label>
+							</div>
+							<div className="form-check py-2 my-0">
+								<input
+									className="form-check-input btn-outline-success"
+									type="checkbox"
+									defaultValue={''}
+									id="flexCheckDefault"
+								/>
+								<label className="form-check-label" htmlFor="flexCheckDefault">
+									{t("PaymentVerified")}
+								</label>
+							</div>
+							<hr />
 
-						<h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">
-							{t("ClientLocation")}
-						</h6>
-						<div className="input-group rounded-3">
-							<LocationPicker reset={refresh} handleChange={onLocationChange}></LocationPicker>
-						</div>
-						<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">
+								{t("ClientLocation")}
+							</h6>
+							<div className="input-group rounded-3">
+								<LocationPicker reset={refresh} handleChange={onLocationChange}></LocationPicker>
+							</div>
+							<hr />
 
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							{t("ProjectLength")} {`(${t('days')})`}
-						</h6>
-						<Slider className="mb-5" marks={{ 1: 'From(1)', 365: 'to(365)' }} min={1} max={365}
-							onAfterChange={handleDurationRange}
-							range={{ draggableTrack: true }} defaultValue={[1, 1]} tooltip={{ formatter: (value: number) => `${value} ${t('days')}` }} />
-						<hr />
-						<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-							Hours Per Week
-						</h6>
-						<div className="form-check py-2 my-0">
-							<input
-								className="form-check-input btn-outline-success"
-								type="checkbox"
-								defaultValue={''}
-								id="flexCheckDefault"
-							/>
-							<label className="form-check-label" htmlFor="flexCheckDefault">
-								{t("Lessthan30hrsweek")}
-							</label>
-						</div>
-						<div className="form-check py-2 my-0">
-							<input
-								className="form-check-input btn-outline-success"
-								type="checkbox"
-								defaultValue={''}
-								id="flexCheckDefault"
-							/>
-							<label className="form-check-label" htmlFor="flexCheckDefault">
-								{t("Morethan30hrsweek")}
-							</label>
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								{t("ProjectLength")} {`(${t('days')})`}
+							</h6>
+							<div style={{padding: '0 16px'}}>
+								<Slider className="mb-5" marks={{ 1: 'From(1)', 365: 'to(365)' }} min={1} max={365}
+									onAfterChange={handleDurationRange}
+									range={{ draggableTrack: true }} defaultValue={[1, 1]} tooltip={{ formatter: (value: number) => `${value} ${t('days')}` }} />
+
+							</div>
+							<hr />
+							<h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+								Hours Per Week
+							</h6>
+							<div className="form-check py-2 my-0">
+								<input
+									className="form-check-input btn-outline-success"
+									type="checkbox"
+									defaultValue={''}
+									id="flexCheckDefault"
+								/>
+								<label className="form-check-label" htmlFor="flexCheckDefault">
+									{t("Lessthan30hrsweek")}
+								</label>
+							</div>
+							<div className="form-check py-2 my-0">
+								<input
+									className="form-check-input btn-outline-success"
+									type="checkbox"
+									defaultValue={''}
+									id="flexCheckDefault"
+								/>
+								<label className="form-check-label" htmlFor="flexCheckDefault">
+									{t("Morethan30hrsweek")}
+								</label>
+							</div>
 						</div>
 					</div>
 				</ConfigProvider>
-				<div className="col-lg-9 col-xs-12">
+				<div className="col-lg-9 col-xs-12 p-4" style={{ background: "white", borderRadius: 8 }}>
 					<div>
 						<div>
 							<ul
@@ -543,6 +575,7 @@ export default function Search() {
 									loading ? <div className="d-flex justify-content-center align-items-center" style={{ height: "10vh" }}>
 										<Loader />
 									</div> : <div className="mt-3">
+										<div>{t("Found")} {total} {t("Relevant Results")}</div>
 										{searchData.length === 0 ?
 											(
 												<div className="col-12 bg-white">

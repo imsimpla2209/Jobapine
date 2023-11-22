@@ -26,6 +26,7 @@ export default function Offers() {
 	const [page, setPage] = useState(1)
 	const [total, setTotal] = useState(1)
 	const [loading, onLoading] = useState(true)
+	const [refresh, onRefresh] = useState(true)
 	const user = useSubscription(userStore).state
 
 	useEffect(() => {
@@ -82,9 +83,9 @@ export default function Offers() {
 										{invitations.map((invitation, index) =>
 											{
 												if (invitation.type === EInvitationType.MESSAGE) {
-													return (<OfferCard key={index} invitation={invitation} getOffers={getOffers} />)
+													return (<OfferCard key={index} onRefresh={onRefresh} user={user} invitation={invitation} getOffers={getOffers} />)
 												} else if (invitation.type === EInvitationType.CONTRACT) {
-													return (<ContractInviCard key={index} invitation={invitation} getOffers={getOffers} />)
+													return (<ContractInviCard key={index} onRefresh={onRefresh} user={user} invitation={invitation} getOffers={getOffers} />)
 
 												}
 											}

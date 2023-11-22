@@ -2,7 +2,6 @@ import Footer from 'Components/BeforeLoginComponents/Footer'
 import ReviewProposalsCard from 'Components/ClientComponents/ReviewProposalsCard'
 import Header from 'Components/FreelancerComponents/Header'
 import { SearchContextProvider } from 'Context/SearchContext'
-import AllContracts from 'pages/ClientPages/AllContract'
 import Reports from 'pages/ClientPages/Reports'
 import EmailVerified from 'pages/EmailVerification/EmailVerified'
 import PleaseVerifiy from 'pages/EmailVerification/PleaseVerifiy'
@@ -33,6 +32,9 @@ import JobDetails from 'src/pages/AdminPages/hire/job-details'
 import JobList from 'src/pages/AdminPages/hire/job-list'
 import AllJobPosts from 'src/pages/ClientPages/AllJobPost'
 import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
+import './styles.css'
+import AllContracts from 'src/pages/FreelancerPages/AllContracts'
+import ForumRoutes from './ForumRoutes'
 
 export default function FreelancerRoutes() {
   const [arr, setarr] = useState([])
@@ -65,7 +67,7 @@ export default function FreelancerRoutes() {
   }, [])
 
   return (
-    <>
+    <div className="background_general">
       <SearchContextProvider
         value={{ arr, setarr, itemSearchList, setitemSearchList, searchList, setsearchList, switchJobs, setswitchJobs }}
       >
@@ -105,13 +107,14 @@ export default function FreelancerRoutes() {
               element={<TransactionHistory />}
             /> */}
             <Route path="/messages" element={<Messages />} />
-            <Route path="/contract" element={<Contract location={undefined} />} />
+            <Route path="/contract/:id" element={<Contract />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="*" element={<PageNotFound />} />
+            {/* <ForumRoutes /> */}
           </Routes>
         </div>
       </SearchContextProvider>
       <Footer />
-    </>
+    </div>
   )
 }

@@ -5,8 +5,8 @@ import { Http } from 'api/http'
 import { useSubscription } from 'libs/global-state-hook'
 import { userStore } from '../auth/user-store'
 import { useState } from 'react'
-import { fetchAllToS3 } from '../ideas/create-new-idea'
 import { handleValidateFile, previewFile, onChangeUpload } from 'Components/CommonComponents/upload/upload'
+import { fetchAllToCL } from 'src/utils/helperFuncs'
 
 const { Title } = Typography
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm'
@@ -50,7 +50,7 @@ function EditProfileForm() {
 
     if (files) {
       try {
-        const fileNameList = await fetchAllToS3(files)
+        const fileNameList = await fetchAllToCL(files)
         userform['avatar'] = fileNameList[0]
       } catch (error) {
         console.error(error)

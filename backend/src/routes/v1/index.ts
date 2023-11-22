@@ -1,9 +1,11 @@
 import config from '@config/config'
 import { adminRouter } from '@modules/forum/routers/admin.router'
 import { commentRouter } from '@modules/forum/routers/comment.router'
+import { dataRouter } from '@modules/forum/routers/data.router'
 import { departmentRouter } from '@modules/forum/routers/department.router'
 import { postRouter } from '@modules/forum/routers/post.router'
 import { specialEventRouter } from '@modules/forum/routers/specialEvent.router'
+import { testRouter } from '@modules/forum/routers/test.router'
 import express, { Router } from 'express'
 import authRoute from './auth.route'
 import clientRoute from './client.route'
@@ -84,6 +86,14 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/admin',
     route: adminRouter,
+  },
+  {
+    path: '/test',
+    route: testRouter,
+  },
+  {
+    path: '/data',
+    route: dataRouter,
   },
 ]
 

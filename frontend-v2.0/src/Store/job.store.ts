@@ -64,28 +64,6 @@ export const jobLoad = createSubscription<
 export const refreshStore = createSubscription<{ isRefresh: boolean }>({ isRefresh: false })
 
 
-export const freelancerStore = createSubscription<IFreelancer>({
-  _id: "",
-  user: "",
-  name: "",
-  intro: '',
-  members: [],
-  // tests: ITestDoc['_id'][]
-  skills: [],
-  certificate: '',
-  proposals: [],
-  images: [],
-  reviews: [],
-  favoriteJobs: [],
-  preferJobType: [],
-  currentLocations: [],
-  preferencesURL: [],
-  rating: 0,
-  jobsDone: { number: 0, success: 0 },
-  earned: 0,
-  available: false,
-})
-
 export const clientStore = createSubscription<IClient>({
   user: "",
   name: "",

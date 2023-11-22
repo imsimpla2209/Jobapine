@@ -73,6 +73,7 @@ export const queryProposals = async (filter: Record<string, any>, options: IOpti
     options.projectBy =
       'job, freelancer, expectedAmount, description, status, clientComment, freelancerComment, createdAt, attachments, contract, messages, answers, priority, currentStatus,  msgRequestSent '
   }
+  options.populate = 'job'
 
   if (!options.sortBy) {
     options.sortBy = 'createdAt:desc'
@@ -87,8 +88,11 @@ export const queryProposals = async (filter: Record<string, any>, options: IOpti
  * @returns {Promise<IProposalDoc | null>}
  */
 export const getProposalById = async (id: mongoose.Types.ObjectId): Promise<IProposalDoc | null> =>
-  Proposal.findById(id).populate('job')
-
+  Proposal.findById(id)
+    .select(
+      'createdAt job freelancer expectedAmount description clientComment freelancerComment attachments messages currentStatus status updatedAt'
+    )
+    .populate('job')
 
 /**
  * Get proposals by Job id

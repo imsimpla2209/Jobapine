@@ -13,6 +13,7 @@ describe('User model', () => {
         role: 'user',
         username: '420entsss',
         isEmailVerified: false,
+        isPhoneVerified: false,
         phone: '',
         nationalId: '',
         dob: '',

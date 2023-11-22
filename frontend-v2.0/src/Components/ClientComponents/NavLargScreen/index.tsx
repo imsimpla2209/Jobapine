@@ -98,7 +98,7 @@ export default function NavLargScreen() {
           <NavLink className="nav-link" to="/home">
             {t('Jobs')}
           </NavLink>
-          <ul className="dropdown-menu" style={{ marginTop: '-8px' }}>
+          <ul className="dropdown-menu text-break" style={{ marginTop: '-8px' }}>
             <div className="nav-dd-cn"></div>
             <li>
               <Link className="dropdown-item" to="/home">
@@ -106,18 +106,23 @@ export default function NavLargScreen() {
               </Link>
             </li>
             <li>
-              <Link className="dropdown-item" to="/all-job-posts">
-                {t('All Jobs Posts')}
+              <Link className="dropdown-item text-break" to="/all-job-posts">
+                {t("All Jobs")}
               </Link>
             </li>
             <li>
               <Link className="dropdown-item" to="/all-contracts">
-                {t('All Contracts')}
+                {t('Contracts')}
               </Link>
             </li>
             <li>
               <Link className="dropdown-item" to="/post-job">
-                {t('Post a Job')}
+                {t('Post a job')}
+              </Link>
+            </li>
+            <li>
+              <Link className="dropdown-item" to="/invitations">
+                {t('Invitations')}
               </Link>
             </li>
           </ul>

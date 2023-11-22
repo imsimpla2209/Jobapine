@@ -3,6 +3,7 @@ import { Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
+import { useAuth } from 'src/Components/Providers/AuthProvider'
 import { locationStore } from 'src/Store/commom.store'
 import { clientStore } from 'src/Store/user.store'
 import { useSubscription } from 'src/libs/global-state-hook'
@@ -12,10 +13,11 @@ import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
 export default function ClientJobCard({ item, client, lang }) {
   const { t } = useTranslation(['main'])
   const locations = useSubscription(locationStore).state
+  const { authenticated } = useAuth();
   const setState = useSubscription(clientStore).setState
   console.log(item)
   return (
-    <div style={{ borderRadius: 12, marginBottom: 16 }}>
+    <div style={{ borderRadius: 12, marginBottom: 16, pointerEvents: authenticated ? "auto" : "none" }} >
       <div className="list-group-item px-4 py-2" style={{ border: '1px solid #ccc', background: '#fffcff' }}>
         <div className="row align-items-center">
           <div className="col-lg-9 pt-lg-2">
@@ -155,7 +157,7 @@ export default function ClientJobCard({ item, client, lang }) {
           <span className="text-muted">
             <span className="fw-bold text-muted" style={{ display: 'flex', marginTop: 2 }}>
               <i className="fas fa-map-marker-alt" />
-              {item?.preferences?.locations.map(l => (
+              {item?.preferences?.locations.filter(l => locations?.find(s => s.code === l.toString())).map(l => (
                 <span key={l} style={{ marginLeft: 8 }}>
                   {locations?.find(s => s.code === l.toString())?.name} |
                 </span>

@@ -3,8 +3,6 @@ import FirstSectionProfileFreelancer from "./../../../Components/FreelancerCompo
 export default function Profile() {
 
   return (
-    <>
-      <FirstSectionProfileFreelancer />
-    </>
+    <FirstSectionProfileFreelancer />
   );
 }

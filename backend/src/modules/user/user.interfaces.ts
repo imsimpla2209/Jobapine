@@ -17,6 +17,7 @@ export interface IUser {
   password: string
   role: string
   isEmailVerified: boolean
+  isPhoneVerified: boolean
   oAuth?: IOAuth
   refreshToken?: string
   avatar?: string
@@ -48,6 +49,7 @@ export type NewRegisteredUser = Omit<
   IUser,
   | 'role'
   | 'isEmailVerified'
+  | 'isPhoneVerified'
   | 'provider'
   | 'oAuth'
   | 'paymentInfo'

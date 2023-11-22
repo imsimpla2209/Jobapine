@@ -1,7 +1,6 @@
 import { Layout, Menu } from 'antd'
 import useRoleNavigate from 'libs/use-role-navigate'
 import { useState } from 'react'
-import '../../../index.css'
 
 export default function SiderMenu({ menuItems }) {
   const navigate = useRoleNavigate()

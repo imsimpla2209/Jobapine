@@ -11,13 +11,17 @@ import pick from '../../utils/pick'
 import * as freelancerService from './freelancer.service'
 
 export const registerFreelancer = catchAsync(async (req: Request, res: Response) => {
-  const { _id } = req.user
-  const freelancer = await freelancerService.registerFreelancer(new mongoose.Types.ObjectId(_id), req.body)
-  updateUserById(new mongoose.Types.ObjectId(req.user?._id), {
-    lastLoginAs: EUserType.CLIENT,
-  })
-  freelancerService.updateSimilarById(freelancer?._id)
-  res.status(httpStatus.CREATED).send(freelancer)
+  try {
+    const { _id } = req.user
+    const freelancer = await freelancerService.registerFreelancer(new mongoose.Types.ObjectId(_id), req.body)
+    updateUserById(new mongoose.Types.ObjectId(req.user?._id), {
+      lastLoginAs: EUserType.FREELANCER,
+    })
+    freelancerService.updateSimilarById(freelancer?._id)
+    res.status(httpStatus.CREATED).send(freelancer)
+  } catch (err) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Something Went Wrong ${err}`)
+  }
 })
 
 export const getFreelancers = catchAsync(async (req: Request, res: Response) => {

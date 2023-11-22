@@ -16,7 +16,7 @@ export default function Proposals() {
   const [isFirstLoad, setFirstLoad] = useState(true)
 
   useEffect(() => {
-    if(!!freelancer?._id && isFirstLoad) {
+    if (!!freelancer?._id && isFirstLoad) {
       getProposals({ freelancer: freelancer?._id }).then((res) => {
         setFirstLoad(false);
         const activeProposals = []
@@ -38,38 +38,36 @@ export default function Proposals() {
   }, [freelancer?._id]);
 
   return (
-    <>
-      <div className="row justify-content-center">
-        <div className="col-md-9 col-12">
-          <h3 className="my-5">{t("My proposals")}</h3>
-          <div className="list-group-item py-lg-4 mt-3">
-            <h4>
-              {t("Active proposals")} ({proposals?.active?.length})
-              <span className="text-jobsicker ms-2">
-                <i className="fas fa-question-circle"></i>
-              </span>
-            </h4>
-          </div>
-          <div className="container list-group-item py-lg-4 mb-3">
-            {proposals?.active?.map((proposal, index) => (
-              <ProposalCard jobId={proposal.job} proposal={proposal} key={index} ind={index} />
-            ))}
-          </div>
-          <div className="list-group-item py-lg-4 mt-3">
-            <h4>
-              {t("Submitted proposals")} ({proposals?.submited?.length})
-              <span className="text-jobsicker ms-2">
-                <i className="fas fa-question-circle"></i>
-              </span>
-            </h4>
-          </div>
-          <div className="container list-group-item py-lg-4 mb-3">
-            {proposals?.submited?.map((proposal, index) => (
-              <ProposalCard jobId={proposal.job} proposal={proposal} key={index} ind={index} />
-            ))}
-          </div>
+    <div className="row justify-content-center">
+      <div className="col-md-9 col-12">
+        <h3 className="my-5">{t("My proposals")}</h3>
+        <div className="list-group-item py-lg-4 mt-3">
+          <h4>
+            {t("Active proposals")} ({proposals?.active?.length})
+            <span className="text-jobsicker ms-2">
+              <i className="fas fa-question-circle"></i>
+            </span>
+          </h4>
+        </div>
+        <div className="container list-group-item py-lg-4 mb-3">
+          {proposals?.active?.map((proposal, index) => (
+            <ProposalCard job={proposal?.job} proposal={proposal} key={index} ind={index} />
+          ))}
+        </div>
+        <div className="list-group-item py-lg-4 mt-3">
+          <h4>
+            {t("Submitted proposals")} ({proposals?.submited?.length})
+            <span className="text-jobsicker ms-2">
+              <i className="fas fa-question-circle"></i>
+            </span>
+          </h4>
+        </div>
+        <div className="container list-group-item py-lg-4 mb-3">
+          {proposals?.submited?.map((proposal, index) => (
+            <ProposalCard job={proposal?.job} proposal={proposal} key={index} ind={index} />
+          ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -1,17 +1,20 @@
 /* eslint-disable react/jsx-no-undef */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Card, Divider, Modal, Popconfirm, Space, Tag, Typography, Image } from 'antd';
+import { Card, Divider, Image, Popconfirm, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import ProposalCard from 'src/Components/FreelancerComponents/ProposalCard';
-import { acceptMessageRoom, rejectMessageRoom, updateStatusInvitation } from 'src/api/message-api';
+import { acceptMessageRoom, rejectMessageRoom } from 'src/api/message-api';
 import { getProposal } from 'src/api/proposal-apis';
 import { EStatus } from 'src/utils/enum';
-import { currencyFormatter, formatDay, pickName } from 'src/utils/helperFuncs';
-
+import { formatDay, pickName } from 'src/utils/helperFuncs';
+import acceptimg from '../../../assets/img/accept.png';
+import archiveimg from '../../../assets/img/archive.png';
+import pendingimg from '../../../assets/img/pending.png';
+import rejectimg from '../../../assets/img/reject.png';
+import sentimg from '../../../assets/img/sent.png';
 const { Text } = Typography
 
-export default function OfferCard({ invitation, getOffers }) {
+export default function OfferCard({ invitation, getOffers, user, onRefresh }) {
 	const [decide, setDecide] = useState<any>();
 	const [proposal, setProposal] = useState();
 	const { t, i18n } = useTranslation(['main'])
@@ -25,6 +28,7 @@ export default function OfferCard({ invitation, getOffers }) {
 	const accept = () => {
 		if (invitation?._id) {
 			acceptMessageRoom(invitation?._id).then(() => {
+				onRefresh()
 				return setDecide(EStatus.ACCEPTED);
 			})
 		}
@@ -33,31 +37,71 @@ export default function OfferCard({ invitation, getOffers }) {
 	const decline = () => {
 		if (invitation?._id) {
 			rejectMessageRoom(invitation?._id).then(() => {
+				onRefresh()
 				return setDecide(EStatus.REJECTED);
 			})
 		}
 	}
 
-	const info = () => {
-		Modal.info({
-			title: `${t("Details")}`,
-			content: (
-				<div>
-					{proposal && <>
-						Proposal
-						<ProposalCard proposal={proposal} jobId={invitation?.content?.jobId} ind={1} isInMSG={true} ></ProposalCard>
-					</>}
-				</div>
-			),
-			onOk() { },
-		});
-	};
 	return (
 
-		<div className="col-11 mx-auto bg-gray border border-gray rounded p-5 mb-4 text-center">
+		<div className="col-11 mx-auto bg-gray border border-gray rounded ps-3 pe-5 pt-2 pb-5 mb-4 text-center" style={{
+			position: 'relative'
+		}}>
+			<div style={{ width: '100%', textAlign: 'center', color: '#6600cc', fontSize: 24 }}>
+				{t("Invitation")} {t("Message")}
+			</div>
 			{
 				(invitation) &&
 				<>
+					{invitation?.currentStatus === EStatus.ACCEPTED && (
+						<img src={acceptimg} alt="ok" style={{
+							position: 'absolute',
+							top: 4,
+							left: 4,
+							zIndex: 10,
+						}} />
+					)}
+					{invitation?.currentStatus === EStatus.REJECTED && (
+						<img src={rejectimg} alt="ok" style={{
+							position: 'absolute',
+							top: 4,
+							left: 4,
+							zIndex: 10,
+						}} />
+					)}
+					{invitation?.currentStatus === EStatus.PENDING && (
+						<img src={pendingimg} alt="ok" style={{
+							position: 'absolute',
+							top: 4,
+							left: 4,
+							zIndex: 10,
+						}} />
+					)}
+					{invitation?.currentStatus === EStatus.ARCHIVE && (
+						<img src={archiveimg} alt="ok" style={{
+							position: 'absolute',
+							top: 4,
+							left: 4,
+							zIndex: 10,
+						}} />
+					)}
+					{invitation?.currentStatus === EStatus.ARCHIVE && (
+						<img src={archiveimg} alt="ok" style={{
+							position: 'absolute',
+							top: 4,
+							left: 4,
+							zIndex: 10,
+						}} />
+					)}
+					{user?.id === invitation?.from && (
+						<img src={sentimg} alt="ok" style={{
+							position: 'absolute',
+							top: 4,
+							right: 4,
+							zIndex: 10,
+						}} />
+					)}
 					<div className='d-flex justify-content-around'>
 						{
 							invitation?.content?.fromUser && <Card className='d-xl-flex d-none' bodyStyle={{ padding: 16 }}>
@@ -67,38 +111,29 @@ export default function OfferCard({ invitation, getOffers }) {
 										src={invitation?.content?.fromUser?.avatar}
 										fallback="https://i2-prod.manchestereveningnews.co.uk/sport/football/article27536776.ece/ALTERNATES/s1200c/1_GettyImages-1615425379.jpg"
 									/>
-									<div className="center">
-										<Tag color="#f50" style={{ fontSize: 20, padding: 8 }}>
-											{invitation?.content?.fromUser?.name}
-										</Tag>
-									</div>
-									<Divider style={{ margin: 0 }} />
-									<Text>
-										<b>DOB: </b>
-										{formatDay(invitation?.content?.fromUser?.dob)}
-									</Text>
-									<Text>
-										<b>Phone: </b>
-										{invitation?.content?.fromUser?.phone || 'None'}
-									</Text>
-									<Text>
-										<b>Email: </b>
-										{invitation?.content?.fromUser?.email}
-									</Text>
 								</Space>
 							</Card>
 						}
 						<div>
 							<p><strong>{t("Request to message")}: </strong>{pickName(invitation?.content?.content, i18n.language)}</p>
-							<p><strong>{t("Name")}: </strong>{invitation?.content?.fromUser?.name}</p>
+							<Space direction="vertical" size={3}>
+								<Divider style={{ margin: 0 }} />
+								<Text><b>{t("Name")}: </b>{invitation?.content?.fromUser?.name}</Text>
+								<Text>
+									<b>DOB: </b>
+									{formatDay(invitation?.content?.fromUser?.dob)}
+								</Text>
+								<Text>
+									<b>Phone: </b>
+									{invitation?.content?.fromUser?.phone || 'None'}
+								</Text>
+								<Text>
+									<b>Email: </b>
+									{invitation?.content?.fromUser?.email}
+								</Text>
+								<Divider style={{ margin: 0 }} />
+							</Space>
 							<p><strong>{t("End date")}: </strong>{new Date(Number(invitation?.dueDate)).toLocaleString()}</p>
-							<Button
-								onClick={async () => {
-									info();
-								}}
-							>
-								{t("Details")}
-							</Button>
 						</div>
 					</div>
 					<Popconfirm
