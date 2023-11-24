@@ -1,36 +1,36 @@
-import { createSubscription } from "libs/global-state-hook"
-import { IClient } from "src/types/client"
-import { IFreelancer } from "src/types/freelancer"
-import { IUser } from "src/types/user"
+import { createSubscription } from 'libs/global-state-hook'
+import { IClient } from 'src/types/client'
+import { IFreelancer } from 'src/types/freelancer'
+import { IUser } from 'src/types/user'
 
 export const userStore = createSubscription<IUser>({
-  id: "",
-  _id: "",
-  name: "",
-  username: "",
-  email: "",
-  phone: "",
-  nationalId: "",
-  role: "",
+  id: '',
+  _id: '',
+  name: '',
+  username: '',
+  email: '',
+  phone: '',
+  nationalId: '',
+  role: '',
   isEmailVerified: false,
   oAuth: {},
-  avatar: "",
+  avatar: '',
   images: [],
   dob: null,
-  address: "",
+  address: '',
   isVerified: false,
   isActive: false,
   balance: 0,
-  lastLoginAs: "",
+  lastLoginAs: '',
   sickPoints: 0,
-  token: "",
+  token: '',
 })
 
 export const freelancerStore = createSubscription<IFreelancer>({
-  _id: "",
-  id: "",
-  user: "",
-  name: "",
+  _id: '',
+  id: '',
+  user: '',
+  name: '',
   intro: '',
   members: [],
   // tests: ITestDoc['_id'][]
@@ -48,14 +48,13 @@ export const freelancerStore = createSubscription<IFreelancer>({
   jobsDone: { number: 0, success: 0 },
   earned: 0,
   available: false,
-  
 })
 
 export const clientStore = createSubscription<IClient>({
-  _id: "",
-  id: "",
-  user: "",
-  name: "",
+  _id: '',
+  id: '',
+  user: '',
+  name: '',
   intro: '',
   organization: '',
   // tests: ITestDoc['_id'][]
@@ -70,3 +69,7 @@ export const clientStore = createSubscription<IClient>({
   spent: 0,
   paymentVerified: false,
 })
+
+window.clientStore = clientStore
+window.userStore = userStore
+window.freelancerStore = freelancerStore

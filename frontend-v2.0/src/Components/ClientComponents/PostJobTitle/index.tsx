@@ -29,13 +29,13 @@ export default function PostJobTitle({ setBtns, btns }) {
   }
 
   const handleCategoryChange = val => {
-    setJob({ ...job, jobCategory: [...job.jobCategory, val] })
+    setJob({ ...job, jobCategory: val })
   }
 
   const addData = () => {
     postJobSubscribtion.updateState({
       title: job.jobTitle,
-      categories: [job.jobCategory],
+      categories: job.jobCategory.map(item => item.value),
     })
     setBtns({ ...btns, description: false })
     setStep('description')

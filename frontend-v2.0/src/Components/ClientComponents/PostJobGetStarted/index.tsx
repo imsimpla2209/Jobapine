@@ -1,4 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { FrownOutlined, SmileOutlined } from '@ant-design/icons'
+import { InputNumber, Slider } from 'antd'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
@@ -32,11 +34,37 @@ export const defaultPostJobState: ICreateJobBody = {
 
 export const postJobSubscribtion = createSubscription<ICreateJobBody>(defaultPostJobState)
 
+const complexityOptions = [
+  {
+    label: 'Easy',
+    value: EComplexity.EASY,
+  },
+  {
+    label: 'Medium',
+    value: EComplexity.MEDIUM,
+  },
+  {
+    label: 'Hard',
+    value: EComplexity.HARD,
+  },
+  {
+    label: 'Hell',
+    value: EComplexity.HELL,
+  },
+]
+
 export default function PostJobGetStarted({ setBtns, btns }) {
+  const [value, setValue] = useState(0)
+
+  const mid = Number((3 / 2).toFixed(5))
+  const preColorCls = value >= mid ? '' : 'icon-wrapper-active'
+  const nextColorCls = value >= mid ? 'icon-wrapper-active' : ''
+
   const { setStep } = useContext(StepContext)
   const [start, setStart] = useState(false)
   const { t } = useTranslation(['main'])
   const [job, setJob] = useState({ jobDuration: '' })
+  const [durationLength, setDurationLength] = useState(1)
 
   const createJob = () => {
     setStart(true)
@@ -50,6 +78,10 @@ export default function PostJobGetStarted({ setBtns, btns }) {
   const addData = () => {
     postJobSubscribtion.updateState({
       jobDuration: job.jobDuration,
+      scope: {
+        duration: durationLength,
+        complexity: value,
+      },
     })
     setBtns({ ...btns, title: false })
     setStep('title')
@@ -68,7 +100,7 @@ export default function PostJobGetStarted({ setBtns, btns }) {
         </div>
       ) : (
         <>
-          <div className="ps-4 my-3">
+          <div className="mx-4 mt-4">
             <p className="fw-bold">{t('What would you like to do?')}</p>
             <div className=" w-75 my-4 ms-4 d-flex justify-content-between" onInput={getData}>
               <label className="border border-success rounded p-3 text-center">
@@ -89,6 +121,25 @@ export default function PostJobGetStarted({ setBtns, btns }) {
                 <div>{t('More than 30 hrs/week')}</div>
                 <div>{t('3+ months')}</div>
               </label>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <span className="fw-bold">{t('Duration (in months) of your job is:')}</span>
+              <InputNumber min={0} value={durationLength} onChange={val => setDurationLength(val)} />
+            </div>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <span className="fw-bold">{t('Complexity of your job is:')}</span>
+
+              <FrownOutlined className={preColorCls} />
+              <Slider
+                style={{ minWidth: '40%' }}
+                min={0}
+                max={3}
+                onChange={setValue}
+                value={value}
+                tooltip={{ formatter: val => `${complexityOptions.find(item => item.value === val).label}` }}
+              />
+              <SmileOutlined className={nextColorCls} />
             </div>
           </div>
           <div className="ps-4 my-3">
