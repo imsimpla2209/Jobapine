@@ -17,7 +17,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
 
   const addData = () => {
     postJobSubscribtion.updateState({
-      reqSkills: job.skills,
+      reqSkills: job.skills.map(skill => ({ skill, level: 1 })),
       experienceLevel: job.jobExperienceLevel,
     })
     setBtns({ ...btns, visibility: false })

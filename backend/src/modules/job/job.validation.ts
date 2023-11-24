@@ -23,7 +23,7 @@ const createJobBody: Record<keyof NewCreatedJob, any> = {
   client: Joi.string().required(),
   title: Joi.string().required(),
   description: Joi.string().max(969),
-  reqSkills: Joi.array().items(Joi.string()),
+  reqSkills: Joi.array(),
   checkLists: Joi.array().items(Joi.string()),
   attachments: Joi.array().items(Joi.string()),
   categories: Joi.array().items(Joi.string()),

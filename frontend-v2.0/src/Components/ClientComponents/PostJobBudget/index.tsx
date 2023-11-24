@@ -20,7 +20,7 @@ export default function Postbudget({ setBtns, btns }) {
   const { t } = useTranslation(['main'])
   const [job, setJob] = useState<{ payment: IJobPayment; budget: number }>({
     payment: { amount: 100, type: EPaymenType.PERHOURS },
-    budget: 0,
+    budget: 1,
   })
 
   const addData = () => {
@@ -34,6 +34,9 @@ export default function Postbudget({ setBtns, btns }) {
 
   const handleChangeAmount = (amount: string) => {
     setJob({ ...job, payment: { ...job.payment, amount: parseInt(amount) } })
+  }
+  const handleChangeBudget = (amount: string) => {
+    setJob({ ...job, budget: parseInt(amount) })
   }
 
   const selectAfter = (
@@ -62,10 +65,12 @@ export default function Postbudget({ setBtns, btns }) {
           <InputNumber
             addonBefore="VND"
             addonAfter={selectAfter}
-            defaultValue={100}
             onInput={handleChangeAmount}
             value={job.payment.amount}
           />
+
+          <p className="fw-bold mt-2">{t('Enter your specific budget:')}</p>
+          <InputNumber addonBefore="VND" min={1} onInput={handleChangeBudget} value={job.budget} />
         </div>
         {/* {job.payment?.type === EPaymenType.WHENDONE ? (
           <div className="px-4 my-3">

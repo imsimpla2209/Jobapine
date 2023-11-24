@@ -1,4 +1,4 @@
-import { Button, Empty, Layout, Row, Spin } from 'antd'
+import { Button, Col, Empty, Layout, Row, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Saved from 'src/Components/ClientComponents/SavedComponent'
@@ -46,14 +46,18 @@ export default function FreelancerListCards({ filterOption }) {
   }, [filterOption])
 
   return (
-    <Layout.Content>
+    <Layout.Content style={{ padding: 16, background: '#001529' }}>
       {loading ? (
         <Spin />
       ) : listFreelancers?.length ? (
         <>
-          {listFreelancers.map(freelancer => (
-            <Saved freelancer={freelancer} key={freelancer._id} />
-          ))}
+          <Row gutter={[16, 16]}>
+            {listFreelancers.map(freelancer => (
+              <Col className="gutter-row" xs={12} sm={12} md={8} lg={8} xl={8} style={{ height: '100%' }}>
+                <Saved freelancer={freelancer} key={freelancer._id} />
+              </Col>
+            ))}
+          </Row>
           {page ? (
             <Row
               align="middle"

@@ -55,6 +55,7 @@ export const queryJobs = async (filter: Record<string, any>, options: IOptions):
   }
 
   if (!options.projectBy) {
+    options.sortBy = 'updatedAt:desc'
     options.populate = 'client,categories,reqSkills.skill'
     options.projectBy =
       'client, categories, title, description, locations, complexity, payment, budget, createdAt, proposals, nOEmployee, preferences'
@@ -122,6 +123,7 @@ export const queryAdvancedJobs = async (
   }
 
   options.populate = 'client,categories,reqSkills.skill'
+  options.sortBy = 'updatedAt:desc'
   if (!options.projectBy) {
     options.projectBy =
       'client, categories, title, description, locations, scope, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
@@ -157,6 +159,7 @@ export const searchJobsByText = async (searchText: string, options: IOptions): P
       { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
     ],
   }
+  options.sortBy = 'updatedAt:desc'
 
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
@@ -208,6 +211,7 @@ export const getRcmdJob = async (
       { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
     ],
   }
+  options.sortBy = 'updatedAt:desc'
 
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
@@ -228,6 +232,7 @@ export const getAllJob = async (): Promise<IJobDoc[] | null> => {
       'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences'
     )
     .populate([{ path: 'client', select: 'rating spent paymentVerified' }, { path: 'categories' }])
+    .sort({ updatedAt: 1 })
     .lean()
 
   return jobs
@@ -250,6 +255,7 @@ export const getFavJobByFreelancer = async (
 
   const filter = { _id: { $in: freelancer?.favoriteJobs || [] } }
 
+  options.sortBy = 'updatedAt:desc'
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
