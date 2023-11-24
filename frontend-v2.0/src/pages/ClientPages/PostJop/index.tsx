@@ -32,10 +32,10 @@ export default function PostJob() {
               <PostJobAside btns={btns} />
             </div>
             <div className="col-lg-9">
-              {step === 'started1' && <PostJobGetStarted setBtns={setBtns} btns={btns} />}
+              {step === 'started' && <PostJobGetStarted setBtns={setBtns} btns={btns} />}
               {step === 'title' && <PostJobTitle setBtns={setBtns} btns={btns} />}
               {step === 'description' && <PostJobDescription setBtns={setBtns} btns={btns} />}
-              {step === 'started' && <PostJobDetails setBtns={setBtns} btns={btns} />}
+              {step === 'details' && <PostJobDetails setBtns={setBtns} btns={btns} />}
               {step === 'expertise' && <PostJobExpertise setBtns={setBtns} btns={btns} />}
               {step === 'visibility' && <PostJobVisibility setBtns={setBtns} btns={btns} />}
               {step === 'budget' && <PostJobBudget setBtns={setBtns} btns={btns} />}
