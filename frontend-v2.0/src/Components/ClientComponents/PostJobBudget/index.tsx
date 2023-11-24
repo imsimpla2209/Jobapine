@@ -5,28 +5,23 @@ import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
 import { EPaymenType } from 'src/utils/enum'
 import { IJobPayment } from 'src/types/job'
+import { InputNumber, Select } from 'antd'
+
+const paymentTypeOptions = [
+  { label: 'per task', type: 'PerTask' },
+  { label: 'per hour', type: 'PerHour' },
+  { label: 'per week', type: 'PerWeek' },
+  { label: 'per month', type: 'PerMonth' },
+  { label: 'in total', type: 'WhenDone' },
+]
 
 export default function Postbudget({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
   const { t } = useTranslation(['main'])
-  const [job, setJob] = useState<{ payment: IJobPayment; budget: number }>({ payment: null, budget: 0 })
-
-  const getData = e => {
-    const val = e.target.value
-    const name = e.target.name
-    switch (name) {
-      case 'payment':
-        job.payment = { ...job.payment, type: val }
-        setJob({ ...job, payment: job.payment })
-        break
-      case 'budget':
-        job.budget = parseInt(val)
-        setJob({ ...job, budget: job.budget })
-        break
-      default:
-        break
-    }
-  }
+  const [job, setJob] = useState<{ payment: IJobPayment; budget: number }>({
+    payment: { amount: 100, type: EPaymenType.PERHOURS },
+    budget: 0,
+  })
 
   const addData = () => {
     postJobSubscribtion.updateState({
@@ -37,6 +32,24 @@ export default function Postbudget({ setBtns, btns }) {
     setStep('review')
   }
 
+  const handleChangeAmount = (amount: string) => {
+    setJob({ ...job, payment: { ...job.payment, amount: parseInt(amount) } })
+  }
+
+  const selectAfter = (
+    <Select
+      defaultValue={EPaymenType.PERHOURS}
+      value={job.payment.type}
+      style={{ width: 120 }}
+      onChange={(type: EPaymenType) => {
+        setJob({ ...job, payment: { ...job.payment, type } })
+      }}
+    >
+      {paymentTypeOptions.map(option => (
+        <Select.Option value={option.type}>{option.label}</Select.Option>
+      ))}
+    </Select>
+  )
   return (
     <>
       <section className=" bg-white border rounded mt-3 pt-4">
@@ -44,28 +57,17 @@ export default function Postbudget({ setBtns, btns }) {
           <h4>{t('Budget')}</h4>
           <p>{t('Step 6 of 7')}</p>
         </div>
-        <div className="px-4 mt-3">
-          <p className="fw-bold mt-2">{t('How would you like to pay your freelancer or agency?')}</p>
-          <div className="my-4 d-flex justify-content-between w-75" onInput={getData}>
-            <label className="border border-success rounded p-3 text-center w-50">
-              <input type="radio" className="float-end" name="payment" value={EPaymenType.PERHOURS} />
-              <div>
-                <i className="fas fa-stopwatch mt-4"></i>
-              </div>
-              <h6 className="my-3">{t('Pay by the hour')}</h6>
-              <div>{t('Pay hourly to easily scale up and down.')}</div>
-            </label>
-            <label className="border border-success rounded p-3 text-center mx-3 w-50">
-              <input type="radio" className="float-end" name="payment" value={EPaymenType.WHENDONE} />
-              <div>
-                <i className="fas fa-file-invoice-dollar mt-4"></i>
-              </div>
-              <h6 className="my-3">{t('Pay a fixed price')}</h6>
-              <div>{t('Define payment before work begins and pay only when work is delivered.')}</div>
-            </label>
-          </div>
+        <div className="px-4 mt-3 mb-3">
+          <p className="fw-bold mt-2">{t('How would you like to pay your freelancer?')}</p>
+          <InputNumber
+            addonBefore="VND"
+            addonAfter={selectAfter}
+            defaultValue={100}
+            onInput={handleChangeAmount}
+            value={job.payment.amount}
+          />
         </div>
-        {job.payment?.type === EPaymenType.WHENDONE ? (
+        {/* {job.payment?.type === EPaymenType.WHENDONE ? (
           <div className="px-4 my-3">
             <p className="fw-bold mt-2">{t('Do you have a specific budget?')}</p>
             <div className="me-5 mt-2 position-relative jd-inp-cn w-25">
@@ -100,7 +102,7 @@ export default function Postbudget({ setBtns, btns }) {
               </div>
             </div>
           )
-        )}
+        )} */}
       </section>
 
       <section className="bg-white border rounded mt-3">
@@ -108,7 +110,7 @@ export default function Postbudget({ setBtns, btns }) {
           <button className="btn" onClick={() => setStep('visibility')}>
             <span className="btn border text-success me-4 px-5">{t('Back')}</span>
           </button>
-          <button className={`btn ${job.payment === null || job.budget === 0 ? 'disabled' : ''}`}>
+          <button className={`btn ${!job.payment.amount ? 'disabled' : ''}`}>
             <span className="btn bg-jobsicker px-5" onClick={addData}>
               {t('Next')}
             </span>

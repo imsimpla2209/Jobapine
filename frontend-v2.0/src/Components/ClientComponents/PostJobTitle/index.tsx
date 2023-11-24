@@ -1,13 +1,13 @@
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import CategoriesPicker from 'src/Components/SharedComponents/CategoriesPicker'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
 
 export default function PostJobTitle({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
-  const [job, setJob] = useState({ jobTitle: '', jobCategory: '' })
+  const [job, setJob] = useState({ jobTitle: '', jobCategory: [] })
   const { t } = useTranslation(['main'])
 
   const getData = e => {
@@ -26,6 +26,10 @@ export default function PostJobTitle({ setBtns, btns }) {
       default:
         break
     }
+  }
+
+  const handleCategoryChange = val => {
+    setJob({ ...job, jobCategory: [...job.jobCategory, val] })
   }
 
   const addData = () => {
@@ -82,26 +86,15 @@ export default function PostJobTitle({ setBtns, btns }) {
       </section>
 
       <section className=" bg-white border rounded mt-3 pt-4">
-        <div className="border-bottom ps-4">
+        <div className="border-bottom ps-4 pb-4">
           <h4>{t('Job Category')}</h4>
           <p className="w-75">
             {t(
               "Let's categorize your job, which helps us personalize your job details and match your job to relevant freelancers and agencies."
             )}
           </p>
-          <select
-            className="form-select form-select-lg mb-3 shadow-none w-50"
-            aria-label=".form-select-lg example"
-            name="JobCategory"
-            onChange={getData}
-          >
-            <option value="Select a category">{t('Select a category')}</option>
-            <option value="Front-End Development">Front-End Development</option>
-            <option value="Web Development">{t('Web Development')}</option>
-            <option value="Web Design">{t('Web Design')}</option>
-            <option value="Graphic Design">{t('Graphic Design')}</option>
-            <option value="Mobile Development">Mobile Development</option>
-          </select>
+
+          <CategoriesPicker reset={true} handleChange={handleCategoryChange} istakeValue={true}></CategoriesPicker>
         </div>
         <div className="ps-4 my-3">
           <button className="btn">
@@ -109,11 +102,7 @@ export default function PostJobTitle({ setBtns, btns }) {
               {t('Back')}
             </span>
           </button>
-          <button
-            className={`btn ${
-              job.jobTitle === '' || job.jobCategory === '' || job.jobCategory === 'Select a category' ? 'disabled' : ''
-            }`}
-          >
+          <button className={`btn ${job.jobTitle === '' || !job.jobCategory?.length ? 'disabled' : ''}`}>
             <span className="btn bg-jobsicker px-5" onClick={addData}>
               {t('Next')}
             </span>

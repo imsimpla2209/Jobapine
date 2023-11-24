@@ -5,16 +5,29 @@ import { Link } from 'react-router-dom'
 import { createSubscription } from 'src/libs/global-state-hook'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { ICreateJobBody } from 'src/types/job'
+import { EComplexity, EJobType, ELevel, EPaymenType, EUserVisibility } from 'src/utils/enum'
 
 export const defaultPostJobState: ICreateJobBody = {
   client: '',
   title: '',
   description: '',
   categories: [],
-  type: null,
-  payment: null,
-  scope: null,
+  type: EJobType.ONE_TIME_PROJECT,
+  payment: { amount: 0, type: EPaymenType.PERHOURS },
+  scope: { complexity: EComplexity.EASY, duration: 0 },
   budget: 0,
+  experienceLevel: [ELevel.BEGINNER],
+  reqSkills: [],
+  checkLists: [],
+  attachments: [],
+  tags: [],
+  questions: [],
+  preferences: {
+    nOEmployee: 1,
+    locations: [],
+  },
+  visibility: EUserVisibility.ANYONE,
+  jobDuration: 'short-term',
 }
 
 export const postJobSubscribtion = createSubscription<ICreateJobBody>(defaultPostJobState)

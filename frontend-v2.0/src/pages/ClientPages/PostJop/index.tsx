@@ -40,17 +40,6 @@ export default function PostJob() {
               {step === 'visibility' && <PostJobVisibility setBtns={setBtns} btns={btns} />}
               {step === 'budget' && <PostJobBudget setBtns={setBtns} btns={btns} />}
               {step === 'review' && <PostJobReview />}
-
-              {/* <Routes>
-              <Route path="/" element={<PostJobGetStarted setBtns={setBtns} btns={btns} />} />
-              <Route path="/title" element={<PostJobTitle setBtns={setBtns} btns={btns} />} />
-              <Route path="/description" element={<PostJobDescription setBtns={setBtns} btns={btns} />} />
-              <Route path="/details" element={<PostJobDetails setBtns={setBtns} btns={btns} />} />
-              <Route path="/expertise" element={<PostJobExpertise setBtns={setBtns} btns={btns} />} />
-              <Route path="/visibility" element={<PostJobVisibility setBtns={setBtns} btns={btns} />} />
-              <Route path="/budget" element={<PostJobBudget setBtns={setBtns} btns={btns} />} />
-              <Route path="/review" element={<PostJobReview />} />
-            </Routes> */}
             </div>
           </div>
         </div>

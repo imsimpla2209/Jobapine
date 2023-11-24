@@ -7,15 +7,24 @@ import { defaultPostJobState, postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
 import { createJob } from 'src/api/job-apis'
 import { userStore } from 'src/pages/AdminPages/auth/user-store'
+import { fetchAllToS3 } from 'src/utils/helperFuncs'
+import { message } from 'antd'
 
 export default function PostJobReview() {
   const { state: userStoreState } = useSubscription(userStore)
   const { t } = useTranslation(['main'])
   const { state } = useSubscription(postJobSubscribtion)
 
-  const publishJob = () => {
+  const publishJob = async () => {
     postJobSubscribtion.updateState({ currentStatus: 'public' })
-    createJob({ ...state, client: userStoreState._id })
+    if (state.attachments?.length) {
+      // let fileNameList = await fetchAllToS3(state.attachments)
+      state['attachments'] = []
+    }
+    createJob({ ...state, client: userStoreState._id }).then(res => {
+      console.log(res)
+      message.success('🎉🎉🎉 Job created successfully! 🎉🎉🎉')
+    })
   }
 
   const deletePost = () => {
@@ -41,7 +50,14 @@ export default function PostJobReview() {
                 </div>
                 <div>
                   <h6 className="text-muted">{t('Job Category')}</h6>
-                  <p>{state?.categories}</p>
+                  {/* <p>{state?.categories}</p> */}
+                  {/* {state?.categories?.map((c, index) => (
+                    <div key={index}>
+                      <button type="button" className="btn text-light btn-sm rounded-pill cats mx-1">
+                        {c}
+                      </button>
+                    </div>
+                  ))} */}
                 </div>
               </div>
             </div>
