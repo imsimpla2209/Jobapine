@@ -4,19 +4,40 @@ import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
 import { EJobType } from 'src/utils/enum'
+import { Tag } from 'antd'
+import { CheckCircleOutlined } from '@ant-design/icons'
 
 export default function PostJobDetails({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
   const [job, setJob] = useState<{ type: EJobType }>({ type: null })
   const { t } = useTranslation(['main'])
+  const [inputVal, setInputVal] = useState('')
+  const [checklist, setchecklist] = useState([])
+
+  const addChecklist = () => {
+    checklist.push(inputVal)
+    setchecklist(checklist)
+    setInputVal('')
+  }
 
   const getData = e => {
-    setJob({ type: e.target.value })
+    const val = e.target.value
+    const name = e.target.name
+    switch (name) {
+      case 'checklist':
+        setInputVal(val)
+        break
+      default:
+        setJob({ type: val })
+
+        break
+    }
   }
 
   const addData = () => {
     postJobSubscribtion.updateState({
       type: job.type,
+      checkLists: checklist,
     })
     setBtns({ ...btns, expertise: false })
     setStep('expertise')
@@ -29,7 +50,7 @@ export default function PostJobDetails({ setBtns, btns }) {
           <h4>{t('Details')}</h4>
           <p>{t('Step 3 of 7')}</p>
         </div>
-        <div className="px-4 mt-3">
+        <div className="px-4 mt-3 mb-4">
           <p className="fw-bold mt-2">{t('What type of project do you have?')}</p>
           <div className="my-4 d-flex justify-content-between" onInput={getData}>
             <label className="border border-success rounded p-3 text-center">
@@ -57,6 +78,26 @@ export default function PostJobDetails({ setBtns, btns }) {
               <div>{t('Find specialized experts and agencies for large projects.')}</div>
             </label>
           </div>
+
+          <p className="fw-bold">{t('Enter the checklist of your job post?')}</p>
+          <div className="my-4 d-flex justify-content-between">
+            <input
+              className="form-control w-75 shadow-none"
+              type="text"
+              name="checklist"
+              value={inputVal}
+              onChange={getData}
+            />
+            <button className="btn bg-jobsicker px-5" disabled={!inputVal} onClick={addChecklist}>
+              Add
+            </button>
+            <div className="my-4 d-flex justify-content-between"></div>
+          </div>
+          {checklist.map((item, index) => (
+            <Tag key={index} color="success" icon={<CheckCircleOutlined />}>
+              {item}
+            </Tag>
+          ))}
         </div>
       </section>
 

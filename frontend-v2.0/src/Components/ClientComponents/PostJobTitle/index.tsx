@@ -1,10 +1,9 @@
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import CategoriesPicker from 'src/Components/SharedComponents/CategoriesPicker'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
-import CategoriesPicker from 'src/Components/SharedComponents/CategoriesPicker'
 
 export default function PostJobTitle({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
@@ -28,7 +27,7 @@ export default function PostJobTitle({ setBtns, btns }) {
         break
     }
   }
-  console.log(job)
+
   const handleCategoryChange = val => {
     setJob({ ...job, jobCategory: [...job.jobCategory, val] })
   }

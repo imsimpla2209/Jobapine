@@ -1,10 +1,8 @@
-
-import React, { useState, useContext } from "react";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { updateJob } from "../../../Network/Network";
-import "./style.css";
+import { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import './style.css'
 /* eslint-disable jsx-a11y/alt-text */
+import { DefaultUpload } from 'src/Components/CommonComponents/upload/upload'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
@@ -12,48 +10,42 @@ import './style.css'
 export default function Postdescription({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
   const { t } = useTranslation(['main'])
-  let [job, setJob] = useState({ description: '' })
+  let [description, setDescription] = useState('')
+  let [files, setFiles] = useState([])
+  const [inputVal, setInputVal] = useState('')
+  const [tagList, settagList] = useState([])
+
   const getData = e => {
     const val = e.target.value
     const name = e.target.name
-    // const files = e.target.files
     switch (name) {
-      case 'description':
-        job.description = val
-        setJob({ ...job, description: job.description })
+      case 'jobTags':
+        setInputVal(val)
         break
-      // case "images":
-      //   if (files[0]) {
-      //     const upload = storage
-      //       .ref(`jobImages/${files[0].name}`)
-      //       .put(files[0]);
-      //     upload.on(
-      //       "state_changed",
-      //       (snapshot) => { },
-      //       (err) => {
-      //         console.log(err);
-      //       },
-      //       () => {
-      //         storage
-      //           .ref("jobImages")
-      //           .child(files[0].name)
-      //           .getDownloadURL()
-      //           .then((url) => {
-      //             job.jobImages.push(url);
-      //             setJob({ ...job, jobImages: job.jobImages });
-      //             console.log(job);
-      //           });
-      //       }
-      //     );
-      //   }
-      //   break;
       default:
         break
     }
   }
 
+  const addTags = () => {
+    tagList.push(inputVal)
+    settagList(tagList)
+    setInputVal('')
+  }
+
+  const normFile = (fileList: any) => {
+    // handle event file changes in upload and dragger components
+    setFiles(fileList)
+    return fileList
+  }
+
+  const handleChangeDescription = e => {
+    const val = e.target.value
+    setDescription(val)
+  }
+
   const addData = () => {
-    postJobSubscribtion.updateState(job)
+    postJobSubscribtion.updateState({ description, attachments: files, tags: tagList })
     setBtns({ ...btns, details: false })
     setStep('details')
   }
@@ -73,37 +65,59 @@ export default function Postdescription({ setBtns, btns }) {
         </ul>
       </div>
       <div className="ps-4 pt-2 pe-4">
-        <textarea className="form-control shadow-none" name="description" rows={8} onInput={getData}></textarea>
+        <textarea
+          className="form-control shadow-none"
+          name="description"
+          rows={8}
+          onInput={handleChangeDescription}
+        ></textarea>
         <span className="float-end">{t('0/5000 characters (minimum 50)')}</span>
       </div>
-      {/* <div className="mx-4 mt-5 py-2 pb-4">
-        <p className="fw-bold">{t('Additional project files (optional)')}</p>
-        <div className="d-flex mb-3">
-          {job.jobImages &&
-            job.jobImages.map((url, ix) => {
-              return (
-                <div className="mx-2 circle" style={{ width: '50px', height: '50px' }} key={ix}>
-                  <img className="w-100 h-100 rounded-circle" src={url} />
-                </div>
-              )
-            })}
-        </div>
+
+      <div className="mx-4 mt-5 py-2 pb-4">
         <div className="attachments-cn">
-          <p className="py-2 text-center mt-2">
+          <p className="pt-2 px-5 text-center">
+            Drag or{' '}
             <label htmlFor="file" className="upw-c-cn me-1" style={{ cursor: 'pointer' }}>
               {t('upload')}
             </label>
-            <input id="file" type="file" name="images" className="d-none" onInput={getData} />
-            {t('project images')}
+            {t('Additional project files (optional)')}
+            <DefaultUpload normFile={normFile} files={files}></DefaultUpload>
           </p>
         </div>
-        <p className="my-3">{t('You may attach up to 5 files under 100 MB each')}</p>
-      </div> */}
+        <p className="my-3">
+          {t('You may attach up to 10 files under the size of')} <strong>25MB</strong>{' '}
+          {t(
+            `each. Include work samples or other documents to support your application. Do not attach your résumé — your JobSickers profile is automatically forwarded tothe client with your proposal.`
+          )}
+        </p>
+
+        <p className="fw-bold">{t('Enter the tags of your job post?')}</p>
+        <div className="my-4 d-flex justify-content-between">
+          <input
+            className="form-control w-75 shadow-none"
+            type="text"
+            name="jobTags"
+            value={inputVal}
+            onChange={getData}
+          />
+          <button className="btn bg-jobsicker px-5" disabled={!inputVal} onClick={addTags}>
+            Add
+          </button>
+          <div className="my-4 d-flex justify-content-between"></div>
+        </div>
+        {tagList.map((item, index) => (
+          <div className="chip mb-3 ms" key="index">
+            <span>{item}</span>
+          </div>
+        ))}
+      </div>
+
       <div className="ps-4 my-3 pt-4 pb-3 pt-3 border-top">
         <button className="btn" onClick={() => setStep('title')}>
           <span className="btn border text-success me-4 px-5">{t('Back')}</span>
         </button>
-        <button className={`btn ${job.description === '' && 'disabled'}`}>
+        <button className={`btn ${description === '' && 'disabled'}`}>
           <span className="btn bg-jobsicker px-5" onClick={addData}>
             {t('Next')}
           </span>

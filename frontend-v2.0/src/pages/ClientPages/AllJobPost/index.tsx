@@ -3,11 +3,14 @@
 
 import { SearchOutlined } from '@ant-design/icons'
 import { Button, Checkbox, ConfigProvider, InputNumber, Pagination, Radio, Result, Slider, Space, Tag } from 'antd'
+import searching from 'assets/img/searching.jpg'
 import { isArray, isEmpty } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import ClientJobCard from 'src/Components/ClientComponents/ClientJobCard'
 import CategoriesPicker from 'src/Components/SharedComponents/CategoriesPicker'
+import Loader from 'src/Components/SharedComponents/Loader/Loader'
 import LocationPicker from 'src/Components/SharedComponents/LocationPicker'
 import { MultiSkillPicker } from 'src/Components/SharedComponents/SkillPicker'
 import { locationStore } from 'src/Store/commom.store'
@@ -16,12 +19,8 @@ import { clientStore, freelancerStore } from 'src/Store/user.store'
 import { filterJobs } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { EComplexityGet, EJobStatus, EPaymenType } from 'src/utils/enum'
-import SearchBarJobsFreelancer from '../../../Components/FreelancerComponents/SearchBarJobsFreelancer'
-import JobCard from '../../../Components/FreelancerComponents/SectionCenterFreelancerHome/JobCard'
 import styled from 'styled-components'
-import Loader from 'src/Components/SharedComponents/Loader/Loader'
-import searching from 'assets/img/searching.jpg'
-import ClientJobCard from 'src/Components/ClientComponents/ClientJobCard'
+import SearchBarJobsFreelancer from '../../../Components/FreelancerComponents/SearchBarJobsFreelancer'
 
 export interface IFilterOptions {
   complexity?: any[]

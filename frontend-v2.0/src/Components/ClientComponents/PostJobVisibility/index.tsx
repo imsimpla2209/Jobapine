@@ -6,12 +6,14 @@ import upwork from '../../../assets/img/TLpZ1jf.png'
 import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
 import { EUserVisibility } from 'src/utils/enum'
+import { InputNumber } from 'antd'
+import { UserOutlined } from '@ant-design/icons'
 
 export default function PostJobVisibility({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
   const [job, setJob] = useState<{ jobVisibility: EUserVisibility; freelancerNeed: number }>({
     jobVisibility: null,
-    freelancerNeed: 0,
+    freelancerNeed: 1,
   })
   const { t } = useTranslation(['main'])
 
@@ -23,13 +25,14 @@ export default function PostJobVisibility({ setBtns, btns }) {
         job.jobVisibility = val
         setJob({ ...job, jobVisibility: job.jobVisibility })
         break
-      case 'freelancerNeed':
-        job.freelancerNeed = val
-        setJob({ ...job, freelancerNeed: job.freelancerNeed })
-        break
+
       default:
         break
     }
+  }
+
+  const handleFreelancerNeed = num => {
+    setJob({ ...job, freelancerNeed: num })
   }
 
   const addData = () => {
@@ -51,7 +54,7 @@ export default function PostJobVisibility({ setBtns, btns }) {
         <div className="px-4 mt-3">
           <p className="fw-bold mt-2">{t('Who can see your job?')}</p>
           <div className="my-4 d-flex justify-content-center" onInput={getData}>
-            <label className="border border-success rounded p-3 text-center w-50">
+            <label className="border border-success rounded p-3 text-center w-50 " style={{ marginRight: 16 }}>
               <input type="radio" className="float-end" name="visibility" value={EUserVisibility.ANYONE} />
               <div>
                 <i className="fas fa-user mt-4"></i>
@@ -63,7 +66,7 @@ export default function PostJobVisibility({ setBtns, btns }) {
                 )}
               </small>
             </label>
-            <label className="border border-success rounded p-3 text-center w-50 mx-3">
+            <label className="border border-success rounded p-3 text-center w-50">
               <input type="radio" className="float-end" name="visibility" value={EUserVisibility.VERIFIED_USER} />
               <div className="w-50 mx-auto">
                 <img className="bg-dark w-25 rounded-circle mt-4" src={upwork} />
@@ -73,24 +76,14 @@ export default function PostJobVisibility({ setBtns, btns }) {
             </label>
           </div>
         </div>
-        <div className="px-4 mt-3">
+        <div className="px-4 mt-3" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p className="fw-bold mt-2">{t('How many people do you need for this job?')}</p>
-          <div className="my-4 d-flex" onInput={getData}>
-            <label className="border border-success rounded p-3 text-center w-25">
-              <input type="radio" className="float-end" name="freelancerNeed" value={1} />
-              <div>
-                <i className="fas fa-user mt-4"></i>
-              </div>
-              <h6 className="my-3">{t('One freelancer')}</h6>
-            </label>
-            <label className="border border-success rounded p-3 text-center ms-3 w-25">
-              <input type="radio" className="float-end" name="freelancerNeed" value={10} />
-              <div>
-                <i className="fas fa-user-friends mt-4"></i>
-              </div>
-              <h6 className="my-3">{t('More than one freelancer')}</h6>
-            </label>
-          </div>
+          <InputNumber
+            addonBefore={<UserOutlined />}
+            style={{ width: '30%' }}
+            onInput={handleFreelancerNeed}
+            value={job.freelancerNeed}
+          />
         </div>
       </section>
 
