@@ -102,7 +102,7 @@ export default function JobCard({ item, freelancer, lang }) {
               <span className="fw-bold me-1">
                 {t('Complexity')}:
               </span>
-              <span id="experience-level">{t(EComplexityGet[item?.scope?.complexity || 0])}</span>
+              <span id="experience-level">{t(EComplexityGet[item?.scope?.complexity])}</span>
               <span> - </span>
               <span className="fw-bold me-1">{t("Est. Budget")}</span>
               <span id="client-budget">{currencyFormatter(item?.budget)}</span>
@@ -132,13 +132,13 @@ export default function JobCard({ item, freelancer, lang }) {
           <div className='fw-bold me-1 text-muted' style={{ fontSize: "0.9em" }}>{t("Categories") + ":"}</div>
           {item?.categories?.map((c, index) => (
             <div key={index}>
-              <button
+              <Link to={`/search?categoryId=${c?._id}`}
                 key={index}
                 type="button"
                 className="btn text-light btn-sm rounded-pill cats mx-1"
               >
                 {c?.name}
-              </button>
+              </Link>
             </div>
           ))}
         </Space>
@@ -187,7 +187,7 @@ export default function JobCard({ item, freelancer, lang }) {
             <span className="fw-bold text-muted" style={{ display: 'flex', marginTop: 2 }}>
               <i className="fas fa-map-marker-alt" />
               {
-                item?.preferences?.locations.map(l => (
+                item?.preferences?.locations?.map(l => (
                   <span key={l} style={{ marginLeft: 8 }}>
                     {locations?.find(s => s.code === l.toString())?.name} |
                   </span>

@@ -40,7 +40,11 @@ export const registerFreelancer = async (
   if (await Freelancer.findOne({ user: freelancerBody.user })) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Freelancer')
   }
-  return Freelancer.create(freelancerBody)
+  let profileCompletion = 0
+  if (freelancerBody?.skills?.length > 0) profileCompletion += 10
+  if (freelancerBody?.preferJobType?.length > 0) profileCompletion += 10
+  if (freelancerBody?.intro) profileCompletion += 10
+  return Freelancer.create({ ...freelancerBody, profileCompletion })
 }
 
 /**

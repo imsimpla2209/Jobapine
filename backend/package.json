@@ -109,6 +109,7 @@
     "bcrypt": "^5.0.1",
     "bson": "^5.4.0",
     "case-anything": "^1.1.5",
+    "cloudinary": "^1.41.0",
     "compression": "^1.7.4",
     "cookie-parse": "^0.4.0",
     "cookie-parser": "^1.4.6",

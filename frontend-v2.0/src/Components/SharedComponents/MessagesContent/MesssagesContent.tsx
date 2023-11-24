@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ProposalCard from 'src/Components/FreelancerComponents/ProposalCard'
-import { createMessage, getMessages } from 'src/api/message-api'
+import { createMessage, getMessages, updateMessageRoom } from 'src/api/message-api'
 import { useSocket } from 'src/socket.io'
 import { ESocketEvent } from 'src/utils/enum'
 import IncomeMsg from './IncomeMsg'
@@ -24,6 +24,7 @@ export default function MesssagesContent({ selectedMessageRoom, userID }: any) {
 
   useEffect(() => {
     if (!isEmpty(selectedMessageRoom)) {
+      updateMessageRoom({ seen: true }, selectedMessageRoom?._id)
       setLoading(true)
       setPage(1)
       setTotal(0)

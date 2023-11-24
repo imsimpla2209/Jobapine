@@ -10,6 +10,7 @@ import SearchBox from "src/Components/SharedComponents/SearchBox";
 import { useTranslation } from "react-i18next";
 import { getSkills } from "src/api/job-apis";
 import { pickName } from "src/utils/helperFuncs";
+import { Link } from "react-router-dom";
 
 export default function Header() {
 	const { t, i18n } = useTranslation(['main'])
@@ -87,7 +88,7 @@ export default function Header() {
 					}}>
 					{
 						skillShow.map(s => (
-							<li key={s?._id}><a href="#" className="fs-7" >{pickName(s, i18n.language)}</a></li>
+							<li key={s?._id}><Link to={`/search?skillId=${s?._id}`} className="fs-7" >{pickName(s, i18n.language)}</Link></li>
 						))
 					}
 				</ul>

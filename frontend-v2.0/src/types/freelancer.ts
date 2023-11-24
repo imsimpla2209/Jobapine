@@ -1,5 +1,7 @@
+import { EPaymenType } from "src/utils/enum";
+
 export interface SkillBody {
-  skill: string
+  skill: any;
   level: number
 }
 
@@ -17,9 +19,11 @@ export interface NewRegisteredFreelancer {
 
 export interface IFreelancer {
   _id: string
+  id: string
   user: string
   name: string
   intro?: string
+  title?: string
   members?: string[]
   // tests?: ITestDoc['_id'][]
   skills?: SkillBody[]
@@ -35,11 +39,20 @@ export interface IFreelancer {
   jobsDone?: { number: number; success: number }
   earned?: number
   available?: boolean
+  expertiseLevel?: number
+  education?: any
+  historyWork?: any
+  englishProficiency?: any
+  otherLanguages?: any
+  profileCompletion?: number
+  expectedAmount?: number
+  expectedPaymentType?: EPaymenType
 }
 
 export interface UpdateFreelancer {
   name?: string
   intro?: string
+  title?: string
   skills?: SkillBody[]
   certificate?: string
   images?: string[]
@@ -48,6 +61,14 @@ export interface UpdateFreelancer {
   preferencesURL?: string[]
   available?: boolean
   favoriteJobs?: any[]
+  expertiseLevel?: number
+  education?: any
+  historyWork?: any
+  englishProficiency?: any
+  otherLanguages?: any
+  profileCompletion?: number
+  expectedAmount?: number
+  expectedPaymentType?: EPaymenType
 }
 
 export interface QueryParams {

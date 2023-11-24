@@ -17,6 +17,7 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   dob: Joi.string(),
   address: Joi.string(),
   nationalId: Joi.string(),
+  isPhoneVerified: Joi.boolean(),
 }
 
 export const createUser = {

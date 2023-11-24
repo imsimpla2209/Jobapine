@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { getClientById } from '@modules/client/client.service'
 import { addJobtoFreelancer, getFreelancerById, updateSimilarById } from '@modules/freelancer/freelancer.service'
 import { IJobDoc } from '@modules/job/job.interfaces'
@@ -158,16 +159,32 @@ export const changeStatusContractById = async (
   status: string,
   comment: string
 ): Promise<IContractDoc | null> => {
-  const contract = await Contract.findByIdAndUpdate(contractId, {
+  const contract = await getContractById(contractId)
+  if (!contract) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'contract not found')
+  }
+
+  const now = new Date().getTime()
+  const endDate = new Date(contract.endDate).getTime()
+  if (endDate < now) {
+    Object.assign(contract, {
+      status: {
+        status: EStatus.LATE,
+        comment: 'contract is expired',
+        date: new Date(),
+      },
+    })
+    await contract.save()
+    throw new ApiError(httpStatus.BAD_REQUEST, 'contract is Expired')
+  }
+  Object.assign(contract, {
     status: {
       status,
+      comment,
       date: new Date(),
-      comment: comment || '',
     },
   })
-  if (!contract) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Contract not found')
-  }
+  await contract.save()
   return contract
 }
 
@@ -262,6 +279,7 @@ export const rejectContract = async (
  * @returns {Promise<QueryResult>}
  */
 export const queryContracts = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
+  options.populate = 'job,client'
   const contracts = await Contract.paginate(filter, options)
   return contracts
 }

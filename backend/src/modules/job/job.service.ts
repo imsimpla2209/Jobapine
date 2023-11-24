@@ -124,7 +124,7 @@ export const queryAdvancedJobs = async (
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, locations, scope, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
   }
 
   const jobs = await Job.paginate(queryFilter, options)

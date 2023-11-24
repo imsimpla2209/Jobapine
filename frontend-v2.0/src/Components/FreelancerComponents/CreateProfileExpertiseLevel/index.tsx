@@ -1,10 +1,13 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { updateUserData } from "../../../Network/Network";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSubscription } from "src/libs/global-state-hook";
+import { EStep, profileFreelancerData, profileStepStore } from "src/pages/FreelancerPages/CreateProfile";
 
-export default function CreateProfileExpertiseLevel({ setBtns, btns }) {
-
-  const [state, setState] = useState({ availability: "", expertiseLevel: "" })
+export default function CreateProfileExpertiseLevel() {
+	const profileStep = useSubscription(profileStepStore).setState
+  const { setState: setProfile, state: profile } = useSubscription(profileFreelancerData);
+  const { t } = useTranslation(['main']);
+  const [state, setState] = useState({ available: profile?.available || false, expertiseLevel: profile?.expertiseLevel ||  -1 })
 
   const onChangeVal = (e) => {
     const val = e.target.value;
@@ -13,8 +16,8 @@ export default function CreateProfileExpertiseLevel({ setBtns, btns }) {
       case "expertise-level":
         setState({ ...state, expertiseLevel: val });
         break;
-      case "availability":
-        setState({ ...state, availability: e.target.checked });
+      case "available":
+        setState({ ...state, available: e.target.checked });
         console.log(e.target.checked)
         break;
       default:
@@ -23,89 +26,91 @@ export default function CreateProfileExpertiseLevel({ setBtns, btns }) {
   };
 
   const addData = () => {
-    updateUserData("freelancer", {
-      expertiseLevel: state.expertiseLevel,
-      expertiseLevelAr: state.expertiseLevel === "Expert" ? "خبير" : state.expertiseLevel === "Intermediate" ? "متوسط" : "مبتدئ",
-      availability: state.availability,
-      profileCompletion: 30,
-    });
-    setBtns({ ...btns, eduAndEmp: false })
+    setProfile({ ...profile, available: state.available, expertiseLevel: state.expertiseLevel, profileCompletion: 30, })
+    profileStep({step: EStep.EDUANDEMP})
   }
 
   return (
     <section className=" bg-white border rounded mt-3 pt-4">
       <div className="border-bottom ps-4 pb-3">
-        <h4>Expertise level</h4>
+        <h4>{t("Experience Level with online working")}</h4>
       </div>
       <div className="ps-4 my-5">
         <p className="fw-bold mt-5">
-          What is your level of experience in this field?
+          {t("Honestly Clarify your online working experience, which could help you find more suitable jobs with your experience?")}
         </p>
         <div
-          className="my-4 mx-4 d-flex justify-content-between"
+          className="my-4 mx-4 d-flex btn-grou justify-content-between"
           onChange={onChangeVal}
+          aria-label="Basic radio toggle button group"
         >
-          <label className="border border-success rounded p-3 text-center w-25">
+          <label className="border rounded p-3 text-center w-25">
+            <input
+              type="radio"
+              className="float-end "
+              
+              name="expertise-level"
+              value="0"
+            />
+            <h5 className="my-4">{t("Beginer")}</h5>
+            <div>I have never worked online</div>
+          </label>
+          <label className="border rounded p-3 text-center w-25">
             <input
               type="radio"
               className="float-end"
               name="expertise-level"
-              value="Entry-level"
+              value="1"
             />
-            <h5 className="my-4">Entry level</h5>
+            <h5 className="my-4">{t("Junior")}</h5>
             <div>I am relatively new to this field</div>
           </label>
-          <label className="border border-success rounded p-3 text-center w-25">
+          <label className="border rounded p-3 text-center w-25">
             <input
               type="radio"
               className="float-end"
               name="expertise-level"
-              value="Intermediate"
+              value="2"
             />
-            <h5 className="my-4">Intermediate</h5>
+            <h5 className="my-4">{t("Intermediate")}</h5>
             <div>I have substantial experience in this field</div>
           </label>
-          <label className="border border-success rounded p-3 text-center w-25">
+          <label className="border rounded p-3 text-center w-25">
             <input
               type="radio"
               className="float-end"
               name="expertise-level"
-              value="Expert"
+              value="3"
             />
-            <h5 className="my-4">Expert</h5>
+            <h5 className="my-4">{t("Expert")}</h5>
             <div>I have comprehensive and deep expertise in this field</div>
           </label>
         </div>
       </div>
       <div className="row mx-4 justify-content-start align-items-center">
         <label className="w-50 fw-bold">
-          Are you available to work immediately
+          {t("Are you available to work immediately")}
             </label>
         <input
           type="checkbox"
-          name="availability"
+          name="available"
+          defaultChecked={state?.available}
           className="w-25 form-check shadow-none"
           onChange={onChangeVal}
         />
 
       </div>
       <div className="px-4 my-3 pt-4 border-top d-flex justify-content-between">
-        <button className="btn">
-          <Link
-            className="btn border text-success me-4 px-5 fw-bold"
-            to="/create-profile/category"
-          >
+        <button className="btn border me-4 px-5 fw-bold" onClick={() => profileStep({step: EStep.CATEGORY})}>
             Back
-        </Link>
         </button>
-        <button className={`btn ${state.availability === "" || state.expertiseLevel === "" ? "disabled" : ""}`}>
-          <Link
+        <button className={`btn ${state.expertiseLevel === -1 ? "disabled" : ""}`}>
+          <button
             className="btn bg-jobsicker px-5"
-            to="/create-profile/education-and-employment"
             onClick={addData}
           >
             Next
-        </Link>
+        </button>
         </button>
       </div>
     </section>

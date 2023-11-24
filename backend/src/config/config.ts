@@ -38,6 +38,11 @@ const envVarsSchema = Joi.object()
     VNP_API: Joi.string().description('VNP API'),
     VNP_RETURNURL: Joi.string().description('VNP return url'),
     PAYPAL_CLIENT_ID: Joi.string().description('PAYPAL client id'),
+    CL_ACCESS_KEY: Joi.string().required().description('Cloudiary Access Key'),
+    CL_SECRET_KEY: Joi.string().required().description('Cloudiary Secret Key'),
+    S3_CL_name: Joi.string().required().description('Cloudiary name'),
+    SMS_ACCESS_KEY: Joi.string().required().description('SMS Access Key'),
+    DEVICE_ID: Joi.string().required().description('SMS Device id'),
   })
   .unknown()
 
@@ -87,6 +92,10 @@ const config = {
     from: envVars.EMAIL_FROM,
     sibKey: envVars.SIB_API_KEY,
   },
+  SMS: {
+    accessKey: envVars.SMS_ACCESS_KEY,
+    deviceId: envVars.DEVICE_ID,
+  },
   clientUrl: envVars.CLIENT_URL,
   google: {
     clientID: envVars.GOOGLE_CLIENTID,
@@ -102,6 +111,11 @@ const config = {
     accessKey: envVars.AWS_S3_ACCESS_KEY,
     secretKey: envVars.AWS_S3_SECRET_KEY,
     s3BucketName: envVars.S3_BUCKET_NAME,
+  },
+  Cloudinary: {
+    accessKey: envVars.CL_ACCESS_KEY,
+    secretKey: envVars.CL_SECRET_KEY,
+    cloudName: envVars.S3_CL_name,
   },
   VN_pay: {
     vnp_TmnCode: envVars.VNP_TMNCODE,

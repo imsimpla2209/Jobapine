@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import moment, { Moment } from 'moment'
 import mongoose from 'mongoose'
 import httpStatus from 'http-status'
+import { randomInt } from 'node:crypto'
 import config from '../../config/config'
 import Token from './token.model'
 import ApiError from '../../common/errors/ApiError'
@@ -123,6 +124,36 @@ export const generateResetPasswordToken = async (email: string): Promise<string>
   const resetPasswordToken = generateToken(user.id, expires, tokenTypes.RESET_PASSWORD)
   await saveToken(resetPasswordToken, user.id, expires, tokenTypes.RESET_PASSWORD)
   return resetPasswordToken
+}
+
+/**
+ * Generate sms token
+ * @param {string} userId
+ * @returns {Promise<string>}
+ */
+export const generateSMSToken = async (userId: mongoose.Types.ObjectId): Promise<any> => {
+  const user = await userService.getUserById(userId)
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'not found this user')
+  }
+  const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes')
+  const otpCode = randomInt(1000_000).toString().padStart(6, '0')
+
+  const smsToken = saveToken(otpCode, user?._id, expires, tokenTypes.SMS)
+  return smsToken
+}
+
+export const verifySMSToken = async (token: string, userId: mongoose.Types.ObjectId): Promise<ITokenDoc> => {
+  const tokenDoc = await Token.findOne({
+    token,
+    type: tokenTypes.SMS,
+    user: userId,
+    blacklisted: false,
+  })
+  if (!tokenDoc) {
+    throw new Error('Token not found')
+  }
+  return tokenDoc
 }
 
 /**

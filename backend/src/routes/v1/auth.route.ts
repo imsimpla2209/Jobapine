@@ -39,6 +39,9 @@ router.post('/reset-password', validate(authValidation.resetPassword), authContr
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail)
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail)
 
+router.post('/send-SMS-verify/:phone', auth(), authController.sendPhoneSMS)
+router.post('/verify-sms/:token', auth(), authController.verifySMS)
+
 export default router
 
 /**

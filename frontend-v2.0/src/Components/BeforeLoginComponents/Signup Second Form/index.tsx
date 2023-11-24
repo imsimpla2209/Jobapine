@@ -10,10 +10,12 @@ export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMe
   const [validate, setValidate] = useState({ firstName: "", lastName: "", password: "", terms: false, username: '', phone: '' });
   const terms = useRef(null);
   const [country, setCountry] = useState<any>(undefined);
+  const [fName, setFName] = useState<any>("");
+  const [lName, setlName] = useState<any>("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setuser({ ...usr, name: validate.lastName + ' ' + validate.firstName});
+    setuser({ ...usr, name: fName + ' ' + lName });
   }, [validate])
 
   const getUserData = (e) => {
@@ -21,6 +23,7 @@ export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMe
     const name = e.target.name;
     switch (name) {
       case "firstName":
+        setFName(val)
         setValidate({
           ...validate,
           firstName:
@@ -32,6 +35,7 @@ export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMe
         });
         break;
       case "lastName":
+        setlName(val)
         setValidate({
           ...validate,
           lastName:
@@ -59,9 +63,9 @@ export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMe
         setValidate({
           ...validate,
           phone:
-              val.match(/(84|0[3|5|7|8|9])+([0-9]{8})\b/g)
-                ? t("Please inter Valid Phone")
-                : null
+            val.match(/(84|0[3|5|7|8|9])+([0-9]{8})\b/g)
+              ? t("Please inter Valid Phone")
+              : null
         });
         break;
       case "password":
@@ -301,10 +305,10 @@ export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMe
           </div>
 
           <div className="d-grid gap-2 col-8 mx-auto mt-3 hitbtn-class loginpcolor mb-4" >
-            <Button 
+            <Button
               className="btn bg-jobsicker"
               loading={loading}
-              style={{ height: '50px'}}
+              style={{ height: '50px' }}
               // disabled={validate.password != null || !validate.firstName || !!validate.lastName || (usr.userType === "Client" && !country) || !validate.terms}
               onClick={handleSignup}
             >

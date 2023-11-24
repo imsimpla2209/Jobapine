@@ -1,3 +1,4 @@
+import { RcFile } from 'antd/es/upload'
 import axios from 'axios'
 import { formatDistanceToNowStrict, format } from 'date-fns'
 import { Http } from 'src/api/http'
@@ -60,21 +61,53 @@ export const fetchPresignedUrl = async (url: any, file: any) => {
   try {
     const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1)
     const type = file.type
-    const requestUrl = url + `?ext=${fileExtension}&type=${type}`
-    const uploadConfig = await Http.get(requestUrl)
-    await axios.put(uploadConfig.data.url, file.originFileObj, {
-      headers: {
-        'Content-Type': type,
-      },
-    })
-    return `https://yessir-bucket-tqt.s3.ap-northeast-1.amazonaws.com/${uploadConfig.data.key}`
+    const uploadConfig = (await Http.get(url))?.data
+    // const sigedUrl = `https://api.cloudinary.com/v1_1/${uploadConfig?.cloudName}/image/upload?api_key=${uploadConfig?.apiKey}&timestamp=${uploadConfig?.timestamp}&signature=${uploadConfig?.signature}`
+    const sigedUrl = `https://api.cloudinary.com/v1_1/${uploadConfig?.cloudName}/upload`
+    const formData = new FormData();
+    formData.append('file', file)
+    formData.append("signature", uploadConfig?.signature);
+    formData.append("timestamp", uploadConfig?.timestamp);
+    formData.append("api_key", uploadConfig?.apiKey);
+    const fileTranform = await fetch(sigedUrl, {
+      method: 'POST',
+      body: formData
+    }).then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        return result
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    
+    return fileTranform?.secure_url
   } catch (error) {
     console.error(error)
   }
 }
 
-export const fetchAllToS3 = async (files: any) => {
-  const url = '/api/v1/idea/preSignUrl'
+// const widget = window.cloudinary.createUploadWidget(
+    //   {
+    //     cloudName: uploadConfig?.cloudName,
+    //     // uploadSignature: uploadConfig?.signature,
+    //     // apiKey: uploadConfig?.apiKey,
+    //     uploaadPreset: "unsigned-preset",
+    //     resourceType: type,
+    //   },
+    //   (error, result) => {
+    //     if (!error && result && result.event === "success") {
+    //       console.log("Done! Here is the image info: ", result.info);
+    //     } else if (error) {
+    //       console.log(error);
+    //     }
+    //   }
+    // );
+    // widget.open();
+
+
+export const fetchAllToCL = async (files: any) => {
+  const url = 'data/preSignCLUrl'
   const requests = files.map(async (file: any) => {
     return await fetchPresignedUrl(url, file).then(result => result)
   })
@@ -127,3 +160,12 @@ export function timeAgo(datetime, t) {
 
   return years + t(years === 1 ? ' year ago' : ' years ago');
 }
+
+export const getBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+

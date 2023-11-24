@@ -59,13 +59,13 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
         <div style={{
           marginTop: 16
         }}>
-          <Link to={`/profile/me`} className="advanced-search-link">
+          <Link to={`/create-profile`} className="advanced-search-link">
             <FormOutlined /><span> {t("CompleteProfile")}</span>
           </Link>
 
         </div>
         <div style={{ height: 'auto', display: "inline" }}>
-          <Progress percent={70} status="active" strokeColor={{ from: '#803ade', to: '#fc2389' }} />
+          <Progress percent={freelancer?.profileCompletion || 0} status="active" strokeColor={{ from: '#803ade', to: '#fc2389' }} />
         </div>
       </div>
       <div style={{

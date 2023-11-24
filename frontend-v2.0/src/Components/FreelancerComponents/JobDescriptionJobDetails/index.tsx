@@ -122,9 +122,9 @@ export default function JobDescriptionJobDetails({ job }) {
         <div className="col">
           {job?.reqSkills?.map((skill, index) => (
             <Space key={index} size={1} className="me-sm-5 " wrap={true}>
-              <Button key={index} className="btn text-light btn-sm rounded-pill cats mx-1 my-1">
+              <Link to={`/search?skillId=${skill?.skill?._id}`} key={index} className="btn text-light btn-sm rounded-pill cats mx-1 my-1">
                 {pickName(skill?.skill, lang)}:
-              </Button>
+              </Link>
               <Progress done={skill?.level} />
             </Space>
           ))}

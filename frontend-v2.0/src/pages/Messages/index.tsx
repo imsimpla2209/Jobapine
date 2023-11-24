@@ -12,22 +12,20 @@ export default function Messages() {
   const [selectedMessageRoom, setSelectedMessageRoom] = useState({})
 
   return (
-    <>
-      <div className="container-fluid">
-        <div className="row pt-4">
-          <aside className="col-12 col-md-3">
-            <MessagesLeftSide
-              freelancerID={freelancer?.state?._id}
-              userID={user?.state?._id || user?.state?.id}
-              selectedMessageRoom={selectedMessageRoom}
-              setSelectedMessageRoom={setSelectedMessageRoom}
-            />
-          </aside>
-          <div className="col-sm-12 col-md-9">
-            <MesssagesContent userID={user?.state?._id || user?.state?.id} selectedMessageRoom={selectedMessageRoom} />
-          </div>
+    <div className="container-fluid">
+      <div className="row pt-4">
+        <aside className="col-12 col-md-3">
+          <MessagesLeftSide
+            freelancerID={freelancer?.state?._id}
+            userID={user?.state?._id || user?.state?.id}
+            selectedMessageRoom={selectedMessageRoom}
+            setSelectedMessageRoom={setSelectedMessageRoom}
+          />
+        </aside>
+        <div className="col-sm-12 col-md-9">
+          <MesssagesContent userID={user?.state?._id || user?.state?.id} selectedMessageRoom={selectedMessageRoom} />
         </div>
       </div>
-    </>
+    </div>
   )
 }

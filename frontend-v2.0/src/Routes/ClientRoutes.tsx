@@ -28,7 +28,7 @@ export default function ClientRoutes() {
   const [freelancerSearchList, setfreelancerSearchList] = useState('')
 
   return (
-    <>
+    <div>
       <SearchContextProvider value={{ freelancerSearchList, setfreelancerSearchList, freelancerArr, setfreelancerArr }}>
         <Header />
         <Routes>
@@ -40,7 +40,7 @@ export default function ClientRoutes() {
           <Route path="/bring-your-own-freelancer" element={<BringYourFreelancer />} />
           <Route path="/job-details/:id" element={<JobDetailsBeforeProposals />} />
           <Route path="/job/:id" element={<JobDetailsBeforeProposals />} />
-          <Route path="/contract" element={<Contract location={undefined} />} />
+          <Route path="/contract" element={<Contract />} />
           <Route path="/email-verification" element={<EmailVerified />} />
           <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
           <Route path="/post-job" element={<PostJob />} />
@@ -57,6 +57,6 @@ export default function ClientRoutes() {
         </Routes>
       </SearchContextProvider>
       <Footer />
-    </>
+    </div>
   )
 }

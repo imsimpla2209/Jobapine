@@ -3,10 +3,11 @@ import { JwtPayload } from 'jsonwebtoken'
 
 export interface IToken {
   token: string
-  user: string
+  user?: string
   type: string
   expires: Date
   blacklisted: boolean
+  content?: string
 }
 
 export type NewToken = Omit<IToken, 'blacklisted'>

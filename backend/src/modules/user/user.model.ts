@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       type: Boolean,
       default: false,
     },
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     oAuth: {
       type: Object as unknown as IOAuth,
       default: {

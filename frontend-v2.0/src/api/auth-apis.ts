@@ -56,3 +56,11 @@ export const sendVerifyEmail = () => {
 export const verifyEmail = (token: string) => {
   return instance.post(`auth/verify-email?token=${token}`);
 }
+
+export const sendVerifySMS = (phone: string) => {
+  return instance.post(`auth/send-SMS-verify/${phone}`);
+}
+
+export const verifySMS = (token: string) => {
+  return instance.post(`auth/verify-sms/${token}`);
+}

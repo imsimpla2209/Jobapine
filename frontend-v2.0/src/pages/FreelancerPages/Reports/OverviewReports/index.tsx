@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import {
   NavLink,
   Route,
+  Routes,
   useLocation,
   useNavigate
 } from "react-router-dom";
@@ -18,7 +19,7 @@ export default function OverviewReports() {
   const navigate = useNavigate();
   pathname === "/overview" && navigate("/overview/work-in-progress");
   const { t } = useTranslation(['main']);
-  const inreview = 'nhu cai db';
+  const inreview = 'nhu cai';
 
   useEffect(() => {
     // dispatch(inReviewAction());
@@ -172,20 +173,20 @@ export default function OverviewReports() {
         </div>
       </>
 
-      <switch>
-        <Route path="/overview/work-in-progress" >
-          <WorkinProgress />
+      <Routes>
+        <Route path="/overview/work-in-progress" element={<WorkinProgress />}>
+
         </Route>
-        <Route path="/overview/in-review" >
-          <InReview />
+        <Route path="/overview/in-review" element={<InReview />
+        }>
         </Route>
-        <Route path="/overview/pending" >
-          <Pending />
+        <Route path="/overview/pending" element={<Pending />
+        }>
         </Route>
-        <Route path="/overview/available" >
-          <Available />
+        <Route path="/overview/available" element={<Available />
+        }>
         </Route>
-      </switch>
+      </Routes>
     </>
   );
 }

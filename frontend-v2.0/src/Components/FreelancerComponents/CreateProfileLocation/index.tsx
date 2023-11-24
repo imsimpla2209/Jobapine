@@ -1,48 +1,23 @@
 import React, { useState } from "react";
 import CountrySelect from "react-bootstrap-country-select";
-import { Link } from "react-router-dom";
 import "react-bootstrap/dist/react-bootstrap";
 import "react-bootstrap-country-select/dist/react-bootstrap-country-select.css";
-import { updateUserData } from "./../../../Network/Network";
+import { useSubscription } from "src/libs/global-state-hook";
+import { EStep, profileFreelancerData, profileStepStore } from "src/pages/FreelancerPages/CreateProfile";
+import LocationPicker from "src/Components/SharedComponents/LocationPicker";
+import { Form } from "antd";
+import { useTranslation } from "react-i18next";
 
-export default function CreateProfileLocation({ setBtns, btns }) {
-  let [country, setCountry] = useState<any>(undefined);
-  const [location, setLocation] = useState<any>({
-    country: "",
-    city: "",
-    street: "",
-  });
+export default function CreateProfileLocation() {
+  const profileStep = useSubscription(profileStepStore).setState
+  const { setState, state } = useSubscription(profileFreelancerData);
 
-  const getData = (e) => {
-    const val = e.target.value;
-    const name = e.target.name;
-    switch (name) {
-      case "city":
-        location.city = val;
-        setLocation({ ...location, city: location.city });
-        break;
-      case "street":
-        location.street = val;
-        setLocation({ ...location, street: location.street });
-        break;
-      default:
-        break;
-    }
-    if (country) {
-      setLocation({
-        ...location,
-        country: country.name,
-      });
-    }
-  };
-
+  const { t } = useTranslation(['main'])
+  const onChangeLocation = (locs: any[]) => {
+    setState({ ...state, currentLocations: locs?.map(l => l?.code) })
+  }
   const addData = () => {
-    updateUserData("freelancer", {
-      location: { ...location },
-      profileCompletion: 90,
-    });
-    console.log(location);
-    setBtns({ ...btns, PhoneNumber: false })
+    profileStep({ step: EStep.PHONENUMBER })
   };
   return (
     <section className="bg-white border rounded mt-3 pt-4">
@@ -57,52 +32,25 @@ export default function CreateProfileLocation({ setBtns, btns }) {
           We take your privacy very seriously. Only your city and country will
           be shown to clients.
         </p>
-        <p>
-          <strong>Country</strong>
-          <span className="text-danger"> *</span>
-        </p>
-        <CountrySelect className="w-50" value={country} onChange={setCountry} onTextChange={function (text: string, changeEvent: React.ChangeEvent<Element>): void {
-          throw new Error("Function not implemented.");
-        } } />
-        <label className="mt-4 w-50">
-          <strong className="mb-2">City</strong>
-          <span className="text-danger"> *</span>
-          <input
-            type="text"
-            className="form-control mt-2"
-            name="city"
-            autoComplete="disabled"
-            onInput={getData}
-          />
-        </label>
-        <label className="mt-4 w-100">
-          <strong className="d-block mb-2">Street Address</strong>
-          <input
-            type="text"
-            className="form-control"
-            name="street"
-            autoComplete="disabled"
-            onInput={getData}
-          />
-        </label>
+        <Form.Item
+          name="location"
+          label={t("Location")}
+          rules={[{ required: true, message: 'Please choose the type' }]}
+        >
+          <LocationPicker handleChange={onChangeLocation} data={state?.currentLocations}></LocationPicker>
+        </Form.Item>
       </div>
       <div className="px-4 my-3 pt-4 border-top d-flex justify-content-between">
-        <button className="btn">
-          <Link
-            className="btn border text-success me-4 px-5 fw-bold"
-            to="/create-profile/profile-photo"
-          >
-            Back
-          </Link>
+        <button className="btn" onClick={() => profileStep({ step: EStep.PROFILEPHOTO })}>
+          {t("Back")}
         </button>
-        <button className={`btn ${country === "" || country === null || location.city === "" ? "disabled" : ""}`}>
-          <Link
+        <button className={`btn ${!state?.currentLocations ? "disabled" : ""}`}>
+          <button
             className="btn bg-jobsicker px-5"
-            to="/create-profile/phone-number"
             onClick={addData}
           >
-            Next
-        </Link>
+            {t("Next")}
+          </button>
         </button>
       </div>
     </section>

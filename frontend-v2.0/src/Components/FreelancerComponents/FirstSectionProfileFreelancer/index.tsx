@@ -15,7 +15,7 @@ import { freelancerStore, userStore } from "src/Store/user.store";
 import { getUser } from "src/api/user-apis";
 import { locationStore } from "src/Store/commom.store";
 import { currencyFormatter, pickName } from "src/utils/helperFuncs";
-import { Button, Space } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import SkillPicker from "src/Components/SharedComponents/SkillPicker";
 import Progress from "src/Components/SharedComponents/Progress";
 
@@ -202,7 +202,13 @@ export default function FirstSectionProfileFreelancer() {
                       ))
                     }
                   </div>
-
+                  <div className="mt-5">
+                    <h4 className="fw-bold">{t("Languages")}</h4>
+                    <p>{t("English")} {" : "} {freelancer?.englishProficiency || 'Basic/Cơ bản'}</p>
+                    {freelancer?.otherLanguages?.map((langItem, ix) => <p key={ix}>
+                      {[langItem.language, ' ', ':', ' ', langItem.langProf]}
+                    </p>)}
+                  </div>
                 </div>
                 <div className="row py-3">
                   <div className="col">
@@ -246,7 +252,7 @@ export default function FirstSectionProfileFreelancer() {
               {
                 id === 'me' && <div className="col py-3 mx-1 float-end ">
                   <Link to="/settings">
-                    <button type="button" className="btn px-4  mx-3" style={{ background: "#6600cc", color: "white"}}>
+                    <button type="button" className="btn px-4  mx-3" style={{ background: "#6600cc", color: "white" }}>
                       {t("Profile Settings")}
                     </button>
                   </Link>
@@ -277,13 +283,6 @@ export default function FirstSectionProfileFreelancer() {
                   <h6 >
                     {lang === 'vi' ? freelancer?.available === true ? "Đang rảnh" : "Đéo rảnh" : freelancer?.available === true ? "available" : "not available"}
                   </h6>
-                  {/* <p>
-                    {lang === 'vi' ? user?.availability
-                      ? "متاح لتقديم العروض إليه"
-                      : "غير متاح لمدة 3 أشهر" : user?.availability
-                      ? "As Needed - Open to Offers"
-                      : "not available for 3 months"}
-                  </p> */}
 
 
                   <h5 className="fw-bold text-muted">{t("Languages")}</h5>
@@ -294,10 +293,10 @@ export default function FirstSectionProfileFreelancer() {
 
 
                   <h5 className="fw-bold mt-3 text-muted">{t("Education")}</h5>
-                  <p><span className="text-muted">University: </span>Trường Đời</p>
-                  <p><span className="text-muted">Study: </span>420</p>
-                  <p><span className="text-muted">Degree: </span>Thạc sĩ xây dựng</p>
-                  <p><span className="text-muted">Year: </span>2019</p>
+                  <p><span className="text-muted">University: </span>{freelancer?.education?.school || 'Trường Đời'}</p>
+                  <p><span className="text-muted">Study: </span>{freelancer?.education?.areaOfStudy || 420}</p>
+                  <p><span className="text-muted">Degree: </span>{freelancer?.education?.degree || "None/Chưa từng đi học"}</p>
+                  <p><span className="text-muted">Year: </span>{freelancer?.education?.gradYear ? new Date(freelancer?.education?.gradYear * 1000).toLocaleString() : 2019}</p>
 
                 </div>
 
@@ -495,25 +494,26 @@ export default function FirstSectionProfileFreelancer() {
 
                     </div>
                     <div className="card-group">
-                      {user?.portfolio?.map((item, ix) =>
-                        <div key={ix} className="card border border-0 mx-1">
-
-                          <img
-                            src={item.image}
-                            className="card-img-top w-25"
-                            alt="..."
-                          />
-                          <div className="card-body">
-                            <h5 className="card-title">{item.imagetitle}</h5>
+                      <Space size="small" wrap>
+                        <div className='fw-bold me-1 text-muted' style={{ fontSize: "0.9em" }}>{t("Categories") + ":"}</div>
+                        {freelancer?.preferJobType?.map((c, index) => (
+                          <div key={index}>
+                            <Link to={`/search?categoryId=${c?._id}`}
+                              key={index}
+                              type="button"
+                              className="btn text-light btn-sm rounded-pill cats mx-1"
+                            >
+                              {c?.name}
+                            </Link>
                           </div>
-                        </div>
-                      )}
+                        ))}
+                      </Space>
                     </div>
 
 
                     <div className="row mt-5">
                       <hr />
-                      <h3 className="col-4 mx-0 text-muted">{t("skills")}</h3>
+                      <h3 className="col-4 mx-0 text-muted">{t("Skills and experties")}</h3>
                       {!clientRoute &&
                         <button
                           type="button"
@@ -535,7 +535,6 @@ export default function FirstSectionProfileFreelancer() {
                         </button>}
                     </div>
                     <div className="bg-white py-lg-4 px-4 border border-1 row pb-sm-3 py-xs-5">
-                      <h5 className="fw-bold my-4">{t("Skills and experties")}</h5>
                       <div className="col">
                         {freelancer?.skills?.map((skill, index) => (
                           <Space key={index} size={1} className="me-sm-5 " wrap={true}>
@@ -552,31 +551,31 @@ export default function FirstSectionProfileFreelancer() {
                     </div>
                   </div>
                 </div>
-                <h5 className=" mt-2 fw-bold col-2"> {currencyFormatter(freelancer?.hourlyRate || 42)} / {t("hr")}</h5>
+                <h5 className=" mt-2 fw-bold col-2"> {currencyFormatter(freelancerData?.expectedAmount || 0)} / {t(freelancerData?.expectedPaymentType)}</h5>
                 {
                   id === 'me' && <div className="col-1 d-flex justify-content-end">
-                  {!clientRoute &&
-                    <button
-                      type="button"
-                      className="btn btn-default me-2 d-flex justify-content-center border rounded-circle"
-                      style={{
-                        width: 30,
-                        height: 30,
-                        textAlign: "center",
-                        paddingTop: 3,
-                        paddingBottom: 3,
-                      }}
-                      data-bs-toggle="modal"
-                      data-bs-target="#modalProfileTitleAndDescription"
-                    >
-                      <div>
-                        <i className="fas fa-pen" />
-                      </div>
-                    </button>
-                  }
+                    {!clientRoute &&
+                      <button
+                        type="button"
+                        className="btn btn-default me-2 d-flex justify-content-center border rounded-circle"
+                        style={{
+                          width: 30,
+                          height: 30,
+                          textAlign: "center",
+                          paddingTop: 3,
+                          paddingBottom: 3,
+                        }}
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalProfileTitleAndDescription"
+                      >
+                        <div>
+                          <i className="fas fa-pen" />
+                        </div>
+                      </button>
+                    }
 
 
-                </div>
+                  </div>
                 }
               </div>
             </div>
@@ -922,8 +921,18 @@ export default function FirstSectionProfileFreelancer() {
                     </div>
                   </form>
                 </div>
-                <div className="my-4 d-flex justify-content-start">
-                  <SkillPicker handleChange={addskills}></SkillPicker>
+                <div className="my-4 d-flex justify-content-center">
+                  <Row gutter={16}>
+                    <Col span={24}>
+                      <Form.Item
+                        name="skills"
+                        label={t('Skills')}
+                        rules={[{ required: true, message: 'Please choose the skills' }]}
+                      >
+                        <SkillPicker handleChange={addskills} />
+                      </Form.Item>
+                    </Col>
+                  </Row>
                 </div>
                 {/* <div className="modal-footer">
                   <button
