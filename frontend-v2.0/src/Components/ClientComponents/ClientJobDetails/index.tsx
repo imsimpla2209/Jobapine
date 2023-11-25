@@ -80,9 +80,11 @@ export default function ClientJobDetails({ job }) {
                 <Text>Locations:</Text>
 
                 <Space split={'|'}>
-                  {job?.preferences?.locations?.map(l => (
-                    <div key={l}>{locations.find(loc => loc.code === l)?.name} | </div>
-                  ))}
+                  {job?.preferences?.locations?.map(l =>
+                    locations.find(loc => loc.code === l)?.name ? (
+                      <div key={l}>{locations.find(loc => loc.code === l)?.name}</div>
+                    ) : null
+                  )}
                 </Space>
               </Space>
             </Row>

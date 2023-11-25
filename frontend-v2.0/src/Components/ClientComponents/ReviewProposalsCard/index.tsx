@@ -80,12 +80,17 @@ export default function ReviewProposalsCard() {
                   <span className="fw-bold">{currentFreelancer?.intro}</span>
                 </p>
                 <div>
-                  <span className="text-muted">Country: </span>
-                  <span className="text-muted  fw-bold d-flex" style={{ gap: 8 }}>
-                    {currentFreelancer?.currentLocations?.map(l => (
-                      <div key={l}>{locations.find(loc => loc.code === l).name} | </div>
-                    ))}
-                  </span>
+                  <span className="text-muted">Locations: </span>
+
+                  <Space split={'|'}>
+                    {currentFreelancer?.currentLocations?.map(l =>
+                      locations.find(loc => loc.code === l)?.name ? (
+                        <div key={l} className="text-muted  fw-bold ">
+                          {locations.find(loc => loc.code === l)?.name}
+                        </div>
+                      ) : null
+                    )}
+                  </Space>
                 </div>
                 <div className="row py-3">
                   <div className="col">
@@ -96,6 +101,31 @@ export default function ReviewProposalsCard() {
                     <span className="text-muted">Earned: </span>
                     <span className="fw-bold">${currentFreelancer?.earned}</span>
                   </div>
+                </div>
+
+                <div className="col-lg-10">
+                  <div>
+                    <span className="text-muted">Skills:</span>
+                    <div className="d-flex justify-content-start">
+                      {currentSkills?.map((skill, index) => (
+                        <div className="chip mb-3 ms" key={index}>
+                          <span> {t(skill?.name)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <p>
+                    <span className="text-muted">Certificate: </span>
+                    <span className="fw-bold"> {currentFreelancer?.certificate}</span>
+                  </p>
+                  <p>
+                    <span className="text-muted">Expected wage: </span>
+                    <span className="fw-bold">${proposal?.expectedAmount}</span>
+                  </p>
+                  <p id="Cover-Letter">
+                    <span className="text-muted">Cover Letter: </span>
+                    <span className="fw-bold">{proposal.description}</span>
+                  </p>
                 </div>
               </div>
               <div className="col py-3" style={{ justifyContent: 'end', display: 'flex', alignItems: 'start' }}>
@@ -119,31 +149,6 @@ export default function ReviewProposalsCard() {
                     </>
                   )}
                 </Space>
-              </div>
-
-              <div className="col-lg-10 pt-lg-3 mx-3">
-                <div>
-                  <span className="text-muted">Skills:</span>
-                  <div className="d-flex justify-content-start">
-                    {currentSkills?.map((skill, index) => (
-                      <div className="chip mb-3 ms" key={index}>
-                        <span> {t(skill?.name)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <p>
-                  <span className="text-muted">Certificate: </span>
-                  <span className="fw-bold"> {currentFreelancer?.certificate}</span>
-                </p>
-                <p>
-                  <span className="text-muted">Expected wage: </span>
-                  <span className="fw-bold">${proposal?.expectedAmount}</span>
-                </p>
-                <p id="Cover-Letter">
-                  <span className="text-muted">Cover Letter: </span>
-                  <span className="fw-bold">{proposal.description}</span>
-                </p>
               </div>
             </div>
           )
