@@ -88,7 +88,7 @@ export default function PostJobGetStarted({ setBtns, btns }) {
   }
 
   return (
-    <section className=" bg-white border rounded mt-3 pt-4">
+    <section className=" bg-white border rounded pt-4">
       <div className="border-bottom ps-4 pb-3">
         <h4>{t('Getting started')}</h4>
       </div>

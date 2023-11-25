@@ -22,6 +22,7 @@ import { useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Header from 'src/Components/ClientComponents/Header'
 import Offers from 'src/pages/FreelancerPages/Offers'
+import './styles.css'
 
 export default function ClientRoutes() {
   const [freelancerArr, setfreelancerArr] = useState([])
@@ -31,30 +32,32 @@ export default function ClientRoutes() {
     <div>
       <SearchContextProvider value={{ freelancerSearchList, setfreelancerSearchList, freelancerArr, setfreelancerArr }}>
         <Header />
-        <Routes>
-          <Route path="/home" element={<Jobs />} />
-          <Route path="/" element={<Jobs />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/all-job-posts" element={<AllJobPosts />} />
-          <Route path="/all-contracts" element={<AllContract />} />
-          <Route path="/bring-your-own-freelancer" element={<BringYourFreelancer />} />
-          <Route path="/job-details/:id" element={<JobDetailsBeforeProposals />} />
-          <Route path="/job/:id" element={<JobDetailsBeforeProposals />} />
-          <Route path="/contract" element={<Contract />} />
-          <Route path="/email-verification" element={<EmailVerified />} />
-          <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
-          <Route path="/post-job" element={<PostJob />} />
-          <Route path="/freelancer" element={<FreelancerList />} />
-          <Route path="/saved-freelancer" element={<FreelancerList />} />
-          <Route path="/freelancer-profile/:id" element={<FreelancerProfile />} />
-          <Route path="/all-proposals/:id" element={<ReviewProposals />} />
-          <Route path="/billing-history" element={<Reports />} />
-          <Route path="/transaction-history" element={<TransactionHistory />} />
-          <Route path="/create-contract/:id" element={<CreateContract />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/invitations" element={<Offers />} />
-          <Route path="**" element={<PageNotFound />} />
-        </Routes>
+        <div className="background_body">
+          <Routes>
+            <Route path="/home" element={<Jobs />} />
+            <Route path="/" element={<Jobs />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/all-job-posts" element={<AllJobPosts />} />
+            <Route path="/all-contracts" element={<AllContract />} />
+            <Route path="/bring-your-own-freelancer" element={<BringYourFreelancer />} />
+            <Route path="/job-details/:id" element={<JobDetailsBeforeProposals />} />
+            <Route path="/job/:id" element={<JobDetailsBeforeProposals />} />
+            <Route path="/contract" element={<Contract />} />
+            <Route path="/email-verification" element={<EmailVerified />} />
+            <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
+            <Route path="/post-job" element={<PostJob />} />
+            <Route path="/freelancer" element={<FreelancerList />} />
+            <Route path="/saved-freelancer" element={<FreelancerList />} />
+            <Route path="/freelancer-profile/:id" element={<FreelancerProfile />} />
+            <Route path="/all-proposals/:id" element={<ReviewProposals />} />
+            <Route path="/billing-history" element={<Reports />} />
+            <Route path="/transaction-history" element={<TransactionHistory />} />
+            <Route path="/create-contract/:id" element={<CreateContract />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/invitations" element={<Offers />} />
+            <Route path="**" element={<PageNotFound />} />
+          </Routes>
+        </div>
       </SearchContextProvider>
       <Footer />
     </div>

@@ -46,7 +46,7 @@ export default function FreelancerListCards({ filterOption }) {
   }, [filterOption])
 
   return (
-    <Layout.Content style={{ padding: 16, background: '#001529' }}>
+    <div style={{ padding: 16 }}>
       {loading ? (
         <Spin />
       ) : listFreelancers?.length ? (
@@ -81,6 +81,6 @@ export default function FreelancerListCards({ filterOption }) {
       ) : (
         <Empty description={'No freelancer found'} />
       )}
-    </Layout.Content>
+    </div>
   )
 }

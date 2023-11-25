@@ -2,7 +2,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { SearchOutlined } from '@ant-design/icons'
-import { Button, Checkbox, ConfigProvider, InputNumber, Pagination, Radio, Result, Slider, Space, Tag } from 'antd'
+import {
+  Button,
+  Card,
+  Checkbox,
+  ConfigProvider,
+  Divider,
+  InputNumber,
+  Pagination,
+  Radio,
+  Result,
+  Slider,
+  Space,
+  Tag,
+} from 'antd'
 import searching from 'assets/img/searching.jpg'
 import { isArray, isEmpty } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
@@ -187,289 +200,268 @@ export default function AllJobPosts() {
   }, [advancedSearchData, filterOption])
 
   return (
-    <div className="container-md container-fluid-sm my-lg-4">
-      <div className="row">
-        <ConfigProvider
-          theme={{
-            components: {
-              Slider: {
-                // railBg: '#8558e0',
-                railSize: 7,
-              },
-            },
-            token: {
-              colorBorder: '#930cc9',
-              colorText: '#6600cc',
-              colorPrimary: '#930cc9',
-              fontSize: 16,
-            },
-          }}
-        >
-          <div className="col">
-            <hr />
-            <h5 className="mb-lg-4 display-inline-block">{t('FilterBy')}</h5>
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">{t('Category')}</h6>
-            <ul className="list-group sidebar-homebage-ul mb-lg-3 " style={{ fontSize: '0.9em' }}>
-              <CategoriesPicker reset={refresh} handleChange={onCatsChange} istakeValue={true}></CategoriesPicker>
-            </ul>
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">Freelancers needed</h6>
-            <Radio.Group onChange={onNoEmployeeChange} value={advancedSearchData.state?.nOEmployee}>
-              <Radio value={null}>{t('All')}</Radio>
-              <Radio value={1}>{t('Singlefreelancer')}</Radio>
-              <Radio value={1000}>{t('Multiplefreelancers')}</Radio>
-            </Radio.Group>
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('Complexity')}</h6>
-            <Checkbox.Group
-              style={{ width: '100%' }}
-              onChange={handleChangeComp}
-              value={advancedSearchData.state?.complexity}
-            >
-              <Space direction="vertical">
-                {EComplexityGet.map((l, ix) => (
-                  <span key={l}>
-                    <Checkbox value={ix}>{t(`${l}`)}</Checkbox>
-                  </span>
-                ))}
-              </Space>
-            </Checkbox.Group>
-            <hr />
+    <div className="container-md container-fluid-sm ">
+      <div className="row" style={{ paddingTop: 20 }}>
+        <div className="col">
+          <div style={{ display: 'flex', gap: 16, flexDirection: 'column' }}>
+            <h5 className="display-inline-block" style={{ color: 'white' }}>
+              {t('FilterBy')}
+            </h5>
 
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('JobType')}</h6>
-            <Checkbox.Group
-              style={{ width: '100%' }}
-              onChange={onPayTypeChange}
-              value={advancedSearchData.state?.paymentType}
-            >
-              <Space direction="vertical">
-                {Object.keys(EPaymenType).map(l => (
-                  <span key={l}>
-                    <Checkbox value={EPaymenType[l]}>{t(`${EPaymenType[l]}`)}</Checkbox>
-                  </span>
-                ))}
+            <Card title={t('Category')}>
+              <ul className="list-group sidebar-homebage-ul mb-lg-3 " style={{ fontSize: '0.9em' }}>
+                <CategoriesPicker reset={refresh} handleChange={onCatsChange} istakeValue={true}></CategoriesPicker>
+              </ul>
+            </Card>
+
+            <Card title={t('Freelancers needed')}>
+              <Radio.Group onChange={onNoEmployeeChange} value={advancedSearchData.state?.nOEmployee}>
+                <Radio value={null} style={{ width: '100%' }}>
+                  {t('All')}
+                </Radio>
+                <Radio value={1} style={{ width: '100%' }}>
+                  {t('Singlefreelancer')}
+                </Radio>
+                <Radio value={1000} style={{ width: '100%' }}>
+                  {t('Multiplefreelancers')}
+                </Radio>
+              </Radio.Group>
+            </Card>
+
+            <Card title={t('Complexity')}>
+              <Checkbox.Group
+                style={{ width: '100%' }}
+                onChange={handleChangeComp}
+                value={advancedSearchData.state?.complexity}
+              >
+                <Space direction="vertical">
+                  {EComplexityGet.map((l, ix) => (
+                    <span key={l}>
+                      <Checkbox value={ix}>{t(`${l}`)}</Checkbox>
+                    </span>
+                  ))}
+                </Space>
+              </Checkbox.Group>
+            </Card>
+
+            <Card title={t('JobType')}>
+              <Checkbox.Group
+                style={{ width: '100%' }}
+                onChange={onPayTypeChange}
+                value={advancedSearchData.state?.paymentType}
+              >
+                <Space direction="vertical">
+                  {Object.keys(EPaymenType).map(l => (
+                    <span key={l}>
+                      <Checkbox value={EPaymenType[l]}>{t(`${EPaymenType[l]}`)}</Checkbox>
+                    </span>
+                  ))}
+                </Space>
+              </Checkbox.Group>
+            </Card>
+
+            <Card title={`${t('Payment Amount')} ${`(${t('VND')})`}`}>
+              <Space wrap>
+                <InputNumber
+                  prefix="From"
+                  addonBefore=""
+                  addonAfter={<> VND</>}
+                  defaultValue={0}
+                  controls
+                  onKeyPress={event => {
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault()
+                    }
+                  }}
+                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                  min={0}
+                  value={advancedSearchData.state?.paymentAmount?.from}
+                  onChange={(v: any) => handlePayAmount(v)}
+                  decimalSeparator=","
+                  max={advancedSearchData.state?.paymentAmount?.to || Number.MAX_SAFE_INTEGER}
+                />
+                <InputNumber
+                  prefix="To"
+                  addonBefore=""
+                  addonAfter={<> VND</>}
+                  defaultValue={1}
+                  value={advancedSearchData.state?.paymentAmount?.to}
+                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                  onKeyPress={event => {
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault()
+                    }
+                  }}
+                  onChange={(v: any) => handlePayAmount(advancedSearchData.state?.paymentAmount?.from || 0, v)}
+                  min={advancedSearchData.state?.paymentAmount?.from || 1}
+                  controls
+                />
               </Space>
-            </Checkbox.Group>
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-              {t('Payment Amount')} {`(${t('VND')})`}
-            </h6>
-            <Space wrap>
-              <InputNumber
-                prefix="From"
-                addonBefore=""
-                addonAfter={<> VND</>}
-                defaultValue={0}
-                controls
-                onKeyPress={event => {
-                  if (!/[0-9]/.test(event.key)) {
-                    event.preventDefault()
-                  }
-                }}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-                min={0}
-                value={advancedSearchData.state?.paymentAmount?.from}
-                onChange={(v: any) => handlePayAmount(v)}
-                decimalSeparator=","
-                max={advancedSearchData.state?.paymentAmount?.to || Number.MAX_SAFE_INTEGER}
-              />
-              <InputNumber
-                prefix="To"
-                addonBefore=""
-                addonAfter={<> VND</>}
-                defaultValue={1}
-                value={advancedSearchData.state?.paymentAmount?.to}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-                onKeyPress={event => {
-                  if (!/[0-9]/.test(event.key)) {
-                    event.preventDefault()
-                  }
-                }}
-                onChange={(v: any) => handlePayAmount(advancedSearchData.state?.paymentAmount?.from || 0, v)}
-                min={advancedSearchData.state?.paymentAmount?.from || 1}
-                controls
-              />
-            </Space>
-            {/* <Slider className="mb-5" marks={{ 0: 'From(0)', 3000: 'to(30Tr)' }} min={1} max={3000}
+              {/* <Slider className="mb-5" marks={{ 0: 'From(0)', 3000: 'to(30Tr)' }} min={1} max={3000}
 							onAfterChange={handlePayAmount}
 							range={{ draggableTrack: true }}
 							defaultValue={[1, 1]}
 							tooltip={{ formatter: (value: number) => `${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'VND' }).format(value * 10000)}` }} /> */}
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-              {t('Budget')} {`(${t('VND')})`}
-            </h6>
-            <Space wrap>
-              <InputNumber
-                prefix="From"
-                addonBefore=""
-                addonAfter={<> VND</>}
-                defaultValue={0}
-                controls
-                onKeyPress={event => {
-                  if (!/[0-9]/.test(event.key)) {
-                    event.preventDefault()
-                  }
-                }}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-                min={0}
-                value={advancedSearchData.state?.paymentAmount?.from}
-                onChange={(v: any) => handleBudgetAmount(v)}
-                decimalSeparator=","
-                max={advancedSearchData.state?.paymentAmount?.to || Number.MAX_SAFE_INTEGER}
-              />
-              <InputNumber
-                prefix="To"
-                addonBefore=""
-                addonAfter={<> VND</>}
-                defaultValue={1}
-                value={advancedSearchData.state?.paymentAmount?.to}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-                onKeyPress={event => {
-                  if (!/[0-9]/.test(event.key)) {
-                    event.preventDefault()
-                  }
-                }}
-                onChange={(v: any) => handleBudgetAmount(advancedSearchData.state?.paymentAmount?.from || 0, v)}
-                min={advancedSearchData.state?.paymentAmount?.from || 1}
-                controls
-              />
-            </Space>
+            </Card>
+
+            <Card title={`${t('Budget')} ${`(${t('VND')})`}`}>
+              <Space wrap>
+                <InputNumber
+                  prefix="From"
+                  addonBefore=""
+                  addonAfter={<> VND</>}
+                  defaultValue={0}
+                  controls
+                  onKeyPress={event => {
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault()
+                    }
+                  }}
+                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                  min={0}
+                  value={advancedSearchData.state?.paymentAmount?.from}
+                  onChange={(v: any) => handleBudgetAmount(v)}
+                  decimalSeparator=","
+                  max={advancedSearchData.state?.paymentAmount?.to || Number.MAX_SAFE_INTEGER}
+                />
+                <InputNumber
+                  prefix="To"
+                  addonBefore=""
+                  addonAfter={<> VND</>}
+                  defaultValue={1}
+                  value={advancedSearchData.state?.paymentAmount?.to}
+                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                  onKeyPress={event => {
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault()
+                    }
+                  }}
+                  onChange={(v: any) => handleBudgetAmount(advancedSearchData.state?.paymentAmount?.from || 0, v)}
+                  min={advancedSearchData.state?.paymentAmount?.from || 1}
+                  controls
+                />
+              </Space>
+            </Card>
             {/* <Slider className="mb-5" marks={{ 0: 'From(0)', 3000: 'to(3T)' }} min={1} max={3000}
 							onAfterChange={handleBudgetAmount}
 							range={{ draggableTrack: true }}
 							defaultValue={[1, 1]}
 							tooltip={{ formatter: (value: number) => `${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'VND' }).format(value * 1000000)}` }} /> */}
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('Skills')}</h6>
-            <MultiSkillPicker reset={refresh} handleChange={onSkillsChange} istakeValue={true}></MultiSkillPicker>
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('Status')}</h6>
-            <Checkbox.Group
-              style={{ width: '100%' }}
-              onChange={onStatusChange}
-              value={advancedSearchData.state?.currentStatus}
-            >
-              <Space direction="vertical">
-                {Object.keys(EJobStatus).map(l => (
-                  <span key={l}>
-                    <Checkbox value={EJobStatus[l]}>{t(`${EJobStatus[l]}`)}</Checkbox>
-                  </span>
-                ))}
-              </Space>
-            </Checkbox.Group>
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('NumberofProposals')}</h6>
-            <Slider
-              className="mb-5"
-              marks={{ 0: 'From(0)', 40: 'To(40)' }}
-              min={0}
-              max={40}
-              onAfterChange={handleProposalsAmount}
-              range={{ draggableTrack: true }}
-              defaultValue={[0, 0]}
-              tooltip={{ formatter: (value: number) => `${value} ${t('Proposals')}` }}
-            />
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">{t('ClientInfo')}</h6>
-            <div className="form-check py-2 my-0">
-              <input
-                className="form-check-input btn-outline-success"
-                type="checkbox"
-                defaultValue={''}
-                id="flexCheckDefault"
-              />
-              <label className="form-check-label" htmlFor="flexCheckDefault">
-                {t('MyPreviousClients')}
-              </label>
-            </div>
-            <div className="form-check py-2 my-0">
-              <input
-                className="form-check-input btn-outline-success"
-                type="checkbox"
-                defaultValue={''}
-                id="flexCheckDefault"
-              />
-              <label className="form-check-label" htmlFor="flexCheckDefault">
-                {t('PaymentVerified')}
-              </label>
-            </div>
-            <hr />
 
-            <h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">{t('ClientLocation')}</h6>
-            <div className="input-group rounded-3">
-              <LocationPicker reset={refresh} handleChange={onLocationChange}></LocationPicker>
-            </div>
-            <hr />
+            <Card title={t('Skills')}>
+              <MultiSkillPicker reset={refresh} handleChange={onSkillsChange} istakeValue={true}></MultiSkillPicker>
+            </Card>
 
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
-              {t('ProjectLength')} {`(${t('days')})`}
-            </h6>
-            <Slider
-              className="mb-5"
-              marks={{ 1: 'From(1)', 365: 'to(365)' }}
-              min={1}
-              max={365}
-              onAfterChange={handleDurationRange}
-              range={{ draggableTrack: true }}
-              defaultValue={[1, 1]}
-              tooltip={{ formatter: (value: number) => `${value} ${t('days')}` }}
-            />
-            <hr />
-            <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">Hours Per Week</h6>
-            <div className="form-check py-2 my-0">
-              <input
-                className="form-check-input btn-outline-success"
-                type="checkbox"
-                defaultValue={''}
-                id="flexCheckDefault"
+            <Card title={t('Status')}>
+              <Checkbox.Group
+                style={{ width: '100%' }}
+                onChange={onStatusChange}
+                value={advancedSearchData.state?.currentStatus}
+              >
+                <Space direction="vertical">
+                  {Object.keys(EJobStatus).map(l => (
+                    <span key={l}>
+                      <Checkbox value={EJobStatus[l]}>{t(`${EJobStatus[l]}`)}</Checkbox>
+                    </span>
+                  ))}
+                </Space>
+              </Checkbox.Group>
+            </Card>
+
+            <Card title={t('NumberofProposals')}>
+              <Slider
+                className="mb-5"
+                marks={{ 0: 'From(0)', 40: 'To(40)' }}
+                min={0}
+                max={40}
+                onAfterChange={handleProposalsAmount}
+                range={{ draggableTrack: true }}
+                defaultValue={[0, 0]}
+                tooltip={{ formatter: (value: number) => `${value} ${t('Proposals')}` }}
               />
-              <label className="form-check-label" htmlFor="flexCheckDefault">
-                {t('Lessthan30hrsweek')}
-              </label>
-            </div>
-            <div className="form-check py-2 my-0">
-              <input
-                className="form-check-input btn-outline-success"
-                type="checkbox"
-                defaultValue={''}
-                id="flexCheckDefault"
+            </Card>
+
+            <Card title={t('ClientInfo')}>
+              <div className="form-check py-2 my-0">
+                <input
+                  className="form-check-input btn-outline-success"
+                  type="checkbox"
+                  defaultValue={''}
+                  id="flexCheckDefault"
+                />
+                <label className="form-check-label" htmlFor="flexCheckDefault">
+                  {t('MyPreviousClients')}
+                </label>
+              </div>
+              <div className="form-check py-2 my-0">
+                <input
+                  className="form-check-input btn-outline-success"
+                  type="checkbox"
+                  defaultValue={''}
+                  id="flexCheckDefault"
+                />
+                <label className="form-check-label" htmlFor="flexCheckDefault">
+                  {t('PaymentVerified')}
+                </label>
+              </div>
+            </Card>
+
+            <Card title={t('ClientLocation')}>
+              <div className="input-group rounded-3">
+                <LocationPicker reset={refresh} handleChange={onLocationChange}></LocationPicker>
+              </div>
+            </Card>
+
+            <Card title={`${t('ProjectLength')} ${`(${t('days')})`}`}>
+              <h6 className="mb-lg-2 display-inline-block mt-lg-3 fw-bold">
+                {t('ProjectLength')} {`(${t('days')})`}
+              </h6>
+              <Slider
+                className="mb-5"
+                marks={{ 1: 'From(1)', 365: 'to(365)' }}
+                min={1}
+                max={365}
+                onAfterChange={handleDurationRange}
+                range={{ draggableTrack: true }}
+                defaultValue={[1, 1]}
+                tooltip={{ formatter: (value: number) => `${value} ${t('days')}` }}
               />
-              <label className="form-check-label" htmlFor="flexCheckDefault">
-                {t('Morethan30hrsweek')}
-              </label>
-            </div>
+            </Card>
+
+            <Card title={t('Hours Per Week')}>
+              <div className="form-check py-2 my-0">
+                <input
+                  className="form-check-input btn-outline-success"
+                  type="checkbox"
+                  defaultValue={''}
+                  id="flexCheckDefault"
+                />
+                <label className="form-check-label" htmlFor="flexCheckDefault">
+                  {t('Lessthan30hrsweek')}
+                </label>
+              </div>
+              <div className="form-check py-2 my-0">
+                <input
+                  className="form-check-input btn-outline-success"
+                  type="checkbox"
+                  defaultValue={''}
+                  id="flexCheckDefault"
+                />
+                <label className="form-check-label" htmlFor="flexCheckDefault">
+                  {t('Morethan30hrsweek')}
+                </label>
+              </div>
+            </Card>
           </div>
-        </ConfigProvider>
+        </div>
+
         <div className="col-lg-9 col-xs-12">
           <div>
-            <div>
-              <ul
-                id="list-homepage"
-                className="navbar navbar-expand list-group-horizontal bg-white boder border-1 my-0"
-              >
-                <li className="list-group-item sidebar-homebage-ul-li bg-white boder border-0" aria-current="true">
-                  <Link to="/Search">
-                    <a
-                      href="#"
-                      className=" list-group-item-action saved-homebage-ul-li-aa active activesidesaved bg-white"
-                      aria-current="true"
-                    >
-                      {t('SEARCH')}
-                    </a>
-                  </Link>
-                </li>
-                <li className="list-group-item sidebar-homebage-ul-li bg-white boder border-0" aria-current="true">
-                  {t('There are totally active jobs on JobSickers', { total: total + 34 })}
-                </li>
-              </ul>
-            </div>
-            <div className="row" style={{ borderTop: '1px solid #ccc', paddingTop: 24 }}>
+            <div className="row">
               <div className="col-11">
                 <SearchBarJobsFreelancer
                   showPath={false}
@@ -486,18 +478,18 @@ export default function AllJobPosts() {
                 icon={<SearchOutlined />}
               />
             </div>
-            <div
-              style={{
-                borderBottom: '2px solid #ccc',
-                borderRadius: 8,
-                paddingLeft: 8,
-                paddingRight: 8,
-                paddingTop: 8,
-                paddingBottom: 8,
-                width: '100%',
-              }}
-            >
-              {!isEmpty(filterOption) && (
+
+            {!isEmpty(filterOption) ? (
+              <div
+                style={{
+                  borderRadius: 8,
+                  paddingLeft: 8,
+                  paddingRight: 8,
+                  paddingTop: 8,
+                  paddingBottom: 8,
+                  width: '100%',
+                }}
+              >
                 <Space wrap>
                   {filterOption?.amount && <FilterTag color="#ff8c00">{filterOption.amount}</FilterTag>}
                   {filterOption?.budget && <FilterTag color="#ff8c00">{filterOption.budget}</FilterTag>}
@@ -548,8 +540,10 @@ export default function AllJobPosts() {
                     {t('Clear Filter')}
                   </Button>
                 </Space>
-              )}
-            </div>
+              </div>
+            ) : null}
+
+            <Divider style={{ marginTop: 16 }} />
           </div>
           {advancedSearchPageData?.state?.isFirstLoad ? (
             <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
