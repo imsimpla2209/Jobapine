@@ -49,7 +49,7 @@ export default function JobDetailsBeforeProposals() {
       },
     })
   }
-
+  const isCurrentClientJob = (client.id || client?._id) === jobData?.client?._id
   return (
     <>
       {jobData !== null ? (
@@ -57,14 +57,14 @@ export default function JobDetailsBeforeProposals() {
           <div className="d-lg-block">
             <Row align={'middle'} style={{ padding: '20px 0px', justifyContent: 'space-between' }}>
               <Title style={{ margin: 0 }}>{t('Job details')}</Title>
-              {(client.id || client?._id) === jobData?.client?._id && (
+              {isCurrentClientJob ? (
                 <Space>
                   <Button type="primary">Edit</Button>
                   <Button type="primary" danger onClick={showDeleteConfirm}>
                     Delete
                   </Button>
                 </Space>
-              )}
+              ) : null}
             </Row>
             <Row gutter={[20, 20]}>
               <Col span={18}>
@@ -98,7 +98,7 @@ export default function JobDetailsBeforeProposals() {
                   </Paragraph>
 
                   <Row>
-                    {jobData?.proposals?.length ? (
+                    {isCurrentClientJob && jobData?.proposals?.length ? (
                       <Button block>
                         <Link to={`/all-proposals/${jobData?._id}`}>{t('View all proposals')}</Link>
                       </Button>
