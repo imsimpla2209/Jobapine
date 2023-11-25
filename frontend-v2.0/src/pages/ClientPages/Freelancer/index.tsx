@@ -1,5 +1,5 @@
 import { FrownOutlined, SmileOutlined } from '@ant-design/icons'
-import { Card, Checkbox, InputNumber, Layout, Radio, Slider, Space } from 'antd'
+import { Card, Checkbox, Col, InputNumber, Layout, Radio, Row, Slider, Space } from 'antd'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import LocationPicker from 'src/Components/SharedComponents/LocationPicker'
@@ -53,8 +53,8 @@ export default function FreelancerList() {
   }, [filterOption])
 
   return (
-    <Layout>
-      <Layout.Sider width={300} style={{ padding: 16, borderRight: '1px solid #dee2e6' }}>
+    <Row style={{ display: 'grid', gridTemplateColumns: '300px 1fr' }}>
+      <div style={{ padding: 16 }}>
         <div style={{ display: 'grid', gap: 16 }}>
           <Card>
             <h6 className=" display-inline-block  fw-bold">{t('Skills')}</h6>
@@ -158,8 +158,8 @@ export default function FreelancerList() {
             </Radio.Group>
           </Card>
         </div>
-      </Layout.Sider>
+      </div>
       <FreelancerListCards filterOption={filterOption} />
-    </Layout>
+    </Row>
   )
 }

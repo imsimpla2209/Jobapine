@@ -1,29 +1,29 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import './PostJobAside.css'
+import { Card } from 'antd'
+import { useContext } from 'react'
+import { StepContext } from 'src/pages/ClientPages/PostJop'
 export default function PostJobAside({ btns }) {
+  const { setStep } = useContext(StepContext)
   const { t } = useTranslation(['main'])
   return (
     <aside>
-      <ul>
-        <li className="py-1 my-2">
-          <button className="btn w-100" disabled={btns.title}>
-            <Link
-              to="/post-job/title"
-              className={`d-flex justify-content-between ${!btns.title && 'border-start border-4 border-success'}`}
-            >
+      <Card>
+        <div className="py-1 my-2">
+          <button className="btn w-100" disabled={btns.title} onClick={() => setStep('title')}>
+            <a className={`d-flex justify-content-between ${!btns.title && 'border-start border-4 border-success'}`}>
               <span className="text-dark">
                 <i className="fas fa-pencil-alt mx-4"></i>
                 {t('Title')}
               </span>
               <i className={`fas fa-check-circle ${btns.title && 'text-dark'}`}></i>
-            </Link>
+            </a>
           </button>
-        </li>
-        <li className="py-1 my-2">
-          <button className="btn w-100" disabled={btns.description}>
-            <Link
-              to="/post-job/description"
+        </div>
+        <div className="py-1 my-2">
+          <button className="btn w-100" disabled={btns.description} onClick={() => setStep('description')}>
+            <a
               className={`d-flex justify-content-between ${
                 !btns.description && 'border-start border-4 border-success'
               }`}
@@ -33,27 +33,23 @@ export default function PostJobAside({ btns }) {
                 {t('Description')}
               </span>
               <i className={`fas fa-check-circle ${btns.description && 'text-dark'}`}></i>
-            </Link>
+            </a>
           </button>
-        </li>
-        <li className="py-1 my-2">
-          <button className="btn w-100" disabled={btns.details}>
-            <Link
-              to="/post-job/details"
-              className={`d-flex justify-content-between ${!btns.details && 'border-start border-4 border-success'}`}
-            >
+        </div>
+        <div className="py-1 my-2">
+          <button className="btn w-100" disabled={btns.details} onClick={() => setStep('details')}>
+            <a className={`d-flex justify-content-between ${!btns.details && 'border-start border-4 border-success'}`}>
               <span className="text-dark">
                 <i className="fas fa-list-alt mx-4"></i>
                 {t('Details')}
               </span>
               <i className={`fas fa-check-circle ${btns.details && 'text-dark'}`}></i>
-            </Link>
+            </a>
           </button>
-        </li>
-        <li className="py-1 my-2">
-          <button className="btn w-100" disabled={btns.expertise}>
-            <Link
-              to="/post-job/expertise"
+        </div>
+        <div className="py-1 my-2">
+          <button className="btn w-100" disabled={btns.expertise} onClick={() => setStep('expertise')}>
+            <a
               className={`d-flex justify-content-between ${!btns.expertise && 'border-start border-4 border-success'}`}
             >
               <span className="text-dark">
@@ -61,13 +57,12 @@ export default function PostJobAside({ btns }) {
                 {t('Expertise')}
               </span>
               <i className={`fas fa-check-circle ${btns.expertise && 'text-dark'}`}></i>
-            </Link>
+            </a>
           </button>
-        </li>
-        <li className="py-1 my-2">
-          <button className="btn w-100" disabled={btns.visibility}>
-            <Link
-              to="/post-job/visibility"
+        </div>
+        <div className="py-1 my-2">
+          <button className="btn w-100" disabled={btns.visibility} onClick={() => setStep('visibility')}>
+            <a
               className={`d-flex justify-content-between ${!btns.visibility && 'border-start border-4 border-success'}`}
             >
               <span className="text-dark">
@@ -75,38 +70,32 @@ export default function PostJobAside({ btns }) {
                 {t('Visibility')}
               </span>
               <i className={`fas fa-check-circle ${btns.visibility && 'text-dark'}`}></i>
-            </Link>
+            </a>
           </button>
-        </li>
-        <li className="py-1 my-2">
-          <button className="btn w-100" disabled={btns.budget}>
-            <Link
-              to="/post-job/budget"
-              className={`d-flex justify-content-between ${!btns.budget && 'border-start border-4 border-success'}`}
-            >
+        </div>
+        <div className="py-1 my-2">
+          <button className="btn w-100" disabled={btns.budget} onClick={() => setStep('budget')}>
+            <a className={`d-flex justify-content-between ${!btns.budget && 'border-start border-4 border-success'}`}>
               <span className="text-dark">
                 <i className="fas fa-search-dollar mx-4"></i>
                 {t('Budget')}
               </span>
               <i className={`fas fa-check-circle ${btns.budget && 'text-dark'}`}></i>
-            </Link>
+            </a>
           </button>
-        </li>
-        <li className="py-1 my-2">
-          <button className="btn w-100" disabled={btns.review}>
-            <Link
-              to="/post-job/review"
-              className={`d-flex justify-content-between ${!btns.review && 'border-start border-4 border-success'}`}
-            >
+        </div>
+        <div className="py-1 my-2">
+          <button className="btn w-100" disabled={btns.review} onClick={() => setStep('review')}>
+            <a className={`d-flex justify-content-between ${!btns.review && 'border-start border-4 border-success'}`}>
               <span className="text-dark">
                 <i className="fas fa-check mx-4"></i>
                 {t('Review')}
               </span>
               <i className={`fas fa-check-circle ${btns.review && 'text-dark'}`}></i>
-            </Link>
+            </a>
           </button>
-        </li>
-      </ul>
+        </div>
+      </Card>
     </aside>
   )
 }
