@@ -2,7 +2,7 @@ import { Badge, Button, Card, Col, Modal, Row, Space, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import ClientJobDetails from 'src/Components/ClientComponents/ClientJobDetails'
 import SimilarJobsOnJobSickers from 'src/Components/FreelancerComponents/SimilarJobsOnJobSickers'
 import { clientStore, userStore } from 'src/Store/user.store'
@@ -99,8 +99,8 @@ export default function JobDetailsBeforeProposals() {
 
                   <Row>
                     {jobData?.proposals?.length ? (
-                      <Button block href={`/all-proposals/${jobData?._id}`}>
-                        {t('View all proposals')}
+                      <Button block>
+                        <Link to={`/all-proposals/${jobData?._id}`}>{t('View all proposals')}</Link>
                       </Button>
                     ) : null}
                   </Row>
