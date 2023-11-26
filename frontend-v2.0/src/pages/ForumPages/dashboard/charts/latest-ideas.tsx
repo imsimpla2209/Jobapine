@@ -2,7 +2,7 @@ import { DislikeOutlined, LikeOutlined, MessageOutlined, UserOutlined } from '@a
 import { Avatar, List, Skeleton, Tooltip, message } from 'antd'
 import { Http } from 'api/http'
 import useRoleNavigate from 'libs/use-role-navigate'
-import { IconText } from 'pages/AdminPages/events/event-details/idea-card'
+import { IconText } from 'pages/ForumPages/events/event-details/idea-card'
 
 import React, { useEffect, useState } from 'react'
 

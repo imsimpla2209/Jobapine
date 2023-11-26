@@ -114,7 +114,7 @@ export default function ConnectsAndSubmit() {
           <button
             className="btn bg-jobsicker"
             onClick={(handleRout) => navigate(`/job/apply/${id}`)}
-            disabled={user.isVerified === false || user.sickPoints < 2}
+            disabled={freelancer?.isProfileVerified === false || user.sickPoints < 2}
           >
             {t("Submit a proposal")}
           </button>

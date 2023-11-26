@@ -11,8 +11,7 @@ export default function RightSidebarJobDetails({ job, freelancer }) {
   return (
     <div className="col-lg-3 col-xs-3 d-flex flex-column">
       {
-        job?.appliedFreelancers?.includes(freelancer?._id) ? <>
-          <div>
+        job?.appliedFreelancers?.includes(freelancer?._id) ? <div>
             <Result
               title={t("You already applied for this Job")}
               extra={
@@ -21,8 +20,7 @@ export default function RightSidebarJobDetails({ job, freelancer }) {
                 </Link>
               }
             />
-          </div>
-        </> :
+          </div> :
           <ConnectsAndSubmit />
       }
       <ClientInfo client={job?.client} />

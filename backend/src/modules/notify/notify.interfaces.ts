@@ -10,6 +10,7 @@ export interface INotify {
   path?: string
   content?: any
   image?: string
+  attachedId?: string
   seen?: boolean
   isDeleted?: boolean
 }

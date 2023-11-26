@@ -28,13 +28,14 @@ import SubmitProposal from 'pages/Submit Proposal'
 import { useEffect, useState } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { getAllJobs } from 'src/api/job-apis'
-import JobDetails from 'src/pages/AdminPages/hire/job-details'
-import JobList from 'src/pages/AdminPages/hire/job-list'
+import JobDetails from 'src/pages/ForumPages/hire/job-details'
+import JobList from 'src/pages/ForumPages/hire/job-list'
 import AllJobPosts from 'src/pages/ClientPages/AllJobPost'
 import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
 import './styles.css'
 import AllContracts from 'src/pages/FreelancerPages/AllContracts'
 import ForumRoutes from './ForumRoutes'
+import ClientProfile from 'src/pages/FreelancerPages/ClientProfile'
 
 export default function FreelancerRoutes() {
   const [arr, setarr] = useState([])
@@ -101,6 +102,7 @@ export default function FreelancerRoutes() {
             <Route path="/life-time-billing" element={<BillingByClients />} />
             <Route path="/connects-history" element={<ConnectsHistory />} />
             <Route path="/buyconnects" element={<BuyConnects />} />
+            <Route path="/client-info/:clientId" element={<ClientProfile />} />
             {/* <Route
               path="/transaction-history"
             

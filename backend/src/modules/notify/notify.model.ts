@@ -8,6 +8,7 @@ const notifySchema = new mongoose.Schema<INotifyDoc, INotifyModel>(
   {
     to: { type: mongoose.Types.ObjectId, ref: 'User' },
     path: { type: String, default: '' },
+    attachedId: { type: String, default: '' },
     seen: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
     content: {

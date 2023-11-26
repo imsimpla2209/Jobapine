@@ -98,6 +98,34 @@ export const updateFreelancer = {
     .min(1),
 }
 
+export const createProfileFreelancer = {
+  body: Joi.object()
+    .keys({
+      name: Joi.string(),
+      intro: Joi.string(),
+      title: Joi.string(),
+      skills: Joi.array().items(createdSkillBody),
+      certificate: Joi.string(),
+      images: Joi.array().items(Joi.string()),
+      preferJobType: Joi.array().items(Joi.string()),
+      currentLocations: Joi.array().items(Joi.string()),
+      preferencesURL: Joi.array().items(Joi.string()),
+      available: Joi.boolean(),
+      favoriteJobs: Joi.array().items(Joi.string()),
+      education: Joi.any(),
+      historyWork: Joi.any(),
+      englishProficiency: Joi.any(),
+      expertiseLevel: Joi.string().valid(...Object.values(EComplexity)),
+      otherLanguages: Joi.any(),
+      profileCompletion: Joi.number(),
+      expectedAmount: Joi.number(),
+      expectedPaymentType: Joi.string().valid(...Object.values(EPaymenType)),
+      isSubmitProfile: Joi.boolean(),
+      isProfileVerified: Joi.boolean(),
+    })
+    .min(1),
+}
+
 export const deleteFreelancer = {
   params: Joi.object().keys({
     id: Joi.string().custom(objectId),

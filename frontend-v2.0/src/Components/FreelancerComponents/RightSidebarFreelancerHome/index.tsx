@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import img from "../../../assets/img/icon-user.svg";
 import { Progress } from "antd";
-import { FormOutlined } from "@ant-design/icons";
+import { CheckCircleTwoTone, FormOutlined } from "@ant-design/icons";
 
 export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
 
@@ -59,9 +59,22 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
         <div style={{
           marginTop: 16
         }}>
-          <Link to={`/create-profile`} className="advanced-search-link">
-            <FormOutlined /><span> {t("CompleteProfile")}</span>
-          </Link>
+          {
+            freelancer?.isProfileVerified ? <>
+              <p className="text-success text-center"><CheckCircleTwoTone className="me-2"/>{t("Profile Verified")}</p>
+            </> : <>
+              {
+                freelancer?.isSubmitProfile ?
+                  <Link to={`/create-profile`} className="advanced-search-link">
+                    <FormOutlined /><span> {t("CompleteProfile")}</span>
+                  </Link> : <>
+                    <Link to={`/create-profile?isReview=true`} className="advanced-search-link">
+                      <FormOutlined /><span> {t("Review profile")}</span>
+                    </Link>
+                  </>
+              }
+            </>
+          }
 
         </div>
         <div style={{ height: 'auto', display: "inline" }}>
@@ -84,7 +97,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
         <div className="mb-lg-1">
           <i className="far fa-clock me-2 mb-3" />
           <span>
-            {lang === 'vi' ? freelancer?.available ? "đang rảnh" : "éo rảnh lắm" : freelancer?.available ? "available" : "not available"}
+            {lang === 'vi' ? freelancer?.available ? "đang rảnh" : "Không rảnh lắm" : freelancer?.available ? "available" : "not available"}
           </span>
         </div>
         <h5 className="mb-lg-2 display-inline-block ">Proposals</h5>

@@ -14,6 +14,10 @@ router
   .post(auth(), validate(freelancerValidation.getAdvancedFreelancers), freelancerController.getAdvancedFreelancers)
 router.route('/rcmd').post(validate(freelancerValidation.getRcmdFreelancers), freelancerController.getRcmdFreelancers)
 router.route('/search').post(validate(freelancerValidation.searchFreelancers), freelancerController.searchFreelancers)
+router
+  .route('/update-profile')
+  .patch(auth(), validate(freelancerValidation.createProfileFreelancer), freelancerController.createProfile)
+router.route('/update-similar-doc').post(auth(), freelancerController.updateSimilarById)
 
 router
   .route('/:id')

@@ -49,7 +49,8 @@ export const queryClients = async (filter: Record<string, any>, options: IOption
  * @param {mongoose.Types.ObjectId} id
  * @returns {Promise<IClientDoc | null>}
  */
-export const getClientById = async (id: mongoose.Types.ObjectId): Promise<IClientDoc | null> => Client.findById(id)
+export const getClientById = async (id: mongoose.Types.ObjectId): Promise<IClientDoc | null> =>
+  Client.findById(id).populate(['user', 'preferJobType'])
 
 /**
  * Get client by clientname

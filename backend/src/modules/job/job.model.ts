@@ -120,8 +120,8 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
     },
     experienceLevel: [{ type: String, default: [] }],
     visibility: {
-      type: String,
-      default: '',
+      type: Boolean,
+      default: true,
     },
     jobDuration: {
       type: String,

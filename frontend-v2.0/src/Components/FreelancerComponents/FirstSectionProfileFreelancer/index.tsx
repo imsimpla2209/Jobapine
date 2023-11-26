@@ -42,7 +42,7 @@ export default function FirstSectionProfileFreelancer() {
   let [user, setUser] = useState<any>(null);
   let [freelancer, setFreelancer] = useState<any>(null);
   const userData = useSubscription(userStore).state;
-  const freelancerData = useSubscription(freelancerStore).state;
+  const {state: freelancerData, setState} = useSubscription(freelancerStore);
   const locations = useSubscription(locationStore).state
 
   const [EmpList, setEmpList] = useState([]);
@@ -145,8 +145,10 @@ export default function FirstSectionProfileFreelancer() {
     }
   };
   const UpdateEditprofileTitleOverView = () => {
-    updateUserData("freelancer", { title: profileTitle, overview: profileOverview });
-    navigate(`/profile/${id}`)
+    updateFreelancer({ title: profileTitle, intro: profileOverview }, freelancer?._id).then((res) => {
+      setFreelancer({...freelancerData, title: profileTitle, intro: profileOverview });
+      setState({...freelancerData, title: profileTitle, intro: profileOverview })
+    })
   }
   const UpdateEditPortofolio = () => {
     if (imageItself !== "" && imgTitle !== "") {
@@ -187,35 +189,32 @@ export default function FirstSectionProfileFreelancer() {
               </span> */}
                 </div>
               </div>
-              <div className="col-lg-4 pt-lg-3 mx-3">
+              <div className="col-lg-6 pt-lg-5 mx-3">
                 <h2 className="fw-bold">
                   {user?.name}.
                 </h2>
-                <div className="my-3">
-                  <div className="text-muted">{t("Location")}:</div>
-                  <div className="d-flex flex-wrap fw-bold">
-                    {
-                      freelancer?.currentLocations?.map(l => (
-                        <span key={l} className="fw-bold me-4">
-                          <i className="fas fa-map-marker-alt me-2" />{locations?.find(s => s.code === l.toString())?.name} |
-                        </span>
-                      ))
-                    }
+                <div className="my-3 w-100">
+                  <div className="d-flex">
+                    <span className="text-muted me-2"><i className="fas fa-map-marker-alt me-2" />{t("Location")}:</span>
+                    <span className="d-flex flex-wrap fw-bold mb-2">
+                      {
+                        freelancer?.currentLocations?.map(l => (
+                          <span key={l} className="fw-bold me-2">
+                            {locations?.find(s => s.code === l.toString())?.name} |
+                          </span>
+                        ))
+                      }
+                    </span>
                   </div>
-                  <div className="mt-5">
-                    <h4 className="fw-bold">{t("Languages")}</h4>
-                    <p>{t("English")} {" : "} {freelancer?.englishProficiency || 'Basic/Cơ bản'}</p>
-                    {freelancer?.otherLanguages?.map((langItem, ix) => <p key={ix}>
-                      {[langItem.language, ' ', ':', ' ', langItem.langProf]}
-                    </p>)}
-                  </div>
+                  <p className="text-muted"><strong>{t("Self-Introduce")}:</strong> {freelancer?.title}</p>
+
                 </div>
                 <div className="row py-3">
                   <div className="col">
-                    <span>
+                    <span className="text-success">
                       {" "}
                       {
-                        freelancer?.jobsDone?.number !== 0 &&
+                        freelancer?.isProfileVerified !== 0 &&
                         <svg
                           width="15px"
                           data-name="Layer 1"
@@ -229,7 +228,9 @@ export default function FirstSectionProfileFreelancer() {
                             fill="#1caf9d"
                           />
                         </svg>
-                      }
+
+                      } {" "}
+                      {t("Profile Verified")}
                     </span>
                     {/* <span className="text-primary">
                       {
@@ -250,8 +251,8 @@ export default function FirstSectionProfileFreelancer() {
               <div className="col-2"></div>
 
               {
-                id === 'me' && <div className="col py-3 mx-1 float-end ">
-                  <Link to="/settings">
+                id === 'me' && !freelancer?.isProfileVerified && <div className="col py-3 mx-1 float-end ">
+                  <Link to="/create-profile">
                     <button type="button" className="btn px-4  mx-3" style={{ background: "#6600cc", color: "white" }}>
                       {t("Profile Settings")}
                     </button>
@@ -286,17 +287,23 @@ export default function FirstSectionProfileFreelancer() {
 
 
                   <h5 className="fw-bold text-muted">{t("Languages")}</h5>
-                  <p><span className="text-muted">{t("Vietnamese")}: </span> {t("Expert")}</p>
-                  {user?.otherLanguages?.map((langItem, ix) => <p key={ix}>
-                    {lang === 'vi' ? [langItem.languageAr, ' ', ':', ' ', langItem.langProfAr] : [langItem.language, ' ', ':', ' ', langItem.langProf]}
+                  <p style={{ lineHeight: 0 }}><span className="text-muted">{t("Vietnamese")}: </span> {t("Expert")}</p>
+                  <p style={{ lineHeight: 0 }}><span className="text-muted">{t("English")}: </span> {" : "} {freelancer?.englishProficiency || 'Basic/Cơ bản'}</p>
+                  {freelancer?.otherLanguages?.map((langItem, ix) => <p key={ix}>
+                    {[langItem.language, ' ', ':', ' ', langItem.langProf]}
                   </p>)}
 
 
                   <h5 className="fw-bold mt-3 text-muted">{t("Education")}</h5>
-                  <p><span className="text-muted">University: </span>{freelancer?.education?.school || 'Trường Đời'}</p>
-                  <p><span className="text-muted">Study: </span>{freelancer?.education?.areaOfStudy || 420}</p>
-                  <p><span className="text-muted">Degree: </span>{freelancer?.education?.degree || "None/Chưa từng đi học"}</p>
-                  <p><span className="text-muted">Year: </span>{freelancer?.education?.gradYear ? new Date(freelancer?.education?.gradYear * 1000).toLocaleString() : 2019}</p>
+                  <p style={{ lineHeight: 0 }}><span className="text-muted">University: </span>{freelancer?.education?.school || 'Trường Đời'}</p>
+                  <p style={{ lineHeight: 0 }}><span className="text-muted">Study: </span>{freelancer?.education?.areaOfStudy || 420}</p>
+                  <p style={{ lineHeight: 0 }}><span className="text-muted">Degree: </span>{freelancer?.education?.degree || "None/Chưa từng đi học"}</p>
+                  <p className="text-capitalize" style={{ lineHeight: 0 }}><span className="text-muted">Year: </span>{freelancer?.education?.gradYear ? new Date(freelancer?.education?.gradYear).toLocaleString("vi-VN", {
+                    weekday: "short",
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "numeric"
+                  }) : 2019}</p>
 
                 </div>
 
@@ -746,7 +753,7 @@ export default function FirstSectionProfileFreelancer() {
                         htmlFor="exampleFormControlInput1"
                         className="form-label fw-bold"
                       >
-                        Profile title
+                        {t("Self-Introduce")}
                       </label>
                       <input
                         onChange={updateProfile}
@@ -762,7 +769,7 @@ export default function FirstSectionProfileFreelancer() {
                         htmlFor="exampleFormControlTextarea1"
                         className="form-label"
                       >
-                        Overview
+                        {t("Description")}
                       </label>
                       <textarea
                         onChange={updateProfile}
@@ -793,6 +800,7 @@ export default function FirstSectionProfileFreelancer() {
                     onClick={UpdateEditprofileTitleOverView}
                     type="button"
                     className="btn btn-default border rounded-border"
+                    data-bs-dismiss="modal"
                   >
                     Save{" "}
                   </button>
@@ -934,7 +942,7 @@ export default function FirstSectionProfileFreelancer() {
                     </Col>
                   </Row>
                 </div>
-                {/* <div className="modal-footer">
+                <div className="modal-footer">
                   <button
                     type="button"
                     className="btn btn-link border rounded-border "
@@ -954,7 +962,7 @@ export default function FirstSectionProfileFreelancer() {
                   >
                     Add{" "}
                   </button>
-                </div> */}
+                </div>
               </div>
             </div>
           </div>

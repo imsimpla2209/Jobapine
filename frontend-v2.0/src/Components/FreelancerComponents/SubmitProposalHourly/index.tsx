@@ -33,6 +33,7 @@ export default function SubmitProposalHourly({ rate, setrate, currentValue }) {
 							<input
 								className="form-control text-end"
 								type="number"
+								defaultValue={rate}
 								placeholder="00.00"
 								onInput={rateNum}
 							/>

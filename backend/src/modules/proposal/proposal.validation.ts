@@ -27,6 +27,7 @@ export const getProposals = {
     projectBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
+    currentStatus: Joi.string().valid(...Object.values(EStatus)),
   }),
 }
 

@@ -7,30 +7,57 @@ import { getProposals } from "src/api/proposal-apis";
 import { useSubscription } from "src/libs/global-state-hook";
 import { freelancerStore } from "src/Store/user.store";
 import { EStatus } from "src/utils/enum";
+import { Pagination, Tabs } from "antd";
+import Loader from "src/Components/SharedComponents/Loader/Loader";
+
+const tabLists = {
+  "Pending": EStatus.PENDING,
+  "Rejected": EStatus.REJECTED,
+  "Archive": EStatus.ARCHIVE,
+}
 
 export default function Proposals() {
 
   const { t } = useTranslation(['main']);
   const freelancer = useSubscription(freelancerStore).state
-  const [proposals, setProposals] = useState({ active: [], submited: [] });
+  const [accpetedProposals, setAcceptedProposals] = useState([]);
+  const [proposals, setProposals] = useState([]);
   const [isFirstLoad, setFirstLoad] = useState(true)
+  const [tab, setTab] = useState(EStatus.PENDING)
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(1)
+  const [loading, onLoading] = useState(true)
+  const [refresh, onRefresh] = useState(true)
+
+  useEffect(() => {
+    if (freelancer?._id) {
+      getProposal();
+    }
+  }, [freelancer?._id, tab, refresh])
+
+  const getProposal = (p?: number) => {
+    onLoading(true);
+
+    const request = getProposals({ currentStatus: tab, freelancer: freelancer?._id, page: (p ?? page) });
+
+    request.then((res) => {
+      setProposals(res.data.results);
+      setTotal(res.data.totalResults)
+    }).catch(err => {
+      console.log('ERROR - getInvitations', err)
+    }).finally(() => onLoading(false));
+  }
+
+  const handleChangePage = (page: number) => {
+    setPage(page);
+    getProposal(page)
+  }
 
   useEffect(() => {
     if (!!freelancer?._id && isFirstLoad) {
-      getProposals({ freelancer: freelancer?._id }).then((res) => {
+      getProposals({ freelancer: freelancer?._id, currentStatus: EStatus.ACCEPTED }).then((res) => {
         setFirstLoad(false);
-        const activeProposals = []
-        const submitedProposals = []
-        res.data.results.map(proposal => {
-          if (proposal) {
-            if (proposal.currentStatus === EStatus.ACCEPTED) {
-              activeProposals.push(proposal);
-            } else {
-              submitedProposals.push(proposal);
-            }
-          }
-        });
-        setProposals({ active: [...activeProposals], submited: [...submitedProposals] });
+        setAcceptedProposals(res.data.results);
       }).catch((err) => {
         console.log('cannot load proposals', err)
       })
@@ -43,29 +70,48 @@ export default function Proposals() {
         <h3 className="my-5">{t("My proposals")}</h3>
         <div className="list-group-item py-lg-4 mt-3">
           <h4>
-            {t("Active proposals")} ({proposals?.active?.length})
+            {t("Active proposals")} ({accpetedProposals?.length})
             <span className="text-jobsicker ms-2">
               <i className="fas fa-question-circle"></i>
             </span>
           </h4>
         </div>
         <div className="container list-group-item py-lg-4 mb-3">
-          {proposals?.active?.map((proposal, index) => (
-            <ProposalCard job={proposal?.job} proposal={proposal} key={index} ind={index} />
+          {accpetedProposals?.map((proposal, index) => (
+            <ProposalCard job={proposal?.job} proposal={proposal} key={index} ind={index} onRefresh={onRefresh}/>
           ))}
         </div>
         <div className="list-group-item py-lg-4 mt-3">
+
           <h4>
-            {t("Submitted proposals")} ({proposals?.submited?.length})
+            {t("Submitted proposals")} ({total})
             <span className="text-jobsicker ms-2">
               <i className="fas fa-question-circle"></i>
             </span>
           </h4>
         </div>
         <div className="container list-group-item py-lg-4 mb-3">
-          {proposals?.submited?.map((proposal, index) => (
-            <ProposalCard job={proposal?.job} proposal={proposal} key={index} ind={index} />
-          ))}
+          <Tabs
+            onChange={(t) => setTab(t as EStatus)}
+            type="card"
+            tabBarStyle={{ color: "purple" }}
+            items={Object.keys(tabLists).map((k, i) => {
+              return {
+                label: `${t(`${k}`)}`,
+                key: tabLists[k],
+              };
+            })}
+          />
+          {
+            loading ? <Loader></Loader>
+              : <>
+                {proposals?.map((proposal, index) => (
+                  <ProposalCard job={proposal?.job} proposal={proposal} key={index} ind={index} />
+                ))}
+              </>
+          }
+          <Pagination defaultCurrent={1} current={page} onChange={(p) => handleChangePage(p)} total={total} />
+
         </div>
       </div>
     </div>

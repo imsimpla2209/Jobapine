@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import StarsRating from './../../SharedComponents/StarsRating/StarsRating';
 import { useSubscription } from "src/libs/global-state-hook";
 import { locationStore } from "src/Store/commom.store";
-import { currencyFormatter } from "src/utils/helperFuncs";
+import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
 
 export default function ClientInfo({ client }) {
 
@@ -55,7 +55,12 @@ export default function ClientInfo({ client }) {
       {/* <p><span className="text-muted">Open jobs: </span><strong>{client?.public}</strong></p> */}
       <p><span className="text-muted">Spent: </span><strong>{currencyFormatter(client?.spent)}</strong></p>
       {/* <p><span className="text-muted">Active: </span><strong>{client?.hired}</strong></p> */}
-      <p><span className="text-muted">Member since: </span><strong>{new Date(client?.createdAt).toLocaleString()}</strong></p>
+      <p><span className="text-muted">Member since: </span><strong>
+        {
+          (client?.createdAt || client?.updatedAt) ? new Date(`${client?.createdAt}`).toLocaleString()
+          : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()
+        }
+        </strong></p>
     </div>
   );
 }
