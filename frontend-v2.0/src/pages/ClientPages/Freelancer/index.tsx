@@ -9,7 +9,7 @@ import { EPaymenType } from 'src/utils/enum'
 import './Freelancer.css'
 import FreelancerListCards from './freelancer-list'
 
-export default function FreelancerList() {
+export default function FreelancerList({ saved = false }) {
   const { t } = useTranslation(['main'])
   const [filterOption, setfilterOption] = useState<filterFreelancersBody>({})
   const [refresh, onRefresh] = useState<boolean>(false)
@@ -159,7 +159,7 @@ export default function FreelancerList() {
           </Card>
         </div>
       </div>
-      <FreelancerListCards filterOption={filterOption} />
+      <FreelancerListCards filterOption={filterOption} saved={saved} />
     </Row>
   )
 }

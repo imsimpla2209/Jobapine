@@ -5,7 +5,7 @@ import Saved from 'src/Components/ClientComponents/SavedComponent'
 import { filterFreelancers, getFreelancers } from 'src/api/freelancer-apis'
 import { IFreelancer } from 'src/types/freelancer'
 
-export default function FreelancerListCards({ filterOption }) {
+export default function FreelancerListCards({ filterOption, saved }) {
   const { t } = useTranslation(['main'])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
