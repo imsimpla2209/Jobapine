@@ -1,24 +1,39 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getJob } from "src/api/job-apis";
-import Loader from './../../SharedComponents/Loader/Loader';
-import { EStatus } from "src/utils/enum";
-import { useTranslation } from "react-i18next";
-import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
-import { BlueColorButton } from "src/Components/CommonComponents/custom-style-elements/button";
+import { Collapse, Drawer } from "antd";
 import { isEmpty } from "lodash";
-import { Collapse } from "antd";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { BlueColorButton } from "src/Components/CommonComponents/custom-style-elements/button";
+import { userStore } from "src/Store/user.store";
+import { getJob } from "src/api/job-apis";
 import { requestMessageRoom } from "src/api/message-api";
 import { useSubscription } from "src/libs/global-state-hook";
-import { userStore } from "src/Store/user.store";
+import { EStatus } from "src/utils/enum";
+import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
+import Loader from './../../SharedComponents/Loader/Loader';
+import ProposalDetail from "./ProposalDetail";
+import './style.css';
 
-export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = false }: any) {
-  const { t } = useTranslation(['main'])
+
+export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = false, onRefresh }: any) {
+  const { t, i18n } = useTranslation(['main'])
   const [jobData, setJobData] = useState<any>({})
   const [isSendRequest, setSendRequest] = useState<any>(false)
   const user = useSubscription(userStore).state
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const [openDrawer, setOpenDrawer] = useState(false);
+
+  const showDrawer = () => {
+    setOpenDrawer(true);
+  };
+
+  const onClose = () => {
+    setOpenDrawer(false);
+  };
+
 
   useEffect(() => {
     if (job) {
@@ -31,6 +46,7 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
   }, [job, jobId]);
 
   const createRequestMSGRoom = () => {
+    setLoading(true)
     requestMessageRoom({
       from: (user?.id || user?._id),
       to: jobData?.client?.user,
@@ -40,6 +56,8 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
       setSendRequest(true)
     }).catch((err) => {
       console.log('ERROR: Could not send request', err)
+    }).finally(() => {
+      setLoading(false)
     })
   }
 
@@ -49,9 +67,9 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
         jobId || job
           &&
           jobData?.title ?
-          <div>
+          <div className="card p-4 mb-3" onClick={showDrawer}>
             <div className="row">
-              <div className="col-md-7 col-12">
+              <div className="col-md-7 col-12 ">
                 <Link
                   to={`/job/review-proposal/${proposal._id}`}
                   className={`fw-bold ${proposal?.currentStatus === EStatus.ACCEPTED ? "" : "pe-none"}`}
@@ -71,7 +89,7 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
                 </div>
                 <div className="">
                   <div className="d-flex flex-wrap">
-                    <strong className="me-2">{t("Submited Date")}: </strong>
+                    <strong className="me-2">{proposal?.currentStatus === EStatus.ACCEPTED ? t("Accepted Date") : t("Submited Date")}: </strong>
                     <div>
                       {
                         proposal?.currentStatus === EStatus.ACCEPTED
@@ -101,7 +119,7 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
                       {
                         (proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS)
                           ? <Link to={`/messages?proposalId=${proposal?._id}`}><BlueColorButton>{t("Go to messaging")}</BlueColorButton></Link>
-                          : <BlueColorButton style={{
+                          : <BlueColorButton loading={loading} style={{
                             pointerEvents: (isSendRequest || proposal?.msgRequestSent) ? "none" : "auto",
                             background: (isSendRequest || proposal?.msgRequestSent) ? "gray" : "",
                           }} className="" onClick={createRequestMSGRoom}>
@@ -132,11 +150,11 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
                   {t("Applied Job")}:
                 </strong>
                 <Link
-                  to={`/job/${jobId}`}
+                  to={`/job/${jobId || job?._id}`}
                   className="fw-bold "
                   style={{ color: "#6600cc" }}
                 >
-                  {jobData.title}
+                  {jobData?.title}
                 </Link>
                 <div className="text muted">{jobData?.description}</div>
               </div>
@@ -145,6 +163,9 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
           </div>
           : ind === 0 && <Loader />
       }
+      <Drawer width={1020} placement="right" closable={false} onClose={onClose} open={openDrawer}>
+        <ProposalDetail proposal={proposal} user={user} onRefresh={onRefresh}></ProposalDetail>
+      </Drawer>
     </>
   );
 }

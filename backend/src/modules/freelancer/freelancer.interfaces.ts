@@ -40,6 +40,7 @@ export interface IFreelancer {
   expectedPaymentType?: EPaymenType
   isSubmitProfile?: boolean
   isProfileVerified?: boolean
+  favoriteClients?: IClientDoc['_id'][]
 }
 
 export interface ISimilarFreelancer extends Document {
@@ -87,4 +88,5 @@ export type NewRegisteredFreelancer = Omit<
   | 'expectedAmount'
   | 'expectedPaymentType'
   | 'expertiseLevel'
+  | 'favoriteClients'
 >

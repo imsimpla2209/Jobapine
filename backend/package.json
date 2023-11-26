@@ -101,6 +101,7 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "4.7.11",
     "@joi/date": "^2.1.0",
     "@socket.io/redis-adapter": "^8.1.0",
     "archiver": "^5.3.1",

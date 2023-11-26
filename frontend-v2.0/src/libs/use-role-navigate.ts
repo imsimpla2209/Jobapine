@@ -1,4 +1,4 @@
-import { userStore } from 'pages/AdminPages/auth/user-store'
+import { userStore } from 'pages/ForumPages/auth/user-store'
 import { useSubscription } from './global-state-hook'
 import { useNavigate } from 'react-router-dom'
 

@@ -100,6 +100,7 @@ export default function CreateProfilePhoneNumber() {
           placeholder="Enter phone number"
           value={value}
           onChange={setNumber}
+          countries={["VN", "EG", "US", "LA", "GB", "KH", "CN", "HK", "JP", "KR", "TW"]}
         />
         <p className='text-danger'>{validate}</p>
         <p>
@@ -117,8 +118,11 @@ export default function CreateProfilePhoneNumber() {
                 {msg && <>
                   {msg.type === 'success' ? <p className="text-success">{msg.message}</p> : <p className="text-danger">{msg.message}</p>}
                 </>}
-                <button className={`btn bg-jobsicker px-5 mt-4 ${value && !validate && !isVerified ? "" : "disabled"}`} onClick={verifyNumber}>
+                <button className={`btn bg-jobsicker px-5 mt-4 me-2 ${value && !validate && !isVerified ? "" : "disabled"}`} onClick={verifyNumber}>
                   {t("Ok")}
+                </button>
+                <button className={`btn bg-jobsicker px-5 mt-4 ms-2 ${value && !validate && !isVerified ? "" : "disabled"}`} onClick={sentVerifyNumber}>
+                  {t("Resend code")}
                 </button>
               </div>
           }
@@ -137,7 +141,7 @@ export default function CreateProfilePhoneNumber() {
               {t("Review profile")}
             </button>
           ) : (
-            <button className={`btn bg-jobsicker px-5 ${value && !validate ? "" : "disabled"}`} onClick={sentVerifyNumber}>
+            <button className={`btn bg-jobsicker px-5 ${value && !validate && !isSentSMS ? "" : "disabled"}`} onClick={sentVerifyNumber}>
               {t("Next")}
             </button>
           )

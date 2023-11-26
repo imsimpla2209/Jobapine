@@ -89,7 +89,7 @@ export default function Search() {
 			}).catch(err => {
 				console.log('advanced search err', err)
 			}).finally(() => {
-				setSearchParams('')
+				// setSearchParams('')
 				setLoading(false);
 			})
 		}

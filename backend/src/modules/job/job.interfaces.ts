@@ -32,7 +32,7 @@ export interface IJob {
   tags?: IJobTag['_id'][]
   isDeleted?: boolean
   currentStatus?: string
-  visibility?: string
+  visibility?: boolean
   jobDuration?: 'short-term' | 'long-term'
   appliedFreelancers: IFreelancerDoc['_id'][]
   blockFreelancers: IFreelancerDoc['_id'][]

@@ -6,6 +6,7 @@ import { NewCreatedNotify } from './notify.interfaces'
 const createNotifyBody: Record<keyof NewCreatedNotify, any> = {
   to: Joi.string(),
   path: Joi.string(),
+  attachedId: Joi.string(),
   content: Joi.any(),
   image: Joi.string(),
   seen: Joi.boolean(),

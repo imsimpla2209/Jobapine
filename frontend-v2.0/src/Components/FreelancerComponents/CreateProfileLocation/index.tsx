@@ -14,7 +14,7 @@ export default function CreateProfileLocation() {
 
   const { t } = useTranslation(['main'])
   const onChangeLocation = (locs: any[]) => {
-    setState({ ...state, currentLocations: locs?.map(l => l?.code) })
+    setState({ ...state, currentLocations: locs })
   }
   const addData = () => {
     profileStep({ step: EStep.PHONENUMBER })

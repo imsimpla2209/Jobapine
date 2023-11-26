@@ -41,6 +41,7 @@ const freelancerSchema = new mongoose.Schema<IFreelancerDoc, IFreelancerModel>(
     favoriteJobs: [{ type: mongoose.Types.ObjectId, ref: 'Job', default: [] }],
     jobs: [{ type: mongoose.Types.ObjectId, ref: 'Job', default: [] }],
     relevantClients: [{ type: mongoose.Types.ObjectId, ref: 'Client', default: [] }],
+    favoriteClients: [{ type: mongoose.Types.ObjectId, ref: 'Client', default: [] }],
     jobsDone: {
       type: {
         number: {

@@ -2,17 +2,17 @@ import { CalendarOutlined, HomeFilled, LinkedinOutlined, WeiboOutlined } from "@
 import { Layout, MenuProps } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { Outlet, Route } from "react-router-dom";
-import DepartmentDetail from "src/pages/AdminPages/departments/department-detail";
-import EventsPage from "src/pages/AdminPages/events";
-import EventDetails from "src/pages/AdminPages/events/event-details";
-import HomePage from "src/pages/AdminPages/home-page";
-import CreateIdea from "src/pages/AdminPages/ideas/create-new-idea";
-import EditIdea from "src/pages/AdminPages/ideas/edit-idea";
-import IdeaDetail from "src/pages/AdminPages/ideas/idea-detail";
-import AppHeader from "src/pages/AdminPages/layout/header";
-import AppSidebar from "src/pages/AdminPages/layout/sidebar";
-import UserProfile from "src/pages/AdminPages/user-profile";
-import OtherProfile from "src/pages/AdminPages/user-profile/otherProfile";
+import DepartmentDetail from "src/pages/ForumPages/departments/department-detail";
+import EventsPage from "src/pages/ForumPages/events";
+import EventDetails from "src/pages/ForumPages/events/event-details";
+import HomePage from "src/pages/ForumPages/home-page";
+import CreateIdea from "src/pages/ForumPages/ideas/create-new-idea";
+import EditIdea from "src/pages/ForumPages/ideas/edit-idea";
+import IdeaDetail from "src/pages/ForumPages/ideas/idea-detail";
+import AppHeader from "src/pages/ForumPages/layout/header";
+import AppSidebar from "src/pages/ForumPages/layout/sidebar";
+import UserProfile from "src/pages/ForumPages/user-profile";
+import OtherProfile from "src/pages/ForumPages/user-profile/otherProfile";
 import useWindowSize from "src/utils/useWindowSize";
 
 type MenuItem = Required<MenuProps>['items'][number]

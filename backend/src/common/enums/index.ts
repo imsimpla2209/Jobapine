@@ -13,6 +13,8 @@ export enum EStatus {
 
 export enum EJobStatus {
   PENDING = 'pending',
+  DRAFT = 'draft',
+  PRIVATE = 'private',
   INPROGRESS = 'inProgress',
   COMPLETED = 'completed',
   CLOSED = 'closed',

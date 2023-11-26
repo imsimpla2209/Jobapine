@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { getJobs } from "src/api/job-apis";
 import { EComplexityGet } from "src/utils/enum";
 import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
@@ -59,7 +60,7 @@ export default function OtherOpenJobsByThisClient({ client }) {
         }
         <div style={{ textAlign: 'end' }}>
           {
-            left > 4 && <a href={'#'} className="advanced-search-link">{t("See all jobs from this client")} {`(${left})`}</a>
+            left > 4 && <Link to={`/client-info/${client?._id}`} className="advanced-search-link">{t("See all jobs from this client")} {`(${left})`}</Link>
           }
         </div>
       </div>

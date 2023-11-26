@@ -47,6 +47,9 @@ export interface IFreelancer {
   profileCompletion?: number
   expectedAmount?: number
   expectedPaymentType?: EPaymenType
+  isSubmitProfile?: boolean
+  isProfileVerified?: boolean
+  favoriteClients?: string[]
 }
 
 export interface UpdateFreelancer {

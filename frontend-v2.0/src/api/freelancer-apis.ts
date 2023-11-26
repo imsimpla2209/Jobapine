@@ -29,6 +29,10 @@ export const updateFreelancer = (data: UpdateFreelancer, id: string ) => {
   return instance.patch(`freelancers/${id}`, data);
 }
 
+export const updateProfileFreelancer = (data: UpdateFreelancer) => {
+  return instance.patch(`freelancers/update-profile`, data);
+}
+
 export const deleteFreelancer = (id: string) => {
   return instance.delete(`freelancers/${id}`);
 }
