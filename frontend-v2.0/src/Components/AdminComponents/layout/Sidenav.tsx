@@ -134,7 +134,7 @@ function Sidenav({ color }) {
             <span className="label">Users</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="2">
+        <Menu.Item key="3">
           <NavLink to="/categories">
             <span
               className="icon"
@@ -147,7 +147,7 @@ function Sidenav({ color }) {
             <span className="label">Categories</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="2">
+        <Menu.Item key="4">
           <NavLink to="/skills">
             <span
               className="icon"
@@ -160,7 +160,7 @@ function Sidenav({ color }) {
             <span className="label">Skills</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="3">
+        <Menu.Item key="5">
           <NavLink to="/billing">
             <span
               className="icon"
@@ -173,7 +173,7 @@ function Sidenav({ color }) {
             <span className="label">Billing</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="4">
+        <Menu.Item key="6">
           <NavLink to="/rtl">
             <span
               className="icon"
@@ -186,10 +186,25 @@ function Sidenav({ color }) {
             <span className="label">RTL</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item className="menu-item-header" key="5">
+
+        <Menu.Item key="Backup">
+          <NavLink to="/backup">
+            <span
+              className="icon"
+              style={{
+                background: page === 'backup' ? color : '',
+              }}
+            >
+              {signin}
+            </span>
+            <span className="label">Backup</span>
+          </NavLink>
+        </Menu.Item>
+
+        <Menu.Item className="menu-item-header" key="15">
           {t('Platform Setting')}
         </Menu.Item>
-        <Menu.Item key="6">
+        <Menu.Item key="7">
           <NavLink to="/profile">
             <span
               className="icon"
@@ -202,13 +217,13 @@ function Sidenav({ color }) {
             <span className="label">{t('Platform Setting')}</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="7">
+        <Menu.Item key="8">
           <NavLink to="/sign-in">
             <span className="icon">{signin}</span>
             <span className="label">Sign In</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="8">
+        <Menu.Item key="9">
           <NavLink to="/sign-up">
             <span className="icon">{signup}</span>
             <span className="label">Sign Up</span>
