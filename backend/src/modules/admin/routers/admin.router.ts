@@ -8,10 +8,11 @@ import { auth } from '@modules/auth'
 import express from 'express'
 import { startBackup } from '../utils/backup'
 import { Connect, Process } from '../utils/mongodb'
+import { getProjectStats, getUserSignUpStats } from '../controllers/dashboard.controller'
 
 export const adminRouter = express.Router()
 
-adminRouter.get('/', auth(), async (req, res) => {
+adminRouter.get('/backup', auth(), async (req, res) => {
   try {
     await startBackup()
     const slave = await Connect(config.mongoose.slave)
@@ -123,3 +124,6 @@ adminRouter.get('/all', auth(), async (req, res) => {
     })
   }
 })
+
+adminRouter.get('/userStats', getUserSignUpStats)
+adminRouter.post('/jobStats', getProjectStats)

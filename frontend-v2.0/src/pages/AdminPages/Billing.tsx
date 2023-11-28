@@ -1,15 +1,3 @@
-/*!
-  =========================================================
-  * Muse Ant Design Dashboard - v1.0.0
-  =========================================================
-  * Product Page: https://www.creative-tim.com/product/muse-ant-design-dashboard
-  * Copyright 2021 Creative Tim (https://www.creative-tim.com)
-  * Licensed under MIT (https://github.com/creativetimofficial/muse-ant-design-dashboard/blob/main/LICENSE.md)
-  * Coded by Creative Tim
-  =========================================================
-  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import {
   Row,
   Col,
@@ -22,9 +10,9 @@ import {
 } from "antd";
 
 import { PlusOutlined, ExclamationOutlined } from "@ant-design/icons";
-import mastercard from "../assets/images/mastercard-logo.png";
-import paypal from "../assets/images/paypal-logo-2.png";
-import visa from "../assets/images/visa-logo.png";
+import mastercard from "pages/AdminPages/assets/images/mastercard-logo.png";
+import paypal from "pages/AdminPages/assets/images/paypal-logo-2.png";
+import visa from "pages/AdminPages/assets/images/visa-logo.png";
 
 function Billing() {
   const data = [
@@ -462,7 +450,7 @@ function Billing() {
             <Row gutter={[24, 24]}>
               {information.map((i, index) => (
                 <Col span={24} key={index}>
-                  <Card className="card-billing-info" bordered="false">
+                  <Card className="card-billing-info" bordered={false}>
                     <div className="col-info">
                       <Descriptions title="Oliver Liam">
                         <Descriptions.Item label="Company Name" span={3}>

@@ -11,14 +11,14 @@ router.route('/to-client').get(auth(), userController.switchToClient)
 
 router
   .route('/')
-  .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
+  .post(auth(), validate(userValidation.createUser), userController.createUser)
   .get(validate(userValidation.getUsers), userController.getUsers)
 
 router
   .route('/:userId')
   .get(validate(userValidation.getUser), userController.getUser)
-  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser)
+  .patch(auth(), validate(userValidation.updateUser), userController.updateUser)
+  .delete(auth(), validate(userValidation.deleteUser), userController.deleteUser)
 
 export default router
 

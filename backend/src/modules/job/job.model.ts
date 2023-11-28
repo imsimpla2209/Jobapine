@@ -64,7 +64,7 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
         },
         default: {
           date: new Date(),
-          status: EJobStatus.PENDING,
+          status: EJobStatus.OPEN,
           comment: '',
         },
       },
@@ -112,7 +112,7 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
     currentStatus: {
       type: String,
       enum: EJobStatus,
-      default: EJobStatus.PENDING,
+      default: EJobStatus.OPEN,
     },
     type: {
       type: String,
