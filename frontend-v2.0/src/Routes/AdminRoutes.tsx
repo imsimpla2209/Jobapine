@@ -24,8 +24,12 @@ function AdminRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/users" element={<Tables />} />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           <Route path="/skills" element={<SkillsTable />} />
           <Route path="/categories" element={<CategoriesTable />} />
+=======
+          <Route path="/jobs" element={<Tables />} />
+>>>>>>> Stashed changes
 =======
           <Route path="/jobs" element={<Tables />} />
 >>>>>>> Stashed changes

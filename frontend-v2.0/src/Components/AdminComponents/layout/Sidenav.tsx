@@ -127,7 +127,11 @@ function Sidenav({ color }) {
               className="icon"
               style={{
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 background: page === 'users' ? color : '',
+=======
+                background: page === "users" ? color : "",
+>>>>>>> Stashed changes
 =======
                 background: page === "users" ? color : "",
 >>>>>>> Stashed changes
@@ -137,7 +141,10 @@ function Sidenav({ color }) {
             </span>
             <span className="label">Users</span>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
           </NavLink>
         </Menu.Item>
         <Menu.Item key="2">
@@ -164,6 +171,9 @@ function Sidenav({ color }) {
               {tables}
             </span>
             <span className="label">Other</span>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
           </NavLink>
         </Menu.Item>
@@ -247,7 +257,17 @@ function Sidenav({ color }) {
             >
               {profile}
             </span>
+<<<<<<< Updated upstream
             <span className="label">{t('Platform Setting')}</span>
+=======
+            <span className="label">{t("Platform Setting")}</span>
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="7">
+          <NavLink to="/sign-in">
+            <span className="icon">{signin}</span>
+            <span className="label">APIs</span>
+>>>>>>> Stashed changes
           </NavLink>
         </Menu.Item>
         <Menu.Item key="8">
