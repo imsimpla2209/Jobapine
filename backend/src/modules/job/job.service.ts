@@ -371,7 +371,7 @@ export const getRcmdJob = async (
 export const getAllJob = async (): Promise<IJobDoc[] | null> => {
   const jobs = await Job.find()
     .select(
-      'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences'
+      'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences reqSkills'
     )
     .populate([{ path: 'client', select: 'rating spent paymentVerified' }, { path: 'categories' }])
     .sort({ updatedAt: 1 })

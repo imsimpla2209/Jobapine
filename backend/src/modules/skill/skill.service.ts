@@ -25,6 +25,7 @@ export const createSkill = async (skillBody: NewCreatedSkill): Promise<ISkillDoc
  */
 export const querySkills = async (options: IOptions): Promise<ISkillDoc[]> => {
   const skills = await Skill.find()
+    .sort({ updatedAt: -1 })
     .limit(options?.limit || 10000)
     .lean()
   return skills

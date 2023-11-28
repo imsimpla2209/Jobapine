@@ -24,23 +24,25 @@ export const getSkills = {
 
 export const getSkill = {
   params: Joi.object().keys({
-    _id: Joi.string().custom(objectId),
+    id: Joi.string().custom(objectId),
   }),
 }
 
 export const updateSkill = {
   params: Joi.object().keys({
-    _id: Joi.required().custom(objectId),
+    id: Joi.required().custom(objectId).required(),
   }),
   body: Joi.object()
     .keys({
-      name: Joi.string().required(),
+      name: Joi.string(),
+      name_vi: Joi.string(),
+      category: Joi.string(),
     })
     .min(1),
 }
 
 export const deleteSkill = {
   params: Joi.object().keys({
-    _id: Joi.string().custom(objectId),
+    id: Joi.string().custom(objectId),
   }),
 }

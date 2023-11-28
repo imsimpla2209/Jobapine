@@ -20,8 +20,8 @@ export const getSkills = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const getSkill = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.skillId === 'string') {
-    const skill = await skillService.getSkillById(new mongoose.Types.ObjectId(req.params.skillId))
+  if (typeof req.params?.id === 'string') {
+    const skill = await skillService.getSkillById(new mongoose.Types.ObjectId(req.params.id))
     if (!skill) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Skill not found')
     }
@@ -30,15 +30,15 @@ export const getSkill = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const updateSkill = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.skillId === 'string') {
-    const skill = await skillService.updateSkillById(new mongoose.Types.ObjectId(req.params.skillId), req.body)
+  if (typeof req.params?.id === 'string') {
+    const skill = await skillService.updateSkillById(new mongoose.Types.ObjectId(req.params.id), req.body)
     res.send(skill)
   }
 })
 
 export const deleteSkill = catchAsync(async (req: Request, res: Response) => {
-  if (typeof req.params?.skillId === 'string') {
-    await skillService.deleteSkillById(new mongoose.Types.ObjectId(req.params.skillId))
+  if (typeof req.params?.id === 'string') {
+    await skillService.deleteSkillById(new mongoose.Types.ObjectId(req.params.id))
     res.status(httpStatus.NO_CONTENT).send()
   }
 })
