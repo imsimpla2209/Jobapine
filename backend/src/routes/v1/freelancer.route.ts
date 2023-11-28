@@ -30,10 +30,6 @@ router
   .patch(auth(), validate(freelancerValidation.reviewFreelancer), freelancerController.reviewFreelancer)
 router
   .route('/admin/:id')
-  .delete(
-    auth('manageUsers'),
-    validate(freelancerValidation.deleteFreelancer),
-    freelancerController.forceDeleteFreelancer
-  )
+  .delete(auth(), validate(freelancerValidation.deleteFreelancer), freelancerController.forceDeleteFreelancer)
 
 export default router

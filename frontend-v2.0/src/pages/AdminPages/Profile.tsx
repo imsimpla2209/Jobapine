@@ -1,14 +1,3 @@
-/*!
-  =========================================================
-  * Muse Ant Design Dashboard - v1.0.0
-  =========================================================
-  * Product Page: https://www.creative-tim.com/product/muse-ant-design-dashboard
-  * Copyright 2021 Creative Tim (https://www.creative-tim.com)
-  * Licensed under MIT (https://github.com/creativetimofficial/muse-ant-design-dashboard/blob/main/LICENSE.md)
-  * Coded by Creative Tim
-  =========================================================
-  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import { useState } from "react";
 
 import {
@@ -32,20 +21,26 @@ import {
   VerticalAlignTopOutlined,
 } from "@ant-design/icons";
 
-import BgProfile from "../assets/images/bg-profile.jpg";
-import profilavatar from "../assets/images/face-1.jpg";
-import convesionImg from "../assets/images/face-3.jpg";
-import convesionImg2 from "../assets/images/face-4.jpg";
-import convesionImg3 from "../assets/images/face-5.jpeg";
-import convesionImg4 from "../assets/images/face-6.jpeg";
-import convesionImg5 from "../assets/images/face-2.jpg";
-import project1 from "../assets/images/home-decor-1.jpeg";
-import project2 from "../assets/images/home-decor-2.jpeg";
-import project3 from "../assets/images/home-decor-3.jpeg";
+import BgProfile from "pages/AdminPages/assets/images/bg-profile.jpg";
+import profilavatar from "pages/AdminPages/assets/images/face-1.jpg";
+import convesionImg from "pages/AdminPages/assets/images/face-3.jpg";
+import convesionImg2 from "pages/AdminPages/assets/images/face-4.jpg";
+import convesionImg3 from "pages/AdminPages/assets/images/face-5.jpeg";
+import convesionImg4 from "pages/AdminPages/assets/images/face-6.jpeg";
+import convesionImg5 from "pages/AdminPages/assets/images/face-2.jpg";
+import project1 from "pages/AdminPages/assets/images/home-decor-1.jpeg";
+import project2 from "pages/AdminPages/assets/images/home-decor-2.jpeg";
+import project3 from "pages/AdminPages/assets/images/home-decor-3.jpeg";
+import { useTranslation } from "react-i18next";
+import { useSubscription } from "src/libs/global-state-hook";
+import { userStore } from "src/Store/user.store";
 
 function Profile() {
-  const [imageURL, setImageURL] = useState(false);
+  const [imageURL, setImageURL] = useState('');
   const [, setLoading] = useState(false);
+  const { t } = useTranslation(['main'])
+  const { state, setState } = useSubscription(userStore);
+
 
   const getBase64 = (img, callback) => {
     const reader = new FileReader();
@@ -73,7 +68,7 @@ function Profile() {
     if (info.file.status === "done") {
       getBase64(info.file.originFileObj, (imageUrl) => {
         setLoading(false);
-        setImageURL(false);
+        setImageURL('');
       });
     }
   };
@@ -171,10 +166,10 @@ function Profile() {
           <Row justify="space-between" align="middle" gutter={[24, 0]}>
             <Col span={24} md={12} className="col-info">
               <Avatar.Group>
-                <Avatar size={74} shape="square" src={profilavatar} />
+                <Avatar size={74} shape="square" src={state.avatar || profilavatar} />
 
                 <div className="avatar-info">
-                  <h4 className="font-semibold m-0">Sarah Jacob</h4>
+                  <h4 className="font-semibold m-0">{state.name}</h4>
                   <p>CEO / Co-Founder</p>
                 </div>
               </Avatar.Group>
@@ -189,7 +184,7 @@ function Profile() {
               }}
             >
               <Radio.Group defaultValue="a">
-                <Radio.Button value="a">OVERVIEW</Radio.Button>
+                <Radio.Button value="a">General</Radio.Button>
                 <Radio.Button value="b">TEAMS</Radio.Button>
                 <Radio.Button value="c">PROJECTS</Radio.Button>
               </Radio.Group>
@@ -203,7 +198,7 @@ function Profile() {
           <Card
             bordered={false}
             className="header-solid h-full"
-            title={<h6 className="font-semibold m-0">Platform Settings</h6>}
+            title={<h6 className="font-semibold m-0">{t("Platform Setting")}</h6>}
           >
             <ul className="list settings-list">
               <li>
@@ -331,11 +326,11 @@ function Profile() {
                 cover={<img alt="example" src={p.img} />}
               >
                 <div className="card-tag">{p.titlesub}</div>
-                <h5>{p.titile}</h5>
+                <h5>{p.title}</h5>
                 <p>{p.disciption}</p>
                 <Row gutter={[6, 0]} className="card-footer">
                   <Col span={12}>
-                    <Button type="button">VIEW PROJECT</Button>
+                    <Button htmlType="button">VIEW PROJECT</Button>
                   </Col>
                   <Col span={12} className="text-right">
                     <Avatar.Group className="avatar-chips">

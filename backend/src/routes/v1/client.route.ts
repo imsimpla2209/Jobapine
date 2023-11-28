@@ -16,8 +16,6 @@ router
   .patch(auth(), validate(clientValidation.updateClient), clientController.updateClient)
   .delete(auth(), validate(clientValidation.deleteClient), clientController.deleteClient)
 router.route('/review/:id').patch(auth(), validate(clientValidation.reviewClient), clientController.reviewClient)
-router
-  .route('/admin/:id')
-  .delete(auth('manageUsers'), validate(clientValidation.deleteClient), clientController.forcedDeleteClient)
+router.route('/admin/:id').delete(auth(), validate(clientValidation.deleteClient), clientController.forcedDeleteClient)
 
 export default router

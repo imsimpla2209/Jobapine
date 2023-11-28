@@ -1,5 +1,5 @@
 import config from '@config/config'
-import { adminRouter } from '@modules/forum/routers/admin.router'
+import { adminRouter } from '@modules/admin/routers/admin.router'
 import { commentRouter } from '@modules/forum/routers/comment.router'
 import { dataRouter } from '@modules/forum/routers/data.router'
 import { departmentRouter } from '@modules/forum/routers/department.router'

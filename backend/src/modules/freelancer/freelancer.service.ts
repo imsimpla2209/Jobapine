@@ -447,69 +447,45 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
       freelancer?.skills.map(sk => sk.skill)
     )
 
+    let similarJobs: any[] = []
+
     if (freelancer?.jobs?.length) {
       const freelancerJobs = await getJobsByOptions({ appliedFreelancers: { $in: freelancer?._id } })
-      initialSimilarDocs = updateSimilarData(
-        freelancerJobs,
-        initialSimilarDocs.foundCats,
-        initialSimilarDocs.foundSkills,
-        initialSimilarDocs.foundLocations,
-        initialSimilarDocs.newDescription,
-        initialSimilarDocs.foundClients
-      )
+      similarJobs = union(similarJobs, [...freelancerJobs])
     }
     if (freelancer?.proposals?.length) {
       const freelancerJobs = await getJobsByOptions({
         appliedFreelancers: { $in: freelancer?.proposals?.map(p => p.job) },
       })
-      initialSimilarDocs = updateSimilarData(
-        freelancerJobs,
-        initialSimilarDocs.foundCats,
-        initialSimilarDocs.foundSkills,
-        initialSimilarDocs.foundLocations,
-        initialSimilarDocs.newDescription,
-        initialSimilarDocs.foundClients
-      )
+      similarJobs = union(similarJobs, [...freelancerJobs])
     }
     if (freelancer?.favoriteJobs) {
-      initialSimilarDocs = updateSimilarData(
-        freelancer?.favoriteJobs,
-        initialSimilarDocs.foundCats,
-        initialSimilarDocs.foundSkills,
-        initialSimilarDocs.foundLocations,
-        initialSimilarDocs.newDescription,
-        initialSimilarDocs.foundClients
-      )
+      similarJobs = union(similarJobs, [...freelancer.favoriteJobs])
     }
     if (freelancer?.relevantClients) {
       const freelancerJobs = await getJobsByOptions({ client: { $in: freelancer?.relevantClients?.map(c => c?._id) } })
-      initialSimilarDocs = updateSimilarData(
-        freelancerJobs,
-        initialSimilarDocs.foundCats,
-        initialSimilarDocs.foundSkills,
-        initialSimilarDocs.foundLocations,
-        initialSimilarDocs.newDescription,
-        initialSimilarDocs.foundClients
-      )
+      similarJobs = union(similarJobs, [...freelancerJobs])
       freelancer?.relevantClients?.forEach(e => {
         e?.preferJobType?.forEach(c => {
           if (!initialSimilarDocs.foundCats?.includes(c)) {
             initialSimilarDocs.foundCats.push(c)
           }
         })
-        initialSimilarDocs = updateSimilarData(
-          e?.jobs,
-          initialSimilarDocs.foundCats,
-          initialSimilarDocs.foundSkills,
-          initialSimilarDocs.foundLocations,
-          initialSimilarDocs.newDescription,
-          initialSimilarDocs.foundClients
-        )
+        similarJobs = union(similarJobs, e?.jobs)
 
         initialSimilarDocs.foundLocations = union(initialSimilarDocs.foundLocations, e?.preferLocations)
         initialSimilarDocs.newDescription += `${e?.intro}`
       })
     }
+
+    initialSimilarDocs = updateSimilarData(
+      similarJobs,
+      initialSimilarDocs.foundCats,
+      initialSimilarDocs.foundSkills,
+      initialSimilarDocs.foundLocations,
+      initialSimilarDocs.newDescription,
+      initialSimilarDocs.foundClients
+    )
 
     const keyWords = keywordExtractor.extract(`${freelancer?.intro} ${initialSimilarDocs.newDescription}`, {
       language: 'english',
@@ -521,8 +497,8 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
     logger.info('Extracted Keywords', keyWords)
 
     const regexPattern = keyWords
-      ?.map(char => `${char}[a-z]*`) // Mỗi ký tự được thay thế bằng ký tự đó và zero hoặc nhiều ký tự chữ cái sau đó
-      .join('\\s*') // Nối các từ lại với nhau, cho phép khoảng trắng giữa các từ
+      ?.map(char => `${char}[a-z]*`)
+      .join('\\s*')
 
     const similarRegex = new RegExp(regexPattern, 'gi')
 
