@@ -80,31 +80,31 @@ function Home() {
   ]
   const count = [
     {
-      today: 'Today’s Sales',
-      title: '$53,000',
-      persent: '+30%',
-      icon: dollor,
+      today: 'Total posted jobs',
+      title: '125',
+      // persent: '+30%',
+      icon: cart,
       bnb: 'bnb2',
     },
     {
-      today: 'Today’s Users',
-      title: '3,200',
-      persent: '+20%',
+      today: 'Total Users',
+      title: '98',
+      // persent: '+20%',
       icon: profile,
       bnb: 'bnb2',
     },
     {
-      today: 'New Clients',
-      title: '+1,200',
-      persent: '-20%',
+      today: 'Total Freelancers',
+      title: '54',
+      // persent: '-20%',
       icon: heart,
       bnb: 'redtext',
     },
     {
-      today: 'New Orders',
-      title: '$13,200',
-      persent: '10%',
-      icon: cart,
+      today: 'Total accepted contract',
+      title: '18',
+      // persent: '10%',
+      icon: dollor,
       bnb: 'bnb2',
     },
   ]
@@ -120,7 +120,8 @@ function Home() {
                   <Col xs={18}>
                     <span>{c.today}</span>
                     <Title level={3}>
-                      {c.title} <small className={c.bnb}>{c.persent}</small>
+                      {c.title}
+                      {/* <small className={c.bnb}>{c.persent}</small> */}
                     </Title>
                   </Col>
                   <Col xs={6}>
