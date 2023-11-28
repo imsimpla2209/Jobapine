@@ -14,7 +14,7 @@ function Footer() {
             <ul>
               <li className="nav-item">
                 <a
-                  href="#pablo"
+                  href="#"
                   className="nav-link text-muted"
                   target="_blank"
                 >
@@ -23,7 +23,7 @@ function Footer() {
               </li>
               <li className="nav-item">
                 <a
-                  href="#pablo"
+                  href="#"
                   className="nav-link text-muted"
                   target="_blank"
                 >
@@ -32,7 +32,7 @@ function Footer() {
               </li>
               <li className="nav-item">
                 <a
-                  href="#pablo"
+                  href="#"
                   className="nav-link pe-0 text-muted"
                   target="_blank"
                 >

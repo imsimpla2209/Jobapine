@@ -115,7 +115,7 @@ export default function SignUp() {
       <div className="layout-default ant-layout layout-sign-up">
           <Header>
             <div className="header-col header-brand">
-              <h5>Muse Dashboard</h5>
+              <h5>JobSickers Dashboard</h5>
             </div>
             <div className="header-col header-nav">
               <Menu mode="horizontal" defaultSelectedKeys={["1"]}>
@@ -212,7 +212,7 @@ export default function SignUp() {
                 <Form.Item name="remember" valuePropName="checked">
                   <Checkbox>
                     I agree the{" "}
-                    <a href="#pablo" className="font-bold text-dark">
+                    <a href="#" className="font-bold text-dark">
                       Terms and Conditions
                     </a>
                   </Checkbox>
@@ -238,12 +238,6 @@ export default function SignUp() {
           </Content>
           <Footer>
             <Menu mode="horizontal">
-              <Menu.Item>Company</Menu.Item>
-              <Menu.Item>About Us</Menu.Item>
-              <Menu.Item>Teams</Menu.Item>
-              <Menu.Item>Products</Menu.Item>
-              <Menu.Item>Blogs</Menu.Item>
-              <Menu.Item>Pricing</Menu.Item>
             </Menu>
             <Menu mode="horizontal" className="menu-nav-social">
               <Menu.Item>
