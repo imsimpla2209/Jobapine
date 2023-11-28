@@ -18,7 +18,7 @@ function Footer() {
                   className="nav-link text-muted"
                   target="_blank"
                 >
-                  Creative Tim
+                  JobSickers
                 </a>
               </li>
               <li className="nav-item">
@@ -28,15 +28,6 @@ function Footer() {
                   target="_blank"
                 >
                   About Us
-                </a>
-              </li>
-              <li className="nav-item">
-                <a
-                  href="#pablo"
-                  className="nav-link text-muted"
-                  target="_blank"
-                >
-                  Blog
                 </a>
               </li>
               <li className="nav-item">

@@ -496,9 +496,7 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
 
     logger.info('Extracted Keywords', keyWords)
 
-    const regexPattern = keyWords
-      ?.map(char => `${char}[a-z]*`)
-      .join('\\s*')
+    const regexPattern = keyWords?.map(char => `${char}[a-z]*`).join('\\s*')
 
     const similarRegex = new RegExp(regexPattern, 'gi')
 

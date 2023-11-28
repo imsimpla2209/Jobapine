@@ -411,7 +411,7 @@ function Header({
           </Drawer>
           <Link to="/sign-in" className="btn-sign-in">
             {profile}
-            <span>Sign in</span>
+            {/* <span>Sign in</span> */}
           </Link>
           <Input
             className="header-search"

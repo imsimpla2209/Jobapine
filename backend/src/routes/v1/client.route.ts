@@ -16,6 +16,7 @@ router
   .patch(auth(), validate(clientValidation.updateClient), clientController.updateClient)
   .delete(auth(), validate(clientValidation.deleteClient), clientController.deleteClient)
 router.route('/review/:id').patch(auth(), validate(clientValidation.reviewClient), clientController.reviewClient)
+router.route('/get-by-options').patch(auth(), clientController.getClientByOption)
 router.route('/admin/:id').delete(auth(), validate(clientValidation.deleteClient), clientController.forcedDeleteClient)
 
 export default router

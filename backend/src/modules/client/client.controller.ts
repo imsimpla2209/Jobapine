@@ -35,6 +35,14 @@ export const getClient = catchAsync(async (req: Request, res: Response) => {
   }
 })
 
+export const getClientByOption = catchAsync(async (req: Request, res: Response) => {
+  const user = await clientService.getClientById(new mongoose.Types.ObjectId(req.params.id))
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Client not found')
+  }
+  res.send(user)
+})
+
 export const updateClient = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
     const user = await clientService.updateClientById(new mongoose.Types.ObjectId(req.params.id), req.body)

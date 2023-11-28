@@ -8,7 +8,7 @@ export const createUser = (data?: Omit<
   return instance.post('users', data);
 }
 
-export const getUsers = (data: IUserQuery) => {
+export const getUsers = (data?: IUserQuery) => {
   return Http.get('users', data);
 }
 
