@@ -94,7 +94,7 @@ export default function BackupDataManager() {
         </>
       )}
       {!loadingRestore && !loading && !failToBackUp && countSuccess > 0 && (
-        <Space direction="vertical" className="w-100 center" style={{ paddingTop: 50 }}>
+        <Space direction="vertical" style={{ paddingTop: 50, width: '100%', justifyContent: 'center' }} align="center">
           <Progress type="circle" percent={100} strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />
           <Title>Backup data successfull!</Title>
         </Space>

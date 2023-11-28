@@ -3,6 +3,7 @@ import { Button, Modal, message } from 'antd'
 import { Http } from 'api/http'
 import { format } from 'date-fns'
 import { useState } from 'react'
+import { dropBackupData } from 'src/api/admin-apis'
 import styled from 'styled-components'
 
 const SPLIT_BACKUP_VERSION = 'jobsicker-version-'
@@ -38,7 +39,7 @@ export default function ListDBItem({
   }
   const handleDeleteDBVersionHistory = async () => {
     setLoading(true)
-    await Http.post('/api/v1/backup/drop', { name: db.name })
+    await dropBackupData({ name: db.name })
       .then(res => {
         message.success(`Version history at ${formatTime(db.name.split(SPLIT_BACKUP_VERSION)?.[1])} deleted!`)
         setListDB(database => database.filter(item => item.name !== db.name))
