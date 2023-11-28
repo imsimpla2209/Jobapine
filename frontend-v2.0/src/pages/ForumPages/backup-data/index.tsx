@@ -1,10 +1,9 @@
 import { Card, List, Progress, Result, Space, Typography, message } from 'antd'
-
 import { useEffect, useState } from 'react'
 import ListDBItem from './list-item'
 import { BlueColorButton } from 'Components/CommonComponents/custom-style-elements/button'
 import { Http } from 'api/http'
-import { useSocket } from 'socket.io'
+import { useSocket } from 'src/socket.io'
 import RubikLoader from 'Components/CommonComponents/loader/rubik-loader'
 
 const { Text, Title } = Typography
@@ -43,7 +42,7 @@ export default function BackupDataManager() {
     await Http.get('/api/v1/backup/all')
       .then(res => setListDB(res.data.data))
       .catch(error => {
-        message.error('Failed to backup data!')
+        message.error('Failed to get backup data!')
       })
       .finally(() => setLoadingListDB(false))
   }
