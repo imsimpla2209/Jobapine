@@ -72,6 +72,14 @@ export const getFreelancer = catchAsync(async (req: Request, res: Response) => {
   }
 })
 
+export const getFreelancerByOption = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions(req.body)
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  res.send(freelancer)
+})
+
 export const updateFreelancer = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
     const freelancer = await freelancerService.updateFreelancerById(

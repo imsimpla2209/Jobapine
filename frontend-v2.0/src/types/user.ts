@@ -26,6 +26,7 @@ export interface IUser {
   nationalId?: string
   role?: string
   isEmailVerified?: boolean
+  isPhoneVerified?: boolean
   oAuth?: any
   refreshToken?: string
   avatar?: string
@@ -45,4 +46,8 @@ export interface IUserQuery extends filterFreelancersQuery{
   role?: string,
   isActive?: boolean,
   isVerified?: boolean,
+  sortBy?: string
+  projectBy?: string
+  limit?: number
+  page?: number
 }

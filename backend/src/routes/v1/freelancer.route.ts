@@ -17,6 +17,8 @@ router.route('/search').post(validate(freelancerValidation.searchFreelancers), f
 router
   .route('/update-profile')
   .patch(auth(), validate(freelancerValidation.createProfileFreelancer), freelancerController.createProfile)
+
+router.route('/get-by-options').post(auth(), freelancerController.getFreelancerByOption)
 router.route('/update-similar-doc').post(auth(), freelancerController.updateSimilarById)
 
 router

@@ -10,6 +10,11 @@ export const getClients = (data: IQueryParams ) => {
   return Http.get('clients', data);
 }
 
+export const getClientByOptions = (data: any ) => {
+  return Http.get('clients/get-by-options', data);
+}
+
+
 export const searchClients = (data: {searchText: string}, query: filterFreelancersQuery ) => {
   return Http.post('clients/search', data, query);
 }

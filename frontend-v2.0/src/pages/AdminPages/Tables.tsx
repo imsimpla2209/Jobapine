@@ -1,33 +1,35 @@
 import {
-  Row,
-  Col,
+  Avatar,
+  Badge,
+  Button,
   Card,
+  Col,
+  Modal,
+  Progress,
   Radio,
+  Row,
   Table,
+  Typography,
   Upload,
   message,
-  Progress,
-  Button,
-  Avatar,
-  Typography,
 } from "antd";
 
 import { ToTopOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 // Images
-import ava1 from "pages/AdminPages/assets/images/logo-shopify.svg";
-import ava2 from "pages/AdminPages/assets/images/logo-atlassian.svg";
-import ava3 from "pages/AdminPages/assets/images/logo-slack.svg";
-import ava5 from "pages/AdminPages/assets/images/logo-jira.svg";
-import ava6 from "pages/AdminPages/assets/images/logo-invision.svg";
-import face from "pages/AdminPages/assets/images/face-1.jpg";
 import face2 from "pages/AdminPages/assets/images/face-2.jpg";
-import face3 from "pages/AdminPages/assets/images/face-3.jpg";
-import face4 from "pages/AdminPages/assets/images/face-4.jpg";
-import face5 from "pages/AdminPages/assets/images/face-5.jpeg";
-import face6 from "pages/AdminPages/assets/images/face-6.jpeg";
+import ava2 from "pages/AdminPages/assets/images/logo-atlassian.svg";
+import ava6 from "pages/AdminPages/assets/images/logo-invision.svg";
+import ava5 from "pages/AdminPages/assets/images/logo-jira.svg";
+import ava1 from "pages/AdminPages/assets/images/logo-shopify.svg";
+import ava3 from "pages/AdminPages/assets/images/logo-slack.svg";
 import pencil from "pages/AdminPages/assets/images/pencil.svg";
+import { useEffect, useState } from "react";
+import { getUsers } from "src/api/user-apis";
+import defaultAvate from 'assets/img/icon-user.svg'
+import { randomDate } from "src/utils/helperFuncs";
+import UserInfo from "src/Components/AdminComponents/Modal/UserInfo";
 
 const { Title } = Typography;
 
@@ -51,13 +53,13 @@ const formProps = {
 // table code start
 const columns = [
   {
-    title: "AUTHOR",
+    title: "User",
     dataIndex: "name",
     key: "name",
-    width: "32%",
+    width: "22%",
   },
   {
-    title: "FUNCTION",
+    title: "LAST LOGIN AS",
     dataIndex: "function",
     key: "function",
   },
@@ -67,268 +69,21 @@ const columns = [
     key: "status",
     dataIndex: "status",
   },
+
   {
-    title: "EMPLOYED",
-    key: "employed",
-    dataIndex: "employed",
+    title: "ACTIVE",
+    key: "active",
+    dataIndex: "active",
+  },
+
+  {
+    title: "JOINT DATE",
+    key: "JointDate",
+    dataIndex: "JointDate",
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face2}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Michael John</Title>
-            <p>michael@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Manager</Title>
-          <p>Organization</p>
-        </div>
-      </>
-    ),
 
-    status: (
-      <>
-        <Button type="primary" className="tag-primary">
-          ONLINE
-        </Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>23/04/18</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-
-  {
-    key: "2",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face3}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Alexa Liras</Title>
-            <p>alexa@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Programator</Title>
-          <p>Developer</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button className="tag-badge">ONLINE</Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>23/12/20</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-
-  {
-    key: "3",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Laure Perrier</Title>
-            <p>laure@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Executive</Title>
-          <p>Projects</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button type="primary" className="tag-primary">
-          ONLINE
-        </Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>03/04/21</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-  {
-    key: "4",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face4}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Miriam Eric</Title>
-            <p>miriam@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Marketing</Title>
-          <p>Organization</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button type="primary" className="tag-primary">
-          ONLINE
-        </Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>03/04/21</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-  {
-    key: "5",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face5}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>Richard Gran</Title>
-            <p>richard@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Manager</Title>
-          <p>Organization</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button className="tag-badge">ONLINE</Button>
-      </>
-    ),
-    employed: (
-      <>
-        <div className="ant-employed">
-          <span>23/03/20</span>
-          <a href="#pablo">Edit</a>
-        </div>
-      </>
-    ),
-  },
-
-  {
-    key: "6",
-    name: (
-      <>
-        <Avatar.Group>
-          <Avatar
-            className="shape-avatar"
-            shape="square"
-            size={40}
-            src={face6}
-          ></Avatar>
-          <div className="avatar-info">
-            <Title level={5}>John Levi</Title>
-            <p>john@mail.com</p>
-          </div>
-        </Avatar.Group>{" "}
-      </>
-    ),
-    function: (
-      <>
-        <div className="author-info">
-          <Title level={5}>Tester</Title>
-          <p>Developer</p>
-        </div>
-      </>
-    ),
-
-    status: (
-      <>
-        <Button className="tag-badge">ONLINE</Button>
-      </>
-    ),
-    employed: (
-      <div className="ant-employed">
-        <span>14/04/17</span>
-        <a href="#pablo">Edit</a>
-      </div>
-    ),
-  },
-];
 // project table start
 const project = [
   {
@@ -362,7 +117,7 @@ const dataproject = [
       </Avatar.Group>
     ),
     age: (
-      <div className="semibold">$14,000</div>
+      <div className="semibold">22,600,000 VND</div>
     ),
     address: (
       <div className="text-sm">working</div>
@@ -390,7 +145,7 @@ const dataproject = [
       </Avatar.Group>
     ),
     age: (
-      <div className="semibold">$3,000</div>
+      <div className="semibold">33,600,000 VND</div>
     ),
     address: (
       <div className="text-sm">working</div>
@@ -446,7 +201,7 @@ const dataproject = [
       </Avatar.Group>
     ),
     age: (
-      <div className="semibold">$20,600</div>
+      <div className="semibold">48,600,000 VND</div>
     ),
     address: (
       <div className="text-sm">canceled</div>
@@ -479,7 +234,7 @@ const dataproject = [
       </Avatar.Group>
     ),
     age: (
-      <div className="semibold">$4,000</div>
+      <div className="semibold">144,600,000 VND</div>
     ),
     address: (
       <div className="text-sm">working</div>
@@ -502,12 +257,95 @@ const dataproject = [
       <Avatar.Group>
         <Avatar className="shape-avatar" src={ava6} size={25} alt="" />
         <div className="avatar-info">
+          <Title level={5}>Manage Online Store</Title>
+        </div>
+      </Avatar.Group>
+    ),
+    age: (
+      <div className="semibold">5,600,000 VND</div>
+    ),
+    address: (
+      <div className="text-sm">canceled</div>
+    ),
+    completion: (
+      <div className="ant-progress-project">
+        <Progress percent={0} size="small" />
+        <span>
+          <Link to="/">
+            <img src={pencil} alt="" />
+          </Link>
+        </span>
+      </div>
+    ),
+  },
+
+  {
+    key: "7",
+    name: (
+      <Avatar.Group>
+        <Avatar className="shape-avatar" src={ava6} size={25} alt="" />
+        <div className="avatar-info">
+          <Title level={5}>Rework the banner</Title>
+        </div>
+      </Avatar.Group>
+    ),
+    age: (
+      <div className="semibold">6,100,000 VND</div>
+    ),
+    address: (
+      <div className="text-sm">canceled</div>
+    ),
+    completion: (
+      <div className="ant-progress-project">
+        <Progress percent={0} size="small" />
+        <span>
+          <Link to="/">
+            <img src={pencil} alt="" />
+          </Link>
+        </span>
+      </div>
+    ),
+  },
+
+  {
+    key: "8",
+    name: (
+      <Avatar.Group>
+        <Avatar className="shape-avatar" src={ava6} size={25} alt="" />
+        <div className="avatar-info">
           <Title level={5}>Redesign Online Store</Title>
         </div>
       </Avatar.Group>
     ),
     age: (
-      <div className="semibold">$2,000</div>
+      <div className="semibold">12,600,000 VND</div>
+    ),
+    address: (
+      <div className="text-sm">canceled</div>
+    ),
+    completion: (
+      <div className="ant-progress-project">
+        <Progress percent={0} size="small" />
+        <span>
+          <Link to="/">
+            <img src={pencil} alt="" />
+          </Link>
+        </span>
+      </div>
+    ),
+  },
+  {
+    key: "9",
+    name: (
+      <Avatar.Group>
+        <Avatar className="shape-avatar" src={ava6} size={25} alt="" />
+        <div className="avatar-info">
+          <Title level={5}>Marketing Online Store</Title>
+        </div>
+      </Avatar.Group>
+    ),
+    age: (
+      <div className="semibold">5,600,000 VND</div>
     ),
     address: (
       <div className="text-sm">canceled</div>
@@ -527,6 +365,71 @@ const dataproject = [
 
 function Tables() {
   const onChange = (e) => console.log(`radio checked:${e.target.value}`);
+  const [users, setUsers] = useState([])
+  const [seletecUser, setSelectedUser] = useState({})
+  const [openModal, setOpenModal] = useState(false)
+
+  useEffect(() => {
+    getUsers({ limit: 1000 }).then((res) => {
+      setUsers(res.data.results?.filter(user => user.role === 'user'))
+    })
+  }, [])
+
+  const openUserDetailModal = (user) => {
+    setSelectedUser(user)
+    setOpenModal(true)
+  }
+
+  const getUsersData = (users) => {
+    return users?.map((user, ix) => ({
+      key: ix,
+      name: (
+        <>
+          <Avatar.Group>
+            <Avatar
+              className="shape-avatar"
+              shape="square"
+              size={40}
+              src={user?.avatar || defaultAvate}
+            ></Avatar>
+            <div className="avatar-info">
+              <Title level={5}>{user.name}</Title>
+              <p>{user?.email || 'No Email'}</p>
+              <p>{user?.phone || 'No phone'}</p>
+            </div>
+          </Avatar.Group>{" "}
+        </>
+      ),
+      function: (
+        <div className="author-info">
+          <Title level={5} style={{ textTransform: 'capitalize' }}>{user?.lastLoginAs}</Title>
+          <p style={{ textTransform: 'capitalize' }}>{user?.role}</p>
+        </div>
+      ),
+
+      status: (
+        <Badge count={ix % 2 === 0 ? "Online" : "Offline"} className="tag-primary"
+          style={{ backgroundColor: ix % 2 === 0 ? "#52c41a" : "grey" }}
+        >
+        </Badge>
+      ),
+      active: (
+        <Badge count={user?.isActive ? "Active" : "Inactive"} className="tag-primary"
+          style={{ backgroundColor: ix % 2 === 0 ? "purple" : "#f5222d" }}
+        >
+        </Badge>
+      ),
+      JointDate: (
+        <div className="ant-employed">
+          <span>{user?.createdAt
+            ? new Date(`${user?.createdAt}`).toLocaleString()
+            : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}</span>
+          <Button type="primary" shape="round" onClick={() => openUserDetailModal(user)}>Detail</Button>
+        </div>
+      ),
+
+    }))
+  };
 
   return (
     <div className="tabled">
@@ -535,38 +438,65 @@ function Tables() {
           <Card
             bordered={false}
             className="criclebox tablespace mb-24"
-            title="Authors Table"
+            title="Users Table"
             extra={
-              <>
-                <Radio.Group onChange={onChange} defaultValue="a">
-                  <Radio.Button value="a">All</Radio.Button>
-                  <Radio.Button value="b">ONLINE</Radio.Button>
-                </Radio.Group>
-              </>
+              <Radio.Group onChange={onChange} defaultValue="a">
+                <Radio.Button value="a">All</Radio.Button>
+                <Radio.Button value="b">ONLINE</Radio.Button>
+              </Radio.Group>
             }
           >
             <div className="table-responsive">
               <Table
                 columns={columns}
-                dataSource={data}
-                pagination={false}
+                dataSource={getUsersData(users)}
+                pagination={{}}
                 className="ant-border-space"
               />
             </div>
           </Card>
-
+          <Modal
+            open={openModal}
+            title="User Details"
+            onCancel={() => {
+              setOpenModal(false)
+              setSelectedUser({})
+            }}
+            width={1250}
+            footer={[
+              <Button key="back" onClick={() => {
+                setOpenModal(false)
+                setSelectedUser({})
+              }}>
+                Notify
+              </Button>,
+              <Button key="submit" type="primary" >
+                Direct Message
+              </Button>,
+              <Button
+                key="link"
+                href="https://google.com"
+                type="primary"
+              >
+                Verify Profile
+              </Button>,
+            ]}
+          >
+            <UserInfo user={seletecUser} />
+          </Modal>
           <Card
             bordered={false}
             className="criclebox tablespace mb-24"
-            title="Projects Table"
+            title="Job Management Table"
             extra={
-              <>
-                <Radio.Group onChange={onChange} defaultValue="all">
-                  <Radio.Button value="all">All</Radio.Button>
-                  <Radio.Button value="online">ONLINE</Radio.Button>
-                  <Radio.Button value="store">STORES</Radio.Button>
-                </Radio.Group>
-              </>
+              <Radio.Group onChange={onChange} defaultValue="all">
+                <Radio.Button value="all">All</Radio.Button>
+                <Radio.Button value="online">Open</Radio.Button>
+                <Radio.Button value="online">Working</Radio.Button>
+                <Radio.Button value="store">Done</Radio.Button>
+                <Radio.Button value="store">Cancel</Radio.Button>
+                <Radio.Button value="store">Pending</Radio.Button>
+              </Radio.Group>
             }
           >
             <div className="table-responsive">
@@ -582,9 +512,9 @@ function Tables() {
                 <Button
                   type="dashed"
                   className="ant-full-box"
-                  icon={<ToTopOutlined />}
+                  icon={<></>}
                 >
-                  Click to Upload
+                  Load More
                 </Button>
               </Upload>
             </div>

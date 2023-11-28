@@ -45,16 +45,16 @@ export default function LayOut() {
 
   if (!loading) {
     if (authenticated) {
-      // if (usrType === "Freelancer") {
-      //   return <FreelancerRoutes />
-      // } else if (usrType === "Client") {
-      //   return <ClientRoutes />
-      // } else {
-      //   return <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-      //     <Loader />
-      //   </div>
-      // }
-      return <AdminRoutes />
+      if (usrType === "Freelancer") {
+        return <FreelancerRoutes />
+      } else if (usrType === "Client") {
+        return <ClientRoutes />
+      } else {
+        return <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+          <Loader />
+        </div>
+      }
+      // return <AdminRoutes />
     } else {
       return <BeforeLoginRoutes />
     }
