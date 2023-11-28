@@ -273,7 +273,6 @@ function Sidenav({ color }) {
             {dashboard}
           </span>
           <h6>Need Help?</h6>
-          <p>Please check our docs</p>
           <Button type="primary" className="ant-btn-sm ant-btn-block">
             DOCUMENTATION
           </Button>
