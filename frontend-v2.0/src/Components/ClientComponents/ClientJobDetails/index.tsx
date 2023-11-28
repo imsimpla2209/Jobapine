@@ -1,5 +1,5 @@
 import { TeamOutlined } from '@ant-design/icons'
-import { Badge, Button, Card, Col, Collapse, Row, Space } from 'antd'
+import { Badge, Button, Card, Collapse, Row, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import Progress from 'src/Components/SharedComponents/Progress'

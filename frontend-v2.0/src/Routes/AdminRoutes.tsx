@@ -1,15 +1,16 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from 'react-router-dom'
 
-import "pages/AdminPages/assets/styles/main.css";
-import "pages/AdminPages/assets/styles/responsive.css";
-import Main from "src/Components/AdminComponents/layout/Main";
-import Billing from "pages/AdminPages/Billing";
-import Home from "pages/AdminPages/Home";
-import Rtl from "pages/AdminPages/Rtl";
-import SignIn from "pages/AdminPages/SignIn";
-import Tables from "pages/AdminPages/Tables";
-import SignUp from "src/pages/AdminPages/SignUp";
-import Profile from "src/pages/AdminPages/Profile";
+import 'pages/AdminPages/assets/styles/main.css'
+import 'pages/AdminPages/assets/styles/responsive.css'
+import Main from 'src/Components/AdminComponents/layout/Main'
+import Billing from 'pages/AdminPages/Billing'
+import Home from 'pages/AdminPages/Home'
+import Rtl from 'pages/AdminPages/Rtl'
+import SignIn from 'pages/AdminPages/SignIn'
+import Tables from 'pages/AdminPages/Tables'
+import SignUp from 'src/pages/AdminPages/SignUp'
+import Profile from 'src/pages/AdminPages/Profile'
+import SkillsTable from 'src/pages/AdminPages/Skills'
 
 function AdminRoutes() {
   return (
@@ -17,10 +18,12 @@ function AdminRoutes() {
       <Routes>
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/" element={<Main />} >
+        <Route path="/" element={<Main />}>
           <Route path="/dashboard" element={<Home />} />
           <Route path="/" element={<Home />} />
-          <Route path="/tables" element={<Tables />} />
+          <Route path="/users" element={<Tables />} />
+          <Route path="/skills" element={<SkillsTable />} />
+          <Route path="/categories" element={<Tables />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/rtl" element={<Rtl />} />
           <Route path="/profile" element={<Profile />} />
@@ -28,7 +31,7 @@ function AdminRoutes() {
         </Route>
       </Routes>
     </div>
-  );
+  )
 }
 
-export default AdminRoutes;
+export default AdminRoutes

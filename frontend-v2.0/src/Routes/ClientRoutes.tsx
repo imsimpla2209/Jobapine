@@ -23,6 +23,7 @@ import { Route, Routes } from 'react-router-dom'
 import Header from 'src/Components/ClientComponents/Header'
 import Offers from 'src/pages/FreelancerPages/Offers'
 import './styles.css'
+import HomeLayout from 'src/Components/ClientComponents/HomeLayout'
 
 export default function ClientRoutes() {
   const [freelancerArr, setfreelancerArr] = useState([])
@@ -34,8 +35,8 @@ export default function ClientRoutes() {
         <Header />
         <div className="background_body">
           <Routes>
-            <Route path="/home" element={<Jobs />} />
-            <Route path="/" element={<Jobs />} />
+            <Route path="/home" element={<HomeLayout />} />
+            <Route path="/" element={<HomeLayout />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/all-job-posts" element={<AllJobPosts />} />
             <Route path="/all-contracts" element={<AllContract />} />
@@ -47,7 +48,7 @@ export default function ClientRoutes() {
             <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
             <Route path="/post-job" element={<PostJob />} />
             <Route path="/freelancer" element={<FreelancerList />} />
-            <Route path="/saved-freelancer" element={<FreelancerList />} />
+            <Route path="/saved-freelancer" element={<FreelancerList saved={true} />} />
             <Route path="/freelancer-profile/:id" element={<FreelancerProfile />} />
             <Route path="/all-proposals/:id" element={<ReviewProposals />} />
             <Route path="/billing-history" element={<Reports />} />

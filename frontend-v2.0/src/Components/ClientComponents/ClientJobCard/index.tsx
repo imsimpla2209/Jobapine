@@ -17,7 +17,10 @@ export default function ClientJobCard({ item, client, lang }) {
   const setState = useSubscription(clientStore).setState
   console.log(item)
   return (
-    <div style={{ borderRadius: 12, marginBottom: 16, pointerEvents: authenticated ? 'auto' : 'none' }}>
+    <div
+      className="card-hover"
+      style={{ borderRadius: 12, marginBottom: 16, pointerEvents: authenticated ? 'auto' : 'none' }}
+    >
       <div className="list-group-item px-4 py-2" style={{ border: '1px solid #ccc', background: '#fffcff' }}>
         <div className="row align-items-center">
           <div className="col-lg-9 pt-lg-2">

@@ -2,7 +2,7 @@
 
 /* eslint-disable no-script-url */
 
-import { Card, Carousel, Col, Image, Pagination, Rate, Row } from 'antd'
+import { Card, Col, Pagination, Rate, Row } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -10,16 +10,14 @@ import { Link } from 'react-router-dom'
 import { clientStore, userStore } from 'src/Store/user.store'
 import { getJobs } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
-import s1 from '../../../assets/img/jobslide1.jpg'
-import { default as s2, default as s3 } from '../../../assets/img/jobslide2.jpg'
 import j1 from '../../../assets/svg/jobs1.svg'
 import j2 from '../../../assets/svg/jobs2.svg'
 import j3 from '../../../assets/svg/jobs3.svg'
 import j4 from '../../../assets/svg/jobs4.svg'
 import Loader from '../../SharedComponents/Loader/Loader'
 import ClientJobCard from '../ClientJobCard'
-import './HomeLayout.css'
 import { Text } from '../ReviewProposalsCard'
+import './HomeLayout.css'
 
 export default function HomeLayout() {
   const { t, i18n } = useTranslation(['main'])

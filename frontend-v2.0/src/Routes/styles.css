@@ -32,3 +32,13 @@
     background-position: 0% 50%;
   }
 }
+
+.card-hover:hover {
+  box-shadow: 0 3px 6px 2px #b693e6;
+  transform: scale(1.005, 1.005);
+}
+
+.card-hover {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}

@@ -18,6 +18,7 @@ import paymentRoute from './payment.route'
 import proposalRoute from './proposal.route'
 import docsRoute from './swagger.route'
 import userRoute from './user.route'
+import skillsRouter from './skill.route'
 
 const router = express.Router()
 
@@ -94,6 +95,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/data',
     route: dataRouter,
+  },
+  {
+    path: '/skills',
+    route: skillsRouter,
   },
 ]
 
