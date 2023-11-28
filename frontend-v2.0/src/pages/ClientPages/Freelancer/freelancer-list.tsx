@@ -12,15 +12,18 @@ export default function FreelancerListCards({ filterOption, saved }) {
   const [listFreelancers, setListFreelancers] = useState<IFreelancer[]>([])
   const getAllListFreelancers = async () => {
     setLoading(true)
-    await getFreelancers({ limit: 10, page: page })
-      .then(res => {
-        if (res.data.results?.length) {
-          setListFreelancers([...listFreelancers, ...res.data.results])
-        } else {
-          setPage(0)
-        }
-      })
-      .finally(() => setLoading(false))
+    if (saved) {
+    } else {
+      await getFreelancers({ limit: 10, page: page })
+        .then(res => {
+          if (res.data.results?.length) {
+            setListFreelancers([...listFreelancers, ...res.data.results])
+          } else {
+            setPage(0)
+          }
+        })
+        .finally(() => setLoading(false))
+    }
   }
 
   const getFilteredListFreelancers = async () => {
