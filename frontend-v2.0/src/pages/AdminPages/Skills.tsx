@@ -24,7 +24,11 @@ const columns = [
     dataIndex: 'name_vi',
     key: 'name_vi',
   },
-
+  {
+    title: 'CATEGORY',
+    dataIndex: 'category',
+    key: 'category',
+  },
   {
     title: 'NUMBER JOBS USING SKILL',
     key: 'numberOfJobs',
@@ -169,6 +173,11 @@ function SkillsTable() {
           name_vi: (
             <div className="avatar-info">
               <Title level={5}>{skill?.name_vi}</Title>
+            </div>
+          ),
+          category: (
+            <div className="avatar-info">
+              <Title level={5}>{skill?.category}</Title>
             </div>
           ),
           numberOfJobs: (
