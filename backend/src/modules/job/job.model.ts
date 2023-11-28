@@ -135,13 +135,18 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
   }
 )
 
-const jobCategorySchema = new mongoose.Schema<IJobCategory, IJobCategoryModel>({
-  name: {
-    type: String,
-    required: true,
-    index: true,
+const jobCategorySchema = new mongoose.Schema<IJobCategory, IJobCategoryModel>(
+  {
+    name: {
+      type: String,
+      required: true,
+      index: true,
+    },
   },
-})
+  {
+    timestamps: true,
+  }
+)
 
 const jobTagSchema = new mongoose.Schema<IJobTag, IJobTagModel>({
   name: {

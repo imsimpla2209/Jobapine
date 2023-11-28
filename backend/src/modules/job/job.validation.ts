@@ -169,3 +169,26 @@ export const searchJob = {
     page: Joi.number().integer(),
   }),
 }
+
+export const createCategory = {
+  body: Joi.object().keys({
+    name: Joi.string(),
+  }),
+}
+
+export const updateCategory = {
+  params: Joi.object().keys({
+    id: Joi.required().custom(objectId).required(),
+  }),
+  body: Joi.object()
+    .keys({
+      name: Joi.string(),
+    })
+    .min(1),
+}
+
+export const deleteCategory = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
+}

@@ -11,6 +11,7 @@ import Tables from 'pages/AdminPages/Tables'
 import SignUp from 'src/pages/AdminPages/SignUp'
 import Profile from 'src/pages/AdminPages/Profile'
 import SkillsTable from 'src/pages/AdminPages/Skills'
+import CategoriesTable from 'src/pages/AdminPages/Categories'
 
 function AdminRoutes() {
   return (
@@ -23,7 +24,7 @@ function AdminRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/users" element={<Tables />} />
           <Route path="/skills" element={<SkillsTable />} />
-          <Route path="/categories" element={<Tables />} />
+          <Route path="/categories" element={<CategoriesTable />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/rtl" element={<Rtl />} />
           <Route path="/profile" element={<Profile />} />

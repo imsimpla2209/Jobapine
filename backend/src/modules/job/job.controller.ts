@@ -149,3 +149,27 @@ export const getCategories = catchAsync(async (req: Request, res: Response) => {
   const result = await categoryService.getAll(options?.limit)
   res.send(result)
 })
+
+export const getAllCategories = catchAsync(async (req: Request, res: Response) => {
+  const result = await categoryService.getAllCategories()
+  res.send(result)
+})
+
+export const createCategory = catchAsync(async (req: Request, res: Response) => {
+  const skill = await categoryService.createCategory(req.body)
+  res.status(httpStatus.CREATED).send(skill)
+})
+
+export const updateCategory = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const skill = await categoryService.updateCategoryById(new mongoose.Types.ObjectId(req.params.id), req.body)
+    res.send(skill)
+  }
+})
+
+export const deleteCategory = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    await categoryService.deleteCategoryById(new mongoose.Types.ObjectId(req.params.id))
+    res.status(httpStatus.NO_CONTENT).send()
+  }
+})
