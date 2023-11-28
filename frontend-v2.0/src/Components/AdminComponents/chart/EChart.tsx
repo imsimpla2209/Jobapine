@@ -1,35 +1,36 @@
-import ReactApexChart from "react-apexcharts";
-import { Row, Col, Typography } from "antd";
-import eChart from "./configs/eChart";
+import ReactApexChart from 'react-apexcharts'
+import { Row, Col, Typography } from 'antd'
+import eChart from './configs/eChart'
+import { ApexOptions } from 'apexcharts'
 
 function EChart() {
-  const { Title, Paragraph } = Typography;
+  const { Title, Paragraph } = Typography
 
   const items = [
     {
-      Title: "3,6K",
-      user: "Users",
+      Title: '3,6K',
+      user: 'Users',
     },
     {
-      Title: "2m",
-      user: "Clicks",
+      Title: '2m',
+      user: 'Clicks',
     },
     {
-      Title: "$772",
-      user: "Sales",
+      Title: '$772',
+      user: 'Sales',
     },
     {
-      Title: "82",
-      user: "Items",
+      Title: '82',
+      user: 'Items',
     },
-  ];
+  ]
 
   return (
     <>
       <div id="chart">
         <ReactApexChart
           className="bar-chart"
-          options={eChart.options}
+          options={eChart.options as ApexOptions}
           series={eChart.series}
           type="bar"
           height={220}
@@ -41,8 +42,7 @@ function EChart() {
           than last week <span className="bnb2">+30%</span>
         </Paragraph>
         <Paragraph className="lastweek">
-          We have created multiple options for you to put together and customise
-          into pixel perfect pages.
+          We have created multiple options for you to put together and customise into pixel perfect pages.
         </Paragraph>
         <Row>
           {items.map((v, index) => (
@@ -56,7 +56,7 @@ function EChart() {
         </Row>
       </div>
     </>
-  );
+  )
 }
 
-export default EChart;
+export default EChart
