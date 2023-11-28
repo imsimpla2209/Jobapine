@@ -9,6 +9,7 @@ import { locationStore } from "src/Store/commom.store";
 import { useSubscription } from "src/libs/global-state-hook";
 import { useSocket } from "src/socket.io";
 import { ESocketEvent } from "src/utils/enum";
+import AdminRoutes from "src/Routes/AdminRoutes";
 
 export default function LayOut() {
   const { authenticated, loading, id } = useAuth();
@@ -44,15 +45,16 @@ export default function LayOut() {
 
   if (!loading) {
     if (authenticated) {
-      if (usrType === "Freelancer") {
-        return <FreelancerRoutes />
-      } else if (usrType === "Client") {
-        return <ClientRoutes />
-      } else {
-        return <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-          <Loader />
-        </div>
-      }
+      // if (usrType === "Freelancer") {
+      //   return <FreelancerRoutes />
+      // } else if (usrType === "Client") {
+      //   return <ClientRoutes />
+      // } else {
+      //   return <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+      //     <Loader />
+      //   </div>
+      // }
+      return <AdminRoutes />
     } else {
       return <BeforeLoginRoutes />
     }

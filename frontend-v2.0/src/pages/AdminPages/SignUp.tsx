@@ -1,14 +1,3 @@
-/*!
-=========================================================
-* Muse Ant Design Dashboard - v1.0.0
-=========================================================
-* Product Page: https://www.creative-tim.com/product/muse-ant-design-dashboard
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/muse-ant-design-dashboard/blob/main/LICENSE.md)
-* Coded by Creative Tim
-=========================================================
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import React, { Component } from "react";
 import {
   Layout,
@@ -20,9 +9,9 @@ import {
   Input,
   Checkbox,
 } from "antd";
-import logo1 from "../assets/images/logos-facebook.svg";
-import logo2 from "../assets/images/logo-apple.svg";
-import logo3 from "../assets/images/Google__G__Logo.svg.png";
+import logo1 from "pages/AdminPages/assets/images/logos-facebook.svg";
+import logo2 from "pages/AdminPages/assets/images/logo-apple.svg";
+import logo3 from "pages/AdminPages/assets/images/Google__G__Logo.svg.png";
 
 import { Link } from "react-router-dom";
 import {
@@ -114,8 +103,7 @@ const signin = [
     />
   </svg>,
 ];
-export default class SignUp extends Component {
-  render() {
+export default function SignUp() {
     const onFinish = (values) => {
       console.log("Success:", values);
     };
@@ -124,8 +112,7 @@ export default class SignUp extends Component {
       console.log("Failed:", errorInfo);
     };
     return (
-      <>
-        <div className="layout-default ant-layout layout-sign-up">
+      <div className="layout-default ant-layout layout-sign-up">
           <Header>
             <div className="header-col header-brand">
               <h5>Muse Dashboard</h5>
@@ -159,7 +146,7 @@ export default class SignUp extends Component {
               </Menu>
             </div>
             <div className="header-col header-btn">
-              <Button type="false">FREE DOWNLOAD</Button>
+              <Button>FREE DOWNLOAD</Button>
             </div>
           </Header>
 
@@ -177,16 +164,15 @@ export default class SignUp extends Component {
             <Card
               className="card-signup header-solid h-full ant-card pt-0"
               title={<h5>Register With</h5>}
-              bordered="false"
             >
               <div className="sign-up-gateways">
-                <Button type="false">
+                <Button>
                   <img src={logo1} alt="logo 1" />
                 </Button>
-                <Button type="false">
+                <Button>
                   <img src={logo2} alt="logo 2" />
                 </Button>
-                <Button type="false">
+                <Button>
                   <img src={logo3} alt="logo 3" />
                 </Button>
               </div>
@@ -285,13 +271,7 @@ export default class SignUp extends Component {
                 <Link to="#">{<GithubOutlined />}</Link>
               </Menu.Item>
             </Menu>
-            <p className="copyright">
-              {" "}
-              Copyright © 2021 Muse by <a href="#pablo">Creative Tim</a>.{" "}
-            </p>
           </Footer>
         </div>
-      </>
     );
   }
-}

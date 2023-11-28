@@ -26,6 +26,6 @@ router
   .patch(auth(), validate(jobValidation.updateJob), jobController.updateJob)
   .delete(auth(), validate(jobValidation.deleteJob), jobController.deleteJob)
 router.route('/status/:id').patch(auth(), validate(jobValidation.updateJobStatus), jobController.updateJobStatus)
-router.route('/admin/:id').delete(auth('manageUsers'), validate(jobValidation.deleteJob), jobController.forcedDeleteJob)
+router.route('/admin/:id').delete(auth(), validate(jobValidation.deleteJob), jobController.forcedDeleteJob)
 
 export default router

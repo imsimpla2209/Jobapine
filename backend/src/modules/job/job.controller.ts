@@ -57,7 +57,7 @@ export const getRcmdJobs = catchAsync(async (req: Request, res: Response) => {
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const freelancer = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req?.user?._id as string) })
   const result = await jobService.getRcmdJob(
-    new mongoose.Types.ObjectId(req.query.freelancerId as string),
+    req?.query?.freelancerId ? new mongoose.Types.ObjectId(req.query.freelancerId as string) : freelancer?._id,
     req.query.categories,
     req.query.skills,
     options,

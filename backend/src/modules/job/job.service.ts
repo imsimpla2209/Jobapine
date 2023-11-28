@@ -251,28 +251,34 @@ export const getRcmdJob = async (
     similarDocs = await updateSimilarById(freelancerId)
   }
 
-  let filterByFreelancer = []
-
-  if (freelancer) {
-    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
-    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
-    if (freelancer?.jobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
-    }
-    if (freelancer?.favoriteJobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
-    }
+  if (!options?.projectBy) {
+    options.projectBy = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
+      score_categories, nOEmployee, preferences, totalScore, score_title, score_description, score_skills, score_location`
   }
 
-  filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
+  if (!options?.populate) {
+    options.populate = 'client,categories,reqSkills.skill'
+  }
 
-  const categoryFilter = categories?.length ? { categories: { $in: categories || [] } } : {}
+  const projectFields = options.projectBy.split(',').reduce((acc, field) => {
+    acc[field.trim()] = 1
+    return acc
+  }, {})
 
-  const skillFilter = skills?.length ? { 'reqSkills.skill': { $in: skills || [] } } : {}
+  const populateFields = options?.populate?.split(',').map(field => {
+    if (field.trim() === 'client') {
+      return {
+        path: field.trim(),
+        match: { isDeleted: { $ne: true } },
+        select: 'rating spent paymentVerified name user preferLocations',
+      }
+    }
+    return { path: field.trim() }
+  })
 
-  const filter = {
-    $and: [
-      {
+  const filterByFreelancer: any = [
+    {
+      $match: {
         $or: [
           { title: { $regex: `${similarDocs?.similarKeys}`, $options: 'si' } },
           { description: { $regex: `${similarDocs?.similarKeys}`, $options: 'si' } },
@@ -282,23 +288,81 @@ export const getRcmdJob = async (
           { 'preferences.locations': { $in: similarDocs?.similarLocations || [] } },
         ],
       },
-      ...filterByFreelancer,
-      { isDeleted: { $ne: true } },
-      categoryFilter,
-      skillFilter,
-      { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
-    ],
-  }
-  options.sortBy = 'updatedAt:desc'
+    },
+    {
+      $match: {
+        $and: [
+          { appliedFreelancers: { $nin: [freelancer?._id] } },
+          { blockFreelancers: { $nin: [freelancer?._id] } },
+          { _id: { $nin: freelancer?.jobs || [] } },
+          { _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) || [] } },
+        ],
+      },
+    },
+    {
+      $match: {
+        $and: [
+          { isDeleted: { $ne: true } },
+          { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
+          categories?.length ? { categories: { $in: categories || [] } } : {},
+          skills?.length ? { 'reqSkills.skill': { $in: skills || [] } } : {},
+        ],
+      },
+    },
 
-  options.populate = 'client,categories,reqSkills.skill'
-  if (!options.projectBy) {
-    options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+    {
+      $addFields: {
+        score_title: {
+          $cond: [{ $regexMatch: { input: '$title', regex: similarDocs?.similarKeys, options: 'si' } }, 1, 0],
+        },
+        score_description: {
+          $cond: [{ $regexMatch: { input: '$description', regex: similarDocs?.similarKeys, options: 'si' } }, 1, 0],
+        },
+        score_categories: { $size: { $ifNull: ['$categories', []] } },
+        score_skills: { $size: { $ifNull: ['$reqSkills.skill', []] } },
+        score_tags: { $size: { $ifNull: ['$tags', []] } },
+        score_locations: { $size: { $ifNull: ['$preferences.locations', []] } },
+
+        // Add more score fields for other conditions
+      },
+    },
+    {
+      $addFields: {
+        totalScore: {
+          $add: ['$score_title', '$score_description', '$score_categories', '$score_skills', '$score_locations'],
+        },
+      },
+    },
+    { $project: projectFields },
+
+    { $sort: { totalScore: -1 as any } },
+  ]
+
+  const sortOptions = {}
+  const [sortField, sortOrder] = options?.sortBy ? options.sortBy.split(':') : 'totalScore:desc'.split(':')
+  sortOptions[sortField] = sortOrder === 'desc' ? -1 : 1
+
+  filterByFreelancer.push({ $sort: sortOptions })
+
+  const skip = ((options?.page || 1) - 1) * (options?.limit || 10)
+  filterByFreelancer.push({ $skip: skip })
+  filterByFreelancer.push({ $limit: options?.limit || 10 })
+
+  const jobs = await Job.aggregate(filterByFreelancer)
+
+  const fullfillJobs = await Job.populate(jobs, populateFields)
+
+  const totalResults = await Job.countDocuments({ isDeleted: { $ne: true } })
+
+  const queryReSults: QueryResult = {
+    results: fullfillJobs,
+    totalResults,
+    totalPages: Math.ceil(totalResults / (options?.limit || 10)),
+    limit: options?.limit || 10,
+    page: options?.page || 1,
   }
 
-  const jobs = await Job.paginate(filter, options)
-  return jobs
+  return queryReSults
 }
 
 /**
