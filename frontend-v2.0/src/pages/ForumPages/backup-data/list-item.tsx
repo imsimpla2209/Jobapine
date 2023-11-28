@@ -5,6 +5,8 @@ import { format } from 'date-fns'
 import { useState } from 'react'
 import styled from 'styled-components'
 
+const SPLIT_BACKUP_VERSION = 'jobsicker-version-'
+
 const ConfirmModal = ({ open, onClose, handleRestore }) => (
   <Modal
     open={open}
@@ -31,13 +33,14 @@ export default function ListDBItem({
   const [loading, setLoading] = useState(false)
 
   const formatTime = (time: string) => {
+    if (!time) return ''
     return format(new Date(Number(time)), 'H:mm, MMM d, yyyy')
   }
   const handleDeleteDBVersionHistory = async () => {
     setLoading(true)
     await Http.post('/api/v1/backup/drop', { name: db.name })
       .then(res => {
-        message.success(`Version history at ${formatTime(db.name.split('COMP-1640-version-')?.[1])} deleted!`)
+        message.success(`Version history at ${formatTime(db.name.split(SPLIT_BACKUP_VERSION)?.[1])} deleted!`)
         setListDB(database => database.filter(item => item.name !== db.name))
       })
       .catch(error => {
@@ -53,7 +56,7 @@ export default function ListDBItem({
     await Http.post('/api/v1/backup/restore', { name: db.name })
       .then(res => {
         message.success(
-          `Restore version history at ${formatTime(db.name.split('COMP-1640-version-')?.[1])} successfully!`
+          `Restore version history at ${formatTime(db.name.split(SPLIT_BACKUP_VERSION)?.[1])} successfully!`
         )
       })
       .catch(error => {
@@ -68,7 +71,7 @@ export default function ListDBItem({
     <>
       <ListItem onClick={() => !loading && setOpenConfirmModal(true)}>
         <div style={{ justifyContent: 'space-between', alignItems: 'center' }} className="d-flex">
-          <p> Version at {formatTime(db.name.split('COMP-1640-version-')?.[1])}</p>
+          <p> Version at {formatTime(db.name.split(SPLIT_BACKUP_VERSION)?.[1])}</p>
           <Button
             loading={loading || (loadingRestore && restoringVersion === db.name)}
             type="text"

@@ -5,9 +5,9 @@
 /* eslint-disable import/prefer-default-export */
 import config from '@config/config'
 import { auth } from '@modules/auth'
+import { startBackup } from '@modules/forum/utils/backup'
+import { Connect, Process } from '@modules/forum/utils/mongodb'
 import express from 'express'
-import { startBackup } from '../utils/backup'
-import { Connect, Process } from '../utils/mongodb'
 import { getProjectStats, getUserSignUpStats } from '../controllers/dashboard.controller'
 
 export const adminRouter = express.Router()
@@ -105,11 +105,12 @@ adminRouter.post('/drop', auth(), async (req, res) => {
   }
 })
 
-adminRouter.get('/all', auth(), async (req, res) => {
+adminRouter.get('/all-backup', auth(), async (req, res) => {
   try {
     const slave = await Connect(config.mongoose.slave)
 
     const listDatabases = await slave.db('backup').admin().listDatabases()
+    console.log('😘', listDatabases)
     const listBackups = listDatabases.databases
       .filter(db => db.name.includes('jobsicker-version'))
       .sort((a, b) => Number(b.name.split('jobsicker-version-')?.[1]) - Number(a.name.split('jobsicker-version-')?.[1]))

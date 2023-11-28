@@ -59,7 +59,7 @@ const config = {
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
     slave: `${envVars.MONGODB_URL}backup`,
-    slaveName: `backup`,
+    slaveName: `backup-jobsicker-version-${new Date().getTime()}`,
     options: {
       useCreateIndex: true,
       useNewUrlParser: true,
