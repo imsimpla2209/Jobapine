@@ -1,10 +1,11 @@
+import { BlueColorButton } from 'Components/CommonComponents/custom-style-elements/button'
+import RubikLoader from 'Components/CommonComponents/loader/rubik-loader'
 import { Card, List, Progress, Result, Space, Typography, message } from 'antd'
 import { useEffect, useState } from 'react'
-import ListDBItem from './list-item'
-import { BlueColorButton } from 'Components/CommonComponents/custom-style-elements/button'
-import { Http } from 'api/http'
+import { getBackupData, startBackupData } from 'src/api/admin-apis'
 import { useSocket } from 'src/socket.io'
-import RubikLoader from 'Components/CommonComponents/loader/rubik-loader'
+import ListDBItem from './list-item'
+import { ESocketEvent } from 'src/utils/enum'
 
 const { Text, Title } = Typography
 
@@ -20,11 +21,11 @@ export default function BackupDataManager() {
   const [loadingRestore, setLoadingRestore] = useState(false)
   const [restoringVersion, setRestoringVersion] = useState('')
 
-  const backupData = async () => {
+  const handlBbackupData = async () => {
     setFailToBackUp(false)
     setLoading(true)
     setPercents(0)
-    await Http.get('/api/v1/backup')
+    await startBackupData()
       .catch(error => {
         message.error('Failed to backup data!')
         setLoading(false)
@@ -39,7 +40,7 @@ export default function BackupDataManager() {
 
   const getAllBackups = async () => {
     setLoadingListDB(true)
-    await Http.get('/api/v1/backup/all')
+    await getBackupData()
       .then(res => setListDB(res.data.data))
       .catch(error => {
         message.error('Failed to get backup data!')
@@ -54,9 +55,9 @@ export default function BackupDataManager() {
   }, [loading])
 
   useEffect(() => {
-    appSocket.on('backup', backupProcessing)
+    appSocket.on(ESocketEvent.BACKUP_DATA, backupProcessing)
     return () => {
-      appSocket.off('backup', backupProcessing)
+      appSocket.off(ESocketEvent.BACKUP_DATA, backupProcessing)
     }
   }, [backupProcessing])
 
@@ -70,13 +71,14 @@ export default function BackupDataManager() {
 
   return (
     <Space direction="vertical" style={{ padding: 20 }} className="w-100">
-      <Title style={{ margin: 0, marginBottom: 20 }}>Backup data feature!</Title>
-      {!loadingRestore && (
-        <BlueColorButton loading={loading} onClick={backupData} disabled={loading}>
-          Start backup data
-        </BlueColorButton>
-      )}
-
+      <Space direction="horizontal" align="center" style={{ justifyContent: 'space-between', width: '100%' }}>
+        <Title style={{ margin: 0 }}>Backup data feature!</Title>
+        {!loadingRestore && (
+          <BlueColorButton loading={loading} onClick={handlBbackupData} disabled={loading}>
+            Start backup data
+          </BlueColorButton>
+        )}
+      </Space>
       {loadingRestore && (
         <>
           <RubikLoader />

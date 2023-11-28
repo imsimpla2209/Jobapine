@@ -2,7 +2,10 @@ import './style.css'
 
 export default function RubikLoader() {
   return (
-    <div className="container w-100 center" style={{ height: 360 }}>
+    <div
+      className="container w-100 center"
+      style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
       <div className="h1Container">
         <div className="cube h1 w1 l1">
           <div className="face top"></div>

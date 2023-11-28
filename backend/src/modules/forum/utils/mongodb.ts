@@ -6,6 +6,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import { io } from '@core/libs/SocketIO'
+import { ESocketEvent } from 'common/enums'
 
 /* eslint-disable no-await-in-loop */
 const { MongoClient, Db } = require('mongodb')
@@ -60,7 +61,7 @@ async function Process(db1, db2) {
     console.clear()
     console.log(`Copy collection ${collections[i]} done...`)
 
-    io.emit('backup', { total: totalCollections, progress: i + 1 })
+    io.io.emit(ESocketEvent.BACKUP_DATA, { total: totalCollections, progress: i + 1 })
   }
   return total
 }
