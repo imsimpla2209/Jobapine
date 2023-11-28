@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import CreateProfileAside from 'src/Components/FreelancerComponents/CreateProfileAside';
 import { freelancerStore, userStore } from 'src/Store/user.store';
 import { createSubscription, useSubscription } from 'src/libs/global-state-hook';
@@ -42,6 +43,9 @@ export const profileFreelancerData = createSubscription<IFreelancer>({} as IFree
 export const userData = createSubscription<IUser>({} as IUser);
 
 export default function CreateProfile() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const isReview = searchParams.get('isReview')
+
   const profileStep = useSubscription(profileStepStore).state;
   const profilesetStep = useSubscription(profileStepStore).setState;
   const setState = useSubscription(profileFreelancerData).setState;
@@ -53,13 +57,16 @@ export default function CreateProfile() {
   const [Component, setComponent] = useState<React.ComponentType | null>(null);
 
   useEffect(() => {
+    if (isReview) {
+      profilesetStep({ step: EStep.SUBMIT })
+    }
     console.log('current profile', currentFreelancerData)
     setState(currentFreelancerData)
     setStateUser(currentUserData)
-  }, [currentFreelancerData?._id, currentUserData?._id])
+  }, [currentFreelancerData?._id, currentUserData?._id, isReview])
 
   useEffect(() => {
-		console.log(profileStep.step)
+    console.log(profileStep.step)
     const loadComponent = async () => {
       const dynamicComponent = await DynamicComponent();
       setComponent(() => dynamicComponent.default);
@@ -78,7 +85,7 @@ export default function CreateProfile() {
             </div>
           }
           <div className={profileStep.step === EStep.SUBMIT ? "col-lg-12" : "col-lg-9"}>
-            {Component && <Component/>}
+            {Component && <Component />}
           </div>
         </div>
       </div>

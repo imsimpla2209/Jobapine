@@ -11,14 +11,18 @@ export default function CreateProfileEducationAndEmployment() {
   const { t } = useTranslation(['main']);
 
   const [user, setuser] = useState({
-    education: { school: "", areaOfStudy: "", degree: "", gradYear: "" },
-    job: [{ jobName: "", jobTitle: "", stillWork: false }],
+    education: { 
+      school: state?.education?.school || "", 
+      areaOfStudy: state?.education?.areaOfStudy || "", 
+      degree: state?.education?.degree || "", 
+      gradYear: state?.education?.gradYear || "" },
+    job: [{ jobName: state?.historyWork[0]?.jobName || "", jobTitle: state?.historyWork[0]?.jobTitle || "", stillWork: state?.historyWork[0]?.stillWork || false }],
     profileCompletion: 40,
   });
 
   const getUserData = (e) => {
-    const val = e.target.value;
-    const name = e.target.name;
+    const val = e?.target?.value;
+    const name = e?.target?.name;
     switch (name) {
       case "school":
         setuser({ ...user, education: { ...user.education, school: val } });

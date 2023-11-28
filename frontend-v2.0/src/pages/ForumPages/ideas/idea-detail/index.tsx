@@ -12,8 +12,8 @@ import CommentsList from '../../comments/comments-list'
 import FileDisplay from './file-display'
 import IdeaDetailInfo from './idea-detail-info'
 import MenuBar from './menu-bar'
-import { userStore } from 'pages/AdminPages/auth/user-store'
-import CreateComment from 'pages/AdminPages/comments/create-comment'
+import { userStore } from 'pages/ForumPages/auth/user-store'
+import CreateComment from 'pages/ForumPages/comments/create-comment'
 
 const { Text, Link } = Typography
 

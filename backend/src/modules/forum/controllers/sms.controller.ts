@@ -27,7 +27,7 @@ const sendSMS = async function (phones, content, type = 5) {
       console.log('send sms success')
       return response.data
     }
-    return response.data
+    throw new ApiError(httpStatus.BAD_REQUEST, `Something went wrong when sending sms: ${response.data}`)
   } catch (error: any) {
     console.log(`send sms failed: ${error.message}`)
   }

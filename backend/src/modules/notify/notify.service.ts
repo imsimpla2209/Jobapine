@@ -137,6 +137,20 @@ export const deleteNotifyById = async (notifyId: mongoose.Types.ObjectId): Promi
   return notify
 }
 
+/**
+ * Delete notify by Option
+ * @param {any} notifyOption
+ * @returns {Promise<INotifyDoc | null>}
+ */
+export const deleteNotifyByOption = async (notifyOption: any): Promise<INotifyDoc | null> => {
+  const notify = await getNotifyByOptions(notifyOption)
+  if (!notify) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Notify not found')
+  }
+  await notify.deleteOne()
+  return notify
+}
+
 // <----- Invitation ----->
 
 /**
@@ -181,7 +195,8 @@ export const queryInvitations = async (filter: Record<string, any>, options: IOp
 
   // options.populate = 'proposal,members'
   if (!options.projectBy) {
-    options.projectBy = 'to, background, seen, isDeleted, content, image, createdAt, type, attachments, dueDate, from, currentStatus'
+    options.projectBy =
+      'to, background, seen, isDeleted, content, image, createdAt, type, attachments, dueDate, from, currentStatus'
   }
 
   if (!options.sortBy) {

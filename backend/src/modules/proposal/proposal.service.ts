@@ -2,9 +2,9 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { deleteContractByOptions } from '@modules/contract/contract.service'
 import { addProposaltoFreelancerById, getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
-import { addApplytoJobById, addProposaltoJobById, isJobOpened } from '@modules/job/job.service'
+import { addApplytoJobById, addProposaltoJobById, getJobById, isJobOpened } from '@modules/job/job.service'
 import { Message } from '@modules/message'
-import { createNotify } from '@modules/notify/notify.service'
+import { createNotify, deleteNotifyByOption } from '@modules/notify/notify.service'
 import { updateSickPointsById } from '@modules/user/user.service'
 import { EStatus } from 'common/enums'
 import { FEMessage, FERoutes } from 'common/enums/constant'
@@ -33,9 +33,6 @@ export const createProposal = async (
   let newProposal: any
   try {
     updateSickPointsById(userId, 2 + (proposalBody?.priority || 0) * 2, true)
-    // if (await Proposal.isUserSigned(proposalBody.user)) {
-    //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Proposal')
-    // }
     newProposal = await Proposal.create(proposalBody)
     const jobInfo = await addProposaltoJobById(proposalBody.job, newProposal._id)
     await addProposaltoFreelancerById(proposalBody.freelancer, newProposal._id)
@@ -44,7 +41,8 @@ export const createProposal = async (
     createNotify({
       to: jobInfo?.client?.user,
       path: FERoutes.allProposals + (jobInfo?._id || ''),
-      content: FEMessage().createProposal,
+      attachedId: newProposal?._id,
+      content: FEMessage(jobInfo?.title).createProposal,
     })
     return newProposal
   } catch (err: any) {
@@ -63,7 +61,7 @@ export const createProposal = async (
 export const queryProposals = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
   const freelancerFilter = filter['freelancer'] ? { freelancer: filter['freelancer'] || '' } : {}
   const jobFilter = filter['job'] ? { job: filter['job'] || '' } : {}
-  const statusFilter = filter['status.status'] ? { 'status.status': filter['status.status'] || '' } : {}
+  const statusFilter = filter['currentStatus'] ? { currentStatus: filter['currentStatus'] || '' } : {}
 
   const queryFilter = {
     $and: [freelancerFilter, jobFilter, statusFilter],
@@ -71,12 +69,12 @@ export const queryProposals = async (filter: Record<string, any>, options: IOpti
 
   if (!options.projectBy) {
     options.projectBy =
-      'job, freelancer, expectedAmount, description, status, clientComment, freelancerComment, createdAt, attachments, contract, messages, answers, priority, currentStatus,  msgRequestSent '
+      'job, freelancer, expectedAmount, description, status, clientComment, freelancerComment, createdAt, updatedAt, attachments, contract, messages, answers, priority, currentStatus,  msgRequestSent '
   }
-  options.populate = 'job'
+  options.populate = 'job.client'
 
   if (!options.sortBy) {
-    options.sortBy = 'createdAt:desc'
+    options.sortBy = 'updatedAt:desc'
   }
   const proposals = await Proposal.paginate(queryFilter, options)
   return proposals
@@ -176,6 +174,42 @@ export const updateProposalStatusById = async (
     },
   })
   await proposal.save()
+  return proposal
+}
+
+/**
+ * withdraw proposal by id
+ * @param {mongoose.Types.ObjectId} proposalId
+ * @param {mongoose.Types.ObjectId} freelancerId
+ * @returns {Promise<IProposalDoc | null>}
+ */
+export const withdrawProposalById = async (
+  proposalId: mongoose.Types.ObjectId,
+  freelancerId: mongoose.Types.ObjectId
+): Promise<IProposalDoc | null> => {
+  const proposal = await getProposalByOptions({ _id: proposalId, freelancer: freelancerId })
+  if (!proposal) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
+  }
+
+  const job = await getJobById(proposal?.job?._id)
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Proposal`s Job not found')
+  }
+
+  job.proposals = job.proposals.filter(p => p._id !== proposal._id)
+
+  Object.assign(proposal, {
+    status: {
+      status: EStatus.ARCHIVE,
+      comment: 'Withdraw by Freelancer',
+      date: new Date(),
+    },
+  })
+
+  await proposal.save()
+  await deleteNotifyByOption({ attachedId: proposal?._id?.toString() })
+  await job.save()
   return proposal
 }
 

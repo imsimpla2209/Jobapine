@@ -19,6 +19,7 @@ export interface IProposal {
 
 export interface IProposalQuery extends filterFreelancersQuery{
   freelancer?: string
+  currentStatus?: EStatus
   job?: string,
   _id?: string,
   'status.status'?: EStatus,

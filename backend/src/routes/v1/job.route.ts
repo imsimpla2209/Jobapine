@@ -14,11 +14,11 @@ router
 router.route('/all').get(jobController.getAllJobs)
 router.route('/filter').post(validate(jobValidation.advancedGetJobs), jobController.getAdvancedJobs)
 router.route('/search').get(validate(jobValidation.searchJob), jobController.searchJobs)
-router.route('/rcmd').get(validate(jobValidation.getRcmdJob), jobController.getRcmdJobs)
 router.route('/fav').get(validate(jobValidation.getRcmdJob), jobController.getFavJobsByUser)
 router.route('/similar').get(validate(jobValidation.getSimilarJobs), jobController.getSimilarJobs)
 router.route('/categories').get(validate(jobValidation.getSimilarJobs), jobController.getCategories)
 router.route('/skills').get(validate(jobValidation.getSimilarJobs), getSkills)
+router.route('/rcmd').get(auth(), validate(jobValidation.getRcmdJob), jobController.getRcmdJobs)
 
 router
   .route('/:id')

@@ -83,6 +83,28 @@ export const updateFreelancer = catchAsync(async (req: Request, res: Response) =
   }
 })
 
+export const updateSimilarById = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const newSimilarDoc = await freelancerService.updateSimilarById(freelancer?._id)
+  res.send(newSimilarDoc)
+})
+
+export const createProfile = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const updatedFreelancer = await freelancerService.createFreelancerProfileById(
+    new mongoose.Types.ObjectId(freelancer?._id),
+    req.body
+  )
+  freelancerService.updateSimilarById(updatedFreelancer?._id)
+  res.send(updatedFreelancer)
+})
+
 export const forceDeleteFreelancer = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
     await freelancerService.deleteFreelancerById(new mongoose.Types.ObjectId(req.params.id))

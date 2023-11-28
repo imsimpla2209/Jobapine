@@ -3,7 +3,7 @@ import { AutoComplete, message } from 'antd'
 import type { SelectProps } from 'antd/es/select'
 import { Http } from 'api/http'
 import useRoleNavigate from 'libs/use-role-navigate'
-import { ideaCount } from 'pages/AdminPages/layout/header'
+import { ideaCount } from 'pages/ForumPages/layout/header'
 import { useEffect, useState } from 'react'
 import { useSocket } from 'socket.io'
 

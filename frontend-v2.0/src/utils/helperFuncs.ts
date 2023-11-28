@@ -60,7 +60,7 @@ export const fetchPresignedUrl = async (url: any, file: any) => {
     // const sigedUrl = `https://api.cloudinary.com/v1_1/${uploadConfig?.cloudName}/image/upload?api_key=${uploadConfig?.apiKey}&timestamp=${uploadConfig?.timestamp}&signature=${uploadConfig?.signature}`
     const sigedUrl = `https://api.cloudinary.com/v1_1/${uploadConfig?.cloudName}/upload`
     const formData = new FormData()
-    formData.append('file', URL.createObjectURL(file))
+    formData.append('file', file)
     formData.append('signature', uploadConfig?.signature)
     formData.append('timestamp', uploadConfig?.timestamp)
     formData.append('api_key', uploadConfig?.apiKey)

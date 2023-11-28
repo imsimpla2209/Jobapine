@@ -4,6 +4,7 @@
 
 import queryGen from '@core/libs/queryGennerator'
 import { getClientById, getClientByOptions } from '@modules/client/client.service'
+import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
 import { getFreelancerById, getSimilarByFreelancerId, updateSimilarById } from '@modules/freelancer/freelancer.service'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
 import { deleteProposalByOptions } from '@modules/proposal/proposal.service'
@@ -38,17 +39,38 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
  * @param {Object} options - Query options
  * @returns {Promise<QueryResult>}
  */
-export const queryJobs = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
+export const queryJobs = async (
+  filter: Record<string, any>,
+  options: IOptions,
+  freelancer?: IFreelancerDoc | null
+): Promise<QueryResult> => {
   const categoryFilter = filter['categories']?.length ? { categories: { $in: filter['categories'] || [] } } : {}
 
   const skillFilter = filter['skills']?.length ? { 'reqSkills.skill': { $in: filter['skills'] || [] } } : {}
 
   const clientFilter = filter['client'] ? { client: filter['client'] || '' } : {}
+
+  let filterByFreelancer = []
+
+  if (freelancer) {
+    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
+    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
+    if (freelancer?.jobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
+    }
+    if (freelancer?.favoriteJobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
+    }
+  }
+
+  filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
+
   const queryFilter = {
     $and: [
       clientFilter,
       categoryFilter,
       skillFilter,
+      ...filterByFreelancer,
       { isDeleted: { $ne: true } },
       { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
     ],
@@ -73,7 +95,8 @@ export const queryJobs = async (filter: Record<string, any>, options: IOptions):
 export const queryAdvancedJobs = async (
   filter?: Record<string, any>,
   options?: IOptions,
-  searchText?: string
+  searchText?: string,
+  freelancer?: IFreelancerDoc | null
 ): Promise<QueryResult> => {
   filter['title'] && (filter['title'] = { $search: `${filter['title']}`, $diacriticSensitive: true })
   filter['description'] && (filter['description'] = { $regex: `${filter['description']}`, $options: 'i' })
@@ -107,6 +130,22 @@ export const queryAdvancedJobs = async (
     (filter['nOEmployee'] = {
       'preferences.nOEmployee': queryGen.numRanges(filter['nOEmployee'] === 1 ? 0 : 2, filter['nOEmployee']),
     })
+
+  let filterByFreelancer = []
+
+  if (freelancer) {
+    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
+    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
+    if (freelancer?.jobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
+    }
+    if (freelancer?.favoriteJobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
+    }
+  }
+
+  filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
+
   const filterExtract = Object.keys(filter).map(f => filter[f])
   const queryFilter = {
     $and: [
@@ -117,6 +156,7 @@ export const queryAdvancedJobs = async (
           { description: { $regex: `${searchText}`, $options: 'i' } },
         ],
       },
+      ...filterByFreelancer,
       ...filterExtract,
       { isDeleted: { $ne: true } },
     ],
@@ -139,10 +179,29 @@ export const queryAdvancedJobs = async (
  * @param {Object} options
  * @returns {Promise<QueryResult>}
  */
-export const searchJobsByText = async (searchText: string, options: IOptions): Promise<QueryResult> => {
+export const searchJobsByText = async (
+  searchText: string,
+  options: IOptions,
+  freelancer?: IFreelancerDoc | null
+): Promise<QueryResult> => {
   const foundCats = await JobCategory.find({ name: { $regex: searchText, $options: 'i' } })
   const foundSkills = await Skill.find({ name: { $regex: searchText, $options: 'i' } })
   const foundTags = await JobTag.find({ name: { $regex: searchText, $options: 'i' } })
+
+  let filterByFreelancer = []
+
+  if (freelancer) {
+    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
+    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
+    if (freelancer?.jobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
+    }
+    if (freelancer?.favoriteJobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
+    }
+  }
+
+  filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
 
   const filter = {
     $and: [
@@ -155,6 +214,7 @@ export const searchJobsByText = async (searchText: string, options: IOptions): P
           { tags: { $in: foundTags || [] } },
         ],
       },
+      ...filterByFreelancer,
       { isDeleted: { $ne: true } },
       { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
     ],
@@ -176,18 +236,35 @@ export const searchJobsByText = async (searchText: string, options: IOptions): P
  * @param {string} freelancerId
  * @param {any} filter,
  * @param {Object} options
+ * @param {IFreelancerDoc} freelancer
  * @returns {Promise<QueryResult>}
  */
 export const getRcmdJob = async (
   freelancerId: mongoose.Types.ObjectId,
   categories: any,
   skills: any,
-  options: IOptions
+  options: IOptions,
+  freelancer?: IFreelancerDoc | null
 ): Promise<QueryResult> => {
   let similarDocs = await getSimilarByFreelancerId(freelancerId)
   if (!similarDocs) {
     similarDocs = await updateSimilarById(freelancerId)
   }
+
+  let filterByFreelancer = []
+
+  if (freelancer) {
+    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
+    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
+    if (freelancer?.jobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
+    }
+    if (freelancer?.favoriteJobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
+    }
+  }
+
+  filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
 
   const categoryFilter = categories?.length ? { categories: { $in: categories || [] } } : {}
 
@@ -205,6 +282,7 @@ export const getRcmdJob = async (
           { 'preferences.locations': { $in: similarDocs?.similarLocations || [] } },
         ],
       },
+      ...filterByFreelancer,
       { isDeleted: { $ne: true } },
       categoryFilter,
       skillFilter,
@@ -312,12 +390,31 @@ export const getJobsByOptions = async (Options: any): Promise<IJobDoc[] | null> 
  * @param {Object} options
  * @returns {Promise<QueryResult>}
  */
-export const getSimilarJobs = async (jobId: mongoose.Types.ObjectId, options: IOptions): Promise<QueryResult> => {
+export const getSimilarJobs = async (
+  jobId: mongoose.Types.ObjectId,
+  options: IOptions,
+  freelancer?: IFreelancerDoc | null
+): Promise<QueryResult> => {
   const job = await Job.findById(jobId).lean()
 
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not found job')
   }
+
+  let filterByFreelancer = []
+
+  if (freelancer) {
+    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
+    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
+    if (freelancer?.jobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
+    }
+    if (freelancer?.favoriteJobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
+    }
+  }
+
+  filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
 
   let keyWords
 
@@ -333,17 +430,20 @@ export const getSimilarJobs = async (jobId: mongoose.Types.ObjectId, options: IO
         remove_duplicates: true,
       }
     )
-
-    keyWords = keyWords.map(k => `.*${k}.*`).join('|')
-    keyWords = new RegExp(keyWords, 'i')
   }
+
+  const regexPattern = keyWords
+    ?.map(char => `${char}[a-z]*`) // Mỗi ký tự được thay thế bằng ký tự đó và zero hoặc nhiều ký tự chữ cái sau đó
+    .join('\\s*') // Nối các từ lại với nhau, cho phép khoảng trắng giữa các từ
+
+  const similarRegex = new RegExp(regexPattern, 'gi')
 
   const filter = {
     $and: [
       {
         $or: [
-          { title: { $regex: `${keyWords}`, $options: 'si' } },
-          { description: { $regex: `${keyWords}`, $options: 'si' } },
+          { title: { $regex: `${similarRegex}`, $options: 'si' } },
+          { description: { $regex: `${similarRegex}`, $options: 'si' } },
           { categories: { $in: job?.categories || [] } },
           { 'reqSkills.skill': { $in: job?.reqSkills?.map(s => s.skill) || [] } },
           { tags: { $in: job?.tags || [] } },
@@ -360,6 +460,7 @@ export const getSimilarJobs = async (jobId: mongoose.Types.ObjectId, options: IO
           },
         ],
       },
+      ...filterByFreelancer,
       { isDeleted: { $ne: true } },
       { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
     ],

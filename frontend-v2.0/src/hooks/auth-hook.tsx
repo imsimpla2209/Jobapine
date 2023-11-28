@@ -2,7 +2,7 @@
 import { Http, LOCALSTORAGE } from '../api/http'
 import { useState, useCallback, useEffect } from 'react'
 import jwt_decode from 'jwt-decode'
-import { userStore } from 'pages/AdminPages/auth/user-store'
+import { userStore } from 'pages/ForumPages/auth/user-store'
 
 let logoutTimer
 

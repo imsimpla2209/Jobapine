@@ -9,8 +9,8 @@ export const FERoutes = {
 export const FEMessage = (extra?: any) => {
   return {
     createProposal: {
-      name: 'Your Posted got a new proposal',
-      name_vi: 'Công việc của bạn vừa nhận được 1 proposal mới',
+      name: `Your Posted got a new proposal for the job: ${extra}`,
+      name_vi: `Công việc của bạn vừa nhận được 1 proposal mới tới công việc: ${extra}`,
     },
     acceptRequest: {
       name: 'Your Request Message has been accepted',

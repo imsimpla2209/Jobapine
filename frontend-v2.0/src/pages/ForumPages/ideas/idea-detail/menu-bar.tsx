@@ -15,7 +15,7 @@ import useWindowSize from 'utils/useWindowSize'
 import { disLikeHandler, handleDownloadFiles, likeHandler, omitHandler } from './idea-detail-service'
 import PointInfoModal from './points-info-modal'
 import { useSocket } from 'socket.io'
-import { userStore } from 'pages/AdminPages/auth/user-store'
+import { userStore } from 'pages/ForumPages/auth/user-store'
 
 let reactionTimeOut = null
 

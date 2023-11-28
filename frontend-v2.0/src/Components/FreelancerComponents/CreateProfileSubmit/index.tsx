@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Space } from "antd";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { locationStore } from "src/Store/commom.store";
 import { useSubscription } from "src/libs/global-state-hook";
 import { EStep, profileFreelancerData, profileStepStore, userData } from "src/pages/FreelancerPages/CreateProfile";
@@ -9,23 +9,28 @@ import { EComplexityGet } from "src/utils/enum";
 import { currencyFormatter, fetchAllToCL } from "src/utils/helperFuncs";
 import img from "../../../assets/svg/createProfileSubmit.svg";
 import { userStore } from "src/Store/user.store";
-import { updateUser } from "src/api/user-apis";
+import { switchToFreelancer, updateUser } from "src/api/user-apis";
 import { useState } from "react";
-import { updateFreelancer } from "src/api/freelancer-apis";
+import { updateFreelancer, updateProfileFreelancer } from "src/api/freelancer-apis";
 import toast from "react-hot-toast";
+import { cloneDeep } from "lodash";
+import { getMe } from "src/api/auth-apis";
 
 
 
 export default function CreateProfileSubmit() {
-  const { i18n, t } = useTranslation(['main']);
-  let lang = i18n.language;
-  const { setState, state } = useSubscription(profileFreelancerData);
+  const { t } = useTranslation(['main']);
+  const { state } = useSubscription(profileFreelancerData);
   const userProfile = useSubscription(userData).state;
   const { setState: setUser, state: user } = useSubscription(userStore);
+  const { setState: setFreelancer } = useSubscription(userStore);
   const locations = useSubscription(locationStore).state;
   const profileStep = useSubscription(profileStepStore).setState
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
+  const [searchParams, setSearchParams] = useSearchParams()
+  const isReview = searchParams.get('isReview')
 
   const submitProfile = async () => {
     setLoading(true)
@@ -38,12 +43,27 @@ export default function CreateProfileSubmit() {
       await updateUser({ avatar, phone: userProfile.phone }, user?.id).then(() => {
 
       })
+      let skillList = cloneDeep(state?.skills)
 
-      await updateFreelancer({
+      if (state?.skills[0]?.skill?._id) {
+        skillList = state.skills.map((s: any) => {
+          return { skill: s?.skill?._id, level: s.level }
+        })
+      }
+
+      let catList = cloneDeep(state?.preferJobType)
+
+      if (state?.preferJobType[0]?._id) {
+        catList = state.skills.map((s: any) => {
+          return s?._id
+        })
+      }
+
+      await updateProfileFreelancer({
         title: state?.title
         , intro: state?.intro
-        , skills: state?.skills
-        , preferJobType: state?.preferJobType
+        , skills: skillList
+        , preferJobType: catList
         , currentLocations: state?.currentLocations
         , available: state?.available
         , expertiseLevel: Number(state?.expertiseLevel)
@@ -51,15 +71,29 @@ export default function CreateProfileSubmit() {
         , historyWork: state?.historyWork
         , englishProficiency: state?.englishProficiency
         , otherLanguages: state?.otherLanguages
-        , profileCompletion: state?.profileCompletion
+        // , profileCompletion: state?.profileCompletion
         , expectedAmount: state?.expectedAmount
         , expectedPaymentType: state?.expectedPaymentType
-      }, state?._id)
+      })
+
+      toast.success(`Profile updated successfully/ It will navigate you back to homepage in 2 seconds 😉`);
+      switchToFreelancer().then((res) => {
+        setFreelancer(res?.data)
+      })
+      getMe().then((res) => {
+        setUser(res?.data)
+      })
+      setTimeout(() => navigate('/'), 3000)
     } catch (error) {
       toast.error('Something went wrong when updating your profile')
     } finally {
       setLoading(false)
     }
+  }
+
+  const editProfile = () => {
+    profileStep({ step: EStep.START })
+    setSearchParams('')
   }
 
   return (
@@ -71,7 +105,7 @@ export default function CreateProfileSubmit() {
         <div className="px-4 my-4 row">
           <div className="col-md-9">
             <p>
-              <strong>Looking good, {state.name.slice(0, state.name?.indexOf(' '))}!</strong>
+              <strong>Looking good, {state?.name?.slice(0, state?.name?.indexOf(' '))}!</strong>
             </p>
             <p className="my-4 text-truncate">
               {t("Make any necessary edits and then submit your profile. You can still edit it after you submit it.")}
@@ -89,21 +123,21 @@ export default function CreateProfileSubmit() {
               <div className="d-flex">
                 <div style={{ width: "100px", height: "100px" }}>
                   <img
-                    src={state.images[0]}
+                    src={user?.avatar}
                     className="rounded-circle w-100 h-100"
                     alt=""
                   />
                 </div>
                 <div className="mt-3 ms-3">
                   <h4>
-                    {state.name}
+                    {state?.name}
                   </h4>
                   <span className="fw-bold text-muted" style={{ display: 'flex', marginTop: 2 }}>
                     <i className="fas fa-map-marker-alt" />
                     {
                       state?.currentLocations?.map(l => (
                         <span key={l} style={{ marginLeft: 8 }}>
-                          {locations?.find(s => s.code === l.toString())?.name} |
+                          {locations?.find(s => s?.code === l?.toString())?.name} |
                         </span>
                       ))
                     }
@@ -112,8 +146,9 @@ export default function CreateProfileSubmit() {
                 </div>
               </div>
               <div className="mt-5">
-                <h4>{state.title}</h4>
-                <p>{state.intro}</p>
+                <p><i className="fas fa-phone-alt" />  {userProfile?.phone}</p>
+                <h4>{state?.title}</h4>
+                <p>{state?.intro}</p>
               </div>
             </div>
             <div className="bg-white border rounded p-4 mt-5">
@@ -147,16 +182,16 @@ export default function CreateProfileSubmit() {
                 {
                   state?.currentLocations?.map(l => (
                     <span key={l} style={{ marginLeft: 8 }}>
-                      {locations?.find(s => s.code === l.toString())?.name} |
+                      {locations?.find(s => s?.code === l?.toString())?.name} |
                     </span>
                   ))
                 }
               </div>
               <div className="mt-5">
                 <h4 className="fw-bold">{t("Languages")}</h4>
-                <p>{t("English")} {" : "} {state.englishProficiency}</p>
+                <p>{t("English")} {" : "} {state?.englishProficiency}</p>
                 {state?.otherLanguages?.map((langItem, ix) => <p key={ix}>
-                  {[langItem.language, ' ', ':', ' ', langItem.langProf]}
+                  {[langItem?.language, ' ', ':', ' ', langItem?.langProf]}
                 </p>)}
               </div>
               <div className="border-top pt-5">
@@ -182,18 +217,20 @@ export default function CreateProfileSubmit() {
                 </h5>
                 <h5 className="my-">
                   <span className="text-muted">Experience level: </span>
-                  {t(EComplexityGet[state.expertiseLevel])}
+                  {t(EComplexityGet[state?.expertiseLevel])}
                 </h5>
               </div>
             </div>
           </div>
           <div className="my-3 text-start mt-5">
-            <button className="btn" onClick={() => profileStep({ step: EStep.PHONENUMBER })
-            }>
-              {t("Back")}
-            </button>
-            <Button loading={loading} className="bg-jobsicker px-5" onClick={submitProfile}>
-              Submit Profile
+            {
+              !isReview && <button className="btn" onClick={() => profileStep({ step: EStep.PHONENUMBER })
+              }>
+                {t("Back")}
+              </button>
+            }
+            <Button loading={loading} className="bg-jobsicker px-5" onClick={isReview ? () => editProfile() : () => submitProfile()}>
+              {isReview ? t("Edit Profile") : 'Submit Profile'}
             </Button>
           </div>
         </div>
