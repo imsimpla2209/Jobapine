@@ -159,22 +159,68 @@ export const deleteProposalById = async (proposalId: mongoose.Types.ObjectId): P
  */
 export const updateProposalStatusById = async (
   proposalId: mongoose.Types.ObjectId,
-  status: string,
+  status: EStatus,
   comment?: string
 ): Promise<IProposalDoc | null> => {
   const proposal = await Proposal.findById(proposalId).populate({ path: 'freelancer' }).populate({ path: 'job' })
   if (!proposal) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
   }
-  Object.assign(proposal, {
-    status: {
-      status,
-      comment,
-      date: new Date(),
-    },
+
+  if (!proposal?.status?.length) {
+    proposal.status = [
+      {
+        status,
+        comment,
+        date: new Date(),
+      },
+    ]
+  }
+
+  proposal.status?.push({
+    status,
+    comment,
+    date: new Date(),
   })
+
   await proposal.save()
   return proposal
+}
+
+export const updateProposalStatusBulk = async (
+  proposalIds: mongoose.Types.ObjectId[],
+  status: EStatus,
+  comment?: string
+): Promise<IProposalDoc[]> => {
+  const proposals = await Proposal.find({ _id: { $in: proposalIds } })
+    .populate('freelancer')
+    .populate('job')
+
+  if (!proposals || proposals.length !== proposalIds.length) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'One or more proposals not found')
+  }
+
+  const bulkUpdateOperations = proposals.map(proposal => ({
+    updateOne: {
+      filter: { _id: proposal._id },
+      update: {
+        $set: {
+          status: [
+            ...(proposal.status || []),
+            {
+              status,
+              comment,
+              date: new Date(),
+            },
+          ],
+        },
+      },
+    },
+  }))
+
+  await Proposal.bulkWrite(bulkUpdateOperations)
+
+  return proposals
 }
 
 /**

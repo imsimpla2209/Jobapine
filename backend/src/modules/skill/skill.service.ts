@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/dot-notation */
+import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
+import { getJobByOptions } from '@modules/job/job.service'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
-import { IOptions, QueryResult } from '../../providers/paginate/paginate'
+import { IOptions } from '../../providers/paginate/paginate'
 import { ISkillDoc, NewCreatedSkill, UpdateSkillBody } from './skill.interfaces'
 import Skill from './skill.model'
 
@@ -87,6 +90,13 @@ export const deleteSkillById = async (skillId: mongoose.Types.ObjectId): Promise
   const skill = await getSkillById(skillId)
   if (!skill) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Skill not found')
+  }
+  const dependentJob = await getJobByOptions({ reqSkills: { $elemMatch: { skill: skillId } } })
+  const dependentFreelancer = await getFreelancerByOptions({ skills: { $elemMatch: { skill: skillId } } })
+  if (dependentJob || dependentFreelancer) {
+    skill['isDeleted'] = true
+    await skill.save()
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Skill is used in jobs or freelancers so It would be mark as isDeleted')
   }
   await skill.deleteOne()
   return skill

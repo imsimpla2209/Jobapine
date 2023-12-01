@@ -78,7 +78,7 @@ export const advancedGetJobs = {
     categories: Joi.array().items(Joi.string()),
     skills: Joi.array().items(Joi.string()),
     tags: Joi.array().items(Joi.string()),
-    currentStatus: Joi.array().items(Joi.string()),
+    currentStatus: Joi.array().items(Joi.string().valid(...Object.values(EJobStatus))),
     searchText: Joi.string(),
   }),
   query: Joi.object().keys({

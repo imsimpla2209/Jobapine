@@ -43,6 +43,8 @@ const envVarsSchema = Joi.object()
     S3_CL_name: Joi.string().required().description('Cloudiary name'),
     SMS_ACCESS_KEY: Joi.string().required().description('SMS Access Key'),
     DEVICE_ID: Joi.string().required().description('SMS Device id'),
+    REDIS_PORT: Joi.number().required().description('Redis port'),
+    REDIS_HORT: Joi.string().required().description('Redis hort'),
   })
   .unknown()
 
@@ -66,6 +68,10 @@ const config = {
       useUnifiedTopology: true,
     },
     poolSize: envVars.MONGODB_POOLSIZE,
+  },
+  redis: {
+    host: envVars.REDIS_HOST,
+    port: envVars.REDIS_PORT,
   },
   jwt: {
     secret: envVars.JWT_SECRET,

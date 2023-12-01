@@ -12,7 +12,7 @@ export interface IProposal {
   freelancer: IFreelancerDoc['_id']
   expectedAmount?: number
   description?: string
-  status?: [{ status: EStatus; date: Date }]
+  status?: [{ status: EStatus; comment: string; date: Date }]
   clientComment?: string[]
   freelancerComment?: string[]
   attachments?: string[]

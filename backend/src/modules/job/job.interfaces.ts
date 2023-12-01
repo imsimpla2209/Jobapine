@@ -3,6 +3,7 @@ import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
 import { ILevelSkill } from '@modules/skill/skill.interfaces'
 import mongoose, { Document, Model } from 'mongoose'
 import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
+import { EJobStatus } from 'common/enums'
 import { QueryResult } from '../../providers/paginate/paginate'
 import { AccessAndRefreshTokens } from '../token/token.interfaces'
 
@@ -16,7 +17,7 @@ export interface IJob {
   scope?: IJobScope
   status?: [
     {
-      status: string
+      status: EJobStatus
       date: Date
       comment?: string
     }
