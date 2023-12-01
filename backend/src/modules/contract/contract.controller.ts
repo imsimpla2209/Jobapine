@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/dot-notation */
-import httpStatus from 'http-status'
+import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
 import { Request, Response } from 'express'
+import httpStatus from 'http-status'
 import mongoose from 'mongoose'
-import catchAsync from '../../utils/catchAsync'
+import { contractQueue } from 'providers/queue/contract.queue'
 import ApiError from '../../common/errors/ApiError'
-import pick from '../../utils/pick'
 import { IOptions } from '../../providers/paginate/paginate'
+import catchAsync from '../../utils/catchAsync'
+import pick from '../../utils/pick'
 import * as contractService from './contract.service'
 
 export const createContract = catchAsync(async (req: Request, res: Response) => {
@@ -15,16 +17,46 @@ export const createContract = catchAsync(async (req: Request, res: Response) => 
 
 export const acceptContract = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
-    const contract = await contractService.acceptContract(
-      new mongoose.Types.ObjectId(req.params.id),
-      new mongoose.Types.ObjectId(pick(req.query, ['invitationId'])['invitationId'])
-    )
+    const freelancer = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req.user?._id) })
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+    const contract = await contractService.getContractByOptions({
+      freelancer: freelancer?._id,
+      _id: new mongoose.Types.ObjectId(req.params.id),
+    })
+
+    if (!contract) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Contract not found or not your contract')
+    }
+
+    await contractQueue.add({
+      contractId: new mongoose.Types.ObjectId(req.params.id),
+      invitationId: new mongoose.Types.ObjectId(pick(req.query, ['invitationId'])['invitationId']),
+    })
+    // const contract = await contractService.acceptContract(
+    //   new mongoose.Types.ObjectId(req.params.id),
+    //   new mongoose.Types.ObjectId(pick(req.query, ['invitationId'])['invitationId'])
+    // )
     res.status(httpStatus.CREATED).send(contract)
   }
 })
 
 export const rejectContract = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
+    const freelancer = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req.user?._id) })
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+    const foundContract = await contractService.getContractByOptions({
+      freelancer: freelancer?._id,
+      _id: new mongoose.Types.ObjectId(req.params.id),
+    })
+
+    if (!foundContract) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Contract not found or not your contract')
+    }
+
     const contract = await contractService.rejectContract(
       new mongoose.Types.ObjectId(req.params.id),
       new mongoose.Types.ObjectId(pick(req.query, ['invitationId'])['invitationId'])

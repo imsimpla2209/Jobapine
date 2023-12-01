@@ -4,6 +4,7 @@ export const FERoutes = {
   myJobs: '/my-jobs',
   allInvitation: '/invitations',
   allMessages: '/messages',
+  jobDetail: '/job/',
 }
 
 export const FEMessage = (extra?: any) => {

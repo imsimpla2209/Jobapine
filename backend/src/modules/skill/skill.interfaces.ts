@@ -5,6 +5,7 @@ export interface ISkill {
   name: string
   name_vi: string
   category: string
+  isDeleted: boolean
 }
 
 export interface ILevelSkill {
@@ -21,7 +22,7 @@ export interface ISkillModel extends Model<ISkillDoc> {
 
 export type UpdateSkillBody = ISkill
 
-export type NewCreatedSkill = ISkill
+export type NewCreatedSkill = Omit<ISkill, 'isDeleted'>
 
 export type UpdateFreelancerSkillBody = Omit<ILevelSkill, 'skill' | 'freelancer'>
 

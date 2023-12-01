@@ -96,6 +96,5 @@ export const ideasExcel = async (req: any, res: any, next: any) => {
 }
 
 export async function testQuery(req: any, res: any, next: any) {
-
   res.status(200).json('oke')
 }

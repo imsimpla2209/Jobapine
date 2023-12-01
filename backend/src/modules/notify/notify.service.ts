@@ -5,6 +5,7 @@ import { io } from '@core/libs/SocketIO'
 import { ESocketEvent, EStatus } from 'common/enums'
 import { logger } from 'common/logger'
 import httpStatus from 'http-status'
+import { isEmpty } from 'lodash'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
@@ -24,6 +25,42 @@ export const createNotify = async (notifyBody: NewCreatedNotify): Promise<INotif
     logger.info(`Send notify to user: ${notifyBody?.to}`)
     io.onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
     // .to(io.onlineUsers[notifyBody?.to]?.socketId)
+  }
+  return Notify.create(notifyBody)
+}
+
+export const bulkCreateNotify = async (notifyBodies: NewCreatedNotify[]): Promise<any> => {
+  try {
+    const notifyOperations = notifyBodies.map(notifyBody => ({
+      insertOne: {
+        document: notifyBody,
+      },
+    }))
+
+    // Perform the bulk write operation
+    const result = await Notify.bulkWrite(notifyOperations)
+
+    // Notify online users if necessary
+    notifyBodies?.forEach(notifyBody => {
+      if (io.onlineUsers[notifyBody?.to]) {
+        logger.info(`Send notify to user: ${notifyBody?.to}`)
+        io.onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
+        // .to(io.onlineUsers[notifyBody?.to]?.socketId)
+      }
+    })
+
+    return result.getRawResponse()
+  } catch (error) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot write notifies')
+  }
+}
+
+export const createNotifyforAll = async (notifyBody: NewCreatedNotify): Promise<INotifyDoc> => {
+  if (!isEmpty(io.onlineUsers)) {
+    Object.keys(io.onlineUsers).forEach(key => {
+      logger.info(`Send notify to user: ${notifyBody?.to}`)
+      io.onlineUsers[key].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
+    })
   }
   return Notify.create(notifyBody)
 }
@@ -271,7 +308,7 @@ export const updateInvitationById = async (
  */
 export const updateInvitationStatusById = async (
   invitationId: mongoose.Types.ObjectId,
-  status: string,
+  status: EStatus,
   comment?: string
 ): Promise<IInvitationDoc | null> => {
   const invitation = await getInvitationById(invitationId)
@@ -281,22 +318,39 @@ export const updateInvitationStatusById = async (
 
   const now = new Date().getTime()
   if (Number(invitation.dueDate) < now) {
-    Object.assign(invitation, {
-      status: {
-        status: EStatus.LATE,
-        comment: 'Invitation is expired',
-        date: new Date(),
-      },
+    if (!invitation?.status?.length) {
+      invitation.status = [
+        {
+          status: EStatus.LATE,
+          comment: 'Invitation is expired',
+          date: new Date(),
+        },
+      ]
+    }
+
+    invitation?.status?.push({
+      status: EStatus.LATE,
+      comment: 'Invitation is expired',
+      date: new Date(),
     })
+
     await invitation.save()
     throw new ApiError(httpStatus.NOT_FOUND, 'Invitation is Expired')
   }
-  Object.assign(invitation, {
-    status: {
-      status,
-      comment,
-      date: new Date(),
-    },
+  if (!invitation?.status?.length) {
+    invitation.status = [
+      {
+        status,
+        comment,
+        date: new Date(),
+      },
+    ]
+  }
+
+  invitation?.status?.push({
+    status,
+    comment,
+    date: new Date(),
   })
   await invitation.save()
   return invitation

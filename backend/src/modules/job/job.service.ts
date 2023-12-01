@@ -6,9 +6,9 @@ import queryGen from '@core/libs/queryGennerator'
 import { getClientById, getClientByOptions } from '@modules/client/client.service'
 import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
 import { getFreelancerById, getSimilarByFreelancerId, updateSimilarById } from '@modules/freelancer/freelancer.service'
-import { createNotify } from '@modules/notify/notify.service'
+import { bulkCreateNotify } from '@modules/notify/notify.service'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
-import { deleteProposalByOptions, updateProposalStatusById } from '@modules/proposal/proposal.service'
+import { deleteProposalByOptions, updateProposalStatusBulk } from '@modules/proposal/proposal.service'
 import { Skill } from '@modules/skill'
 import { User } from '@modules/user'
 import { EJobStatus, EStatus } from 'common/enums'
@@ -21,6 +21,7 @@ import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IJobDoc, NewCreatedJob, UpdateJobBody } from './job.interfaces'
 import Job, { JobCategory, JobTag } from './job.model'
+import { createFuzzyRegex, extractKeywords } from 'utils/helperFunc'
 
 /**
  * Create a job
@@ -258,7 +259,7 @@ export const getRcmdJob = async (
   if (!options?.projectBy) {
     options.projectBy = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
       nOEmployee, preferences, totalScore, 
-      score_title, score_description, score_skills, score_locations, score_categories, score_expertise, score_paymentAmount, score_paymentType, score_suit_skills`
+      score_title, score_description, score_skills, score_locations, score_categories, score_expertise, score_paymentAmount, score_paymentType`
   }
 
   if (!options?.populate) {
@@ -389,42 +390,6 @@ export const getRcmdJob = async (
             0,
           ],
         },
-        score_suit_skills: {
-          $size: {
-            $filter: {
-              input: '$reqSkills',
-              as: 'jobSkill',
-              cond: {
-                $gt: [
-                  {
-                    $size: {
-                      $filter: {
-                        input: preferSkills,
-                        as: 'freelancerSkill',
-                        cond: {
-                          $and: [
-                            { $eq: ['$$jobSkill.skill', '$$freelancerSkill.skill'] },
-                            {
-                              $and: [
-                                {
-                                  $gte: ['$$jobSkill.level', { $subtract: ['$$freelancerSkill.level', 1] }],
-                                },
-                                {
-                                  $lte: ['$$jobSkill.level', { $add: ['$$freelancerSkill.level', 1] }],
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                      },
-                    },
-                  },
-                  0,
-                ],
-              },
-            },
-          },
-        },
       },
     },
     {
@@ -438,7 +403,7 @@ export const getRcmdJob = async (
             '$score_locations',
             '$score_paymentType',
             '$score_paymentAmount',
-            '$score_suit_skills',
+            // '$score_suit_skills',
             '$score_paymentType',
             '$score_paymentAmount',
             '$score_expertise',
@@ -448,7 +413,7 @@ export const getRcmdJob = async (
     },
     { $project: projectFields },
 
-    { $sort: { score_title: -1 as any } },
+    { $sort: { totalScore: -1 as any } },
   ]
 
   const sortOptions = {}
@@ -596,22 +561,14 @@ export const getSimilarJobs = async (
   let keyWords
 
   if (job?.title) {
-    keyWords = keywordExtractor.extract(
+    keyWords = extractKeywords(
       `${`${job?.title} ${job?.description} ${job?.checkLists?.map(c => c).join(' ')} ${job?.questions
         ?.map(c => c)
-        .join(' ')}`}`,
-      {
-        language: 'english',
-        remove_digits: true,
-        return_changed_case: true,
-        remove_duplicates: true,
-      }
+        .join(' ')}`}`
     )
   }
 
-  const regexPattern = keyWords
-    ?.map(char => `${char}[a-z]*`) // Mỗi ký tự được thay thế bằng ký tự đó và zero hoặc nhiều ký tự chữ cái sau đó
-    .join('\\s*') // Nối các từ lại với nhau, cho phép khoảng trắng giữa các từ
+  const regexPattern = createFuzzyRegex(keyWords)
 
   const similarRegex = new RegExp(regexPattern, 'gi')
 
@@ -619,8 +576,8 @@ export const getSimilarJobs = async (
     $and: [
       {
         $or: [
-          { title: { $regex: `${similarRegex}`, $options: 'si' } },
-          { description: { $regex: `${similarRegex}`, $options: 'si' } },
+          { title: { $regex: similarRegex } },
+          { description: { $regex: similarRegex } },
           { categories: { $in: job?.categories || [] } },
           { 'reqSkills.skill': { $in: job?.reqSkills?.map(s => s.skill) || [] } },
           { tags: { $in: job?.tags || [] } },
@@ -639,7 +596,7 @@ export const getSimilarJobs = async (
       },
       ...filterByFreelancer,
       { isDeleted: { $ne: true } },
-      { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
+      { currentStatus: { $in: [EJobStatus.OPEN] } },
     ],
   }
 
@@ -772,47 +729,131 @@ export const deleteJobById = async (jobId: mongoose.Types.ObjectId): Promise<IJo
  * @param {mongoose.Types.ObjectId} jobId
  * @returns {Promise<IJobDoc | null>}
  */
+// export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc | null> => {
+//   const job = await Job.findById(jobId)
+//     .populate({
+//       path: 'proposals',
+//       select: 'freelancer',
+//       populate: {
+//         path: 'freelancer.user',
+//         select: '_id',
+//       },
+//     })
+//     .populate({
+//       path: 'client',
+//       select: 'user',
+//       populate: {
+//         path: 'user',
+//         select: '_id',
+//       },
+//     })
+
+//   if (!job) {
+//     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+//   }
+
+//   const clientUserId = job.client?.user?._id
+
+//   if (job.proposals?.length) {
+//     const userUpdates = [
+//       { filter: { _id: clientUserId }, update: { $inc: { sickPoints: 2 } } },
+//       ...job.proposals.map(proposal => ({
+//         filter: { _id: proposal.freelancer.user._id },
+//         update: { $inc: { sickPoints: proposal.sickUsed || 2 } },
+//       })),
+//     ]
+
+//     await Promise.all([
+//       User.updateOne({ _id: clientUserId }, { $inc: { sickPoints: -2 } }),
+//       ...userUpdates.map(update => User.updateOne(update.filter, update.update)),
+//       ...job.proposals.map(proposal =>
+//         createNotify({
+//           to: proposal.freelancer.user._id,
+//           path: FERoutes.allProposals + (proposal._id || ''),
+//           attachedId: proposal._id,
+//           content: FEMessage(job.title).rejectProposalDueJobDeleted,
+//         })
+//       ),
+//     ])
+//   }
+
+//   job.isDeleted = true
+//   job.status?.push({
+//     status: EJobStatus.CANCELLED,
+//     comment: 'the job is deleted by its owner',
+//     date: new Date(),
+//   })
+
+//   await job.save()
+
+//   return job
+// }
+
 export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc | null> => {
-  try {
-    const job = await Job.findById(jobId)
-      .populate({ path: 'proposals', populate: { path: 'freelancer' } })
-      .populate({ path: 'client', populate: { path: 'user' } })
-      .lean()
-    if (!job) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
-    }
-
-    if (job?.proposals) {
-      User.findOneAndUpdate(job?.client?.user?._id, {
-        $inc: { sickPoints: 2 },
-      })
-      job?.proposals?.forEach(p => {
-        updateProposalStatusById(p?._id, EStatus.REJECTED, 'Rejected because the job is deleted by its owner')
-        User.findOneAndUpdate(p?.freelancer?.user, {
-          $inc: { sickPoints: p?.sickUsed || 2 },
-        })
-        createNotify({
-          to: p?.freelancer?.user,
-          path: FERoutes.allProposals + (p?._id || ''),
-          attachedId: p?._id,
-          content: FEMessage(job?.title).rejectProposalDueJobDeleted,
-        })
-      })
-    }
-
-    Object.assign(job, {
-      isDeleted: true,
-      status: {
-        status: EJobStatus.CANCELLED,
-        comment: 'the job is deleted by its owner',
-        date: new Date(),
+  const job = await Job.findById(jobId)
+    .populate({
+      path: 'proposals',
+      select: 'freelancer',
+      populate: {
+        path: 'freelancer.user',
+        select: '_id',
       },
     })
-    await job.save()
-    return job
-  } catch (e: any) {
-    throw new ApiError(httpStatus.BAD_GATEWAY, 'Cannot delete job please try again later')
+    .populate({
+      path: 'client',
+      select: 'user',
+      populate: {
+        path: 'user',
+        select: '_id',
+      },
+    })
+
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
+
+  const clientUserId = job.client?.user?._id
+
+  if (job.proposals?.length) {
+    const bulkOperations = [
+      { updateOne: { filter: { _id: clientUserId }, update: { $inc: { sickPoints: 2 } } } },
+      ...job.proposals.map(proposal => ({
+        updateOne: {
+          filter: { _id: proposal.freelancer.user._id },
+          update: { $inc: { sickPoints: proposal.sickUsed || 2 } },
+        },
+      })),
+    ]
+
+    const notifyBodies = job.proposals.map(proposal => ({
+      to: proposal.freelancer.user._id,
+      path: FERoutes.allProposals + (proposal._id || ''),
+      attachedId: proposal._id,
+      content: FEMessage(job.title).rejectProposalDueJobDeleted,
+    }))
+
+    await Promise.all([
+      User.updateOne({ _id: clientUserId }, { $inc: { sickPoints: -2 } }),
+      User.bulkWrite(bulkOperations),
+      bulkCreateNotify(notifyBodies),
+      updateProposalStatusBulk(
+        job.proposals.map(p => p._id),
+        EStatus.CANCELLED,
+        'the job is deleted by its owner'
+      ),
+    ])
+  }
+
+  job.isDeleted = true
+  job.status?.push({
+    status: EJobStatus.CANCELLED,
+    comment: 'the job is deleted by its owner',
+    date: new Date(),
+  })
+
+  await job.save()
+
+  return job
 }
 
 /**
@@ -823,19 +864,27 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
  */
 export const changeStatusJobById = async (
   jobId: mongoose.Types.ObjectId,
-  status: string,
+  status: EJobStatus,
   comment: string
 ): Promise<IJobDoc | null> => {
   const job = await getJobById(jobId)
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
-  Object.assign(job, {
-    status: {
-      status,
-      comment,
-      date: new Date(),
-    },
+  if (!job?.status?.length) {
+    job.status = [
+      {
+        status,
+        comment,
+        date: new Date(),
+      },
+    ]
+  }
+
+  job.status?.push({
+    status,
+    comment,
+    date: new Date(),
   })
   await job.save()
   return job

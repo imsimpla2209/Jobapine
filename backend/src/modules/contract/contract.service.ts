@@ -156,7 +156,7 @@ export const getContractsByOptions = async (Options: any): Promise<IContractDoc 
  */
 export const changeStatusContractById = async (
   contractId: mongoose.Types.ObjectId,
-  status: string,
+  status: EStatus,
   comment: string
 ): Promise<IContractDoc | null> => {
   const contract = await getContractById(contractId)
@@ -167,22 +167,37 @@ export const changeStatusContractById = async (
   const now = new Date().getTime()
   const endDate = new Date(contract.endDate).getTime()
   if (endDate < now) {
-    Object.assign(contract, {
-      status: {
-        status: EStatus.LATE,
-        comment: 'contract is expired',
-        date: new Date(),
-      },
+    if (!contract?.status?.length) {
+      contract.status = [
+        {
+          status: EStatus.LATE,
+          comment: 'contract is expired',
+          date: new Date(),
+        },
+      ]
+    }
+    contract.status?.push({
+      status: EStatus.LATE,
+      comment: 'contract is expired',
+      date: new Date(),
     })
     await contract.save()
     throw new ApiError(httpStatus.BAD_REQUEST, 'contract is Expired')
   }
-  Object.assign(contract, {
-    status: {
-      status,
-      comment,
-      date: new Date(),
-    },
+  if (!contract?.status?.length) {
+    contract.status = [
+      {
+        status,
+        comment,
+        date: new Date(),
+      },
+    ]
+  }
+
+  contract.status?.push({
+    status,
+    comment,
+    date: new Date(),
   })
   await contract.save()
   return contract

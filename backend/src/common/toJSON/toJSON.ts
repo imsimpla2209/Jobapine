@@ -37,10 +37,10 @@ const toJSON = (schema: any) => {
       delete ret._id
       // eslint-disable-next-line no-param-reassign
       delete ret.__v
-      // eslint-disable-next-line no-param-reassign
-      delete ret.createdAt
-      // eslint-disable-next-line no-param-reassign
-      delete ret.updatedAt
+      // // eslint-disable-next-line no-param-reassign
+      // delete ret.createdAt
+      // // eslint-disable-next-line no-param-reassign
+      // delete ret.updatedAt
       if (transform) {
         return transform(doc, ret, options)
       }
