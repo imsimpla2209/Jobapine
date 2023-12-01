@@ -12,6 +12,11 @@ const proposalSchema = new mongoose.Schema<IProposalDoc, IProposalModel>(
       type: Number,
       required: false,
     },
+    sickUsed: {
+      type: Number,
+      required: false,
+      default: 2,
+    },
     description: {
       type: String,
       default: 'Nothing :))',

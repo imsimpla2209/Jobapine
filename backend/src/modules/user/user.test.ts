@@ -70,6 +70,7 @@ describe('User routes', () => {
         phone: '',
         nationalId: '',
         dob: '',
+        sex: 0,
       }
     })
 

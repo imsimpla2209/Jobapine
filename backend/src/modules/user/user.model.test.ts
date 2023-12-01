@@ -17,6 +17,7 @@ describe('User model', () => {
         phone: '',
         nationalId: '',
         dob: '',
+        sex: 0,
       }
     })
 

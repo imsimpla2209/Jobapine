@@ -11,6 +11,7 @@ const createProposalBody: Record<keyof NewCreatedProposal, any> = {
   attachments: Joi.array().items(Joi.string()),
   answers: Joi.object().pattern(Joi.number(), Joi.string()),
   priority: Joi.number().valid(...Object.values(EPriority)),
+  sickUsed: Joi.number().positive(),
 }
 
 export const createProposal = {

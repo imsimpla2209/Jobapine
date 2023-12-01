@@ -6,10 +6,14 @@ import queryGen from '@core/libs/queryGennerator'
 import { getClientById, getClientByOptions } from '@modules/client/client.service'
 import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
 import { getFreelancerById, getSimilarByFreelancerId, updateSimilarById } from '@modules/freelancer/freelancer.service'
+import { createNotify } from '@modules/notify/notify.service'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
-import { deleteProposalByOptions } from '@modules/proposal/proposal.service'
+import { deleteProposalByOptions, updateProposalStatusById } from '@modules/proposal/proposal.service'
 import { Skill } from '@modules/skill'
-import { EJobStatus } from 'common/enums'
+import { User } from '@modules/user'
+import { EJobStatus, EStatus } from 'common/enums'
+import { FEMessage, FERoutes } from 'common/enums/constant'
+import { logger } from 'common/logger'
 import httpStatus from 'http-status'
 import keywordExtractor from 'keyword-extractor'
 import mongoose from 'mongoose'
@@ -253,7 +257,8 @@ export const getRcmdJob = async (
 
   if (!options?.projectBy) {
     options.projectBy = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
-      score_categories, nOEmployee, preferences, totalScore, score_title, score_description, score_skills, score_location`
+      nOEmployee, preferences, totalScore, 
+      score_title, score_description, score_skills, score_locations, score_categories, score_expertise, score_paymentAmount, score_paymentType, score_suit_skills`
   }
 
   if (!options?.populate) {
@@ -276,7 +281,11 @@ export const getRcmdJob = async (
     return { path: field.trim() }
   })
 
-  const filterByFreelancer: any = [
+  const preferSkills = freelancer?.skills?.map(s => ({ ...s, skill: s?.skill?.toString() }))
+
+  logger.info(`preferSkils: ${typeof preferSkills[0].skill}`)
+
+  const filterPipeline: any = [
     {
       $match: {
         $or: [
@@ -303,7 +312,7 @@ export const getRcmdJob = async (
       $match: {
         $and: [
           { isDeleted: { $ne: true } },
-          { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
+          { currentStatus: { $in: [EJobStatus.OPEN] } },
           categories?.length ? { categories: { $in: categories || [] } } : {},
           skills?.length ? { 'reqSkills.skill': { $in: skills || [] } } : {},
         ],
@@ -313,42 +322,146 @@ export const getRcmdJob = async (
     {
       $addFields: {
         score_title: {
-          $cond: [{ $regexMatch: { input: '$title', regex: similarDocs?.similarKeys, options: 'si' } }, 1, 0],
+          $cond: [{ $regexMatch: { input: '$title', regex: similarDocs?.similarKeys } }, 1, 0],
         },
         score_description: {
-          $cond: [{ $regexMatch: { input: '$description', regex: similarDocs?.similarKeys, options: 'si' } }, 1, 0],
+          $cond: [{ $regexMatch: { input: '$description', regex: similarDocs?.similarKeys } }, 1, 0],
         },
-        score_categories: { $size: { $ifNull: ['$categories', []] } },
-        score_skills: { $size: { $ifNull: ['$reqSkills.skill', []] } },
+        score_categories: {
+          $multiply: [
+            { $size: { $setIntersection: [similarDocs?.similarJobCats || [], { $ifNull: ['$categories', []] }] } },
+            1.5,
+          ],
+        },
+        score_skills: {
+          $multiply: [
+            { $size: { $setIntersection: [similarDocs?.similarSkills || [], { $ifNull: ['$reqSkills.skill', []] }] } },
+            1.25,
+          ],
+        },
         score_tags: { $size: { $ifNull: ['$tags', []] } },
-        score_locations: { $size: { $ifNull: ['$preferences.locations', []] } },
-
-        // Add more score fields for other conditions
+        score_locations: {
+          $multiply: [
+            {
+              $size: {
+                $setIntersection: [similarDocs?.similarLocations || [], { $ifNull: ['$preferences.locations', []] }],
+              },
+            },
+            2,
+          ],
+        },
+        score_paymentType: { $cond: [{ $eq: ['$payment.type', freelancer?.expectedPaymentType] }, 1, 0] },
+        score_paymentAmount: {
+          $cond: [
+            {
+              $and: [
+                {
+                  $gte: [
+                    '$payment.amount',
+                    freelancer?.expectedAmount ? freelancer.expectedAmount - freelancer.expectedAmount / 4.3 : 0,
+                  ],
+                },
+                {
+                  $lte: [
+                    '$payment.amount',
+                    freelancer?.expectedAmount ? freelancer.expectedAmount + freelancer.expectedAmount / 4.3 : 0,
+                  ],
+                },
+              ],
+            },
+            1,
+            0,
+          ],
+        },
+        score_expertise: {
+          $cond: [
+            {
+              $and: [
+                {
+                  $gte: ['$complexity', freelancer?.expertiseLevel ? freelancer.expertiseLevel - 1 : 0],
+                },
+                {
+                  $lte: ['$complexity', freelancer?.expertiseLevel ? freelancer.expertiseLevel + 1 : 0],
+                },
+              ],
+            },
+            1,
+            0,
+          ],
+        },
+        score_suit_skills: {
+          $size: {
+            $filter: {
+              input: '$reqSkills',
+              as: 'jobSkill',
+              cond: {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: preferSkills,
+                        as: 'freelancerSkill',
+                        cond: {
+                          $and: [
+                            { $eq: ['$$jobSkill.skill', '$$freelancerSkill.skill'] },
+                            {
+                              $and: [
+                                {
+                                  $gte: ['$$jobSkill.level', { $subtract: ['$$freelancerSkill.level', 1] }],
+                                },
+                                {
+                                  $lte: ['$$jobSkill.level', { $add: ['$$freelancerSkill.level', 1] }],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
       },
     },
     {
       $addFields: {
         totalScore: {
-          $add: ['$score_title', '$score_description', '$score_categories', '$score_skills', '$score_locations'],
+          $add: [
+            '$score_title',
+            '$score_description',
+            '$score_categories',
+            '$score_skills',
+            '$score_locations',
+            '$score_paymentType',
+            '$score_paymentAmount',
+            '$score_suit_skills',
+            '$score_paymentType',
+            '$score_paymentAmount',
+            '$score_expertise',
+          ],
         },
       },
     },
     { $project: projectFields },
 
-    { $sort: { totalScore: -1 as any } },
+    { $sort: { score_title: -1 as any } },
   ]
 
   const sortOptions = {}
   const [sortField, sortOrder] = options?.sortBy ? options.sortBy.split(':') : 'totalScore:desc'.split(':')
   sortOptions[sortField] = sortOrder === 'desc' ? -1 : 1
 
-  filterByFreelancer.push({ $sort: sortOptions })
+  filterPipeline.push({ $sort: sortOptions })
 
   const skip = ((options?.page || 1) - 1) * (options?.limit || 10)
-  filterByFreelancer.push({ $skip: skip })
-  filterByFreelancer.push({ $limit: options?.limit || 10 })
+  filterPipeline.push({ $skip: skip })
+  filterPipeline.push({ $limit: options?.limit || 10 })
 
-  const jobs = await Job.aggregate(filterByFreelancer)
+  const jobs = await Job.aggregate(filterPipeline)
 
   const fullfillJobs = await Job.populate(jobs, populateFields)
 
@@ -660,11 +773,46 @@ export const deleteJobById = async (jobId: mongoose.Types.ObjectId): Promise<IJo
  * @returns {Promise<IJobDoc | null>}
  */
 export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc | null> => {
-  const job = await Job.findByIdAndUpdate(jobId, { isDeleted: true })
-  if (!job) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  try {
+    const job = await Job.findById(jobId)
+      .populate({ path: 'proposals', populate: { path: 'freelancer' } })
+      .populate({ path: 'client', populate: { path: 'user' } })
+      .lean()
+    if (!job) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+    }
+
+    if (job?.proposals) {
+      User.findOneAndUpdate(job?.client?.user?._id, {
+        $inc: { sickPoints: 2 },
+      })
+      job?.proposals?.forEach(p => {
+        updateProposalStatusById(p?._id, EStatus.REJECTED, 'Rejected because the job is deleted by its owner')
+        User.findOneAndUpdate(p?.freelancer?.user, {
+          $inc: { sickPoints: p?.sickUsed || 2 },
+        })
+        createNotify({
+          to: p?.freelancer?.user,
+          path: FERoutes.allProposals + (p?._id || ''),
+          attachedId: p?._id,
+          content: FEMessage(job?.title).rejectProposalDueJobDeleted,
+        })
+      })
+    }
+
+    Object.assign(job, {
+      isDeleted: true,
+      status: {
+        status: EJobStatus.CANCELLED,
+        comment: 'the job is deleted by its owner',
+        date: new Date(),
+      },
+    })
+    await job.save()
+    return job
+  } catch (e: any) {
+    throw new ApiError(httpStatus.BAD_GATEWAY, 'Cannot delete job please try again later')
   }
-  return job
 }
 
 /**
@@ -678,16 +826,18 @@ export const changeStatusJobById = async (
   status: string,
   comment: string
 ): Promise<IJobDoc | null> => {
-  const job = await Job.findByIdAndUpdate(jobId, {
-    status: {
-      status,
-      date: new Date(),
-      comment: comment || '',
-    },
-  })
+  const job = await getJobById(jobId)
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
+  Object.assign(job, {
+    status: {
+      status,
+      comment,
+      date: new Date(),
+    },
+  })
+  await job.save()
   return job
 }
 

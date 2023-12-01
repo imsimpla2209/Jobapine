@@ -1,8 +1,8 @@
 /* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable import/prefer-default-export */
+import Post from '@modules/forum/models/Post'
 import Job, { JobCategory } from '@modules/job/job.model'
 import excel from 'exceljs'
-import Post from '../models/Post'
 import ApiErrorResponse from '../utils/ApiErrorResponse'
 
 export const postsExcel = async (req: any, res: any, next: any) => {

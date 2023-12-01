@@ -22,6 +22,7 @@ export interface IProposal {
   priority?: number
   currentStatus?: string
   msgRequestSent?: boolean
+  sickUsed?: number
 }
 
 export interface IProposalEmployee extends Document {

@@ -31,6 +31,7 @@ const facebookStrategy = new FacebookStrategy(
             nationalId: '',
             dob: profile?.birthday,
             isPhoneVerified: false,
+            sex: profile?.gender,
           }).then(createdUser => {
             return done(null, createdUser)
           })

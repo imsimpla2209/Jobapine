@@ -36,6 +36,7 @@ export interface IJob {
   jobDuration?: 'short-term' | 'long-term'
   appliedFreelancers: IFreelancerDoc['_id'][]
   blockFreelancers: IFreelancerDoc['_id'][]
+  proposalNotifyMail: boolean
 }
 
 export interface IJobCategory extends Document {

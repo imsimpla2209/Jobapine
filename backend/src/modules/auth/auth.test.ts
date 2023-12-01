@@ -52,6 +52,7 @@ describe('Auth routes', () => {
         phone: '',
         nationalId: '',
         dob: '',
+        sex: 1,
       }
     })
 

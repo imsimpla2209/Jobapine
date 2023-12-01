@@ -1,4 +1,4 @@
-import { EUserType } from 'common/enums'
+import { ESex, EUserType } from 'common/enums'
 import Joi from 'joi'
 import { objectId, password } from '../../providers/validate/custom.validation'
 import { NewCreatedUser } from './user.interfaces'
@@ -18,6 +18,7 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   address: Joi.string(),
   nationalId: Joi.string(),
   isPhoneVerified: Joi.boolean(),
+  sex: Joi.number().valid(...Object.values(ESex)),
 }
 
 export const createUser = {
@@ -58,6 +59,7 @@ export const updateUser = {
       address: Joi.string(),
       nationalId: Joi.string(),
       phone: Joi.string(),
+      sex: Joi.number().valid(...Object.values(ESex)),
       lastLoginAs: Joi.string().valid(...Object.values(EUserType)),
     })
     .min(1),

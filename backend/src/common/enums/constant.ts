@@ -12,6 +12,14 @@ export const FEMessage = (extra?: any) => {
       name: `Your Posted got a new proposal for the job: ${extra}`,
       name_vi: `Công việc của bạn vừa nhận được 1 proposal mới tới công việc: ${extra}`,
     },
+    rejectProposalDueJobDeleted: {
+      name: `The job: ${extra} you applied is deleted by owner and you got a you will be refunded the sickPoints used to create the proposal`,
+      name_vi: `Công việc: ${extra} bạn nộp đơn đã bị chủ sở hữu xóa và bạn nhận được công việc, bạn sẽ được hoàn lại số sickPoints đã dùng để tạo đề xuất`,
+    },
+    rejectProposal: {
+      name: `The owner of job: ${extra} | rejects your proposal`,
+      name_vi: `Chủ sở hữu công việc: ${extra} | từ chối đề xuất của bạn`,
+    },
     acceptRequest: {
       name: 'Your Request Message has been accepted',
       name_vi: 'Yêu cầu giao tiếp trực tiếp của bạn đã được chấp thuận',
