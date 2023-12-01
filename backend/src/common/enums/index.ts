@@ -32,6 +32,13 @@ export enum ELevel {
   EXPERT = 6,
 }
 
+export enum ESex {
+  FEMALE = 0,
+  MALE = 1,
+  BISEXUAL = 2,
+  UNKNOWN = 3,
+}
+
 export enum EComplexity {
   EASY = 0,
   MEDIUM = 1,

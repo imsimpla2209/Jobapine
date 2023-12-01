@@ -5,8 +5,11 @@ import { auth } from '@modules/auth'
 import { senVerification, sendVerificationEmailFunc } from '../utils/mailer'
 import { getPresignedUrl, getCLPresignedUrl } from '../controllers/upload.controller'
 import { sendSMS, sendTrigger } from '../controllers/sms.controller'
+import { testQuery } from '../controllers/data.controller'
 
 export const testRouter = express.Router()
+
+testRouter.get('/testQuery', testQuery)
 
 testRouter.get('/testMail', async (req, res) => {
   const mailrs = await sendVerificationEmailFunc('iacokhactqt@gmail.com', '420ent', '22')

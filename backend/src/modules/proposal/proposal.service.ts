@@ -162,7 +162,7 @@ export const updateProposalStatusById = async (
   status: string,
   comment?: string
 ): Promise<IProposalDoc | null> => {
-  const proposal = await getProposalById(proposalId)
+  const proposal = await Proposal.findById(proposalId).populate({ path: 'freelancer' }).populate({ path: 'job' })
   if (!proposal) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
   }
@@ -174,6 +174,27 @@ export const updateProposalStatusById = async (
     },
   })
   await proposal.save()
+  return proposal
+}
+
+/**
+ * Delete proposal by id
+ * @param {mongoose.Types.ObjectId} proposalId
+ * @param {string} status
+ * @param {string} comment
+ * @returns {Promise<IProposalDoc | null>}
+ */
+export const rejectProposalById = async (
+  proposalId: mongoose.Types.ObjectId,
+  comment?: string
+): Promise<IProposalDoc | null> => {
+  const proposal = await updateProposalStatusById(proposalId, EStatus.REJECTED, comment)
+  createNotify({
+    to: proposal?.freelancer?.user,
+    path: FERoutes.allProposals + (proposal?._id || ''),
+    attachedId: proposal?._id,
+    content: FEMessage(proposal?.job?.title).rejectProposal,
+  })
   return proposal
 }
 

@@ -14,8 +14,9 @@ import { IReview } from 'common/interfaces/subInterfaces'
 import { logger } from 'common/logger'
 import httpStatus from 'http-status'
 import keywordExtractor from 'keyword-extractor'
-import { isEmpty, union } from 'lodash'
+import { union } from 'lodash'
 import mongoose from 'mongoose'
+import { createFuzzyRegex, extractKeywords } from 'utils/helperFunc'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import {
@@ -414,7 +415,12 @@ export const updateSimilarData = (
 export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): Promise<any | null> => {
   try {
     const freelancer = await Freelancer.findById(freelancerId)
-      .populate(['favoriteJobs', 'proposals'])
+      .populate(['favoriteJobs'])
+      .populate(['jobs'])
+      .populate({
+        path: 'proposals',
+        populate: { path: 'job' },
+      })
       .populate({
         path: 'relevantClients',
         populate: { path: 'jobs' },
@@ -450,14 +456,11 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
     let similarJobs: any[] = []
 
     if (freelancer?.jobs?.length) {
-      const freelancerJobs = await getJobsByOptions({ appliedFreelancers: { $in: freelancer?._id } })
-      similarJobs = union(similarJobs, [...freelancerJobs])
+      similarJobs = union(similarJobs, [...freelancer.jobs])
     }
     if (freelancer?.proposals?.length) {
-      const freelancerJobs = await getJobsByOptions({
-        appliedFreelancers: { $in: freelancer?.proposals?.map(p => p.job) },
-      })
-      similarJobs = union(similarJobs, [...freelancerJobs])
+      const appliedJobs = freelancer.proposals.map(p => p.job)
+      similarJobs = union(similarJobs, [...appliedJobs])
     }
     if (freelancer?.favoriteJobs) {
       similarJobs = union(similarJobs, [...freelancer.favoriteJobs])
@@ -487,18 +490,20 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
       initialSimilarDocs.foundClients
     )
 
-    const keyWords = keywordExtractor.extract(`${freelancer?.intro} ${initialSimilarDocs.newDescription}`, {
-      language: 'english',
-      remove_digits: true,
-      return_changed_case: true,
-      remove_duplicates: true,
-    })
+    const keyWords = extractKeywords(`${freelancer?.intro} ${initialSimilarDocs.newDescription}`)
 
     logger.info('Extracted Keywords', keyWords)
 
-    const regexPattern = keyWords?.map(char => `${char}[a-z]*`).join('\\s*')
+    // const regexPattern = keyWords
+    //   ?.map(keyword => {
+    //     const escapedKeyword = keyword.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+    //     return `(${escapedKeyword})`
+    //   })
+    //   .join('|')
 
-    const similarRegex = new RegExp(regexPattern, 'gi')
+    // const similarRegex = new RegExp(regexPattern, 'gi')
+
+    const similarRegex = createFuzzyRegex(keyWords)
 
     const foundExtraCats: any[] = await JobCategory.find({ name: { $regex: `${similarRegex}`, $options: 'si' } })
     const foundExtraSkills: any[] = (await Skill.find({ name: { $regex: `${similarRegex}`, $options: 'si' } })) || []

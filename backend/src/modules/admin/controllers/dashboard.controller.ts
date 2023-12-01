@@ -8,7 +8,6 @@ import { Job } from '@modules/job'
 import { User } from '@modules/user'
 import { EJobStatus } from 'common/enums'
 import moment from 'moment'
-import mongoose from 'mongoose'
 
 export const getUserSignUpStats = async (req, res, next) => {
   try {
@@ -109,86 +108,64 @@ export const getUserSignUpStats = async (req, res, next) => {
 
 export const getProjectStats = async (req, res, next) => {
   try {
-    // const { startDate, endDate, timelineOption } = req.body
-    // const realEndDate = endDate || new Date()
+    const { startDate, endDate, timelineOption } = req.body
+    const realEndDate = endDate || new Date()
 
-    // let timeline = []
-    // let currentDate = moment(startDate)
+    let timeline = []
+    let currentDate = moment(startDate)
 
-    // if (timelineOption === 'daily') {
-    //   while (currentDate <= moment(realEndDate)) {
-    //     timeline.push(moment(currentDate).format('YYYY-MM-DD'))
-    //     currentDate = moment(currentDate).add(1, 'day')
-    //   }
-    // } else if (timelineOption === 'weekly') {
-    //   // Dùng ISOWeek để xác định số tuần
-    //   const startWeek = moment(startDate).isoWeek()
-    //   const endWeek = moment(realEndDate).isoWeek()
-    //   for (let week = startWeek; week <= endWeek; week++) {
-    //     timeline.push(`Week ${week}, ${moment(startDate).isoWeek(week).format('YYYY')}`)
-    //   }
-    // } else if (timelineOption === 'monthly') {
-    //   // Dùng startOf để xác định tháng
-    //   while (currentDate <= moment(realEndDate)) {
-    //     timeline.push(moment(currentDate).startOf('month').format('YYYY-MM'))
-    //     currentDate = moment(currentDate).add(1, 'month')
-    //   }
-    // }
+    if (timelineOption === 'daily') {
+      while (currentDate <= moment(realEndDate)) {
+        timeline.push(moment(currentDate).format('YYYY-MM-DD'))
+        currentDate = moment(currentDate).add(1, 'day')
+      }
+    } else if (timelineOption === 'weekly') {
+      // Use ISOWeek to specify date time
+      const startWeek = moment(startDate).isoWeek()
+      const endWeek = moment(realEndDate).isoWeek()
+      for (let week = startWeek; week <= endWeek; week++) {
+        timeline.push(`Week ${week}, ${moment(startDate).isoWeek(week).format('YYYY')}`)
+      }
+    } else if (timelineOption === 'monthly') {
+      // Use ISOMonth to specify date time
+      while (currentDate <= moment(realEndDate)) {
+        timeline.push(moment(currentDate).startOf('month').format('YYYY-MM'))
+        currentDate = moment(currentDate).add(1, 'month')
+      }
+    }
 
-    // const projectStats = await Job.aggregate([
-    //   {
-    //     $match: {
-    //       createdAt: {
-    //         $gte: moment(startDate).toDate(),
-    //         $lte: moment(realEndDate).toDate(),
-    //       },
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: {
-    //         $dateToString: {
-    //           format: timelineOption === 'monthly' ? '%Y-%m' : timelineOption === 'weekly' ? 'Week %V, %Y' : '%Y-%m-%d',
-    //           date: '$createdAt',
-    //         },
-    //       },
-    //       openJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.OPEN] }, 1, 0] } },
-    //       wipJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.INPROGRESS] }, 1, 0] } },
-    //       doneJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.COMPLETED] }, 1, 0] } },
-    //     },
-    //   },
-    // ])
+    const projectStats = await Job.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: moment(startDate).toDate(),
+            $lte: moment(realEndDate).toDate(),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: timelineOption === 'monthly' ? '%Y-%m' : timelineOption === 'weekly' ? 'Week %V, %Y' : '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
+          openJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.OPEN] }, 1, 0] } },
+          wipJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.INPROGRESS] }, 1, 0] } },
+          doneJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.COMPLETED] }, 1, 0] } },
+        },
+      },
+    ])
+    const statsByTimeline = timeline.map(date => {
+      const foundStat = projectStats.find(stat => stat._id === date)
+      return {
+        date,
+        count: foundStat || { openJobs: 0, wipJobs: 0, doneJobs: 0 },
+      }
+    })
 
-    const randomDate = (start, end) => {
-      return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-    };
-    
-    // Update the 'createdAt' field for all jobs
-    const updateJobs = async () => {
-      const s = new Date('2023-08-17T00:00:00Z');
-      const e = new Date('2023-11-28T00:00:00Z');
-    
-      const jobs = await Job.find({}); // Retrieve all jobs from your database
-    
-      jobs.forEach(async job => {
-        const randomCreatedAt = randomDate(s, e);
-        await Job.updateOne({ _id: new mongoose.Types.ObjectId(job._id) }, { createdAt: randomCreatedAt.toISOString() }, {timestamps: false});
-      });
-    };
-    
-    // Call the function to update jobs
-    updateJobs();
-    
-    // const statsByTimeline = timeline.map(date => {
-    //   const foundStat = projectStats.find(stat => stat._id === date)
-    //   return {
-    //     date,
-    //     count: foundStat || { openJobs: 0, wipJobs: 0, doneJobs: 0 },
-    //   }
-    // })
-
-    // return res.status(200).json(statsByTimeline)
-    return res.status(200).json({"ok": "ok"})
+    return res.status(200).json(statsByTimeline)
   } catch (error) {
     return next(error)
   }

@@ -34,6 +34,7 @@ const googleStrategy = new GoogleStrategy(
             nationalId: '',
             dob: profile?.birthday,
             isPhoneVerified: false,
+            sex: profile?.gender,
           }).then(createdUser => {
             return done(null, createdUser)
           })

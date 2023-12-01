@@ -1,4 +1,4 @@
-import { EUserType } from 'common/enums'
+import { ESex, EUserType } from 'common/enums'
 import Joi from 'joi'
 import { password } from '../../providers/validate/custom.validation'
 import { NewRegisteredUser } from '../user/user.interfaces'
@@ -17,6 +17,7 @@ const registerBody: Record<keyof NewRegisteredUser, any> = {
   lastLoginAs: Joi.string()
     .valid(...Object.values(EUserType))
     .optional(),
+  sex: Joi.number().valid(...Object.values(ESex)),
 }
 
 export const register = {

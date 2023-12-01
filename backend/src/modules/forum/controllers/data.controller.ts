@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable import/prefer-default-export */
-import { JobCategory } from '@modules/job/job.model'
+import Job, { JobCategory } from '@modules/job/job.model'
 import excel from 'exceljs'
 import Post from '../models/Post'
 import ApiErrorResponse from '../utils/ApiErrorResponse'
@@ -92,4 +93,9 @@ export const ideasExcel = async (req: any, res: any, next: any) => {
   } catch (err: any) {
     return next(new ApiErrorResponse(`${err.message}`, 500))
   }
+}
+
+export async function testQuery(req: any, res: any, next: any) {
+
+  res.status(200).json('oke')
 }

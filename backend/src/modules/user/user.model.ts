@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt'
-import { EUserType } from 'common/enums'
+import { ESex, EUserType } from 'common/enums'
 import mongoose from 'mongoose'
 import validator from 'validator'
 import { roles } from '../../config/roles'
@@ -114,6 +114,12 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
     lastLoginAs: {
       type: String,
       enum: EUserType,
+      required: false,
+    },
+    sex: {
+      type: Number,
+      enum: ESex,
+      default: ESex.UNKNOWN,
       required: false,
     },
     sickPoints: {

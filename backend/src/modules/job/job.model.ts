@@ -129,6 +129,7 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
     },
     appliedFreelancers: [{ type: String, default: [] }],
     blockFreelancers: [{ type: String, default: [] }],
+    proposalNotifyMail: { type: Boolean, default: false },
   },
   {
     timestamps: true,

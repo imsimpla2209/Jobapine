@@ -1,5 +1,6 @@
 import { IPaymentInfo } from '@modules/payment/payment.interfaces'
 import mongoose, { Document, Model } from 'mongoose'
+import { ESex } from 'common/enums'
 import { QueryResult } from '../../providers/paginate/paginate'
 import { AccessAndRefreshTokens } from '../token/token.interfaces'
 
@@ -16,6 +17,7 @@ export interface IUser {
   nationalId: string
   password: string
   role: string
+  sex: ESex
   isEmailVerified: boolean
   isPhoneVerified: boolean
   oAuth?: IOAuth
