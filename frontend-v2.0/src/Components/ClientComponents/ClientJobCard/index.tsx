@@ -45,7 +45,7 @@ export default function ClientJobCard({ item, client, lang }) {
                         ? [
                             {
                               key: '1',
-                              label: <Link to={`/review-proposal/${item?._id}`}>View Proposals</Link>,
+                              label: <Link to={`/all-proposals/${item?._id}`}>View Proposals</Link>,
                             },
                             {
                               key: '2',
