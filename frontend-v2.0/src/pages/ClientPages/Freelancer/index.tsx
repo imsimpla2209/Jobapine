@@ -13,7 +13,6 @@ export default function FreelancerList({ saved = false }) {
   const { t } = useTranslation(['main'])
   const [filterOption, setfilterOption] = useState<filterFreelancersBody>({})
   const [refresh, onRefresh] = useState<boolean>(false)
-
   const [value, setValue] = useState({ from: 0, to: 5 })
   const mid = Number((5 / 2).toFixed(5))
   const preColorCls = value.from >= mid ? '' : 'icon-wrapper-active'

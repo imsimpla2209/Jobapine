@@ -1,16 +1,16 @@
-import { Button, Card, Divider, Image, Rate, Row, Space, Tag } from 'antd'
+import { HeartFilled, HeartOutlined } from '@ant-design/icons'
+import { Button, Card, Divider, Image, Rate, Space, Tag } from 'antd'
 import userIcon from 'assets/img/icon-user.svg'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Progress from 'src/Components/SharedComponents/Progress'
 import { locationStore } from 'src/Store/commom.store'
+import { clientStore } from 'src/Store/user.store'
+import { updateClient } from 'src/api/client-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { formatMoney } from 'src/utils/formatMoney'
 import { pickName } from 'src/utils/helperFuncs'
 import { Text } from '../ReviewProposalsCard'
-import { HeartFilled, HeartOutlined } from '@ant-design/icons'
-import { clientStore, userStore } from 'src/Store/user.store'
-import { updateClient } from 'src/api/client-apis'
-import { useEffect, useState } from 'react'
 
 export default function Saved({ freelancer }) {
   const { t, i18n } = useTranslation(['main'])

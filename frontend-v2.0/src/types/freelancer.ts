@@ -86,6 +86,7 @@ export interface QueryParams {
 }
 
 export interface filterFreelancersBody {
+  id?: string[]
   name?: string
   intro?: string
   skills?: SkillBody[]
