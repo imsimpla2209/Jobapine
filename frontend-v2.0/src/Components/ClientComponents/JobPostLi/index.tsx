@@ -49,7 +49,7 @@ export default function JobPostLi({ job, id, index }) {
           </button>
           <ul className="dropdown-menu">
             <li>
-              <Link className="dropdown-item" to={`/review-proposal/${job?.jobID}`} style={{ left: '-117px' }}>
+              <Link className="dropdown-item" to={`/all-proposals/${job?.jobID}`} style={{ left: '-117px' }}>
                 View Proposals
               </Link>
             </li>

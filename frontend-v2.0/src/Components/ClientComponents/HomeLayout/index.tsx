@@ -2,7 +2,7 @@
 
 /* eslint-disable no-script-url */
 
-import { AutoComplete, Card, Col, ConfigProvider, Input, Pagination, Rate, Row } from 'antd'
+import { AutoComplete, Card, Col, ConfigProvider, Input, Pagination, Rate, Result, Row } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -134,9 +134,25 @@ export default function HomeLayout() {
                           ))
                       ) : (
                         <Card style={{ marginBottom: 20 }}>
-                          <div className="d-flex justify-content-center align-items-center" style={{ height: '10vh' }}>
-                            <h3>No posted job found!</h3>
-                          </div>
+                          <Result
+                            status="404"
+                            title="No posted jobs found"
+                            extra={
+                              <Link
+                                to="/post-job"
+                                style={{
+                                  padding: 4,
+                                  color: 'white',
+                                  width: 250,
+                                  background:
+                                    'linear-gradient(92.88deg, #455eb5 9.16%, #5643cc 43.89%, #673fd7 64.72%)',
+                                }}
+                                className="btn bg-upwork"
+                              >
+                                {t('Post a job')}
+                              </Link>
+                            }
+                          />
                         </Card>
                       )
                     ) : (

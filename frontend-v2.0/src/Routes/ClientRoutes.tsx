@@ -18,16 +18,39 @@ import TransactionHistory from 'pages/FreelancerPages/Reports/TransactionHistory
 import Messages from 'pages/Messages'
 import Notifications from 'pages/Notifications'
 import PageNotFound from 'pages/PageNotFound'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Header from 'src/Components/ClientComponents/Header'
 import Offers from 'src/pages/FreelancerPages/Offers'
 import './styles.css'
 import HomeLayout from 'src/Components/ClientComponents/HomeLayout'
+import { getAllJobs } from 'src/api/job-apis'
+import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
 
 export default function ClientRoutes() {
   const [freelancerArr, setfreelancerArr] = useState([])
   const [freelancerSearchList, setfreelancerSearchList] = useState('')
+
+  useEffect(() => {
+    const isIndex = localStorage.getItem('index')
+    if (!isIndex || isIndex !== 'okay') {
+      console.log('reIndex')
+      getAllJobs()
+        .then(res => {
+          miniSearch.addAll(res.data)
+          handleCacheData(res.data)
+          localStorage.setItem('index', 'okay')
+        })
+        .catch(err => console.log('sth wrong', err))
+    } else if (isIndex === 'okay') {
+      handleGetCacheData()
+        .then(res => {
+          console.log('cache res', res)
+          miniSearch.addAll(res?.rows?.map(s => s?.doc))
+        })
+        .catch(err => console.log('get cache failed', err))
+    }
+  }, [])
 
   return (
     <div>

@@ -1,4 +1,5 @@
-import { Card, Empty, Pagination, Row, Spin } from 'antd'
+import { Card, Empty, Pagination, Result, Row, Spin } from 'antd'
+import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 import Saved from 'src/Components/ClientComponents/SavedComponent'
 import { clientStore } from 'src/Store/user.store'
@@ -69,9 +70,24 @@ export default function FreelancerListCards({ filterOption, saved }) {
           </Card>
         </>
       ) : (
-        <Card style={{ minHeight: 'calc(100vh - 100px)' }} bodyStyle={{ alignItems: 'center' }}>
-          <Empty description={'No freelancer found'} />
-        </Card>
+        <div className="col-12 bg-white">
+          <Result
+            status="404"
+            title="Oops, sorry mah bro"
+            subTitle={
+              <>
+                <h3 className="fw-bold text-center py-2 pt-5 " style={{ color: '#124C82' }}>
+                  {t('There are no results that match your search')}
+                </h3>
+
+                <h6 className="text-center " style={{ color: '#124C82' }}>
+                  {t('Please try adjusting your search keywords or filters')}
+                </h6>
+              </>
+            }
+            // extra={<Button type="primary">Back Home</Button>}
+          />
+        </div>
       )}
     </div>
   )

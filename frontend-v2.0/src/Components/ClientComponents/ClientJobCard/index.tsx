@@ -1,10 +1,12 @@
-import { ClockCircleFilled, SmileOutlined } from '@ant-design/icons'
+import { ClockCircleFilled } from '@ant-design/icons'
 import { Dropdown, Space } from 'antd'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
 import { useAuth } from 'src/Components/Providers/AuthProvider'
 import { locationStore } from 'src/Store/commom.store'
+import { deleteJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { EComplexityGet } from 'src/utils/enum'
 import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
@@ -13,8 +15,13 @@ export default function ClientJobCard({ item, client, lang }) {
   const { t } = useTranslation(['main'])
   const locations = useSubscription(locationStore).state
   const { authenticated } = useAuth()
+  const [deleting, setDeleting] = useState(false)
+  const handleDeleteJob = async () => {
+    setDeleting(true)
+    await deleteJob(item?._id || item?.id)
+  }
 
-  console.log(item)
+  if (deleting) return null
   return (
     <div
       className="card-hover"
@@ -34,35 +41,39 @@ export default function ClientJobCard({ item, client, lang }) {
                   <Dropdown
                     trigger={['click']}
                     menu={{
-                      items: [
-                        {
-                          key: '1',
-                          label: (
-                            <Link className="dropdown-item" to={`/review-proposal/${item?._id}`}>
-                              View Proposals
-                            </Link>
-                          ),
-                          icon: <SmileOutlined />,
-                        },
-                        {
-                          key: '2',
-                          label: (
-                            <Link className="dropdown-item" to={`/job-details/${item?._id}`}>
-                              View Job posting
-                            </Link>
-                          ),
-                          icon: <SmileOutlined />,
-                        },
-                        {
-                          key: '3',
-                          label: (
-                            <button className="dropdown-item" onClick={() => {}}>
-                              Remove posting
-                            </button>
-                          ),
-                          icon: <SmileOutlined />,
-                        },
-                      ],
+                      items: item?.proposals?.length
+                        ? [
+                            {
+                              key: '1',
+                              label: <Link to={`/all-proposals/${item?._id}`}>View Proposals</Link>,
+                            },
+                            {
+                              key: '2',
+                              label: <Link to={`/job-details/${item?._id}`}>View Job posting</Link>,
+                            },
+                            {
+                              key: '3',
+                              label: (
+                                <Link to={''} onClick={handleDeleteJob}>
+                                  Remove posting
+                                </Link>
+                              ),
+                            },
+                          ]
+                        : [
+                            {
+                              key: '4',
+                              label: <Link to={`/job-details/${item?._id}`}>View Job posting</Link>,
+                            },
+                            {
+                              key: '5',
+                              label: (
+                                <Link to={''} onClick={handleDeleteJob}>
+                                  Remove posting
+                                </Link>
+                              ),
+                            },
+                          ],
                     }}
                   >
                     <button
