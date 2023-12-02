@@ -12,6 +12,7 @@ router
   .get(validate(jobValidation.getJobs), jobController.getJobs)
 
 router.route('/all').get(jobController.getAllJobs)
+router.route('/allforAdmin').get(jobController.getAllJobsforAdmin)
 router.route('/filter').post(validate(jobValidation.advancedGetJobs), jobController.getAdvancedJobs)
 router.route('/search').get(validate(jobValidation.searchJob), jobController.searchJobs)
 router.route('/fav').get(validate(jobValidation.getRcmdJob), jobController.getFavJobsByUser)

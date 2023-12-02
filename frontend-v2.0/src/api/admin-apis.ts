@@ -15,3 +15,7 @@ export const dropBackupData = data => {
 export const getUserSignUpStats = () => {
   return instance.get('admin/userStats')
 }
+
+export const getSummarizeStats = () => {
+  return instance.get('admin/summarizeStats')
+}

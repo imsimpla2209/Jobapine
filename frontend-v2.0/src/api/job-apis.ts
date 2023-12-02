@@ -7,12 +7,16 @@ export const createJob = (data: ICreateJobBody) => {
   return instance.post('jobs', data);
 }
 
-export const getJobs = (data: IGetJobsQuery ) => {
+export const getJobs = (data?: IGetJobsQuery ) => {
   return Http.get('jobs', data);
 }
 
 export const getAllJobs = () => {
   return Http.get('jobs/all');
+}
+
+export const getAllJobsforAdmin = () => {
+  return Http.get('jobs/allforAdmin');
 }
 
 export const filterJobs = (data: IAdvancedGetJobsBody, query: IAdvancedGetJobsQuery ) => {

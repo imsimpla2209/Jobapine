@@ -22,6 +22,13 @@ export const getJobs = catchAsync(async (req: Request, res: Response) => {
   res.send(result)
 })
 
+export const getAllJobsforAdmin = catchAsync(async (req: Request, res: Response) => {
+  const filter = pick(req.query, ['title', 'skills', 'categories', 'client'])
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const result = await jobService.getAllJobs(filter, options)
+  res.send(result)
+})
+
 export const getAdvancedJobs = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.body, [
     'duration',

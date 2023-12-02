@@ -9,7 +9,7 @@ const paymentSchema = new mongoose.Schema<IPaymentDoc, IPaymentModel>(
     purpose: {
       type: String,
       enum: EPaymentPurpose,
-      default: EPaymentPurpose.RECHARGE,
+      default: EPaymentPurpose.BUYSICK,
     },
     from: { type: mongoose.Types.ObjectId, ref: 'User' },
     to: { type: mongoose.Types.ObjectId, ref: 'User' },
@@ -20,7 +20,7 @@ const paymentSchema = new mongoose.Schema<IPaymentDoc, IPaymentModel>(
     status: {
       type: String,
       enum: EStatus,
-      default: EStatus.PENDING,
+      default: EStatus.COMPLETED,
     },
     note: {
       type: String,
@@ -29,7 +29,7 @@ const paymentSchema = new mongoose.Schema<IPaymentDoc, IPaymentModel>(
     paymentMethod: {
       type: String,
       enum: EPaymentMethod,
-      default: EPaymentMethod.VNPAY,
+      default: EPaymentMethod.PAYPAL,
     },
   },
   {

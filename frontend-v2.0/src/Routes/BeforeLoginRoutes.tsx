@@ -57,7 +57,6 @@ export default function BeforeLoginRoutes() {
         <Route path="/dev-it" element={<DevelopmentItFreelancer />} />
         <Route path="*" element={<PageNotFoundBeforeLogin />} />
       </Routes>
-      <Footer />
     </>
   )
 }

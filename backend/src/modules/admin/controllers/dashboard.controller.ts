@@ -4,9 +4,14 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable import/prefer-default-export */
+import Client from '@modules/client/client.model'
+import { Freelancer } from '@modules/freelancer'
 import { Job } from '@modules/job'
+import { Payment } from '@modules/payment'
 import { User } from '@modules/user'
 import { EJobStatus } from 'common/enums'
+import { ApiError } from 'common/errors'
+import httpStatus from 'http-status'
 import moment from 'moment'
 
 export const getUserSignUpStats = async (req, res, next) => {
@@ -102,7 +107,7 @@ export const getUserSignUpStats = async (req, res, next) => {
 
     return res.status(200).json(finalResult)
   } catch (error) {
-    return next(error)
+    throw new ApiError(httpStatus.BAD_REQUEST, `Cannot get user sign Stats ${error}`)
   }
 }
 
@@ -167,6 +172,29 @@ export const getProjectStats = async (req, res, next) => {
 
     return res.status(200).json(statsByTimeline)
   } catch (error) {
-    return next(error)
+    throw new ApiError(httpStatus.BAD_REQUEST, `Cannot get Jobs Stats ${error}`)
+  }
+}
+
+export const getDashboardSummarize = async (req, res, next) => {
+  try {
+    const totalUsers = await User.countDocuments()
+    const totalJobs = await Job.countDocuments()
+    const totalFreelancers = await Freelancer.countDocuments()
+    const totalClients = await Client.countDocuments()
+    const totalRevenue = await Payment.aggregate([
+      { $match: {} },
+      { $group: { _id: null, sum: { $sum: '$amount' } } },
+      { $project: { _id: 0, sum: 1 } },
+    ])
+    return res.status(200).json({
+      totalUsers,
+      totalJobs,
+      totalFreelancers,
+      totalClients,
+      totalRevenue: totalRevenue[0].sum,
+    })
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Cannot get Summarize')
   }
 }
