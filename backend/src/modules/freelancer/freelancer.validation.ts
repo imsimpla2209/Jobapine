@@ -42,6 +42,7 @@ export const getFreelancers = {
 
 export const getAdvancedFreelancers = {
   body: Joi.object().keys({
+    id: Joi.array().items(Joi.string()),
     name: Joi.string(),
     intro: Joi.string(),
     skills: Joi.array().items(skillBody),

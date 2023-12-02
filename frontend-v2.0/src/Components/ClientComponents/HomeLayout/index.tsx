@@ -153,7 +153,7 @@ export default function HomeLayout() {
                         showSizeChanger={false}
                         responsive
                         onChange={p => handleChangePageJob(p)}
-                        showTotal={total => `Total ${total} items`}
+                        showTotal={total => `Total ${total} jobs`}
                       />
                     </Card>
                   </>

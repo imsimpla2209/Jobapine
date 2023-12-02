@@ -57,7 +57,8 @@ const config = {
   port: envVars.PORT,
   apiHost: envVars.API_HOST,
   mongoose: {
-    url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
+    // url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
+    url: `${envVars.MONGODB_URL}backup`,
     slave: `${envVars.MONGODB_URL}backup`,
     slaveName: `backup-jobsicker-version-${new Date().getTime()}`,
     options: {
