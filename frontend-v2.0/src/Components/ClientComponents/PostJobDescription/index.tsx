@@ -6,6 +6,7 @@ import { DefaultUpload } from 'src/Components/CommonComponents/upload/upload'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
+import LocationPicker from 'src/Components/SharedComponents/LocationPicker'
 
 export default function Postdescription({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
@@ -14,6 +15,7 @@ export default function Postdescription({ setBtns, btns }) {
   let [files, setFiles] = useState([])
   const [inputVal, setInputVal] = useState('')
   const [tagList, settagList] = useState([])
+  const [locations, setLocations] = useState([])
 
   const getData = e => {
     const val = e.target.value
@@ -45,9 +47,19 @@ export default function Postdescription({ setBtns, btns }) {
   }
 
   const addData = () => {
-    postJobSubscribtion.updateState({ description, attachments: files, tags: tagList })
+    postJobSubscribtion.updateState({
+      description,
+      attachments: files,
+      tags: tagList,
+      preferences: { ...postJobSubscribtion.state.preferences, locations },
+    })
     setBtns({ ...btns, details: false })
     setStep('details')
+  }
+
+  const onChangeLocation = (locs: string[]) => {
+    console.log(locs)
+    setLocations(locs)
   }
 
   return (
@@ -92,7 +104,7 @@ export default function Postdescription({ setBtns, btns }) {
           )}
         </p>
 
-        <p className="fw-bold">{t('Enter the tags of your job post?')}</p>
+        <p className="fw-bold">{t('Enter the tags of your job post')}</p>
         <div className="my-4 d-flex justify-content-between">
           <input
             className="form-control w-75 shadow-none"
@@ -111,6 +123,9 @@ export default function Postdescription({ setBtns, btns }) {
             <span>{item}</span>
           </div>
         ))}
+
+        <p className="fw-bold">{t('Add locations')}</p>
+        <LocationPicker handleChange={onChangeLocation} />
       </div>
 
       <div className="ps-4 my-3 pt-4 pb-3 pt-3 border-top">

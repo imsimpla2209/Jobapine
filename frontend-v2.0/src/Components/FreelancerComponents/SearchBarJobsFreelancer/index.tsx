@@ -2,88 +2,60 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable array-callback-return */
-import { fakeFreelancerState, fakeJobsState } from "Store/fake-state";
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
-import './SearchBarJobsFreelancer.css';
-import { AutoComplete, ConfigProvider, Input } from "antd";
-import React from "react";
-import { miniSearch } from "src/utils/handleData";
-import { jobLoad, jobsDataStore, refreshStore } from "src/Store/job.store";
-import { useSubscription } from "src/libs/global-state-hook";
+import { AutoComplete, ConfigProvider, Input } from 'antd'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import { jobLoad, jobsDataStore, refreshStore } from 'src/Store/job.store'
+import { useSubscription } from 'src/libs/global-state-hook'
+import { miniSearch } from 'src/utils/handleData'
+import './SearchBarJobsFreelancer.css'
 
-
-export default function SearchBarJobsFreelancer({ showPath = true, useIndexSearch = true, textSearch, setSearchText }: any) {
-  const { i18n, t } = useTranslation(['main']);
+export default function SearchBarJobsFreelancer({
+  showPath = true,
+  useIndexSearch = true,
+  textSearch,
+  setSearchText,
+}: any) {
+  const { i18n, t } = useTranslation(['main'])
   const { setState } = useSubscription(jobsDataStore)
   const refreshPage = useSubscription(refreshStore).setState
   const jobLoader = useSubscription(jobLoad)
 
-  useEffect(() => {
-    // sessionStorage.setItem('searchArray', JSON.stringify(user.searchHistory))
-    // dispatch(freelancerDataAction());
-
-  }, []);
-
-  const handle = (e) => {
+  const handle = e => {
     setSearchText && setSearchText(e.target.value)
-  }
-
-  // useEffect(() => {
-  //  itemSearchList === "" && setsearchList([])
-  // }, [itemSearchList])
-
-  const searchDatabase = () => {
-    // let tempArr = [];
-    // jobs.map((e) => e.skills?.includes(itemSearchList) && tempArr.push(e))
-    // console.log(tempArr);
-    // setsearchList(tempArr)
-    // navigate({ pathname: "/search" })
-    // if (itemSearchList !== "") {
-    //   let arr2 = []
-    //   arr != null ? arr2 = [itemSearchList, ...arr] :
-    //     arr2 = [itemSearchList]
-    //   user.searchHistory != null ?
-    //     updateUserData('freelancer', { searchHistory: [...user?.searchHistory, ...arr2] })
-    //     : updateUserData('freelancer', { searchHistory: [...arr2] })
-    //   sessionStorage.setItem('searchArray', JSON.stringify(arr2))
-    //   setarr([...arr2])
-    // }
   }
 
   const [searchResults, setSearchResults] = useState([])
 
+  const handleSearch = React.useCallback(
+    (text: string) => {
+      const results = miniSearch.autoSuggest(text, { fuzzy: 0.3 })
+      setSearchResults(results)
+    },
+    [searchResults]
+  )
 
-  const [verify, setverify] = useState(false);
-  // firebaseApp.auth().onAuthStateChanged(user => {
-  //   if (user) {
-  //     var verf = user.emailVerified;
-  //     setverify(verf);
-  //   }
-  // });
-
-  // React.useEffect(() => {
-  //   const results = miniSearch.autoSuggest(text, { fuzzy: 0.3 })
-  //   setSearchResults(results)
-  //   console.log(results)
-  // }, [text])
-
-  const handleSearch = React.useCallback((text: string) => {
-    const results = miniSearch.autoSuggest(text, { fuzzy: 0.3 })
-    setSearchResults(results)
-  }, [searchResults])
-
-  const onSelect = React.useCallback((text: string) => {
-    if (useIndexSearch) {
-      let results = miniSearch.search(text, { fuzzy: 0.2, prefix: true });
-      setState(results);
-      jobLoader.setState({ ...jobLoader.state, pageSize: results?.length, page: 1, categories: [], skills: [], filter: '' })
-      refreshPage({ isRefresh: true })
-    } else {
-      setSearchText(text)
-    }
-  }, [searchResults])
+  const onSelect = React.useCallback(
+    (text: string) => {
+      if (useIndexSearch) {
+        let results = miniSearch.search(text, { fuzzy: 0.2, prefix: true })
+        setState(results)
+        jobLoader.setState({
+          ...jobLoader.state,
+          pageSize: results?.length,
+          page: 1,
+          categories: [],
+          skills: [],
+          filter: '',
+        })
+        refreshPage({ isRefresh: true })
+      } else {
+        setSearchText(text)
+      }
+    },
+    [searchResults]
+  )
 
   return (
     <div>
@@ -93,14 +65,14 @@ export default function SearchBarJobsFreelancer({ showPath = true, useIndexSearc
             Select: {
               optionFontSize: 16,
               optionSelectedBg: '#a2eaf2',
-              optionLineHeight: 0.7
+              optionLineHeight: 0.7,
             },
           },
         }}
       >
         <AutoComplete
           style={{ width: '100%' }}
-          status='warning'
+          status="warning"
           popupMatchSelectWidth={true}
           notFoundContent={`${t('Nothing matches the search')}😏🥱`}
           options={searchResults?.map(s => {
@@ -111,13 +83,11 @@ export default function SearchBarJobsFreelancer({ showPath = true, useIndexSearc
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 >
                   <span>
-                    <p style={{ color: "#6600cc", paddingTop: 3 }}>
-                      {s.suggestion}
-                    </p>
+                    <p style={{ color: '#6600cc', paddingTop: 3 }}>{s.suggestion}</p>
                   </span>
                 </div>
               ),
@@ -127,20 +97,18 @@ export default function SearchBarJobsFreelancer({ showPath = true, useIndexSearc
           onSearch={handleSearch}
           size="large"
         >
-          {
-            useIndexSearch ? <Input.Search
+          {useIndexSearch ? (
+            <Input.Search
               id="input"
               size="large"
               type="search"
               // style={{ height: "44px", borderTopLeftRadius: 20, borderBottomLeftRadius: 20, border: '2px solid #ccc', padding: '0 12' }}
               // className={`form-control text-dark bg-white`}
-              placeholder={t("Search For Jobs")}
-            /> : <Input onChange={handle}
-              size="large"
-              placeholder={t("Search For Jobs")}
-              value={textSearch}>
-            </Input>
-          }
+              placeholder={t('Search For Jobs')}
+            />
+          ) : (
+            <Input onChange={handle} size="large" placeholder={t('Search For Jobs')} value={textSearch}></Input>
+          )}
         </AutoComplete>
       </ConfigProvider>
       {/* <div className="col-8 input-group form-outline has-success">
@@ -156,14 +124,17 @@ export default function SearchBarJobsFreelancer({ showPath = true, useIndexSearc
             </button>
           </Link>
         </div> */}
-      {
-        showPath && <span className="d-block pt-2">
-          <Link to='/Search' className="advanced-search-link" style={{ fontSize: '17px', color: '#cccccc', fontWeight: "600" }}>
-            {t("AdvancedSearch")}
+      {showPath && (
+        <span className="d-block pt-2">
+          <Link
+            to="/Search"
+            className="advanced-search-link"
+            style={{ fontSize: '17px', color: '#cccccc', fontWeight: '600' }}
+          >
+            {t('AdvancedSearch')}
           </Link>
         </span>
-      }
+      )}
     </div>
-
   )
 }

@@ -404,9 +404,6 @@ h4 {
   line-height: normal;
 }
 
-.ant-btn svg {
-  margin-right: 5px;
-}
 .layout-dashboard .header-control svg {
   width: 20px;
   height: 20px;
@@ -1783,14 +1780,7 @@ body {
 .text-dark {
   color: #141414;
 }
-.ant-btn,
-.ant-radio-group .ant-radio-button-wrapper {
-  font-weight: 600;
-  font-size: 12px;
-  height: 40px;
-  padding: 0 15px;
-  line-height: 40px;
-}
+
 .ant-btn {
   box-shadow: 0 2px 4px rgb(0 0 0 / 7%);
   border-radius: 6px;

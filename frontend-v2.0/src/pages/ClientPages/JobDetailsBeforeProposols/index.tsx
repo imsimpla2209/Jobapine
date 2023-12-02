@@ -1,3 +1,4 @@
+import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Badge, Button, Card, Col, Modal, Row, Space, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,11 +6,10 @@ import { useParams } from 'react-router'
 import { Link, useNavigate } from 'react-router-dom'
 import ClientJobDetails from 'src/Components/ClientComponents/ClientJobDetails'
 import SimilarJobsOnJobSickers from 'src/Components/FreelancerComponents/SimilarJobsOnJobSickers'
-import { clientStore, userStore } from 'src/Store/user.store'
+import { clientStore } from 'src/Store/user.store'
 import { deleteJob, getJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import Loader from '../../../Components/SharedComponents/Loader/Loader'
-import { ExclamationCircleFilled } from '@ant-design/icons'
 
 const { confirm } = Modal
 
@@ -20,7 +20,7 @@ export default function JobDetailsBeforeProposals() {
   const navigate = useNavigate()
   const [jobData, setJobData] = useState(null)
   const client = useSubscription(clientStore).state
-  const user = useSubscription(userStore).state
+
   useEffect(() => {
     getJob(id).then(res => {
       console.log('load job, ', id)
