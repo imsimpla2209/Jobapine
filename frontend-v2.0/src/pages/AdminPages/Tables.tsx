@@ -368,10 +368,13 @@ function Tables() {
   const [users, setUsers] = useState([])
   const [seletecUser, setSelectedUser] = useState({})
   const [openModal, setOpenModal] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     getUsers({ limit: 1000 }).then((res) => {
       setUsers(res.data.results?.filter(user => user.role === 'user'))
+    }).finally(() => {
+      setLoading(false)
     })
   }, [])
 
@@ -452,6 +455,7 @@ function Tables() {
                 dataSource={getUsersData(users)}
                 pagination={{}}
                 className="ant-border-space"
+                loading={loading}
               />
             </div>
           </Card>
@@ -484,7 +488,7 @@ function Tables() {
           >
             <UserInfo user={seletecUser} />
           </Modal>
-          <Card
+          {/* <Card
             bordered={false}
             className="criclebox tablespace mb-24"
             title="Job Management Table"
@@ -518,7 +522,7 @@ function Tables() {
                 </Button>
               </Upload>
             </div>
-          </Card>
+          </Card> */}
         </Col>
       </Row>
     </div>

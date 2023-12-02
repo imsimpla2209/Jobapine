@@ -12,6 +12,7 @@ import Profile from 'src/pages/AdminPages/Profile'
 import SkillsTable from 'src/pages/AdminPages/Skills'
 import CategoriesTable from 'src/pages/AdminPages/Categories'
 import BackupDataManager from 'src/pages/ForumPages/backup-data'
+import JobTables from 'src/pages/AdminPages/JobTables'
 
 function AdminRoutes() {
   return (
@@ -25,7 +26,7 @@ function AdminRoutes() {
           <Route path="/users" element={<Tables />} />
           <Route path="/skills" element={<SkillsTable />} />
           <Route path="/categories" element={<CategoriesTable />} />
-          <Route path="/jobs" element={<Tables />} />
+          <Route path="/jobs" element={<JobTables />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/rtl" element={<Rtl />} />
           <Route path="/backup" element={<BackupDataManager />} />

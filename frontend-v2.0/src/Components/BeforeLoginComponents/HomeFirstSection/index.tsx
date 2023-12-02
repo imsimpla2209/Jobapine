@@ -19,10 +19,10 @@ export default function HomeFirstSection() {
               <p className="my-5 h1">{t('Theworldsworkmarketplace')}</p>
               <p className="fs-3 fs-p-cn">{t('Engagethelargestnetwork')}</p>
               <div className="my-5">
-                <Link className="btn py-3 px-4 me-4 fs-btns-cn text-decoration-none" to="/freelance-jobs">
+                <Link className="btn py-3 px-4 me-4 fs-btns-cn text-decoration-none" to="/freelancer">
                   {t('FindFreelancer')}
                 </Link>
-                <Link className={`btn py-3 px-4 border text-success ${lang === 'vi' && 'fs-6'}`} to="/find-work">
+                <Link className={`btn py-3 px-4 border ${lang === 'vi' && 'fs-6'}`} to="/find-work">
                   {t('FindWork')}
                 </Link>
               </div>

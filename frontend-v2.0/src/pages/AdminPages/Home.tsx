@@ -1,4 +1,5 @@
-import { useState } from 'react'
+/* eslint-disable no-useless-concat */
+import { useEffect, useState } from 'react'
 import { Card, Col, Row, Typography, Tooltip, Progress, Upload, message, Button, Timeline, Radio } from 'antd'
 import { ToTopOutlined, MenuUnfoldOutlined, RightOutlined } from '@ant-design/icons'
 import Paragraph from 'antd/lib/typography/Paragraph'
@@ -15,6 +16,8 @@ import team4 from 'pages/AdminPages/assets/images/team-4.jpg'
 import card from 'pages/AdminPages/assets/images/info-card-1.jpg'
 import EChart from 'src/Components/AdminComponents/chart/EChart'
 import LineChart from 'src/Components/AdminComponents/chart/LineChart'
+import { getSummarizeStats } from 'src/api/admin-apis'
+import { currencyFormatter } from 'src/utils/helperFuncs'
 
 function Home() {
   const { Title, Text } = Typography
@@ -22,6 +25,14 @@ function Home() {
   const onChange = e => console.log(`radio checked:${e.target.value}`)
 
   const [reverse, setReverse] = useState(false)
+  const [summarize, setSummarize] = useState<any>({})
+
+  useEffect(() => {
+    getSummarizeStats().then((res) => {
+      setSummarize(res.data)
+    })
+  }, [])
+  
 
   const dollor = [
     <svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" key={0}>
@@ -81,28 +92,28 @@ function Home() {
   const count = [
     {
       today: 'Total posted jobs',
-      title: '125',
+      title: summarize?.totalJobs || 'N/A',
       // persent: '+30%',
       icon: cart,
       bnb: 'bnb2',
     },
     {
       today: 'Total Users',
-      title: '98',
+      title: summarize?.totalUsers || 'N/A',
       // persent: '+20%',
       icon: profile,
       bnb: 'bnb2',
     },
     {
-      today: 'Total Freelancers',
-      title: '54',
+      today: 'Total Freelancers/Clients',
+      title: (summarize?.totalFreelancers || 'N/A' + '/' + summarize?.totalClients || 'N/A'),
       // persent: '-20%',
       icon: heart,
       bnb: 'redtext',
     },
     {
-      today: 'Total accepted contract',
-      title: '18',
+      today: 'Total Revenue',
+      title: currencyFormatter(summarize?.totalRevenue),
       // persent: '10%',
       icon: dollor,
       bnb: 'bnb2',

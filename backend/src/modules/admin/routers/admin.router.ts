@@ -8,7 +8,7 @@ import { auth } from '@modules/auth'
 import { startBackup } from '@modules/forum/utils/backup'
 import { Connect, Process } from '@modules/forum/utils/mongodb'
 import express from 'express'
-import { getProjectStats, getUserSignUpStats } from '../controllers/dashboard.controller'
+import { getDashboardSummarize, getProjectStats, getUserSignUpStats } from '../controllers/dashboard.controller'
 
 export const adminRouter = express.Router()
 
@@ -128,3 +128,4 @@ adminRouter.get('/all-backup', auth(), async (req, res) => {
 
 adminRouter.get('/userStats', getUserSignUpStats)
 adminRouter.post('/jobStats', getProjectStats)
+adminRouter.get('/summarizeStats', getDashboardSummarize)

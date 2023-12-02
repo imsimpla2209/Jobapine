@@ -38,10 +38,10 @@ export default function Footer() {
                         <ul className="list-unstyled">
                             <p className="text-light"><strong>{t("BROWSE")}</strong></p>
                             <li><a href="#">{t("FreelancersbySkill")}</a></li>
-                            <li><a href="#">{t("FreelancersinUSA")}</a></li>
-                            <li><a href="#">{t("FreelancersinUK")}</a></li>
-                            <li><a href="#">{t("FreelancersinCanada")}</a></li>
-                            <li><a href="#">{t("FreelancersinAustralia")}</a></li>
+                            <li><a href="#">{t("FreelancersinHN")}</a></li>
+                            <li><a href="#">{t("FreelancersinHCM")}</a></li>
+                            <li><a href="#">{t("FreelancersinDN")}</a></li>
+                            <li><a href="#">{t("FreelancersinHP")}</a></li>
                             <li><a href="#">{t("JobsinUSA")}</a></li>
                             <li><a href="#">{t("FindJobs")}</a></li>
                         </ul>

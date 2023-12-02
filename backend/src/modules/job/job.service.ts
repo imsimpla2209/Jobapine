@@ -17,11 +17,11 @@ import { logger } from 'common/logger'
 import httpStatus from 'http-status'
 import keywordExtractor from 'keyword-extractor'
 import mongoose from 'mongoose'
+import { createFuzzyRegex, extractKeywords } from 'utils/helperFunc'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IJobDoc, NewCreatedJob, UpdateJobBody } from './job.interfaces'
 import Job, { JobCategory, JobTag } from './job.model'
-import { createFuzzyRegex, extractKeywords } from 'utils/helperFunc'
 
 /**
  * Create a job
@@ -468,9 +468,7 @@ export const getFavJobByFreelancer = async (
   const freelancer = await getFreelancerById(freelancerId)
 
   if (!freelancer) {
-    if (!freelancer) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Not found freelancer')
-    }
+    throw new ApiError(httpStatus.NOT_FOUND, 'Not found freelancer')
   }
 
   const filter = { _id: { $in: freelancer?.favoriteJobs || [] } }
@@ -888,6 +886,24 @@ export const changeStatusJobById = async (
   })
   await job.save()
   return job
+}
+
+/**
+ * Query for jobs
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @returns {Promise<QueryResult>}
+ */
+export const getAllJobs = async (filter: Record<string, any>, options: IOptions): Promise<IJobDoc[]> => {
+  const jobs = await Job.find()
+    .populate([
+      { path: 'client' },
+      { path: 'categories' },
+      { path: 'reqSkills.skill' },
+      { path: 'proposals', populate: 'freelancer' },
+    ])
+    .lean()
+  return jobs
 }
 
 /**

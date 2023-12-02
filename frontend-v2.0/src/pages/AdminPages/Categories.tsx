@@ -44,11 +44,14 @@ function CategoriesTable() {
   const [formAdd] = Form.useForm()
   const [modal, contextHolder] = Modal.useModal()
   const [update, forceUpdate] = useState({})
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setLoading(true)
     getAllCategories()
       .then(res => setCategories(res.data || []))
       .catch(err => message.error('Failed to get categories'))
+
   }, [update])
 
   useEffect(() => {
@@ -66,6 +69,7 @@ function CategoriesTable() {
         }
       })
       .catch(err => message.error('Failed to get jobs'))
+      .finally(() => setLoading(false))
   }, [])
 
   const getNumber = (categoryId: string) => {
@@ -230,7 +234,7 @@ function CategoriesTable() {
             }
           >
             <div className="table-responsive">
-              <Table columns={columns} dataSource={data} pagination={false} className="ant-border-space" />
+              <Table columns={columns} dataSource={data} pagination={false} className="ant-border-space" loading={loading} />
             </div>
           </Card>
         </Col>

@@ -7,7 +7,7 @@ import { useAuth } from "src/Components/Providers/AuthProvider";
 import { ResponseStatus } from "src/api/constants";
 import toast from 'react-hot-toast';
 import { Input } from "antd";
-import { EyeTwoTone, EyeInvisibleOutlined } from "@ant-design/icons";
+import { EyeTwoTone, EyeInvisibleOutlined, UserOutlined } from "@ant-design/icons";
 
 export default function LoginTemp() {
   const [user, setUser] = useState({ email: "", password: "" });
@@ -114,8 +114,9 @@ export default function LoginTemp() {
               </h5>
               <form>
                 <div className="form-group col-8 mx-auto mt-3">
-                  <span className="text-danger">{emailError}</span>
+                  {/* <span className="text-danger">{emailError}</span> */}
                   <Input
+                    prefix={<UserOutlined />}
                     size={'large'}
                     type="email"
                     name="email"
@@ -127,7 +128,7 @@ export default function LoginTemp() {
                   />
                 </div>
                 <div className="form-group col-8 mx-auto mt-3">
-                  <span className="text-danger">{PasswordError}</span>
+                  {/* <span className="text-danger">{PasswordError}</span> */}
                   <Input.Password
                     size={'large'}
                     type="password"

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState, useEffect } from "react";
 
 import {
@@ -23,9 +24,12 @@ import {
   FacebookFilled,
 } from "@ant-design/icons";
 
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import avtar from "pages/AdminPages/assets/images/team-2.jpg";
+import { logout } from "src/api/auth-apis";
+import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const ButtonContainer = styled.div`
   .ant-btn-primary {
@@ -253,10 +257,29 @@ function Header({
   const [sidenavType, setSidenavType] = useState("transparent");
 
   useEffect(() => window.scrollTo(0, 0));
+  const navigate = useNavigate()
+
+  const { t } = useTranslation(['main'])
 
   const showDrawer = () => setVisible(true);
   const hideDrawer = () => setVisible(false);
 
+  const handleLogout = () => {
+    logout().then((res) => {
+      console.log(res);
+      navigate("/login");
+      window.location.reload();
+      localStorage.removeItem('userType');
+      localStorage.removeItem('expiredIn');
+      toast.success('Bye', {
+        icon: '👋'
+      })
+    })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  }
+  
   return (
     <>
       <div className="setting-drwer" onClick={showDrawer}>
@@ -330,25 +353,26 @@ function Header({
                       1
                     </Button>
                     <Button
+                      style={{ background: "#52c41a" }}
                       onClick={() => handleSidenavColor("#52c41a")}
                     >
                       1
                     </Button>
                     <Button
-                      danger
+                      style={{ background: "#d9363e" }}
                       onClick={() => handleSidenavColor("#d9363e")}
                     >
                       1
                     </Button>
                     <Button
-                      color="yellow"
+                      style={{ background: "#fadb14" }}
                       onClick={() => handleSidenavColor("#fadb14")}
                     >
                       1
                     </Button>
 
                     <Button
-                      color="black"
+                      style={{ background: "#111" }}
                       onClick={() => handleSidenavColor("#111")}
                     >
                       1
@@ -381,36 +405,21 @@ function Header({
                   </ButtonContainer>
                 </div>
                 <div className="fixed-nav mb-2">
-                  <Title level={5}>Navbar Fixed </Title>
+                  <Title level={5}>Navigation bar Fixed </Title>
                   <Switch onChange={(e) => handleFixedNavbar(e)} />
                 </div>
-                <div className="ant-docment">
-                  <ButtonContainer>
-                    <Button color="black" size="large">
-                    </Button>
-                    <Button size="large"></Button>
-                  </ButtonContainer>
-                </div>
-                <div className="viewstar">
-                  <a href="#">{<StarOutlined />} Star</a>
-                  <a href="#"> 190</a>
-                </div>
-
-                <div className="ant-thank">
-                  <Title level={5} className="mb-2">
-                  </Title>
-                  <ButtonContainer className="social">
-                    <Button color="black">{<TwitterOutlined />}</Button>
-                    <Button color="black">{<FacebookFilled />}</Button>
-                  </ButtonContainer>
+                <div className="fixed-nav mb-2">
+                  <Button className={`px-4`} onClick={handleLogout}>
+                    <span>
+                      <i className={`fas fa-sign-out-alt`}></i>
+                    </span>
+                    <span className="ps-2">{t("Log Out")}</span>
+                  </Button>
                 </div>
               </div>
             </Space>
           </Drawer>
-          <Link to="/sign-in" className="btn-sign-in">
-            {profile}
-            {/* <span>Sign in</span> */}
-          </Link>
+
           <Input
             className="header-search"
             placeholder="Type here..."

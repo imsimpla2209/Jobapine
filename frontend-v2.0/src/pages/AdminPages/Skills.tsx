@@ -50,6 +50,7 @@ function SkillsTable() {
   const [search, setSearch] = useState('')
   const [openEditModal, setOpenEditModal] = useState('')
   const [openAddModal, setOpenAddModal] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [form] = Form.useForm()
   const [formAdd] = Form.useForm()
   const [modal, contextHolder] = Modal.useModal()
@@ -76,6 +77,7 @@ function SkillsTable() {
         }
       })
       .catch(err => message.error('Failed to get jobs'))
+      .finally(() => setLoading(false))
   }, [])
 
   const getNumber = (skillId: string) => {
@@ -265,7 +267,7 @@ function SkillsTable() {
             }
           >
             <div className="table-responsive">
-              <Table columns={columns} dataSource={data} pagination={false} className="ant-border-space" />
+              <Table columns={columns} dataSource={data} pagination={false} className="ant-border-space" loading={loading} />
             </div>
           </Card>
         </Col>

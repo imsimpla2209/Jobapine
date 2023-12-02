@@ -1,8 +1,8 @@
-import { Menu, Button } from 'antd'
-import { NavLink, useLocation } from 'react-router-dom'
-import logo from 'assets/img/jobsicker_fav2.png'
 import { LockFilled } from '@ant-design/icons'
+import { Button, Menu } from 'antd'
+import logo from 'assets/img/jobsicker_fav2.png'
 import { useTranslation } from 'react-i18next'
+import { NavLink, useLocation } from 'react-router-dom'
 
 function Sidenav({ color }) {
   const { pathname } = useLocation()
@@ -97,6 +97,8 @@ function Sidenav({ color }) {
     </svg>,
   ]
 
+
+
   return (
     <>
       <div className="brand">
@@ -145,19 +147,6 @@ function Sidenav({ color }) {
               {tables}
             </span>
             <span className="label">Jobs</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="2">
-          <NavLink to="/others">
-            <span
-              className="icon"
-              style={{
-                background: page === 'others' ? color : '',
-              }}
-            >
-              {tables}
-            </span>
-            <span className="label">Other</span>
           </NavLink>
         </Menu.Item>
         <Menu.Item key="3">
@@ -244,21 +233,9 @@ function Sidenav({ color }) {
           </NavLink>
         </Menu.Item>
         <Menu.Item key="7">
-          <NavLink to="/sign-in">
+          <NavLink to="/">
             <span className="icon">{signin}</span>
             <span className="label">APIs</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="8">
-          <NavLink to="/sign-in">
-            <span className="icon">{signin}</span>
-            <span className="label">APIs</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="9">
-          <NavLink to="/sign-up">
-            <span className="icon">{signup}</span>
-            <span className="label">Backup</span>
           </NavLink>
         </Menu.Item>
       </Menu>
@@ -272,9 +249,8 @@ function Sidenav({ color }) {
           <span className="icon" style={{ color }}>
             {dashboard}
           </span>
-          <h6>Need Help?</h6>
+          <h6>Admin</h6>
           <Button type="primary" className="ant-btn-sm ant-btn-block">
-            DOCUMENTATION
           </Button>
         </div>
       </div>
