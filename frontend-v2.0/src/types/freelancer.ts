@@ -1,7 +1,7 @@
-import { EPaymenType } from "src/utils/enum";
+import { EPaymenType } from 'src/utils/enum'
 
 export interface SkillBody {
-  skill: any;
+  skill: any
   level: number
 }
 
@@ -94,7 +94,7 @@ export interface filterFreelancersBody {
   'jobsDone.number'?: number
   'jobsDone.success'?: number
   earned?: { from: number; to: number }
-  rating?: number
+  rating?: { from: number; to: number }
   available?: boolean
 }
 

@@ -84,7 +84,7 @@ export const updateClientById = async (
   clientId: mongoose.Types.ObjectId,
   updateBody: UpdateClientBody
 ): Promise<IClientDoc | null> => {
-  const client = await getClientById(clientId)
+  let client = await getClientById(clientId)
   if (!client) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Client not found')
   }

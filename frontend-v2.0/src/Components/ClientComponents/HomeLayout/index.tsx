@@ -2,7 +2,7 @@
 
 /* eslint-disable no-script-url */
 
-import { Card, Col, Pagination, Rate, Row } from 'antd'
+import { AutoComplete, Card, Col, ConfigProvider, Input, Pagination, Rate, Row } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -29,16 +29,22 @@ export default function HomeLayout() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [total, setTotal] = useState(0)
+  const [searchKey, setSearchKey] = useState('')
 
   useEffect(() => {
     if (client?._id || client?.id) {
       handleGetData()
     }
-  }, [client])
+  }, [client, searchKey])
 
   const handleGetData = (p?: number | undefined, ps?: number | undefined) => {
     setLoading(true)
-    return getJobs({ client: client?._id || client?.id, page: p || page, limit: ps || pageSize })
+    getJobs({
+      client: client?._id || client?.id,
+      page: p || page,
+      limit: ps || pageSize,
+      searchText: searchKey || ' ',
+    })
       .then(res => {
         setJobs(res?.data?.results)
         setTotal(res?.data?.totalResults)
@@ -58,14 +64,9 @@ export default function HomeLayout() {
     [handleGetData, page]
   )
 
-  const handleChangePageSizeJob = useCallback(
-    (ps: number) => {
-      if (ps === pageSize) return
-      setPageSize(ps)
-      handleGetData(undefined, ps)
-    },
-    [handleGetData, pageSize]
-  )
+  const handleSearch = e => {
+    setSearchKey(e.target.value)
+  }
 
   return (
     <>
@@ -102,12 +103,42 @@ export default function HomeLayout() {
                 </Card>
                 {jobs ? (
                   <>
+                    <div style={{ marginBottom: 20 }}>
+                      <ConfigProvider
+                        theme={{
+                          components: {
+                            Select: {
+                              optionFontSize: 16,
+                              optionSelectedBg: '#a2eaf2',
+                              optionLineHeight: 0.7,
+                            },
+                          },
+                        }}
+                      >
+                        <Input
+                          onInput={handleSearch}
+                          size="large"
+                          placeholder={t('Search For Jobs')}
+                          value={searchKey}
+                        />
+                      </ConfigProvider>
+                    </div>
                     {!loading ? (
-                      jobs?.map((item, index) => (
-                        <div key={index}>
-                          <ClientJobCard item={item} client={client} lang={lang} />
-                        </div>
-                      ))
+                      jobs?.length ? (
+                        jobs
+                          // .filter(item => item?.title?.toLowerCase().includes(searchKey.trim().toLocaleLowerCase()))
+                          .map((item, index) => (
+                            <div key={index}>
+                              <ClientJobCard item={item} client={client} lang={lang} />
+                            </div>
+                          ))
+                      ) : (
+                        <Card style={{ marginBottom: 20 }}>
+                          <div className="d-flex justify-content-center align-items-center" style={{ height: '10vh' }}>
+                            <h3>No posted job found!</h3>
+                          </div>
+                        </Card>
+                      )
                     ) : (
                       <div className="d-flex justify-content-center align-items-center" style={{ height: '10vh' }}>
                         <Loader />
@@ -119,11 +150,9 @@ export default function HomeLayout() {
                         total={total}
                         pageSize={pageSize}
                         current={page}
-                        showSizeChanger
-                        showQuickJumper
+                        showSizeChanger={false}
                         responsive
                         onChange={p => handleChangePageJob(p)}
-                        onShowSizeChange={(_, s) => handleChangePageSizeJob(s)}
                         showTotal={total => `Total ${total} items`}
                       />
                     </Card>

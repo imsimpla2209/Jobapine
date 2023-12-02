@@ -1,4 +1,4 @@
-import { Button, Col, Empty, Layout, Row, Spin } from 'antd'
+import { Button, Empty, Row, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Saved from 'src/Components/ClientComponents/SavedComponent'

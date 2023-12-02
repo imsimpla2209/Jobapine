@@ -1,11 +1,11 @@
 import { FrownOutlined, SmileOutlined } from '@ant-design/icons'
-import { Card, Checkbox, Col, InputNumber, Layout, Radio, Row, Slider, Space } from 'antd'
+import { Card, InputNumber, Radio, Row, Slider, Space } from 'antd'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import CategoriesPicker from 'src/Components/SharedComponents/CategoriesPicker'
 import LocationPicker from 'src/Components/SharedComponents/LocationPicker'
 import { MultiSkillPicker } from 'src/Components/SharedComponents/SkillPicker'
 import { filterFreelancersBody } from 'src/types/freelancer'
-import { EPaymenType } from 'src/utils/enum'
 import './Freelancer.css'
 import FreelancerListCards from './freelancer-list'
 
@@ -20,7 +20,7 @@ export default function FreelancerList({ saved = false }) {
   const nextColorCls = value.to >= mid ? 'icon-wrapper-active' : ''
 
   const onSkillsChange = (c: any) => {
-    const skills = c?.map((cc, ix) => cc.label)
+    const skills = c?.map((cc, ix) => cc.value)
     setfilterOption({ ...filterOption, skills })
   }
 
@@ -46,6 +46,11 @@ export default function FreelancerList({ saved = false }) {
 
     setfilterOption({ ...filterOption, available: v })
   }
+
+  const handleFilterRating = val => {
+    setValue({ from: val[0], to: val[1] })
+    setfilterOption({ ...filterOption, rating: { from: val[0], to: val[1] } })
+  }
   const removeFilterOptions = useCallback(() => {
     setfilterOption({})
     onRefresh(true)
@@ -69,16 +74,8 @@ export default function FreelancerList({ saved = false }) {
           </Card>
 
           <Card>
-            <h6 className=" display-inline-block fw-bold">{t('Prefer payment type')}</h6>
-            <Checkbox.Group style={{ width: '100%' }} onChange={onPayTypeChange} value={filterOption?.preferJobType}>
-              <Space direction="vertical">
-                {Object.keys(EPaymenType).map(l => (
-                  <span key={l}>
-                    <Checkbox value={EPaymenType[l]}>{t(`${EPaymenType[l]}`)}</Checkbox>
-                  </span>
-                ))}
-              </Space>
-            </Checkbox.Group>
+            <h6 className=" display-inline-block fw-bold">{t('Prefer job type')}</h6>
+            <CategoriesPicker handleChange={onPayTypeChange} />
           </Card>
 
           <Card>
@@ -90,7 +87,6 @@ export default function FreelancerList({ saved = false }) {
                 prefix="From"
                 addonBefore=""
                 addonAfter={<> VND</>}
-                defaultValue={0}
                 placeholder="Enter a number"
                 controls
                 onKeyPress={event => {
@@ -136,7 +132,7 @@ export default function FreelancerList({ saved = false }) {
                 min={0}
                 range={true}
                 defaultValue={[0, 5]}
-                onChange={val => setValue({ from: val[0], to: val[1] })}
+                onChange={handleFilterRating}
                 value={[value.from, value.to]}
               />
               <SmileOutlined className={nextColorCls} />

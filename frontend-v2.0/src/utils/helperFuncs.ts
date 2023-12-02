@@ -35,7 +35,7 @@ export const getErrorMsg = (err: { graphQLErrors: { message: any }[]; message: a
 }
 
 export function pickName(o: { name: string | null; name_vi: string | null } | null, lang: string) {
-  if (lang === 'en-US') {
+  if (lang?.includes('en')) {
     return o?.name || ''
   } else {
     return o?.name_vi || ''

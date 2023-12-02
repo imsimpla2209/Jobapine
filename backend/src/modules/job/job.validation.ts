@@ -57,6 +57,7 @@ export const getJobs = {
     projectBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
+    searchText: Joi.string(),
   }),
 }
 
