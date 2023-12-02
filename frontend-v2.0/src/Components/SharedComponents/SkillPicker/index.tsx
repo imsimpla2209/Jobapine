@@ -1,11 +1,11 @@
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Select, Slider, Space } from 'antd';
-import { SliderMarks } from 'antd/es/slider';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { getSkills } from 'src/api/job-apis';
-import { SkillBody } from 'src/types/freelancer';
-import { pickName } from 'src/utils/helperFuncs';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { Button, Form, Select, Slider, Space } from 'antd'
+import { SliderMarks } from 'antd/es/slider'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { getSkills } from 'src/api/job-apis'
+import { SkillBody } from 'src/types/freelancer'
+import { pickName } from 'src/utils/helperFuncs'
 
 const formItemLayout = {
   labelCol: {
@@ -16,9 +16,9 @@ const formItemLayout = {
     xs: { span: 24 },
     sm: { span: 20 },
   },
-};
+}
 
-const desc = ['Terrible', 'Bad', 'Normal', 'Good', 'Goat'];
+const desc = ['Terrible', 'Bad', 'Normal', 'Good', 'Goat']
 
 const marks: SliderMarks = {
   1: desc[0],
@@ -26,22 +26,24 @@ const marks: SliderMarks = {
   3: desc[2],
   4: desc[3],
   5: desc[4],
-};
+}
 
 const SkillPicker = ({ handleChange, data }: any) => {
-  const [rates, setRates] = useState<SkillBody[]>(data || []);
+  const [rates, setRates] = useState<SkillBody[]>(data || [])
   const [skills, setSkills] = useState<any[]>([])
-  
+
   const { i18n } = useTranslation(['main'])
 
   useEffect(() => {
     getSkills().then(res => {
-      setSkills(res.data.map((skill: any) => {
-        return {
-          label: pickName(skill, i18n.language),
-          value: skill._id,
-        }
-      }));
+      setSkills(
+        res.data.map((skill: any) => {
+          return {
+            label: pickName(skill, i18n.language),
+            value: skill._id,
+          }
+        })
+      )
     })
   }, [])
 
@@ -50,10 +52,7 @@ const SkillPicker = ({ handleChange, data }: any) => {
   }, [rates])
 
   return (
-    <Form.Item
-      name="dynamic_form_item"
-      style={{ maxWidth: '100%', width: '100%' }}
-    >
+    <Form.Item name="dynamic_form_item" style={{ maxWidth: '100%', width: '100%' }}>
       <Form.List
         initialValue={data}
         name="names"
@@ -61,7 +60,7 @@ const SkillPicker = ({ handleChange, data }: any) => {
           {
             validator: async (_, names) => {
               if (!names || names.length < 1) {
-                return Promise.reject(new Error('At least 1 skill'));
+                return Promise.reject(new Error('At least 1 skill'))
               }
             },
           },
@@ -71,12 +70,11 @@ const SkillPicker = ({ handleChange, data }: any) => {
           <>
             {fields.map((field, index) => (
               <Form.Item
-                {...(formItemLayout)}
+                {...formItemLayout}
                 required={false}
                 key={field.key}
                 style={{
-                  marginBottom: 12
-
+                  marginBottom: 12,
                 }}
               >
                 <Form.Item
@@ -86,11 +84,10 @@ const SkillPicker = ({ handleChange, data }: any) => {
                     {
                       required: true,
                       whitespace: true,
-                      message: "Please input skill or delete this field.",
+                      message: 'Please input skill or delete this field.',
                     },
                   ]}
                   name={[field.name, 'skill']}
-
                   noStyle
                 >
                   <Select
@@ -98,7 +95,7 @@ const SkillPicker = ({ handleChange, data }: any) => {
                     style={{ width: 200, marginRight: 20 }}
                     placeholder="Search to Select"
                     optionFilterProp="children"
-                    onChange={(v) => {
+                    onChange={v => {
                       const rate = rates
                       rates[index].skill = v
                       setRates(rate)
@@ -107,18 +104,25 @@ const SkillPicker = ({ handleChange, data }: any) => {
                     filterSort={(optionA, optionB) =>
                       (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                     }
-
                     options={skills}
                   />
                 </Form.Item>
-                <Slider marks={marks} step={5} min={1} max={5} defaultValue={rates[index]?.level || 2} onChange={(s) => {
-                  const rate = rates
-                  rates[index].level = s
-                  setRates(rate)
-                }} style={{ marginRight: 20 }} />
+                <Slider
+                  marks={marks}
+                  step={5}
+                  min={1}
+                  max={5}
+                  defaultValue={rates[index]?.level || 2}
+                  onChange={s => {
+                    const rate = rates
+                    rates[index].level = s
+                    setRates(rate)
+                  }}
+                  style={{ marginRight: 20 }}
+                />
                 {fields.length > 1 ? (
                   <MinusCircleOutlined
-                    style={{ fontSize: 20, color: "gray" }}
+                    style={{ fontSize: 20, color: 'gray' }}
                     className="dynamic-delete-button"
                     onClick={() => {
                       const rate = rates
@@ -134,7 +138,7 @@ const SkillPicker = ({ handleChange, data }: any) => {
               <Button
                 type="dashed"
                 onClick={() => {
-                  add();
+                  add()
                   setRates([...rates, { skill: '', level: 0 }])
                 }}
                 style={{ width: '60%' }}
@@ -148,15 +152,15 @@ const SkillPicker = ({ handleChange, data }: any) => {
         )}
       </Form.List>
     </Form.Item>
-  );
-};
+  )
+}
 
 export const MultiSkillPicker = ({ handleChange, reset = false, istakeValue = false }: any) => {
   const [skills, setSkills] = useState<any[]>([])
   const [selected, setSelected] = useState<any[]>([])
 
   useEffect(() => {
-    if(reset) {
+    if (reset) {
       setSelected([])
     }
   }, [reset])
@@ -164,18 +168,21 @@ export const MultiSkillPicker = ({ handleChange, reset = false, istakeValue = fa
   const { i18n } = useTranslation(['main'])
 
   useEffect(() => {
+    console.log(i18n.language)
     getSkills().then(res => {
-      setSkills(res.data.map((skill: any) => {
-        return {
-          label: pickName(skill, i18n.language),
-          value: skill._id,
-        }
-      }));
+      setSkills(
+        res.data.map((skill: any) => {
+          return {
+            label: skill,
+            value: skill._id,
+          }
+        })
+      )
     })
   }, [])
 
   return (
-    <Space style={{ width: '100%' }} direction="vertical" >
+    <Space style={{ width: '100%' }} direction="vertical">
       <Select
         labelInValue={istakeValue}
         mode="multiple"
@@ -184,15 +191,16 @@ export const MultiSkillPicker = ({ handleChange, reset = false, istakeValue = fa
         style={{ width: '100%' }}
         placeholder="Please select"
         defaultValue={[]}
-        onChange={(e) => {
+        onChange={e => {
           setSelected(e)
           handleChange(e)
         }}
-        options={skills}
+        options={skills
+          .map(item => ({ label: pickName(item.label, i18n.language), value: item.value }))
+          .sort((a, b) => a.label.localeCompare(b.label))}
       />
     </Space>
-  );
-};
+  )
+}
 
-
-export default SkillPicker;
+export default SkillPicker

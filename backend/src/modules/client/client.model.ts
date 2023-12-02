@@ -24,6 +24,7 @@ const clientSchema = new mongoose.Schema<IClientDoc, IClientModel>(
     preferLocations: [{ type: String, required: 'false', default: [] }],
     preferencesURL: [{ type: String, required: 'false', default: [] }],
     paymentVerified: { type: Boolean, default: false },
+    favoriteFreelancers: [{ type: mongoose.Types.ObjectId, required: 'false', ref: 'Freelancer', default: [] }],
     spent: { type: Number, default: 0 },
   },
   {

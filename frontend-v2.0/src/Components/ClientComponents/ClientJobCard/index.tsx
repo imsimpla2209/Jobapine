@@ -1,11 +1,10 @@
-import { ClockCircleFilled } from '@ant-design/icons'
-import { Space } from 'antd'
+import { ClockCircleFilled, SmileOutlined } from '@ant-design/icons'
+import { Dropdown, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
 import { useAuth } from 'src/Components/Providers/AuthProvider'
 import { locationStore } from 'src/Store/commom.store'
-import { clientStore } from 'src/Store/user.store'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { EComplexityGet } from 'src/utils/enum'
 import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
@@ -14,7 +13,7 @@ export default function ClientJobCard({ item, client, lang }) {
   const { t } = useTranslation(['main'])
   const locations = useSubscription(locationStore).state
   const { authenticated } = useAuth()
-  const setState = useSubscription(clientStore).setState
+
   console.log(item)
   return (
     <div
@@ -32,38 +31,49 @@ export default function ClientJobCard({ item, client, lang }) {
             <div className="btn-group float-sm-end mt-2">
               {(client?.id || client?._id) === item?.client?._id && (
                 <div className="d-block col-sm-1 col-xs-3 btn-group z-3 ">
-                  <button
-                    type="button"
-                    className="btn btn-light dropdown-toggle border border-1 rounded-circle"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
+                  <Dropdown
+                    trigger={['click']}
+                    menu={{
+                      items: [
+                        {
+                          key: '1',
+                          label: (
+                            <Link className="dropdown-item" to={`/review-proposal/${item?._id}`}>
+                              View Proposals
+                            </Link>
+                          ),
+                          icon: <SmileOutlined />,
+                        },
+                        {
+                          key: '2',
+                          label: (
+                            <Link className="dropdown-item" to={`/job-details/${item?._id}`}>
+                              View Job posting
+                            </Link>
+                          ),
+                          icon: <SmileOutlined />,
+                        },
+                        {
+                          key: '3',
+                          label: (
+                            <button className="dropdown-item" onClick={() => {}}>
+                              Remove posting
+                            </button>
+                          ),
+                          icon: <SmileOutlined />,
+                        },
+                      ],
+                    }}
                   >
-                    <i className="fas fa-ellipsis-h " />
-                  </button>
-                  <ul className="dropdown-menu" style={{ zIndex: 100 }}>
-                    <li>
-                      <Link className="dropdown-item" to={`/review-proposal/${item?._id}`}>
-                        View Proposals
-                      </Link>
-                    </li>
-                    <li>
-                      <button className="dropdown-item" onClick={() => {}}>
-                        Make Private
-                      </button>
-                    </li>
-
-                    <li>
-                      <Link className="dropdown-item" to={`/job-details/${item?._id}`}>
-                        View Job posting
-                      </Link>
-                    </li>
-
-                    <li>
-                      <button className="dropdown-item" onClick={() => {}}>
-                        Remove posting
-                      </button>
-                    </li>
-                  </ul>
+                    <button
+                      type="button"
+                      className="btn btn-light dropdown-toggle border border-1 rounded-circle"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i className="fas fa-ellipsis-h " />
+                    </button>
+                  </Dropdown>
                 </div>
               )}
             </div>
@@ -75,7 +85,6 @@ export default function ClientJobCard({ item, client, lang }) {
           </span>
           <span className="fw-bold me-1">{t('posted')}</span>
           <span id="posting-time">
-            {' '}
             {item?.createdAt
               ? new Date(`${item?.createdAt}`).toLocaleString()
               : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}

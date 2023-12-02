@@ -48,6 +48,7 @@ export interface IGetJobsQuery {
   projectBy?: string
   limit?: number
   page?: number
+  searchText?: string
 }
 
 export interface IAdvancedGetJobsBody {
