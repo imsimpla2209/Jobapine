@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
 import { useAuth } from 'src/Components/Providers/AuthProvider'
 import { locationStore } from 'src/Store/commom.store'
-import { clientStore } from 'src/Store/user.store'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { EComplexityGet } from 'src/utils/enum'
 import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
@@ -14,7 +13,7 @@ export default function ClientJobCard({ item, client, lang }) {
   const { t } = useTranslation(['main'])
   const locations = useSubscription(locationStore).state
   const { authenticated } = useAuth()
-  const setState = useSubscription(clientStore).setState
+
   console.log(item)
   return (
     <div
@@ -75,7 +74,6 @@ export default function ClientJobCard({ item, client, lang }) {
           </span>
           <span className="fw-bold me-1">{t('posted')}</span>
           <span id="posting-time">
-            {' '}
             {item?.createdAt
               ? new Date(`${item?.createdAt}`).toLocaleString()
               : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}

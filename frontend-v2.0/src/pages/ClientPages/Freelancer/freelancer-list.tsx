@@ -54,13 +54,12 @@ export default function FreelancerListCards({ filterOption, saved }) {
         <Spin />
       ) : listFreelancers?.length ? (
         <>
-          <Row gutter={[16, 16]}>
-            {listFreelancers.map(freelancer => (
-              <Col className="gutter-row" xs={12} sm={12} md={8} lg={8} xl={8} style={{ height: '100%' }}>
-                <Saved freelancer={freelancer} key={freelancer._id} />
-              </Col>
-            ))}
-          </Row>
+          {listFreelancers.map(freelancer => (
+            <Row style={{ marginBottom: 16 }}>
+              <Saved freelancer={freelancer} key={freelancer._id} />
+            </Row>
+          ))}
+
           {page ? (
             <Row
               align="middle"
