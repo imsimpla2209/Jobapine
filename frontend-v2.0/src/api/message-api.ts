@@ -53,6 +53,16 @@ export interface IMessageRoom {
   isDeleted?: boolean
 }
 
+export interface INotify {
+  to: string
+  path?: string
+  content?: any
+  image?: string
+  attachedId?: string
+  seen?: boolean
+  isDeleted?: boolean
+}
+
 export const createMessage = (data?: IMessage) => {
   return instance.post('messages', data)
 }
@@ -125,7 +135,9 @@ export const deleteMessageRoom = (id: string) => {
 export const getNotifies = (id: string) => {
   return Http.get('notify', { to: id })
 }
-
+export const createNotify = (data?: INotify) => {
+  return instance.post('notify', data)
+}
 export const updateNotifies = (id: string, options: any) => {
   return Http.patch(`notify?to=${id}`, options)
 }

@@ -7,7 +7,10 @@ import config from '@config/config'
 import { auth } from '@modules/auth'
 import { startBackup } from '@modules/forum/utils/backup'
 import { Connect, Process } from '@modules/forum/utils/mongodb'
+import { userValidation } from '@modules/user'
+import { changeActiveUser } from '@modules/user/user.controller'
 import express from 'express'
+import { validate } from 'providers/validate'
 import {
   getDashboardSummarize,
   getPaymentStats,
@@ -137,3 +140,4 @@ adminRouter.post('/jobStats', auth('dashboard'), getProjectStats)
 adminRouter.get('/summarizeStats', auth('dashboard'), getDashboardSummarize)
 adminRouter.get('/yearPaymentStats', auth('dashboard'), getPaymentStats)
 adminRouter.get('/getUsers', auth('manageUsers'), getAllUsers)
+adminRouter.patch('/changeActiveUser/:userId', auth('manageUsers'), validate(userValidation.getUser), changeActiveUser)

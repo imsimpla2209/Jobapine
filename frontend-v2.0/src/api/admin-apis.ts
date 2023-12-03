@@ -24,5 +24,8 @@ export const getSummarizeStats = () => {
   return instance.get('admin/summarizeStats')
 }
 
+export const changeActiveUser = (id: string) => {
+  return instance.patch('admin/changeActiveUser' + `/${id}`)
+}
 
 

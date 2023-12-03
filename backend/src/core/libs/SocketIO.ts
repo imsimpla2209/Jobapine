@@ -4,6 +4,7 @@
 import * as socketio from 'socket.io'
 import logger from 'common/logger/logger'
 import { ESocketEvent } from 'common/enums'
+import RedisHandler from '@core/databases/Redis'
 
 export interface SocketIOData {
   socketio: SocketIO
@@ -12,6 +13,8 @@ export interface SocketIOData {
 
 export class SocketIO {
   private io: socketio.Socket
+
+  private redisHandler: RedisHandler // Instance of RedisHandler
 
   public onlineUsers: any = {}
 
@@ -23,24 +26,35 @@ export class SocketIO {
         methods: ['GET', 'POST'],
       },
     })
+    this.redisHandler = new RedisHandler()
     this.init()
+  }
+
+  public async getAllOnlineUsers(): Promise<any[]> {
+    // const keys = await this.redisHandler.client.smembers('online_users')
+    // const users = await this.redisHandler.client.mget(...keys)
+    const keys = await this.redisHandler.client.keys('online_users:*')
+    const onlineUsers = keys?.map(key => key?.split(':')[1])
+    return onlineUsers
   }
 
   private async init() {
     this.io.on('connect', async (socket: socketio.Socket) => {
       logger.warn('NEW CONNECTION', socket.id)
-      socket.on(ESocketEvent.USER_CONNECTED, (user: any) => {
+      socket.on(ESocketEvent.USER_CONNECTED, async (user: any) => {
         logger.warn(`USER CONNECTION: ${user?.userId}`)
-        this.onlineUsers[user?.userId] = { socketId: user?.socketId, socket }
+        // this.onlineUsers[user?.userId] = { socketId: user?.socketId, socket }
+        await this.redisHandler.setValue(`online_users:${user?.userId}`, JSON.stringify({ socketId: user?.socketId }))
         /**
          * OPTIONAL NOTE:
          * BROADCAST IF NEW LOGGIN HAS BEEN RECEIVED
          */
         this.broadcastAll(ESocketEvent.USER_CONNECTED, { user })
       })
-      socket.on(ESocketEvent.USER_DISCONNECTED, (user: any) => {
+      socket.on(ESocketEvent.USER_DISCONNECTED, async (user: any) => {
         logger.warn(`USER OFFLINE: ${user?.userId}`)
-        delete this.onlineUsers[user?.userId]
+        // delete this.onlineUsers[user?.userId]
+        await this.redisHandler.deleteKey(`online_users:${user?.userId}`)
 
         /**
          * OPTIONAL NOTE:

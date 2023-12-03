@@ -90,7 +90,7 @@ export const forgotPassword = catchAsync(async (req: Request, res: Response) => 
   // const to = {
   //   email: req.user.email,
   // }
-  await sendResetPasswordEmail(req.user.email, resetPasswordToken)
+  await sendResetPasswordEmail(req.body.email, resetPasswordToken)
   res.status(httpStatus.NO_CONTENT).send()
 })
 

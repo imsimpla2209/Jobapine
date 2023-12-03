@@ -26,6 +26,8 @@ import {
   UpdateFreelancerBody,
 } from './freelancer.interfaces'
 import Freelancer, { SimilarFreelancer } from './freelancer.model'
+import { createNotify } from '@modules/notify/notify.service'
+import { FEMessage } from 'common/enums/constant'
 
 /**
  * Register a freelancer
@@ -273,6 +275,29 @@ export const updateFreelancerById = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
   }
   Object.assign(freelancer, updateBody)
+  await freelancer.save()
+  return freelancer
+}
+
+/**
+ * Verify freelancer by id
+ * @param {mongoose.Types.ObjectId} freelancerId
+ * @param {UpdateFreelancerBody} updateBody
+ * @returns {Promise<IFreelancerDoc | null>}
+ */
+export const verifyFreelancerById = async (freelancerId: mongoose.Types.ObjectId): Promise<IFreelancerDoc | null> => {
+  const freelancer = await Freelancer.findById(freelancerId)
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  Object.assign(freelancer, {
+    isProfileVerified: true,
+  })
+  createNotify({
+    to: freelancer?.user,
+    path: `/profile/me`,
+    content: FEMessage().profileVerified,
+  })
   await freelancer.save()
   return freelancer
 }

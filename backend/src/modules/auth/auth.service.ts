@@ -6,7 +6,7 @@ import Token from '../token/token.model'
 import { generateAuthTokens, verifySMSToken, verifyToken } from '../token/token.service'
 import tokenTypes from '../token/token.types'
 import { IUserDoc, IUserWithTokens } from '../user/user.interfaces'
-import { getUserById, getUserByOptions, getUserByUsername, updateUserById } from '../user/user.service'
+import { getUserById, getUserByOptions, updateUserById } from '../user/user.service'
 
 /**
  * Login with username and password

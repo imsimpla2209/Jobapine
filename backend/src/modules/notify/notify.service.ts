@@ -21,9 +21,10 @@ export const createNotify = async (notifyBody: NewCreatedNotify): Promise<INotif
   // if (await Notify.isUserSigned(notifyBody.user)) {
   //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Notify')
   // }
-  if (io.onlineUsers[notifyBody?.to]) {
+  const onlineUsers = await io.getAllOnlineUsers()
+  if (onlineUsers[notifyBody?.to]) {
     logger.info(`Send notify to user: ${notifyBody?.to}`)
-    io.onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
+    onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
     // .to(io.onlineUsers[notifyBody?.to]?.socketId)
   }
   return Notify.create(notifyBody)
@@ -41,10 +42,11 @@ export const bulkCreateNotify = async (notifyBodies: NewCreatedNotify[]): Promis
     const result = await Notify.bulkWrite(notifyOperations)
 
     // Notify online users if necessary
+    const onlineUsers = await io.getAllOnlineUsers()
     notifyBodies?.forEach(notifyBody => {
-      if (io.onlineUsers[notifyBody?.to]) {
+      if (onlineUsers[notifyBody?.to]) {
         logger.info(`Send notify to user: ${notifyBody?.to}`)
-        io.onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
+        onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
         // .to(io.onlineUsers[notifyBody?.to]?.socketId)
       }
     })
@@ -56,10 +58,11 @@ export const bulkCreateNotify = async (notifyBodies: NewCreatedNotify[]): Promis
 }
 
 export const createNotifyforAll = async (notifyBody: NewCreatedNotify): Promise<INotifyDoc> => {
-  if (!isEmpty(io.onlineUsers)) {
-    Object.keys(io.onlineUsers).forEach(key => {
+  const onlineUsers = await io.getAllOnlineUsers()
+  if (!isEmpty(onlineUsers)) {
+    Object.keys(onlineUsers).forEach(key => {
       logger.info(`Send notify to user: ${notifyBody?.to}`)
-      io.onlineUsers[key].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
+      onlineUsers[key].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
     })
   }
   return Notify.create(notifyBody)

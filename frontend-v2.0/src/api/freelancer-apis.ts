@@ -29,6 +29,10 @@ export const getFreelancer = (id: string ) => {
   return instance.get(`freelancers/${id}`);
 }
 
+export const verifyFreelancer = (id: string ) => {
+  return instance.patch(`freelancers/verify-profile/${id}`);
+}
+
 export const updateFreelancer = (data: UpdateFreelancer, id: string ) => {
   return instance.patch(`freelancers/${id}`, data);
 }
