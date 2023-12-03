@@ -22,7 +22,7 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
 }
 
 export const createUser = {
-  body: Joi.object().keys(createUserBody),
+  body: Joi.object().keys({ ...createUserBody, lastLoginAs: Joi.string() }),
 }
 
 export const getUsers = {

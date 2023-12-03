@@ -7,7 +7,7 @@ import { useAuth } from "src/Components/Providers/AuthProvider";
 import { ResponseStatus } from "src/api/constants";
 import toast from 'react-hot-toast';
 import { Input } from "antd";
-import { EyeTwoTone, EyeInvisibleOutlined, UserOutlined } from "@ant-design/icons";
+import { EyeTwoTone, EyeInvisibleOutlined, UserOutlined, LockOutlined } from "@ant-design/icons";
 
 export default function LoginTemp() {
   const [user, setUser] = useState({ email: "", password: "" });
@@ -130,6 +130,7 @@ export default function LoginTemp() {
                 <div className="form-group col-8 mx-auto mt-3">
                   {/* <span className="text-danger">{PasswordError}</span> */}
                   <Input.Password
+                    prefix={<LockOutlined />}
                     size={'large'}
                     type="password"
                     name="password"
@@ -140,13 +141,13 @@ export default function LoginTemp() {
                     iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                   />
                 </div>
-                {/* <div className="form-group col-8 mx-auto mt-3 d-flex justify-content-between">
+                <div className="form-group col-8 mx-auto mt-3 d-flex justify-content-between">
                   <label>
                     <input type="checkbox" className="me-2" />
                     {t("Keep me logged in")}
                   </label>
-                  <Link to="">{t("Forgot password")}</Link>
-                </div> */}
+                  <Link to="/forgot-password">{t("Forgot password")}</Link>
+                </div>
                 <div className="d-grid gap-2 col-8 mx-auto mt-3 hitbtn-className loginpcolor">
                   <button
                     className="btn bg-jobsicker "

@@ -14,6 +14,8 @@ router
   .post(auth(), validate(userValidation.createUser), userController.createUser)
   .get(validate(userValidation.getUsers), userController.getUsers)
 
+router.get('/online', auth(), userController.getOnlineUsers)
+
 router
   .route('/:userId')
   .get(validate(userValidation.getUser), userController.getUser)

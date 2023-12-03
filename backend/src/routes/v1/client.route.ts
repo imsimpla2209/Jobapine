@@ -10,13 +10,18 @@ router
   .post(validate(clientValidation.createClient), clientController.registerClient)
   .get(validate(clientValidation.getClients), clientController.getClients)
 
+router.route('/review/:id').patch(auth(), validate(clientValidation.reviewClient), clientController.reviewClient)
+router.route('/get-by-options').patch(auth(), clientController.getClientByOption)
+router.route('/admin/:id').delete(auth(), validate(clientValidation.deleteClient), clientController.forcedDeleteClient)
+
+router
+  .route('/verify-profile/:id')
+  .patch(auth('manageUsers'), validate(clientValidation.getClient), clientController.verifyClientById)
+
 router
   .route('/:id')
   .get(auth(), validate(clientValidation.getClient), clientController.getClient)
   .patch(auth(), validate(clientValidation.updateClient), clientController.updateClient)
   .delete(auth(), validate(clientValidation.deleteClient), clientController.deleteClient)
-router.route('/review/:id').patch(auth(), validate(clientValidation.reviewClient), clientController.reviewClient)
-router.route('/get-by-options').patch(auth(), clientController.getClientByOption)
-router.route('/admin/:id').delete(auth(), validate(clientValidation.deleteClient), clientController.forcedDeleteClient)
 
 export default router

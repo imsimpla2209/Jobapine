@@ -14,6 +14,9 @@ export const getClientByOptions = (data: any ) => {
   return Http.get('clients/get-by-options', data);
 }
 
+export const verifyClient = (id: string ) => {
+  return instance.patch(`clients/verify-profile/${id}`);
+}
 
 export const searchClients = (data: {searchText: string}, query: filterFreelancersQuery ) => {
   return Http.post('clients/search', data, query);

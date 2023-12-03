@@ -73,6 +73,16 @@ export const getFreelancer = catchAsync(async (req: Request, res: Response) => {
   }
 })
 
+export const verifyFreelancerById = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const freelancer = await freelancerService.verifyFreelancerById(new mongoose.Types.ObjectId(req.params.id))
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+    res.send(freelancer)
+  }
+})
+
 export const getFreelancerByOption = catchAsync(async (req: Request, res: Response) => {
   const freelancer = await freelancerService.getFreelancerByOptions(req.body)
   if (!freelancer) {

@@ -3,9 +3,10 @@
 import Post from '@modules/forum/models/Post'
 import Job, { JobCategory } from '@modules/job/job.model'
 import excel from 'exceljs'
-import ApiErrorResponse from '../utils/ApiErrorResponse'
 import { Freelancer } from '@modules/freelancer'
 import { Client } from '@modules/client'
+import { logger } from 'common/logger'
+import ApiErrorResponse from '../utils/ApiErrorResponse'
 
 export const postsExcel = async (req: any, res: any, next: any) => {
   try {
@@ -186,10 +187,16 @@ export const jobsExcel = async (req: any, res: any, next: any) => {
 
 export const getAllUsers = async (req: any, res: any, next: any) => {
   try {
-    const freelancers = await Freelancer.find().populate('user').populate('preferJobType').populate('skills.skill')
-    const clients = await Client.find().populate('user').populate('findingSkills').populate('preferJobType')
+    const freelancers = await Freelancer.find().populate('user').populate({ path: 'preferJobType' })
+
+    const clients = await Client.find()
+      .populate('user')
+      .populate({ path: 'findingSkills' })
+      .populate({ path: 'preferJobType' })
+
     res.status(200).send({ freelancers, clients })
   } catch (err: any) {
+    logger.error(err.message)
     return next(new ApiErrorResponse(`${err.message}`, 500))
   }
 }

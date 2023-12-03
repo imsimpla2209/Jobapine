@@ -1,59 +1,61 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 /* eslint-disable @typescript-eslint/no-var-requires */
-import redis from 'predis'
-import env from '../libs/Env'
+import config from '@config/config'
+import { logger } from 'common/logger'
+import Redis, { Redis as RedisClient } from 'ioredis'
 
-const REDIS_PORT = Number(env('REDIS_PORT', 6379))
-const REDIS_HOST = env('REDIS_HOST', '127.0.0.1')
-const REDIS_USERNAME = env('REDIS_USERNAME', '')
-const REDIS_PASSWORD = env('REDIS_PASSWORD', '')
-const TTL = Number(env('REDIS_TTL', 3600))
-export default class Redis {
-  protected client: any
+export default class RedisHandler {
+  client: RedisClient
 
-  constructor() {}
-
-  public async getConnection(): Promise<void> {
-    this.client = redis.createClient({
-      port: REDIS_PORT,
-      server: REDIS_HOST,
-      password: REDIS_PASSWORD,
-      username: REDIS_USERNAME,
-      lazyConnect: true,
+  constructor() {
+    this.client = new Redis({
+      host: config.redis.host, // Redis server host
+      port: config.redis.port, // Redis server port
       connectTimeout: 1000,
-      maxRetriesPerRequest: 1,
-      retry_strategy(options: any) {
-        if (options.error && options.error.code === 'ECONNREFUSED') {
-          // End reconnecting on a specific error and flush all commands with
-          // a individual error
-          return new Error('The server refused the connection')
-        }
-        if (options.total_retry_time > 1000 * 60 * 60) {
-          // End reconnecting after a specific timeout and flush all commands
-          // with a individual error
-          return new Error('Retry time exhausted')
-        }
-        if (options.attempt > 10) {
-          // End reconnecting with built in error
-          return undefined
-        }
-        // reconnect after
-        return Math.min(options.attempt * 100, 3000)
-      },
+      maxRetriesPerRequest: 5,
     })
-    return this.client
+
+    this.client.on('connect', () => {
+      logger.info('Connected to Redis')
+    })
+
+    this.client.on('error', err => {
+      logger.error('Redis error:', err)
+    })
   }
 
-  public async get(keys: string): Promise<any> {
-    return this.client.get(keys)
+  public async setValue(key: string, value: string): Promise<void> {
+    try {
+      await this.client.set(key, value)
+    } catch (error) {
+      logger.error('Error setting value in Redis:', error)
+      throw error
+    }
   }
 
-  public async setex(keys: any, data: any, ttl = TTL): Promise<any> {
-    return this.client.setex(keys, ttl, data)
+  public async getValue(key: string): Promise<string | null> {
+    try {
+      const value = await this.client.get(key)
+      return value
+    } catch (error) {
+      logger.error('Error getting value from Redis:', error)
+      throw error
+    }
   }
 
-  public async closeConnection(): Promise<void> {
-    return this.client.quit()
+  public async deleteKey(key: string): Promise<number> {
+    try {
+      const deletedCount = await this.client.del(key)
+      return deletedCount
+    } catch (error) {
+      logger.error('Error deleting key from Redis:', error)
+      throw error
+    }
+  }
+
+  public async disconnect(): Promise<void> {
+    await this.client.disconnect()
+    logger.warn('Disconnected from Redis')
   }
 }
