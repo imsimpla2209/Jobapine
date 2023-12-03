@@ -18,6 +18,10 @@ export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMe
     setuser({ ...usr, name: fName + ' ' + lName });
   }, [validate])
 
+  useEffect(() => {
+    console.log(validate)
+  }, [validate])
+
   const getUserData = (e) => {
     const val = e.target.value;
     const name = e.target.name;
@@ -53,7 +57,8 @@ export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMe
           username:
             val === ""
               ? t("This is Required")
-              : val.match(/^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/)
+              // : val.match(/^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/)
+              : val.match(/^[a-zA-Z0-9](_(?!(\.|_))|\.(?!(_|\.))|[a-zA-Z0-9]){6,18}[a-zA-Z0-9]$/)
                 ? t("Please inter Valid Email")
                 : null
         });
@@ -309,7 +314,7 @@ export default function SignUpSecondForm({ usr, setuser, signUpComplete, errorMe
               className="btn bg-jobsicker"
               loading={loading}
               style={{ height: '50px' }}
-              // disabled={validate.password != null || !validate.firstName || !!validate.lastName || (usr.userType === "Client" && !country) || !validate.terms}
+              disabled={validate.password != null || !!validate.firstName || !!validate.lastName  || !validate.terms}
               onClick={handleSignup}
             >
               {t("Continue with Email")}

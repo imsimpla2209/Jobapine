@@ -24,7 +24,7 @@ export default function HomeFreelancer() {
           user?.name
             ? <div className="mx-3">
               {
-                user?.isVerified === false &&
+                freelancer?.isProfileVerified === false &&
                 <AcceptedAlert widthh="66%" />
               }
               <FindWorkFreelancerHome />

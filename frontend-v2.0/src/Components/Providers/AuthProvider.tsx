@@ -68,34 +68,32 @@ const AuthProvider = ({ children }: Props) => {
   // 	}
   // }, [authenticated, token])
 
-  useEffect(() => {
-    setLoading(true)
-    getMe()
-      .then(async res => {
-        setState(res.data)
-        setAuthenticated(true)
-        const expiredIn = localStorage.getItem('expiredIn')
-        console.log('time-left:', expiredIn)
-        setTokenExpirationDate(Number(expiredIn))
-        setLoading(false)
-        if (res.data.lastLoginAs === EUserType.FREELANCER) {
-          await switchToFreelancer().then(res => {
-            setFreelancer(res.data)
-          })
-        } else if (res.data.lastLoginAs === EUserType.CLIENT) {
-          await switchToClient().then(res => {
-            console.log('😘😘😘😘😘😘', res.data)
-
-            setClient(res.data)
-          })
-        }
-      })
-      .catch(err => {
-        setAuthenticated(false)
-        setLoading(false)
-        console.log(err)
-      })
-  }, [])
+	useEffect(() => {
+		setLoading(true)
+		getMe().then(async (res) => {
+			setState(res.data)
+			setAuthenticated(true);
+			const expiredIn = localStorage.getItem("expiredIn")
+			console.log('time-left:', expiredIn)
+			setTokenExpirationDate(Number(expiredIn));
+			setLoading(false);
+			if(res.data.lastLoginAs === EUserType.FREELANCER) {
+				await switchToFreelancer().then((res) => {
+					setFreelancer(res.data)
+				})
+			} else if (res.data.lastLoginAs === EUserType.CLIENT) {
+				await switchToClient().then((res) => {
+					setClient(res.data)
+				})
+			}
+		}).catch((err) => {
+			setAuthenticated(false);
+			setLoading(false);
+			console.log(err)
+		}).finally(() => {
+			setLoading(false);
+		})
+	}, []);
 
   useEffect(() => {
     if (authenticated) {

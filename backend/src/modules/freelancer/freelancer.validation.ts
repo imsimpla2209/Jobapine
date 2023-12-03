@@ -8,7 +8,7 @@ import { NewRegisteredFreelancer } from './freelancer.interfaces'
 const skillBody = Joi.string()
 const createdSkillBody = Joi.object().keys({
   skill: Joi.string(),
-  level: Joi.number().positive(),
+  level: Joi.number(),
 })
 
 const createFreelancerBody: Record<keyof NewRegisteredFreelancer, any> = {
@@ -85,6 +85,7 @@ export const updateFreelancer = {
       preferencesURL: Joi.array().items(Joi.string()),
       available: Joi.boolean(),
       favoriteJobs: Joi.array().items(Joi.string()),
+      favoriteClients: Joi.array().items(Joi.string().custom(objectId)),
       education: Joi.any(),
       historyWork: Joi.any(),
       englishProficiency: Joi.any(),

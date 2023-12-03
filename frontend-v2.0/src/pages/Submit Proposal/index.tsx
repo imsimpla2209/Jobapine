@@ -40,6 +40,7 @@ export default function SubmitProposal() {
   const freelancer = useSubscription(freelancerStore).state;
   const user = useSubscription(userStore).state;
   const [isValid, setValid] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<Record<number, string>>({});
   const [proposalData, setproposalData] = useState({
     _id: "",
@@ -105,16 +106,19 @@ export default function SubmitProposal() {
   const handleProposal = async () => {
     if (jobData?.questions?.length) {
       if (jobData?.questions?.length !== Object.keys(answer)?.length) {
+        setLoading(false)
         return toast.error(t('You need to answer this question'))
       }
     }
     if (!proposalData?.coverLetter || proposalData?.coverLetter?.length < 8) {
+      setLoading(false)
       return toast.error(t("You need to put some description of your Proposals"))
     }
 
     let files;
 
     if (proposalData?.proposalImages) {
+      setLoading(false)
       const fileNameList = await fetchAllToCL(proposalData?.proposalImages?.map(f => f?.originFileObj))
       files = fileNameList
     }
@@ -123,7 +127,7 @@ export default function SubmitProposal() {
       createProposal({
         description: proposalData?.coverLetter,
         attachments: files || [],
-        expectedAmount: rate ? (rate / 1000) : jobData?.payment?.amount,
+        expectedAmount: rate ? rate : jobData?.payment?.amount,
         job: jobData?._id,
         freelancer: freelancer?._id,
         answers: answer
@@ -131,6 +135,8 @@ export default function SubmitProposal() {
         setOpen(true)
         setValid(false)
         setproposalData({ ...proposalData, _id: res.data?._id, proposalImages: files || [] })
+      }).finally(() => {
+        setLoading(false)
       }),
       {
         loading: 'Submiting...',
@@ -347,13 +353,17 @@ export default function SubmitProposal() {
             <div className="border-top ps-4 py-4">
               {
                 isValid ? <>
-                  <button
+                  <Button
+                    loading={loading}
                     className="btn shadow-none text-white"
-                    onClick={() => handleProposal()}
+                    onClick={() => {
+                      setLoading(true)
+                      handleProposal()
+                    }}
                     style={{ backgroundColor: "#5b14b8" }}
                   >
                     {t("Submit Proposal")}
-                  </button>
+                  </Button>
                   <button className="btn shadow-none upw-c-cn">{t("Cancel")}</button>
                 </> : <Result
                   title={`${t("You already applied for this Job")} ${t("OR")} ${t("You are Blocked from this one")}`}

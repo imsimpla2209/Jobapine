@@ -71,7 +71,7 @@ export default function NavLargScreen() {
   }, [notifies, unSeen])
 
   const items = useMemo(() => {
-    return notifies?.map((s, ix) => {
+    return notifies?.slice(0, 5)?.map((s, ix) => {
       return {
         label: (
           <div className="row" style={{ width: 400 }}>
@@ -218,55 +218,51 @@ export default function NavLargScreen() {
           </ul>
         </li>
         <li className="nav-item ms-5 me-3">
-          <Badge count={unSeenMSG || 0} color={'purple'} status="processing">
-            <NavLink
-              className=""
+          <Badge
+            count={unSeenMSG || 0}
+            color={"purple"}
+            status="processing">
+            <NavLink className=""
               onClick={() => setUnSeenMSG(0)}
-              style={{ padding: '10px 10px', borderRadius: 100, background: '#f5f0fa' }}
-              to="/messages"
-            >
-              <MailFilled style={{ fontSize: 18 }} />
+              style={{ padding: '10px 10px', borderRadius: 100, background: "#f5f0fa" }} to="/messages">
+              <MailFilled style={{ fontSize: 18, }} />
             </NavLink>
           </Badge>
         </li>
         <li className="nav-item pe-2">
-          <Badge count={unSeen?.length || 0} color={'purple'} status="processing">
+          <Badge
+            count={unSeen?.length || 0}
+            color={"purple"}
+            status="processing">
             <Dropdown
               menu={{ items }}
               trigger={['click']}
+              overlayStyle={{
+                overflowY: 'auto',
+                maxHeight: '100vh',
+              }}
               onOpenChange={e => onSeenNotify(e)}
               arrow={{ pointAtCenter: true }}
-              dropdownRender={menu => (
-                <div
-                  style={{
-                    padding: 18,
-                    borderRadius: 10,
-                    background: 'white',
-                    marginLeft: 24,
-                    boxShadow:
-                      'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px',
-                  }}
-                >
-                  <h3>{t('Notification')}</h3>
+              dropdownRender={(menu) => (
+                <div style={{
+                  
+                  padding: 18,
+                  height: '70%',
+                  borderRadius: 10,
+                  background: "white",
+                  marginLeft: 24,
+                  boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px'
+                }}>
+                  <h3>{t("Notification")}</h3>
                   {React.cloneElement(menu as React.ReactElement, { style: { boxShadow: 'none' } })}
                   <Divider style={{ margin: 0 }} />
                   <Space style={{ padding: 8 }}>
-                    <Link to="/notifications" className="nav-link" type="primary">
-                      {t('View all')}
-                    </Link>
+                    <Link to="/notifications" className="nav-link" type="primary">{t("View all")}</Link>
                   </Space>
                 </div>
               )}
             >
-              <NavLink
-                to="/notifications"
-                style={{ padding: 10, borderRadius: 100, background: '#f5f0fa' }}
-                onClick={e => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                }}
-                className=""
-              >
+              <NavLink to="/notifications" style={{ padding: 10, borderRadius: 100, background: "#f5f0fa" }} onClick={e => { e.preventDefault(); e.stopPropagation() }} className="">
                 <BellFilled style={{ fontSize: 18 }} />
               </NavLink>
             </Dropdown>

@@ -318,6 +318,9 @@ export const createFreelancerProfileById = async (
   if (!updateBody['profileCompletion']) {
     updateBody['profileCompletion'] = projectCompletionPercent
   }
+  if (!updateBody['isSubmitProfile']) {
+    updateBody['isSubmitProfile'] = true
+  }
   Object.assign(freelancer, updateBody)
   await freelancer.save()
   return freelancer

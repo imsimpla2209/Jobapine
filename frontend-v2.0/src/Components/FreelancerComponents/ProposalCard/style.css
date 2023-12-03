@@ -7,8 +7,8 @@
 
 /* Define styles for when the card is hovered */
 .card:hover {
-  filter: blur(0.2px); /* Apply a blur effect on hover */
+  /* filter: blur(0.2px); Apply a blur effect on hover */
   cursor: pointer; /* Change cursor to pointer on hover */
-  transform: scale(1.05); /* Increase size on hover (optional) */
+  /* transform: scale(1.05); Increase size on hover (optional) */
   /* Add any other styles/effects you want on hover */
 }

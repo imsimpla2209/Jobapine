@@ -66,81 +66,92 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
 
   return (
     <>
-      {jobId || (job && jobData?.title) ? (
-        <div className="card p-4 mb-3" onClick={showDrawer}>
-          <div className="row">
-            <div className="col-md-7 col-12 ">
-              <Link
-                to={`/job/review-proposal/${proposal._id}`}
-                className={`fw-bold ${proposal?.currentStatus === EStatus.ACCEPTED ? '' : 'pe-none'}`}
-                style={{ color: '#6600cc' }}
-              >
-                {isInMSG ? 'Proposal Information' : `Proposals No.${ind + 1}`}
-              </Link>
-              <div>
-                <strong className=" me-2">{t('Cover Letter')}:</strong>
-                <span className="text-muted text-wrap">{proposal?.description}</span>
-              </div>
-              <div className="">
-                <div className="d-flex flex-wrap">
-                  <strong className="me-2">
-                    {proposal?.currentStatus === EStatus.ACCEPTED ? t('Accepted Date') : t('Submited Date')}:{' '}
-                  </strong>
-                  <div>
-                    {proposal?.currentStatus === EStatus.ACCEPTED
-                      ? new Date(proposal?.updatedAt).toLocaleString()
-                      : proposal?.createdAt
-                      ? new Date(proposal?.createdAt).toLocaleString()
-                      : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}
-                  </div>
-                </div>
-                <div className="d-flex flex-wrap">
-                  <strong className="me-2">{t('Status')}: </strong>
-                  <span>{proposal?.currentStatus}</span>
-                </div>
-                <div className="d-flex flex-wrap">
-                  <strong className="me-2">{t('Expected Amount')}: </strong>
-                  <span>{currencyFormatter(proposal?.expectedAmount) + '/ ' + t(`${jobData?.payment?.type}`)}</span>
-                </div>
-                {!isInMSG && (
-                  <div>
-                    {proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS ? (
-                      <Link to={`/messages?proposalId=${proposal?._id}`}>
-                        <BlueColorButton>{t('Go to messaging')}</BlueColorButton>
-                      </Link>
-                    ) : (
-                      <BlueColorButton
-                        loading={loading}
-                        style={{
-                          pointerEvents: isSendRequest || proposal?.msgRequestSent ? 'none' : 'auto',
-                          background: isSendRequest || proposal?.msgRequestSent ? 'gray' : '',
-                        }}
-                        className=""
-                        onClick={createRequestMSGRoom}
-                      >
-                        {isSendRequest || proposal?.msgRequestSent ? <>{t('Sent')}</> : <>{t('Request to message')}</>}
-                      </BlueColorButton>
-                    )}
-                  </div>
-                )}
+      {
+        jobId || job
+          &&
+          jobData?.title ? (
+          <div className="card p-4 mb-3" onClick={showDrawer}>
+            <div className="row">
+              <div className="col-md-7 col-12 ">
+                <Link
+                  to={`/job/review-proposal/${proposal._id}`}
+                  className={`fw-bold ${proposal?.currentStatus === EStatus.ACCEPTED ? "" : "pe-none"}`}
+                  style={{ color: "#6600cc" }}
+                >
+                  {
+                    isInMSG ? "Proposal Information" : `Proposals No.${ind + 1}`
+                  }
+                </Link>
                 <div>
-                  {!isEmpty(proposal?.answers) && (
-                    <>
-                      <strong className="me-2">{t('answers')}: </strong>
-                      <Collapse
-                        items={Object.keys(proposal?.answers)?.map((a, ix) => {
-                          return {
-                            key: ix,
-                            label: jobData?.questions[a],
-                            children: <p>{proposal?.answers[a]}</p>,
-                          }
-                        })}
-                        defaultActiveKey={[0]}
-                      />
-                    </>
-                  )}
+                  <strong className=" me-2">
+                    {t("Cover Letter")}:
+                  </strong>
+                  <span className="text-muted text-wrap">
+                    {proposal?.description}
+                  </span>
                 </div>
-              </div>
+                <div className="">
+                  <div className="d-flex flex-wrap">
+                    <strong className="me-2">{proposal?.currentStatus === EStatus.ACCEPTED ? t("Accepted Date") : t("Submited Date")}: </strong>
+                    <div>
+                      {
+                        proposal?.currentStatus === EStatus.ACCEPTED
+                          ? new Date(proposal?.updatedAt).toLocaleString()
+                          : (proposal?.createdAt ? new Date((proposal?.createdAt)).toLocaleString() : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString())
+                      }
+                    </div>
+                  </div>
+                  <div className="d-flex flex-wrap">
+                    <strong className="me-2">{t("Status")}: </strong>
+                    <span>
+                      {
+                        proposal?.currentStatus
+                      }
+                    </span>
+                  </div>
+                  <div className="d-flex flex-wrap">
+                    <strong className="me-2">{t("Expected Amount")}: </strong>
+                    <span>
+                      {
+                        currencyFormatter(proposal?.expectedAmount) + '/ ' + t(`${jobData?.payment?.type}`)
+                      }
+                    </span>
+                  </div>
+                  {
+                    proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.PENDING && <>
+                      {
+                        !isInMSG && <div>
+                          {
+                            (proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS)
+                              ? <Link to={`/messages?proposalId=${proposal?._id}`}><BlueColorButton>{t("Go to messaging")}</BlueColorButton></Link>
+                              : <BlueColorButton loading={loading} style={{
+                                pointerEvents: (isSendRequest || proposal?.msgRequestSent) ? "none" : "auto",
+                                background: (isSendRequest || proposal?.msgRequestSent) ? "gray" : "",
+                              }} className="" onClick={createRequestMSGRoom}>
+                                {(isSendRequest || proposal?.msgRequestSent) ? <>{t("Sent")}</> : <>{t("Request to message")}</>}
+                              </BlueColorButton>
+                          }
+                        </div>
+                      }
+                    </>
+                  }
+                  <div>
+                    {
+                      !isEmpty(proposal?.answers) && <>
+                        <strong className="me-2">{t("answers")}: </strong>
+                        <Collapse
+                          items={Object.keys(proposal?.answers)?.map((a, ix) => {
+                            return {
+                              key: ix,
+                              label: jobData?.questions[a],
+                              children: <p>{proposal?.answers[a]}</p>,
+                            }
+                          })} defaultActiveKey={[0]} />
+                      </>
+                    }
+                  </div>
+                </div>
+              
             </div>
             <div className="col-md-5 col-12 d-flex flex-column">
               <strong className=" me-2">{t('Applied Job')}:</strong>

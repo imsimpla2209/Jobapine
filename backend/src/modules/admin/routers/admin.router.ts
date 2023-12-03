@@ -8,11 +8,17 @@ import { auth } from '@modules/auth'
 import { startBackup } from '@modules/forum/utils/backup'
 import { Connect, Process } from '@modules/forum/utils/mongodb'
 import express from 'express'
-import { getDashboardSummarize, getProjectStats, getUserSignUpStats } from '../controllers/dashboard.controller'
+import {
+  getDashboardSummarize,
+  getPaymentStats,
+  getProjectStats,
+  getUserSignUpStats,
+} from '../controllers/dashboard.controller'
+import { getAllUsers } from '../controllers/data.controller'
 
 export const adminRouter = express.Router()
 
-adminRouter.get('/backup', auth(), async (req, res) => {
+adminRouter.get('/backup', auth('backup'), async (req, res) => {
   try {
     await startBackup()
     const slave = await Connect(config.mongoose.slave)
@@ -43,7 +49,7 @@ adminRouter.get('/backup', auth(), async (req, res) => {
   }
 })
 
-adminRouter.post('/restore', auth(), async (req, res) => {
+adminRouter.post('/restore', auth('backup'), async (req, res) => {
   try {
     const { name } = req.body
 
@@ -80,7 +86,7 @@ adminRouter.post('/restore', auth(), async (req, res) => {
   }
 })
 
-adminRouter.post('/drop', auth(), async (req, res) => {
+adminRouter.post('/drop', auth('backup'), async (req, res) => {
   try {
     const { name } = req.body
     const slave = await Connect(config.mongoose.slave)
@@ -105,7 +111,7 @@ adminRouter.post('/drop', auth(), async (req, res) => {
   }
 })
 
-adminRouter.get('/all-backup', auth(), async (req, res) => {
+adminRouter.get('/all-backup', auth('backup'), async (req, res) => {
   try {
     const slave = await Connect(config.mongoose.slave)
 
@@ -126,6 +132,8 @@ adminRouter.get('/all-backup', auth(), async (req, res) => {
   }
 })
 
-adminRouter.get('/userStats', getUserSignUpStats)
-adminRouter.post('/jobStats', getProjectStats)
-adminRouter.get('/summarizeStats', getDashboardSummarize)
+adminRouter.get('/userStats', auth('manageUsers'), getUserSignUpStats)
+adminRouter.post('/jobStats', auth('dashboard'), getProjectStats)
+adminRouter.get('/summarizeStats', auth('dashboard'), getDashboardSummarize)
+adminRouter.get('/yearPaymentStats', auth('dashboard'), getPaymentStats)
+adminRouter.get('/getUsers', auth('manageUsers'), getAllUsers)

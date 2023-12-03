@@ -30,6 +30,7 @@ const ClientRegisterModal = ({ isOpen, onClose, setWorkInfo, workInfo }: any) =>
       width={800}
       onClose={onClose}
       open={isOpen}
+      style={{zIndex: 2000}}
       bodyStyle={{ paddingBottom: 80 }}
       footer={
         <Space>

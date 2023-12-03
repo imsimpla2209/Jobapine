@@ -1,17 +1,4 @@
-body {
-  padding: 0 0 30px 0;
-  background-color: #fafafa;
-  letter-spacing: -0.3px;
-  color: rgba(0, 0, 0, 0.65);
-  font-size: 14px;
-  line-height: 1.6;
-  font-weight: 400;
-  font-family:
-    open sans,
-    Helvetica,
-    Arial,
-    sans-serif;
-}
+
 .ant-layout.ant-layout-has-sider {
   flex-direction: row;
 }
@@ -978,25 +965,8 @@ span.blue {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-.py-1 {
-  padding-top: 0.25rem !important;
-  padding-bottom: 0.25rem !important;
-}
-.px-2 {
-  padding-right: 0.5rem !important;
-  padding-left: 0.5rem !important;
-}
-.d-flex {
+.dd-flex {
   display: flex !important;
-}
-.justify-content-center {
-  justify-content: center !important;
-}
-.flex-column {
-  flex-direction: column !important;
-}
-.me-3 {
-  margin-right: 1rem !important;
 }
 .tootip-img {
   width: 24px;
@@ -1770,10 +1740,10 @@ body {
   font-weight: 600;
   color: #8c8c8c;
 }
-.ant-input {
+/* .ant-input {
   height: 33px;
   border: 1px solid #d9d9d9;
-}
+} */
 .font-bold {
   font-weight: 700;
 }
@@ -2162,7 +2132,7 @@ section.ant-layout.layout-content .ant-layout-content.content-ant {
 .ant-row-flex-middle {
   align-items: center;
 }
-.d-flex {
+.dd-flex {
   display: flex;
   align-items: center;
   justify-content: flex-end;

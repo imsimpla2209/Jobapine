@@ -38,8 +38,8 @@ export default function CreateProfilePhoneNumber() {
 
   const getNumber = () => {
     console.log(value);
-    setUser({ ...user, phone: value})
-    setState({ ...state,  profileCompletion: 100 });
+    setUser({ ...user, phone: value })
+    setState({ ...state, profileCompletion: 100 });
     profileStep({ step: EStep.SUBMIT })
   };
 
@@ -88,25 +88,27 @@ export default function CreateProfilePhoneNumber() {
         <h4>Phone number</h4>
         <p>Currently Only Support Vietnamese Phone number/Hiện tại chỉ hỗ trợ số điện thoại Việt Nam</p>
       </div>
-      <div className="px-4 my-4">
-        <p>
-          <strong>Add your phone number.</strong>
-        </p>
-        <span className="d-block mb-2">
-          <strong>Phone</strong>
-        </span>
-        <PhoneInput
-          className="form-control w-50 mb-5"
-          placeholder="Enter phone number"
-          value={value}
-          onChange={setNumber}
-          countries={["VN", "EG", "US", "LA", "GB", "KH", "CN", "HK", "JP", "KR", "TW"]}
-        />
-        <p className='text-danger'>{validate}</p>
-        <p>
-          Your phone number will <strong>not</strong> be shared with clients.
-        </p>
-      </div>
+      {
+        user?.phone && user?.isPhoneVerified ? <p>Your Phone is already verified - {user?.phone}</p> : <div className="px-4 my-4">
+          <p>
+            <strong>Add your phone number.</strong>
+          </p>
+          <span className="d-block mb-2">
+            <strong>Phone</strong>
+          </span>
+          <PhoneInput
+            className="form-control w-50 mb-5"
+            placeholder="Enter phone number"
+            value={value}
+            onChange={setNumber}
+            countries={["VN", "EG", "US", "LA", "GB", "KH", "CN", "HK", "JP", "KR", "TW"]}
+          />
+          <p className='text-danger'>{validate}</p>
+          <p>
+            Your phone number will <strong>not</strong> be shared with clients.
+          </p>
+        </div>
+      }
       {
         isSentSMS && <div>
           {

@@ -31,7 +31,8 @@ const FreelancerRegisterModal = ({ isOpen, onClose, setWorkInfo, workInfo }: any
       width={800}
       onClose={onClose}
       open={isOpen}
-      bodyStyle={{ paddingBottom: 80 }}
+      style={{zIndex: 2000}}
+      bodyStyle={{ paddingBottom: 80,  }}
       footer={
         <Space>
           <Button onClick={onClose}>{t('Skip')}</Button>

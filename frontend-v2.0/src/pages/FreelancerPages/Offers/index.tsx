@@ -33,7 +33,7 @@ export default function Offers() {
 		if (user) {
 			getOffers();
 		}
-	}, [tab, user])
+	}, [tab, user, refresh])
 
 	const getOffers = (p?: number) => {
 		onLoading(true);
@@ -85,7 +85,7 @@ export default function Offers() {
 												if (invitation.type === EInvitationType.MESSAGE) {
 													return (<OfferCard key={index} onRefresh={onRefresh} user={user} invitation={invitation} getOffers={getOffers} />)
 												} else if (invitation.type === EInvitationType.CONTRACT) {
-													return (<ContractInviCard key={index} onRefresh={onRefresh} user={user} invitation={invitation} getOffers={getOffers} />)
+													return (<ContractInviCard key={index} onRefresh={onRefresh} setTab={setTab} user={user} invitation={invitation} getOffers={getOffers} />)
 
 												}
 											}

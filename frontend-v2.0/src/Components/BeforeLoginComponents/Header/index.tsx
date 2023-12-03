@@ -26,7 +26,13 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="py-1 pt-2 fixed-top bg-white">
+    <header className="py-1 pt-2 bg-white " style={{
+      position: 'fixed',
+      top: 0,
+      right: 0,
+      left: 0,
+      zIndex: 20
+    }}>
       <div className="container">
         <div className="d-flex justify-content-around align-items-center mb-3">
           <div className="d-flex align-items-center w-auto">
