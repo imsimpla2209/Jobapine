@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom'
 import { createSubscription } from 'src/libs/global-state-hook'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { ICreateJobBody } from 'src/types/job'
-import { EComplexity, EJobType, ELevel, EPaymenType, EUserVisibility } from 'src/utils/enum'
+import { EComplexity, EJobType, ELevel, EPaymenType } from 'src/utils/enum'
 
 export const defaultPostJobState: ICreateJobBody = {
   client: '',
@@ -28,7 +28,7 @@ export const defaultPostJobState: ICreateJobBody = {
     nOEmployee: 1,
     locations: [],
   },
-  visibility: EUserVisibility.ANYONE,
+  visibility: true,
   jobDuration: 'short-term',
 }
 

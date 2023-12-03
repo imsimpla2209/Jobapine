@@ -33,6 +33,7 @@ export const getFreelancers = catchAsync(async (req: Request, res: Response) => 
 
 export const getAdvancedFreelancers = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.body, [
+    'id',
     'name',
     'intro',
     'currentLocations',

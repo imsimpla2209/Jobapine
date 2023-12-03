@@ -77,6 +77,8 @@ export const queryJobs = async (
   options: IOptions,
   freelancer?: IFreelancerDoc | null
 ): Promise<QueryResult> => {
+  const titleFilter = filter['searchText'] ? { title: { $regex: `${filter.searchText || ''}`, $options: 'si' } } : {}
+
   const categoryFilter = filter['categories']?.length ? { categories: { $in: filter['categories'] || [] } } : {}
 
   const skillFilter = filter['skills']?.length ? { 'reqSkills.skill': { $in: filter['skills'] || [] } } : {}
@@ -100,6 +102,7 @@ export const queryJobs = async (
 
   const queryFilter = {
     $and: [
+      titleFilter,
       clientFilter,
       categoryFilter,
       skillFilter,

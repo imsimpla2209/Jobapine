@@ -18,7 +18,7 @@ import { MailFilled, BellFilled } from '@ant-design/icons'
 import { Badge, Dropdown, Divider, Space, MenuProps } from 'antd'
 import React from 'react'
 import { pickName, timeAgo } from 'src/utils/helperFuncs'
-import notiIcon from "../../../assets/img/notifyicon.png";
+import notiIcon from '../../../assets/img/notifyicon.png'
 
 export default function NavLargScreen() {
   const { t, i18n } = useTranslation(['main'])
@@ -28,7 +28,7 @@ export default function NavLargScreen() {
   const [unSeen, setUnSeen] = useState([])
   const [unSeenMSG, setUnSeenMSG] = useState(0)
   const { appSocket } = useSocket()
-  const lang = i18n.language;
+  const lang = i18n.language
 
   const handleLogout = () => {
     logout()
@@ -48,7 +48,7 @@ export default function NavLargScreen() {
   }
 
   useEffect(() => {
-    getNotifies(user?.id || user?._id).then((res) => {
+    getNotifies(user?.id || user?._id).then(res => {
       setNotifies(res.data.results)
       setUnSeen(res.data.results?.filter(n => !n?.seen) || [])
     })
@@ -56,10 +56,9 @@ export default function NavLargScreen() {
 
   useEffect(() => {
     // App socket
-    appSocket.on(ESocketEvent.SENDNOTIFY, (data) => {
+    appSocket.on(ESocketEvent.SENDNOTIFY, data => {
       console.log('Get Notify:', data)
       if (data?.to === (user?.id || user?._id)) {
-
         setNotifies(prev => [{ ...data, createdAt: new Date() }, ...prev])
         setUnSeen(prev => [...prev, data])
       }
@@ -68,24 +67,31 @@ export default function NavLargScreen() {
     // The listeners must be removed in the cleanup step, in order to prevent multiple event registrations
     return () => {
       appSocket.off(ESocketEvent.SENDNOTIFY)
-
     }
   }, [notifies, unSeen])
 
   const items = useMemo(() => {
     return notifies?.slice(0, 5)?.map((s, ix) => {
       return {
-        label: <div className="row" style={{ width: 400 }}>
-          <img className="col-2" height={36} width={36} src={s.image || notiIcon} alt="sss" />
-          <Link className="col-7 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)}</Link>
-          <p className="col-3">{timeAgo(s?.createdAt, t)}</p>
-        </div>,
+        label: (
+          <div className="row" style={{ width: 400 }}>
+            <img className="col-2" height={36} width={36} src={s.image || notiIcon} alt="sss" />
+            <Link
+              className="col-7 text-wrap text-truncate"
+              style={{ color: s?.seen ? 'black' : '#6600cc' }}
+              to={s?.path || '#'}
+            >
+              {pickName(s?.content, lang)}
+            </Link>
+            <p className="col-3">{timeAgo(s?.createdAt, t)}</p>
+          </div>
+        ),
         key: ix,
       }
     }) as MenuProps['items']
   }, [notifies])
 
-  const onSeenNotify = (e) => {
+  const onSeenNotify = e => {
     if (e) {
       setUnSeen([])
     }
@@ -107,7 +113,7 @@ export default function NavLargScreen() {
             </li>
             <li>
               <Link className="dropdown-item text-break" to="/all-job-posts">
-                {t("All Jobs")}
+                {t('All Jobs')}
               </Link>
             </li>
             <li>
@@ -136,6 +142,11 @@ export default function NavLargScreen() {
             <li>
               <Link className="dropdown-item" to="/freelancer">
                 {t('All freelancers')}
+              </Link>
+            </li>
+            <li>
+              <Link className="dropdown-item" to="/saved-freelancer">
+                {t('Favourite freelancers')}
               </Link>
             </li>
             <li>
@@ -256,7 +267,6 @@ export default function NavLargScreen() {
               </NavLink>
             </Dropdown>
           </Badge>
-
         </li>
         <li className="nav-item border-start border-secondary ps-2">
           <a className="nav-link" href="#">

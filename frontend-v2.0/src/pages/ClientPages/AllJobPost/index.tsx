@@ -586,20 +586,18 @@ export default function AllJobPosts() {
                           <ClientJobCard item={item} client={client} lang={lang} />
                         </div>
                       ))}
-                      <div style={{ display: 'flex', justifyContent: 'end' }}>
+                      <Card style={{ marginBottom: 20 }}>
                         <Pagination
-                          className="mt-5"
                           total={total}
                           pageSize={advancedSearchPageData.state?.pageSize}
                           current={advancedSearchPageData.state?.page}
-                          showSizeChanger
-                          showQuickJumper
+                          showSizeChanger={false}
                           responsive
                           onChange={p => handleSearh(p)}
                           onShowSizeChange={(_, s) => handleSearh(null, s)}
                           showTotal={total => `Total ${total} items`}
                         />
-                      </div>
+                      </Card>
                     </>
                   )}
                 </div>

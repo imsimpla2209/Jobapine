@@ -1,11 +1,12 @@
 import { ClockCircleFilled } from '@ant-design/icons'
-import { Space } from 'antd'
+import { Dropdown, Space } from 'antd'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
 import { useAuth } from 'src/Components/Providers/AuthProvider'
 import { locationStore } from 'src/Store/commom.store'
-import { clientStore } from 'src/Store/user.store'
+import { deleteJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { EComplexityGet } from 'src/utils/enum'
 import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
@@ -14,8 +15,13 @@ export default function ClientJobCard({ item, client, lang }) {
   const { t } = useTranslation(['main'])
   const locations = useSubscription(locationStore).state
   const { authenticated } = useAuth()
-  const setState = useSubscription(clientStore).setState
-  console.log(item)
+  const [deleting, setDeleting] = useState(false)
+  const handleDeleteJob = async () => {
+    setDeleting(true)
+    await deleteJob(item?._id || item?.id)
+  }
+
+  if (deleting) return null
   return (
     <div
       className="card-hover"
@@ -32,38 +38,53 @@ export default function ClientJobCard({ item, client, lang }) {
             <div className="btn-group float-sm-end mt-2">
               {(client?.id || client?._id) === item?.client?._id && (
                 <div className="d-block col-sm-1 col-xs-3 btn-group z-3 ">
-                  <button
-                    type="button"
-                    className="btn btn-light dropdown-toggle border border-1 rounded-circle"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
+                  <Dropdown
+                    trigger={['click']}
+                    menu={{
+                      items: item?.proposals?.length
+                        ? [
+                            {
+                              key: '1',
+                              label: <Link to={`/all-proposals/${item?._id}`}>View Proposals</Link>,
+                            },
+                            {
+                              key: '2',
+                              label: <Link to={`/job-details/${item?._id}`}>View Job posting</Link>,
+                            },
+                            {
+                              key: '3',
+                              label: (
+                                <Link to={''} onClick={handleDeleteJob}>
+                                  Remove posting
+                                </Link>
+                              ),
+                            },
+                          ]
+                        : [
+                            {
+                              key: '4',
+                              label: <Link to={`/job-details/${item?._id}`}>View Job posting</Link>,
+                            },
+                            {
+                              key: '5',
+                              label: (
+                                <Link to={''} onClick={handleDeleteJob}>
+                                  Remove posting
+                                </Link>
+                              ),
+                            },
+                          ],
+                    }}
                   >
-                    <i className="fas fa-ellipsis-h " />
-                  </button>
-                  <ul className="dropdown-menu" style={{ zIndex: 100 }}>
-                    <li>
-                      <Link className="dropdown-item" to={`/review-proposal/${item?._id}`}>
-                        View Proposals
-                      </Link>
-                    </li>
-                    <li>
-                      <button className="dropdown-item" onClick={() => {}}>
-                        Make Private
-                      </button>
-                    </li>
-
-                    <li>
-                      <Link className="dropdown-item" to={`/job-details/${item?._id}`}>
-                        View Job posting
-                      </Link>
-                    </li>
-
-                    <li>
-                      <button className="dropdown-item" onClick={() => {}}>
-                        Remove posting
-                      </button>
-                    </li>
-                  </ul>
+                    <button
+                      type="button"
+                      className="btn btn-light dropdown-toggle border border-1 rounded-circle"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i className="fas fa-ellipsis-h " />
+                    </button>
+                  </Dropdown>
                 </div>
               )}
             </div>
@@ -75,7 +96,6 @@ export default function ClientJobCard({ item, client, lang }) {
           </span>
           <span className="fw-bold me-1">{t('posted')}</span>
           <span id="posting-time">
-            {' '}
             {item?.createdAt
               ? new Date(`${item?.createdAt}`).toLocaleString()
               : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}

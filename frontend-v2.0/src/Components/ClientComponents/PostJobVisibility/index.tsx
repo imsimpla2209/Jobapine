@@ -37,7 +37,7 @@ export default function PostJobVisibility({ setBtns, btns }) {
 
   const addData = () => {
     postJobSubscribtion.updateState({
-      visibility: job.jobVisibility,
+      visibility: job.jobVisibility === EUserVisibility.ANYONE,
       preferences: { nOEmployee: job.freelancerNeed },
     })
     setBtns({ ...btns, budget: false })

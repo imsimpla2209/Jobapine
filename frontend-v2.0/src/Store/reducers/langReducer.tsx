@@ -1,10 +1,10 @@
-const intialVal = JSON.parse(localStorage.getItem("lang")) || "en"
-console.log(intialVal);
+const intialVal = JSON.parse(localStorage.getItem('lang')) || 'en'
+
 export const langReducer = (state = intialVal, action) => {
-    switch (action.type) {
-        case "LANG":
-            return action.payload;
-        default:
-            return state;
-    }
-};
+  switch (action.type) {
+    case 'LANG':
+      return action.payload
+    default:
+      return state
+  }
+}

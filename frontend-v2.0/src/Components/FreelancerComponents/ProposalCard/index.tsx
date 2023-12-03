@@ -1,21 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { Collapse, Drawer } from "antd";
-import { isEmpty } from "lodash";
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { BlueColorButton } from "src/Components/CommonComponents/custom-style-elements/button";
-import { userStore } from "src/Store/user.store";
-import { getJob } from "src/api/job-apis";
-import { requestMessageRoom } from "src/api/message-api";
-import { useSubscription } from "src/libs/global-state-hook";
-import { EStatus } from "src/utils/enum";
-import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
-import Loader from './../../SharedComponents/Loader/Loader';
-import ProposalDetail from "./ProposalDetail";
-import './style.css';
-
+import { Collapse, Drawer } from 'antd'
+import { isEmpty } from 'lodash'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import { BlueColorButton } from 'src/Components/CommonComponents/custom-style-elements/button'
+import { userStore } from 'src/Store/user.store'
+import { getJob } from 'src/api/job-apis'
+import { requestMessageRoom } from 'src/api/message-api'
+import { useSubscription } from 'src/libs/global-state-hook'
+import { EStatus } from 'src/utils/enum'
+import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
+import Loader from './../../SharedComponents/Loader/Loader'
+import ProposalDetail from './ProposalDetail'
+import './style.css'
 
 export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = false, onRefresh }: any) {
   const { t, i18n } = useTranslation(['main'])
@@ -24,41 +23,45 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
   const user = useSubscription(userStore).state
   const [loading, setLoading] = useState<boolean>(false)
 
-  const [openDrawer, setOpenDrawer] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false)
 
   const showDrawer = () => {
-    setOpenDrawer(true);
-  };
+    setOpenDrawer(true)
+  }
 
   const onClose = () => {
-    setOpenDrawer(false);
-  };
-
+    setOpenDrawer(false)
+  }
 
   useEffect(() => {
     if (job) {
       setJobData(job)
     } else if (jobId) {
-      getJob(jobId).then(res => {
-        setJobData(res.data);
-      }).catch(err => console.log(err));
+      getJob(jobId)
+        .then(res => {
+          setJobData(res.data)
+        })
+        .catch(err => console.log(err))
     }
-  }, [job, jobId]);
+  }, [job, jobId])
 
   const createRequestMSGRoom = () => {
     setLoading(true)
     requestMessageRoom({
-      from: (user?.id || user?._id),
+      from: user?.id || user?._id,
       to: jobData?.client?.user,
       proposal: proposal._id,
-      text: 'Accept me please!'
-    }).then(() => {
-      setSendRequest(true)
-    }).catch((err) => {
-      console.log('ERROR: Could not send request', err)
-    }).finally(() => {
-      setLoading(false)
+      text: 'Accept me please!',
     })
+      .then(() => {
+        setSendRequest(true)
+      })
+      .catch(err => {
+        console.log('ERROR: Could not send request', err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   return (
@@ -66,7 +69,7 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
       {
         jobId || job
           &&
-          jobData?.title ?
+          jobData?.title ? (
           <div className="card p-4 mb-3" onClick={showDrawer}>
             <div className="row">
               <div className="col-md-7 col-12 ">
@@ -148,28 +151,24 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
                     }
                   </div>
                 </div>
-              </div>
-              <div className="col-md-5 col-12 d-flex flex-column">
-                <strong className=" me-2">
-                  {t("Applied Job")}:
-                </strong>
-                <Link
-                  to={`/job/${jobId || job?._id}`}
-                  className="fw-bold "
-                  style={{ color: "#6600cc" }}
-                >
-                  {jobData?.title}
-                </Link>
-                <div className="text muted">{jobData?.description}</div>
-              </div>
+              
             </div>
-            <hr />
+            <div className="col-md-5 col-12 d-flex flex-column">
+              <strong className=" me-2">{t('Applied Job')}:</strong>
+              <Link to={`/job/${jobId || job?._id}`} className="fw-bold " style={{ color: '#6600cc' }}>
+                {jobData?.title}
+              </Link>
+              <div className="text muted">{jobData?.description}</div>
+            </div>
           </div>
-          : ind === 0 && <Loader />
-      }
+          <hr />
+        </div>
+      ) : (
+        ind === 0 && <Loader />
+      )}
       <Drawer width={1020} placement="right" closable={false} onClose={onClose} open={openDrawer}>
         <ProposalDetail proposal={proposal} user={user} onRefresh={onRefresh}></ProposalDetail>
       </Drawer>
     </>
-  );
+  )
 }

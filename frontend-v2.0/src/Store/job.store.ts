@@ -1,6 +1,5 @@
 import { createSubscription } from 'libs/global-state-hook'
 import { IJobPayment, IJobPreferences, IJobScope } from 'src/types/job'
-import { EUserVisibility } from 'src/utils/enum'
 
 export interface IJobData {
   _id: string
@@ -29,7 +28,7 @@ export interface IJobData {
   createdAt?: any
   updatedAt?: any
   preferences?: IJobPreferences
-  visibility?: EUserVisibility
+  visibility?: boolean
   jobDuration?: 'short-term' | 'long-term'
 }
 
