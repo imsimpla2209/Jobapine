@@ -16,6 +16,7 @@ import { getClient } from "src/api/client-apis";
 import { getJobs } from "src/api/job-apis";
 import { useSubscription } from "src/libs/global-state-hook";
 import Loader from "../../../Components/SharedComponents/Loader/Loader";
+import { updateFreelancer } from "src/api/freelancer-apis";
 
 enum EViewMode {
   JOBLIST = 'joblist',
@@ -27,6 +28,7 @@ export default function ClientProfile() {
   const [jobDatas, setJobDatas] = useState([])
   const [clientData, setClientData] = useState<any>({})
   const freelancer = useSubscription(freelancerStore).state;
+  const setFreelancer = useSubscription(freelancerStore).setState;
   const user = useSubscription(userStore).state;
   const locations = useSubscription(locationStore).state
   const [loading, setLoading] = useState(false);
@@ -43,6 +45,9 @@ export default function ClientProfile() {
     if (viewMode === EViewMode.JOBLIST)
     {
       setViewMode(EViewMode.REVIEW)
+      updateFreelancer({ favoriteClients: freelancer.favoriteClients ? [...freelancer.favoriteClients, clientData._id] : [clientData._id] }, freelancer._id).then(res => {
+        setFreelancer(res.data)
+      })
       setViewModeBtn({
         icon: 'cancel',
         text: 'Unfollow',
@@ -53,7 +58,10 @@ export default function ClientProfile() {
         }
       });
     }
-    else
+    else {
+      updateFreelancer({ favoriteClients: freelancer.favoriteClients ? [...freelancer.favoriteClients, clientData._id] : [clientData._id] }, freelancer._id).then(res => {
+        setFreelancer(res.data)
+      })
       setViewModeBtn({
         icon: 'add_circle',
         text: 'Follow',
@@ -63,6 +71,7 @@ export default function ClientProfile() {
           animation: 'spinBack 200ms ease-in-out'
         }
       });
+    }
   };
 
   useEffect(() => {
@@ -123,10 +132,10 @@ export default function ClientProfile() {
           <div className="d-lg-block">
             <div className="bg-white py-lg-4 px-4 border border-1 py-sm-3 py-xs-5 rounded">
               <h5>{t("ClientInfo")}</h5>
-              <ClientCardView client={clientData} total={total}></ClientCardView>
+              <ClientCardView client={clientData} clientId={clientId} total={total}></ClientCardView>
             </div>
             <div className="row">
-              <div className="col-lg-3 col-xs-3 d-flex flex-column">
+              <div className="col-lg-3 col-xs-3">
                 <Space size="middle" direction="vertical" wrap className='mb-2 bg-white p-4'>
                   <div className='fw-bold me-1 text-muted' style={{ fontSize: "0.9em" }}>{t("Prefer Job Types") + ":"}</div>
                   {clientData?.preferJobType?.map((c, index) => (

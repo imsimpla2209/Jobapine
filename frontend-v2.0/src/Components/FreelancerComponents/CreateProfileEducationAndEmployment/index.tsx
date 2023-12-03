@@ -16,9 +16,13 @@ export default function CreateProfileEducationAndEmployment() {
       areaOfStudy: state?.education?.areaOfStudy || "", 
       degree: state?.education?.degree || "", 
       gradYear: state?.education?.gradYear || "" },
-    job: [{ jobName: state?.historyWork[0]?.jobName || "", jobTitle: state?.historyWork[0]?.jobTitle || "", stillWork: state?.historyWork[0]?.stillWork || false }],
+    job: [{ jobName: state?.historyWork?.at(0)?.jobName ?? "", jobTitle: state?.historyWork?.at(0)?.jobTitle ?? "", stillWork: state?.historyWork?.at(0)?.stillWork ?? false }],
     profileCompletion: 40,
   });
+
+  const onChangeVal = (e) => {
+    setuser({ ...user, education: { ...user.education, degree: e } });
+  }
 
   const getUserData = (e) => {
     const val = e?.target?.value;
@@ -91,7 +95,7 @@ export default function CreateProfileEducationAndEmployment() {
           <label className="w-100">
             Degree
             <Form.Item name="degree" >
-              <Select defaultValue={user?.education?.degree} size="large" placeholder="E.g: Bachelor of commerce or high-school graduation" onChange={getUserData}>
+              <Select defaultValue={user?.education?.degree} size="large" placeholder="E.g: Bachelor of commerce or high-school graduation" onChange={(e) => onChangeVal(e)}>
                 <Select.Option value="Bachelour/Cử nhân đại học">Bachelour/Cử nhân đại học</Select.Option>
                 <Select.Option value="M.A/Thạc sĩ">M.A/Thạc sĩ</Select.Option>
                 <Select.Option value="PhD/Tiến sĩ">PhD/Tiến sĩ</Select.Option>

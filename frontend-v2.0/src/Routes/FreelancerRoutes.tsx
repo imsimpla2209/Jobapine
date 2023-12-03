@@ -89,6 +89,7 @@ export default function FreelancerRoutes() {
             <Route path="/job/review-proposal/:id" element={<ReviewProposalsCard />} />
             <Route path="/job/applied/:id" element={<JobAppliedDetails />} />
             <Route path="/saved-jobs" element={<SavedJobs />} />
+            <Route path="/proposals/:id" element={<Proposals />} />
             <Route path="/proposals" element={<Proposals />} />
             <Route path="/profile/:id" element={<Profile />} />
             <Route path="/email-verification" element={<EmailVerified />} />

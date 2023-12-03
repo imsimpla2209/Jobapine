@@ -133,35 +133,40 @@ export default function OfferCard({ invitation, getOffers, user, onRefresh }) {
 								</Text>
 								<Divider style={{ margin: 0 }} />
 							</Space>
-							<p><strong>{t("End date")}: </strong>{new Date(Number(invitation?.dueDate)).toLocaleString()}</p>
+							{invitation?.currentStatus === EStatus.PENDING && <p><strong>{t("End date")}: </strong>{new Date(Number(invitation?.dueDate)).toLocaleString()}</p>}
 						</div>
 					</div>
-					<Popconfirm
-						title="Confirm"
-						description="Are you sure?"
-						onConfirm={accept}
-						okText="Yes"
-						cancelText="No"
-					>
-						<button
-							className="btn bg-jobsicker me-1"
-						>
-							{t("Accept")}
-						</button>
-					</Popconfirm>
-					<Popconfirm
-						title="Confirm"
-						description="Are you sure?"
-						onConfirm={decline}
-						okText="Yes"
-						cancelText="No"
-					>
-						<button
-							className="btn btn-danger ms-1"
-						>
-							{t("Reject")}
-						</button>
-					</Popconfirm>
+					{invitation?.currentStatus === EStatus.PENDING && (
+						<>
+							<Popconfirm
+								title="Confirm"
+								description="Are you sure?"
+								onConfirm={accept}
+								okText="Yes"
+								cancelText="No"
+							>
+								<button
+									className="btn bg-jobsicker me-1"
+								>
+									{t("Accept")}
+								</button>
+							</Popconfirm>
+							<Popconfirm
+								title="Confirm"
+								description="Are you sure?"
+								onConfirm={decline}
+								okText="Yes"
+								cancelText="No"
+							>
+								<button
+									className="btn btn-danger ms-1"
+								>
+									{t("Reject")}
+								</button>
+							</Popconfirm>
+						</>
+					)}
+
 				</>
 			}
 		</div>

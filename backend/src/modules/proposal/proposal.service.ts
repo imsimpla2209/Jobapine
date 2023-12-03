@@ -40,7 +40,7 @@ export const createProposal = async (
 
     createNotify({
       to: jobInfo?.client?.user,
-      path: FERoutes.allProposals + (jobInfo?._id || ''),
+      path: FERoutes.jobDetail + (jobInfo?._id || ''),
       attachedId: newProposal?._id,
       content: FEMessage(jobInfo?.title).createProposal,
     })
@@ -213,6 +213,7 @@ export const updateProposalStatusBulk = async (
               date: new Date(),
             },
           ],
+          currentStatus: status,
         },
       },
     },

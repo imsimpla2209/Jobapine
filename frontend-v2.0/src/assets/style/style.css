@@ -96,10 +96,7 @@
   transition: all 0.3s;
   background: linear-gradient(92.88deg, #4d94ff 9.16%, #5643cc 43.89%, #4d79ff 64.72%);
 }
-.bg-jobsicker-dark:hover {
-  background: linear-gradient(92.88deg, #3385ff 9.16%, #5643cc 43.89%, #3366ff 64.72%);
-  color: white;
-}
+
 .text-jobsicker {
   color: #5b14b8;
 }

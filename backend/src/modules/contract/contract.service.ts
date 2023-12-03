@@ -2,7 +2,7 @@
 import { getClientById } from '@modules/client/client.service'
 import { addJobtoFreelancer, getFreelancerById, updateSimilarById } from '@modules/freelancer/freelancer.service'
 import { IJobDoc } from '@modules/job/job.interfaces'
-import { getJobById } from '@modules/job/job.service'
+import { changeStatusJobById, getJobById } from '@modules/job/job.service'
 import { createInvitation, createNotify, updateInvitationStatusById } from '@modules/notify/notify.service'
 import { updateProposalStatusById } from '@modules/proposal/proposal.service'
 import { EInvitationType, EJobStatus, EPaymenType, EStatus } from 'common/enums'
@@ -93,7 +93,7 @@ export const createContract = async (contractBody: NewCreatedContract, isAgree?:
 
   createNotify({
     to: freelancer?.user,
-    path: isAgree ? FERoutes.myJobs : `${FERoutes.allProposals}${job?._id}`,
+    path: isAgree ? FERoutes.myJobs : `${FERoutes.allInvitation}`,
     content: isAgree ? FEMessage().gotJob : FEMessage().createContract,
   })
 
@@ -159,7 +159,7 @@ export const changeStatusContractById = async (
   status: EStatus,
   comment: string
 ): Promise<IContractDoc | null> => {
-  const contract = await getContractById(contractId)
+  const contract = await Contract.findById(contractId)
   if (!contract) {
     throw new ApiError(httpStatus.NOT_FOUND, 'contract not found')
   }
@@ -167,15 +167,6 @@ export const changeStatusContractById = async (
   const now = new Date().getTime()
   const endDate = new Date(contract.endDate).getTime()
   if (endDate < now) {
-    if (!contract?.status?.length) {
-      contract.status = [
-        {
-          status: EStatus.LATE,
-          comment: 'contract is expired',
-          date: new Date(),
-        },
-      ]
-    }
     contract.status?.push({
       status: EStatus.LATE,
       comment: 'contract is expired',
@@ -184,23 +175,13 @@ export const changeStatusContractById = async (
     await contract.save()
     throw new ApiError(httpStatus.BAD_REQUEST, 'contract is Expired')
   }
-  if (!contract?.status?.length) {
-    contract.status = [
-      {
-        status,
-        comment,
-        date: new Date(),
-      },
-    ]
-  }
-
   contract.status?.push({
     status,
     comment,
     date: new Date(),
   })
-  await contract.save()
-  return contract
+  const contractUpdated = await contract.save()
+  return contractUpdated
 }
 
 /**
@@ -223,8 +204,8 @@ export const acceptContract = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
 
-  if (!(job.currentStatus === EJobStatus.OPEN || job.currentStatus === EJobStatus.PENDING)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not open or pending')
+  if (job.currentStatus !== EJobStatus.OPEN) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Job is not open')
   }
 
   const acceptedContracts = await Contract.countDocuments({ job: job?._id, currentStatus: EStatus.ACCEPTED })
@@ -237,9 +218,10 @@ export const acceptContract = async (
 
   if ((job?.preferences?.nOEmployee ?? 1) - 1 === acceptedContracts) {
     closeAllContract(contractId, job._id)
+    changeStatusJobById(job._id, EJobStatus.INPROGRESS, 'Enough Workers for this job')
   }
 
-  const acceptedContract = await changeStatusContractById(contractId, EStatus.ACCEPTED, 'Accepted from Both side')
+  const acceptedContract = await changeStatusContractById(contract?._id, EStatus.ACCEPTED, 'Accepted from Both side')
   addJobtoFreelancer(job._id, contract?.freelancer, job?.client)
   createNotify({
     to: job?.client?.user,

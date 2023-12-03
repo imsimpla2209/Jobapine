@@ -22,13 +22,9 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
   const [tab, setTab] = useState(EMSGTags.CHAT)
   const { appSocket } = useSocket()
 
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const proposalId = searchParams.get('proposalId')
   const [messageRooms, setMessageRooms] = useState<any[]>([])
-
-  useEffect(() => {
-    setSelectedMessageRoom(messageRooms.find(message => message.proposal._id === proposalId))
-  }, [proposalId])
 
   useEffect(() => {
     // App socket
@@ -62,6 +58,10 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
     getMessageRooms({ member, sortBy: 'updatedAt:desc' })
       .then(res => {
         setMessageRooms(res.data.results)
+        setSelectedMessageRoom(res.data.results?.find(message => message.proposal._id === proposalId))
+        return res
+      }).then(() => {
+        setSearchParams('')
       })
       .catch(err => {
         console.log('Get MSG ERROR: ', err)
@@ -73,6 +73,7 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
       // db.collection("freelancer").doc(freelancerID).get().then(doc => setFreelancer(doc.data()));
     }
   }, [])
+
 
   const onSeen = _id => {
     setMessageRooms(

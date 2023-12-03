@@ -7,6 +7,7 @@ import { locationStore } from 'src/Store/commom.store'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { EComplexityGet } from 'src/utils/enum'
 import { currencyFormatter, pickName, randomDate } from 'src/utils/helperFuncs'
+import 'src/assets/style/style.css'
 
 export default function JobDescriptionJobDetails({ job }) {
   const { t, i18n } = useTranslation(['main'])

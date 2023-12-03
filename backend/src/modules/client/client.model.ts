@@ -21,6 +21,7 @@ const clientSchema = new mongoose.Schema<IClientDoc, IClientModel>(
     images: [{ type: String, required: 'false', default: [] }],
     reviews: [{ type: {} as IReview, default: [] }],
     preferJobType: [{ type: mongoose.Types.ObjectId, ref: 'JobCategory', default: [] }],
+    findingSkills: [{ type: mongoose.Types.ObjectId, ref: 'Skill', default: [] }],
     preferLocations: [{ type: String, required: 'false', default: [] }],
     preferencesURL: [{ type: String, required: 'false', default: [] }],
     paymentVerified: { type: Boolean, default: false },

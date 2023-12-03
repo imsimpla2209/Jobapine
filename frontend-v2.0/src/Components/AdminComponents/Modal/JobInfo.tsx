@@ -249,7 +249,7 @@ const JobInfo = ({ job }: { job: IJobData }) => {
               {new Date(job?.createdAt).toLocaleString()}
             </Descriptions.Item>
             <Descriptions.Item label="Updated At" span={3} style={{ textTransform: 'capitalize' }}>
-              {job?.updateddAt ? new Date(job?.updateddAt).toLocaleString() : 'N/a'}
+              {job?.updatedAt ? new Date(job?.updatedAt).toLocaleString() : 'N/a'}
             </Descriptions.Item>
             <Descriptions.Item label="Duration Type" span={3} style={{ textTransform: 'capitalize' }}>
               {job?.jobDuration}

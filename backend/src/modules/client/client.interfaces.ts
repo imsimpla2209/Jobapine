@@ -3,6 +3,7 @@ import { IJobCategory, IJobDoc } from '@modules/job/job.interfaces'
 import { IUserDoc } from '@modules/user/user.interfaces'
 import { IReview } from 'common/interfaces/subInterfaces'
 import mongoose, { Document, Model } from 'mongoose'
+import { ISkillDoc } from '@modules/skill/skill.interfaces'
 import { QueryResult } from '../../providers/paginate/paginate'
 
 export interface IClient {
@@ -17,6 +18,7 @@ export interface IClient {
   preferencesURL?: string[]
   preferLocations?: string[]
   preferJobType?: IJobCategory['_id'][]
+  findingSkills?: ISkillDoc['_id'][]
   favoriteFreelancers?: IFreelancerDoc['_id'][]
   paymentVerified?: boolean
   spent?: number

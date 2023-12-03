@@ -378,7 +378,7 @@ function Billing() {
                       <Col xs={24} md={12}>
                         <h6 className="font-semibold m-0">Payment Methods</h6>
                       </Col>
-                      <Col xs={24} md={12} className="d-flex">
+                      <Col xs={24} md={12} className="dd-flex">
                         <Button type="primary">ADD NEW CARD</Button>
                       </Col>
                     </Row>

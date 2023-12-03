@@ -13,7 +13,7 @@ import archiveimg from '../../../assets/img/archive.png'
 import sentimg from '../../../assets/img/sent.png'
 import pendingimg from '../../../assets/img/pending.png'
 
-export default function ContractInviCard({ invitation, getOffers, user, onRefresh }) {
+export default function ContractInviCard({ invitation, getOffers, user, onRefresh, setTab }) {
   const [decide, setDecide] = useState<any>();
   const [contract, setContract] = useState<any>();
   const [proposal, setProposal] = useState<any>();
@@ -31,7 +31,7 @@ export default function ContractInviCard({ invitation, getOffers, user, onRefres
   const accept = () => {
     if (contract?._id && invitation?._id) {
       acceptContract(contract?._id, invitation?._id).then(() => {
-        onRefresh()
+        setTab(EStatus.ACCEPTED)
         return setDecide(EStatus.ACCEPTED);
       }).catch((err) => {
         console.log('ERROR, cannot accept', err)
@@ -42,7 +42,7 @@ export default function ContractInviCard({ invitation, getOffers, user, onRefres
   const decline = () => {
     if (contract?._id && invitation?._id) {
       rejectContract(contract?._id, invitation?._id).then(() => {
-        onRefresh()
+        setTab(EStatus.REJECTED)
         return setDecide(EStatus.REJECTED);
       }).catch((err) => {
         console.log('ERROR, cannot reject', err)
@@ -126,7 +126,7 @@ export default function ContractInviCard({ invitation, getOffers, user, onRefres
             </Col>
           </Row>
           {
-            invitation?.type === EStatus.PENDING && <>
+            invitation?.currentStatus === EStatus.PENDING && <>
               <Popconfirm
                 title="Confirm"
                 description="Are you sure?"

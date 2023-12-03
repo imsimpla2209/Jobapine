@@ -249,14 +249,21 @@ export const queryInvitations = async (filter: Record<string, any>, options: IOp
 
   invitations.results = invitations?.results?.map((i: any) => {
     if (Number(i?.dueDate) >= now && (i.currentStatus === EStatus.PENDING || i.currentStatus === EStatus.INPROGRESS)) {
-      Object.assign(i, {
-        status: {
-          status: EStatus.LATE,
-          comment: 'Invitation is expired',
-          date: new Date(),
-        },
+      if (!i?.status?.length) {
+        i.status = [
+          {
+            status: EStatus.LATE,
+            comment: 'Invitation is expired',
+            date: new Date(),
+          },
+        ]
+      }
+      i.status?.push({
+        status: EStatus.LATE,
+        comment: 'Invitation is expired',
+        date: new Date(),
       })
-      i.save()
+      Invitation.updateOne({ _id: i._id }, { $set: { status: i.status } })
       return i
     }
     return i

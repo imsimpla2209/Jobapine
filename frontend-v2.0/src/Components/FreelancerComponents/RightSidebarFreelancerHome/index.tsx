@@ -68,7 +68,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
                   <Link to={`/create-profile`} className="advanced-search-link">
                     <FormOutlined /><span> {t("CompleteProfile")}</span>
                   </Link> : <>
-                    <Link to={`/create-profile?isReview=true`} className="advanced-search-link">
+                    <Link to={`/create-profile?isReview=${freelancer?.isSubmitProfile}`} className="advanced-search-link">
                       <FormOutlined /><span> {t("Review profile")}</span>
                     </Link>
                   </>
@@ -97,7 +97,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
         <div className="mb-lg-1">
           <i className="far fa-clock me-2 mb-3" />
           <span>
-            {lang === 'vi' ? freelancer?.available ? "đang rảnh" : "Không rảnh lắm" : freelancer?.available ? "available" : "not available"}
+            {lang === 'vi' ? freelancer?.available ? "đang rảnh" : "Không rảnh" : freelancer?.available ? "available" : "not available"}
           </span>
         </div>
         <h5 className="mb-lg-2 display-inline-block ">Proposals</h5>
@@ -140,13 +140,13 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
             className="list-group-item sidebar-homebage-ul-li"
             aria-current="true"
           >
-            <a
-              href="#"
+            <Link
+              to="/buyconnects"
               className=" list-group-item-action advanced-search-link border border-secondary p-1 rounded"
               aria-current="true"
             >
               {t("Buy SickPoints")}
-            </a>
+            </Link>
 
           </li>
         </ul>

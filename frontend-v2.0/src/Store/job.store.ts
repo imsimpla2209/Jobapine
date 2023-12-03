@@ -26,7 +26,7 @@ export interface IJobData {
   scope?: IJobScope
   questions?: string[]
   createdAt?: any
-  updateddAt?: any
+  updatedAt?: any
   preferences?: IJobPreferences
   visibility?: boolean
   jobDuration?: 'short-term' | 'long-term'

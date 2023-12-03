@@ -15,9 +15,9 @@ import { getUserById, getUserByOptions, getUserByUsername, updateUserById } from
  * @returns {Promise<IUserDoc>}
  */
 export const loginUserWithUsernameAndPassword = async (username: string, password: string): Promise<IUserDoc> => {
-  let user = await getUserByUsername(username)
+  let user = await getUserByOptions({ username, isActive: true })
   if (!user) {
-    user = await getUserByOptions({ email: username })
+    user = await getUserByOptions({ email: username, isActive: true })
     if (!user) {
       throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect username or password')
     }

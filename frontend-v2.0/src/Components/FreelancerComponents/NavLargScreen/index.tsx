@@ -114,11 +114,11 @@ export default function NavLargScreen() {
   }, [unSeenMSG])
 
   const items = useMemo(() => {
-    return notifies?.map((s, ix) => {
+    return notifies?.slice(0, 5)?.map((s, ix) => {
       return {
         label: <div className="row" style={{ width: 400 }}>
           <img className="col-2" height={36} width={36} src={s.image || notiIcon} alt="sss" />
-          <Link className="col-7 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)}</Link>
+          <Link className="col-7 text-wrap text-truncate" style={{ color: s?.seen ? "black" : "#6600cc" }} to={s?.path || '#'}>{pickName(s?.content, lang)?.slice(0, 100)}...</Link>
           <p className="col-3">{timeAgo(s?.createdAt, t)}</p>
         </div>,
         key: ix,
@@ -273,6 +273,10 @@ export default function NavLargScreen() {
                 menu={{ items }}
                 trigger={['click']}
                 onOpenChange={e => onSeenNotify(e)}
+                overlayStyle={{
+                  overflowY: 'auto',
+                  maxHeight: '100vh',
+                }}
                 arrow={{ pointAtCenter: true }}
                 dropdownRender={(menu) => (
                   <div style={{

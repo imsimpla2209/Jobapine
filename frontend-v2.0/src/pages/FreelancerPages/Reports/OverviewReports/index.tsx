@@ -19,7 +19,7 @@ export default function OverviewReports() {
   const navigate = useNavigate();
   pathname === "/overview" && navigate("/overview/work-in-progress");
   const { t } = useTranslation(['main']);
-  const inreview = 'nhu cai';
+  const inreview = '0';
 
   useEffect(() => {
     // dispatch(inReviewAction());

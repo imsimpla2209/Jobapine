@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/dot-notation */
@@ -15,9 +16,10 @@ import { EJobStatus, EStatus } from 'common/enums'
 import { FEMessage, FERoutes } from 'common/enums/constant'
 import { logger } from 'common/logger'
 import httpStatus from 'http-status'
-import keywordExtractor from 'keyword-extractor'
 import mongoose from 'mongoose'
 import { createFuzzyRegex, extractKeywords } from 'utils/helperFunc'
+import { Freelancer } from '@modules/freelancer'
+import { updateUserById } from '@modules/user/user.service'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IJobDoc, NewCreatedJob, UpdateJobBody } from './job.interfaces'
@@ -29,13 +31,39 @@ import Job, { JobCategory, JobTag } from './job.model'
  * @returns {Promise<IJobDoc>}
  */
 export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
-  const client = await getClientById(jobBody.client)
-  if (!client) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
+  try {
+    const client = await getClientById(jobBody.client)
+    if (!client) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
+    }
+    if (!client?.paymentVerified) {
+      jobBody['status'] = [
+        {
+          status: EJobStatus.PENDING,
+          comment: 'Client profile is not verified',
+          date: new Date(),
+        },
+      ]
+      jobBody['currentStatus'] = EJobStatus.PENDING
+    }
+    const createdJob = await Job.create(jobBody)
+    await User.updateOne({ _id: new mongoose.Types.ObjectId(client?.user) }, { $inc: { sickPoints: -2 } })
+    if (client?.paymentVerified) {
+      const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
+      const notifyBodies = followedFreelancer?.map(f => ({
+        to: f.user._id,
+        path: FERoutes.jobDetail + (createdJob._id || ''),
+        attachedId: createdJob._id,
+        content: FEMessage(createdJob.title).newJobCreated,
+      }))
+      bulkCreateNotify(notifyBodies)
+    }
+    client.jobs = client.jobs.concat(createdJob._id)
+    client.save()
+    return createdJob
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `cannot create job ${error}`)
   }
-  const createdJob = await Job.create(jobBody)
-  client.jobs = client.jobs.concat(createdJob._id)
-  return createdJob
 }
 
 /**
@@ -334,13 +362,13 @@ export const getRcmdJob = async (
         score_categories: {
           $multiply: [
             { $size: { $setIntersection: [similarDocs?.similarJobCats || [], { $ifNull: ['$categories', []] }] } },
-            1.5,
+            1.6,
           ],
         },
         score_skills: {
           $multiply: [
             { $size: { $setIntersection: [similarDocs?.similarSkills || [], { $ifNull: ['$reqSkills.skill', []] }] } },
-            1.25,
+            1.5,
           ],
         },
         score_tags: { $size: { $ifNull: ['$tags', []] } },
@@ -351,7 +379,7 @@ export const getRcmdJob = async (
                 $setIntersection: [similarDocs?.similarLocations || [], { $ifNull: ['$preferences.locations', []] }],
               },
             },
-            2,
+            1.7,
           ],
         },
         score_paymentType: { $cond: [{ $eq: ['$payment.type', freelancer?.expectedPaymentType] }, 1, 0] },
@@ -706,26 +734,6 @@ export const updateMulJobByOptions = async (options: any, updateBody: UpdateJobB
 }
 
 /**
- * Delete job by id (only for admin)
- * @param {mongoose.Types.ObjectId} jobId
- * @returns {Promise<IJobDoc | null>}
- */
-export const deleteJobById = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc | null> => {
-  const job = await getJobById(jobId)
-  const client = await getClientByOptions({ job: jobId })
-  deleteProposalByOptions({ job: jobId })
-  if (job) {
-    client.jobs = client.jobs.filter(j => j !== jobId)
-    client.save()
-  }
-  if (!job) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
-  }
-  await job.deleteOne()
-  return job
-}
-
-/**
  * Soft Delete job by id
  * @param {mongoose.Types.ObjectId} jobId
  * @returns {Promise<IJobDoc | null>}
@@ -796,8 +804,11 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
       path: 'proposals',
       select: 'freelancer',
       populate: {
-        path: 'freelancer.user',
-        select: '_id',
+        path: 'freelancer',
+        populate: {
+          path: 'user',
+          select: '_id',
+        },
       },
     })
     .populate({
@@ -858,6 +869,27 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
 }
 
 /**
+ * Delete job by id (only for admin)
+ * @param {mongoose.Types.ObjectId} jobId
+ * @returns {Promise<IJobDoc | null>}
+ */
+export const deleteJobById = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc | null> => {
+  const job = await getJobById(jobId)
+  const client = await getClientByOptions({ jobs: { $in: [jobId] } })
+  await softDeleteJobById(jobId)
+  // deleteProposalByOptions({ job: jobId })
+  if (client && job) {
+    client.jobs = client?.jobs.filter(j => j !== jobId)
+    client.save()
+  }
+  if (!job) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  }
+  await job.deleteOne()
+  return job
+}
+
+/**
  * Change status job by id
  * @param {mongoose.Types.ObjectId} jobId
  * @param {string} status
@@ -868,7 +900,7 @@ export const changeStatusJobById = async (
   status: EJobStatus,
   comment: string
 ): Promise<IJobDoc | null> => {
-  const job = await getJobById(jobId)
+  const job = await Job.findById(jobId)
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }

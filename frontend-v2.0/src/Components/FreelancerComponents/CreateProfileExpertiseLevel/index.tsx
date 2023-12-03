@@ -51,7 +51,7 @@ export default function CreateProfileExpertiseLevel() {
               
               name="expertise-level"
               value="0"
-              checked={state.expertiseLevel === 0}
+              defaultChecked={state.expertiseLevel === 0}
             />
             <h5 className="my-4">{t("Beginer")}</h5>
             <div>I have never worked online</div>
@@ -62,7 +62,7 @@ export default function CreateProfileExpertiseLevel() {
               className="float-end"
               name="expertise-level"
               value="1"
-              checked={state.expertiseLevel === 1}
+              defaultChecked={state.expertiseLevel === 1}
             />
             <h5 className="my-4">{t("Junior")}</h5>
             <div>I am relatively new to this field</div>
@@ -73,7 +73,7 @@ export default function CreateProfileExpertiseLevel() {
               className="float-end"
               name="expertise-level"
               value="2"
-              checked={state.expertiseLevel === 2}
+              defaultChecked={state.expertiseLevel === 2}
             />
             <h5 className="my-4">{t("Intermediate")}</h5>
             <div>I have substantial experience in this field</div>
@@ -84,7 +84,7 @@ export default function CreateProfileExpertiseLevel() {
               className="float-end"
               name="expertise-level"
               value="3"
-              checked={state.expertiseLevel === 3}
+              defaultChecked={state.expertiseLevel === 3}
             />
             <h5 className="my-4">{t("Expert")}</h5>
             <div>I have comprehensive and deep expertise in this field</div>
