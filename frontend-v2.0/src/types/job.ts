@@ -1,4 +1,4 @@
-import { EPaymenType, EComplexity, EJobType, ELevel, EUserVisibility } from 'src/utils/enum'
+import { EComplexity, EJobType, ELevel, EPaymenType } from 'src/utils/enum'
 
 export interface IJobPayment {
   amount?: number
@@ -31,7 +31,7 @@ export interface ICreateJobBody {
   scope?: IJobScope
   questions?: string[]
   preferences?: IJobPreferences
-  visibility?: EUserVisibility
+  visibility?: boolean
   jobDuration?: 'short-term' | 'long-term'
 }
 
