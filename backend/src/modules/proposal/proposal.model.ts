@@ -45,6 +45,7 @@ const proposalSchema = new mongoose.Schema<IProposalDoc, IProposalModel>(
     clientComment: [{ type: String, required: 'false', default: [] }],
     freelancerComment: [{ type: String, required: 'false', default: [] }],
     attachments: [{ type: String, required: 'false', default: [] }],
+    answers: { type: Object, required: 'false' },
     contract: { type: String, ref: 'Contract' },
     msgRequestSent: { type: Boolean, default: false },
     messages: [{ type: String, ref: 'Message', default: [] }],

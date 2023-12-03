@@ -209,7 +209,7 @@ export const getRcmdFreelancers = async (jobId: mongoose.Types.ObjectId, options
  * @returns {Promise<IFreelancerDoc | null>}
  */
 export const getFreelancerById = async (id: mongoose.Types.ObjectId): Promise<IFreelancerDoc | null> =>
-  Freelancer.findById(id)
+  Freelancer.findById(id).populate('skills.skill').populate('preferJobType')
 
 /**
  * Get freelancer by id with populate

@@ -18,6 +18,7 @@ import Loader from '../../SharedComponents/Loader/Loader'
 import ClientJobCard from '../ClientJobCard'
 import { Text } from '../ReviewProposalsCard'
 import './HomeLayout.css'
+import { EJobStatus } from 'src/utils/enum'
 
 export default function HomeLayout() {
   const { t, i18n } = useTranslation(['main'])
@@ -44,6 +45,7 @@ export default function HomeLayout() {
       page: p || page,
       limit: ps || pageSize,
       searchText: searchKey || ' ',
+      currentStatus: Object.keys(EJobStatus).map(key => EJobStatus[key]),
     })
       .then(res => {
         setJobs(res?.data?.results)
@@ -125,13 +127,11 @@ export default function HomeLayout() {
                     </div>
                     {!loading ? (
                       jobs?.length ? (
-                        jobs
-                          // .filter(item => item?.title?.toLowerCase().includes(searchKey.trim().toLocaleLowerCase()))
-                          .map((item, index) => (
-                            <div key={index}>
-                              <ClientJobCard item={item} client={client} lang={lang} />
-                            </div>
-                          ))
+                        jobs.map((item, index) => (
+                          <div key={index}>
+                            <ClientJobCard item={item} client={client} lang={lang} />
+                          </div>
+                        ))
                       ) : (
                         <Card style={{ marginBottom: 20 }}>
                           <Result

@@ -7,9 +7,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import ClientJobDetails from 'src/Components/ClientComponents/ClientJobDetails'
 import SimilarJobsOnJobSickers from 'src/Components/FreelancerComponents/SimilarJobsOnJobSickers'
 import { clientStore } from 'src/Store/user.store'
+import { getContracts } from 'src/api/contract-apis'
 import { deleteJob, getJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import Loader from '../../../Components/SharedComponents/Loader/Loader'
+import { EStatus } from 'src/utils/enum'
 
 const { confirm } = Modal
 
@@ -19,19 +21,29 @@ export default function JobDetailsBeforeProposals() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [jobData, setJobData] = useState(null)
+  const [deleting, setDeleting] = useState(null)
   const client = useSubscription(clientStore).state
-
+  const [contracts, setContracts] = useState([])
+  console.log('😘contracts', contracts)
   useEffect(() => {
     getJob(id).then(res => {
-      console.log('load job, ', id)
       setJobData(res.data)
     })
+    getContracts({
+      client: client._id || client.id,
+      job: id,
+      currentStatus: EStatus.ACCEPTED,
+    }).then(res => setContracts(res.data.results))
   }, [id])
 
   const { t } = useTranslation(['main'])
 
   const handleDeleteJob = async () => {
-    await deleteJob(id).then(res => navigate('/'))
+    setDeleting(true)
+    await deleteJob(id).then(res => {
+      setDeleting(false)
+      navigate('/')
+    })
   }
 
   const showDeleteConfirm = () => {
@@ -60,7 +72,7 @@ export default function JobDetailsBeforeProposals() {
               {isCurrentClientJob ? (
                 <Space>
                   <Button type="primary">Edit</Button>
-                  <Button type="primary" danger onClick={showDeleteConfirm}>
+                  <Button type="primary" danger onClick={showDeleteConfirm} loading={deleting}>
                     Delete
                   </Button>
                 </Space>

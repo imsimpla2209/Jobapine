@@ -1,4 +1,4 @@
-import { EComplexity, EJobType, ELevel, EPaymenType } from 'src/utils/enum'
+import { EComplexity, EJobStatus, EJobType, ELevel, EPaymenType } from 'src/utils/enum'
 
 export interface IJobPayment {
   amount?: number
@@ -21,7 +21,7 @@ export interface ICreateJobBody {
   description?: string
   type: EJobType
   experienceLevel?: ELevel[]
-  reqSkills?: string[]
+  reqSkills?: { skill: any; level: number }[]
   checkLists?: string[]
   attachments?: string[]
   categories?: string[]
@@ -49,6 +49,7 @@ export interface IGetJobsQuery {
   limit?: number
   page?: number
   searchText?: string
+  currentStatus?: EJobStatus[]
 }
 
 export interface IAdvancedGetJobsBody {
