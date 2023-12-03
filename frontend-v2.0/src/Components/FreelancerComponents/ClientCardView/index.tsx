@@ -10,19 +10,32 @@ import { currencyFormatter, randomDate } from 'src/utils/helperFuncs';
 import { Button, Card } from 'react-bootstrap';
 import { Space } from 'antd';
 import { Link } from 'react-router-dom';
+import { freelancerStore } from 'src/Store/user.store';
+import { updateFreelancer } from 'src/api/freelancer-apis';
 
-const ClientCard = ({ client, total }: any) => {
+const ClientCard = ({ client, total, clientId }: any) => {
   const locations = useSubscription(locationStore).state
   const { t } = useTranslation(['main']);
+  const freelancer = useSubscription(freelancerStore).state;
+  const setFreelancer = useSubscription(freelancerStore).setState;
 
-  const [cardState, setCardState] = useState<any>({
-    friends: 10,
+  const [cardState, setCardState] = useState<any>(freelancer?.favoriteClients?.includes(clientId) ? {
+    friends: total,
+    icon: 'cancel',
+    text: 'Unfollow',
+    btnStyle: {
+      color: 'maroon',
+      cursor: 'normal',
+      animation: 'spin 200ms ease-in-out'
+    }
+  } : {
+    friends: total,
     icon: 'add_circle',
     text: 'Follow',
     btnStyle: {
-      borderRadius: '50%',
       color: 'limegreen',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      animation: 'spinBack 200ms ease-in-out'
     }
   });
 
@@ -32,27 +45,37 @@ const ClientCard = ({ client, total }: any) => {
     let currentText = cardState.text;
     let currentFriends = cardState.friends;
     if (currentIcon === 'add_circle' && currentText === 'Follow')
-      setCardState({
-        friends: currentFriends + 1,
-        icon: 'cancel',
-        text: 'Unfollow',
-        btnStyle: {
-          color: 'maroon',
-          cursor: 'normal',
-          animation: 'spin 200ms ease-in-out'
-        }
-      });
+      {
+        updateFreelancer({ favoriteClients: freelancer.favoriteClients ? [...freelancer.favoriteClients, clientId] : [clientId] }, freelancer._id).then(res => {
+          setFreelancer(res.data)
+        })
+        setCardState({
+          friends: currentFriends + 1,
+          icon: 'cancel',
+          text: 'Unfollow',
+          btnStyle: {
+            color: 'maroon',
+            cursor: 'normal',
+            animation: 'spin 200ms ease-in-out'
+          }
+        });
+      }
     else
-      setCardState({
-        friends: currentFriends - 1,
-        icon: 'add_circle',
-        text: 'Follow',
-        btnStyle: {
-          color: 'limegreen',
-          cursor: 'pointer',
-          animation: 'spinBack 200ms ease-in-out'
-        }
-      });
+      {
+        updateFreelancer({ favoriteClients: freelancer.favoriteClients?.filter(c => c !== clientId) }, freelancer._id).then(res => {
+          setFreelancer(res.data)
+        })
+        setCardState({
+          friends: currentFriends - 1,
+          icon: 'add_circle',
+          text: 'Follow',
+          btnStyle: {
+            color: 'limegreen',
+            cursor: 'pointer',
+            animation: 'spinBack 200ms ease-in-out'
+          }
+        });
+      }
   };
 
   const renderLocations = () => {
@@ -72,7 +95,7 @@ const ClientCard = ({ client, total }: any) => {
             <h2 className="mb-1">{client?.name || client?.user?.name}</h2>
             <h6 className={`fw-bold mb-3 text-${client?.paymentVerified ? 'primary' : 'danger'}`}>
               <i className={`${client?.paymentVerified ? 'fas' : 'far'} fa-check-circle me-1`} />
-              {client?.paymentVerified ? 'Payment verified' : 'Payment unverified'}
+              {client?.paymentVerified ? t('Paymentverified') : t('Paymentunverified')}
             </h6>
             <div className="text-muted mb-3 me-3 ">{client?.intro}</div>
             <div className='mb-2 d-flex flex-column flex-md-row flex-wrap align-items-center'>

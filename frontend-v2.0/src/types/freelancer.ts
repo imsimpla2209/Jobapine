@@ -72,6 +72,7 @@ export interface UpdateFreelancer {
   profileCompletion?: number
   expectedAmount?: number
   expectedPaymentType?: EPaymenType
+  favoriteClients?: string[]
 }
 
 export interface QueryParams {

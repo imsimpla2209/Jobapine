@@ -12,6 +12,7 @@ const createClientBody: Record<keyof NewRegisteredClient, any> = {
   preferLocations: Joi.array().items(Joi.string()),
   preferJobType: Joi.array().items(Joi.string()),
   favoriteFreelancers: Joi.array().items(Joi.string()),
+  findingSkills: Joi.array().items(Joi.string().custom(objectId)),
 }
 
 export const createClient = {

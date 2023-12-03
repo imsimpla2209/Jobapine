@@ -12,6 +12,10 @@ export const getUsers = (data?: IUserQuery) => {
   return Http.get('users', data);
 }
 
+export const checkUniqueField = (data?: {email?: string, username?: string, phone?: string}) => {
+  return Http.get('users/checkUnique', data);
+}
+
 export const getUser = (id: string) => {
   return instance.get(`users/${id}`);
 }

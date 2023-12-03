@@ -57,7 +57,7 @@ export default function CreateProfile() {
   const [Component, setComponent] = useState<React.ComponentType | null>(null);
 
   useEffect(() => {
-    if (isReview) {
+    if (isReview === 'true') {
       profilesetStep({ step: EStep.SUBMIT })
     }
     console.log('current profile', currentFreelancerData)

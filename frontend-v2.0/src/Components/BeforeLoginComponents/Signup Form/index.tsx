@@ -1,10 +1,16 @@
 
+import { Button } from "antd";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { loginGoogle } from "src/api/auth-apis";
+import { checkUniqueField } from "src/api/user-apis";
 import { ESignupStep } from "src/pages/BeforeLoginPages/SignUp";
 
 export default function SignupForm({ setEmail, setStep, errorMessage, setErrorMessage }: any) {
   const { t }=useTranslation(['main']);
+  const [loading, setLoading] = useState(false)
+  const [email, setemail] = useState('')
 
   const getEmail = ({ target }) => {
     const checkErr = target.value === "" ? t("Email required") : !target.value.match(/^([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)
@@ -13,11 +19,20 @@ export default function SignupForm({ setEmail, setStep, errorMessage, setErrorMe
     if(checkErr) {
       return
     }
+    setemail(target.value)
     setEmail(target.value)
   }
 
-  const signUpContinue = () => {
-    setStep(ESignupStep.DETAIL)
+  const signUpContinue = async () => {
+    setLoading(true);
+    checkUniqueField({ email }).then((res) => {
+      if(res.data) {
+        return toast.error('Email already used!!')
+      }
+      setStep(ESignupStep.DETAIL)
+    }).finally(() => {
+      setLoading(false)
+    })
   }
 
   const onLoginGoogle = async () => {
@@ -93,14 +108,14 @@ export default function SignupForm({ setEmail, setStep, errorMessage, setErrorMe
           </div>
           <div className="d-grid gap-2 col-8 mx-auto mt-3 hitbtn-class loginpcolor mb-4">
 
-            <button
+            <Button
               disabled={errorMessage != null}
               className="btn bg-jobsicker"
-              type="button"
               onClick={signUpContinue}
+              loading={loading}
             >
               {t("Continue with Email")}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

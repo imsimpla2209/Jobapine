@@ -1,5 +1,5 @@
 export const FERoutes = {
-  allProposals: '/all-proposals/',
+  allProposals: '/proposals/',
   allContract: '/all-contract',
   myJobs: '/my-jobs',
   allInvitation: '/invitations',
@@ -48,6 +48,10 @@ export const FEMessage = (extra?: any) => {
     rejectContract: {
       name: 'Your proposed contract has been rejected',
       name_vi: 'Đề nghị hợp đồng làm việc của bạn đã bị từ chối',
+    },
+    newJobCreated: {
+      name: 'One of you favorite client just posted a new job',
+      name_vi: '1 trong những khách hàng bạn ưa thích vừa đăng 1 công việc mới',
     },
     phoneSMSVerify: `JobSickers-Biggest Application Marketplace \n\nYour OTP verification code is/Mã xác thực số điện thoại của bạn là [ ${extra} ]`,
   }

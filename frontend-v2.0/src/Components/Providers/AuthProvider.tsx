@@ -87,6 +87,8 @@ const AuthProvider = ({ children }: Props) => {
 			setAuthenticated(false);
 			setLoading(false);
 			console.log(err)
+		}).finally(() => {
+			setLoading(false);
 		})
 	}, []);
 

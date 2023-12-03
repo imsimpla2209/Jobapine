@@ -115,18 +115,22 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
                     </span>
                   </div>
                   {
-                    !isInMSG && <div>
+                    proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.PENDING && <>
                       {
-                        (proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS)
-                          ? <Link to={`/messages?proposalId=${proposal?._id}`}><BlueColorButton>{t("Go to messaging")}</BlueColorButton></Link>
-                          : <BlueColorButton loading={loading} style={{
-                            pointerEvents: (isSendRequest || proposal?.msgRequestSent) ? "none" : "auto",
-                            background: (isSendRequest || proposal?.msgRequestSent) ? "gray" : "",
-                          }} className="" onClick={createRequestMSGRoom}>
-                            {(isSendRequest || proposal?.msgRequestSent) ? <>{t("Sent")}</> : <>{t("Request to message")}</>}
-                          </BlueColorButton>
+                        !isInMSG && <div>
+                          {
+                            (proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.INPROGRESS)
+                              ? <Link to={`/messages?proposalId=${proposal?._id}`}><BlueColorButton>{t("Go to messaging")}</BlueColorButton></Link>
+                              : <BlueColorButton loading={loading} style={{
+                                pointerEvents: (isSendRequest || proposal?.msgRequestSent) ? "none" : "auto",
+                                background: (isSendRequest || proposal?.msgRequestSent) ? "gray" : "",
+                              }} className="" onClick={createRequestMSGRoom}>
+                                {(isSendRequest || proposal?.msgRequestSent) ? <>{t("Sent")}</> : <>{t("Request to message")}</>}
+                              </BlueColorButton>
+                          }
+                        </div>
                       }
-                    </div>
+                    </>
                   }
                   <div>
                     {

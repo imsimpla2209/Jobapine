@@ -187,7 +187,7 @@ export default function JobCard({ item, freelancer, lang }) {
             <span className="fw-bold text-muted" style={{ display: 'flex', marginTop: 2 }}>
               <i className="fas fa-map-marker-alt" />
               {
-                item?.preferences?.locations?.map(l => (
+                item?.preferences?.locations?.filter(l=>locations?.find(s => s.code === l.toString())).map(l => (
                   <span key={l} style={{ marginLeft: 8 }}>
                     {locations?.find(s => s.code === l.toString())?.name} |
                   </span>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable prefer-const */
@@ -194,6 +195,47 @@ export const getDashboardSummarize = async (req, res, next) => {
       totalClients,
       totalRevenue: totalRevenue[0].sum,
     })
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Cannot get Summarize')
+  }
+}
+
+export const getPaymentStats = async (req, res) => {
+  const currentDate = new Date()
+  const lastYearDate = new Date(currentDate.getFullYear() - 1, currentDate.getMonth() + 1, 0)
+  const currentYear = new Date().getFullYear()
+  try {
+    const result = await Payment.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: lastYearDate, $lte: currentDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m', date: '$createdAt' },
+          },
+          totalAmount: { $sum: '$amount' },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ])
+
+    const months = []
+    for (let i = 1; i <= 12; i++) {
+      const month = `${currentYear}-${i.toString().padStart(2, '0')}`
+      const existingMonth = result.find(entry => entry._id === month)
+      if (existingMonth) {
+        months.push(existingMonth)
+      } else {
+        months.push({ _id: month, totalAmount: 0 })
+      }
+    }
+
+    return res.status(200).json(months)
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Cannot get Summarize')
   }

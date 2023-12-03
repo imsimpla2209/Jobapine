@@ -16,6 +16,13 @@ export const getUserSignUpStats = () => {
   return instance.get('admin/userStats')
 }
 
+export const getUsers = () => {
+  return instance.get('admin/getUsers')
+}
+
 export const getSummarizeStats = () => {
   return instance.get('admin/summarizeStats')
 }
+
+
+

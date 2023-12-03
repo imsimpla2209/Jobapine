@@ -14,6 +14,7 @@ const tabLists = {
   "Pending": EStatus.PENDING,
   "Rejected": EStatus.REJECTED,
   "Archive": EStatus.ARCHIVE,
+  "Cancel": EStatus.CANCELLED,
 }
 
 export default function Proposals() {
