@@ -11,8 +11,10 @@ import { useSubscription } from 'src/libs/global-state-hook'
 import { formatMoney } from 'src/utils/formatMoney'
 import { pickName } from 'src/utils/helperFuncs'
 import { Text } from '../ReviewProposalsCard'
+import { useNavigate } from 'react-router-dom'
 
 export default function Saved({ freelancer }) {
+  const navigate = useNavigate()
   const { t, i18n } = useTranslation(['main'])
   const lang = i18n.language
   const { state: locations } = useSubscription(locationStore)
@@ -26,7 +28,12 @@ export default function Saved({ freelancer }) {
   }, [favoriteFreelancers])
 
   return (
-    <Card bodyStyle={{ padding: 16 }} style={{ width: '100%' }}>
+    <Card
+      bodyStyle={{ padding: 16 }}
+      style={{ width: '100%' }}
+      className="card-hover"
+      onClick={() => navigate(`/freelancer-profile/${freelancer._id}`)}
+    >
       <Space
         direction="horizontal"
         size={16}

@@ -15,7 +15,7 @@ export const createJob = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const getJobs = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['title', 'skills', 'categories', 'client', 'searchText'])
+  const filter = pick(req.query, ['title', 'skills', 'categories', 'client', 'searchText', 'currentStatus'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const freelancer = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req?.user?._id as string) })
   const result = await jobService.queryJobs(filter, options, freelancer)

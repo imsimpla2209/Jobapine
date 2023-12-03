@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { CheckCircleTwoTone } from '@ant-design/icons'
-import { Button, Input, Modal, Space, Typography } from 'antd'
+import { Button, Input, Modal, Space, Typography, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
@@ -19,6 +19,7 @@ import Loader from './../../SharedComponents/Loader/Loader'
 import ReviewProposalsPageHeader from './../ReviewProposalsPageHeader'
 import { EStatus } from 'src/utils/enum'
 import { IProposal } from 'src/types/proposal'
+import FileDisplay from 'src/pages/ForumPages/ideas/idea-detail/file-display'
 
 export const { Text } = Typography
 
@@ -58,7 +59,17 @@ export default function ReviewProposalsCard() {
   console.log('proposals', proposals)
   const sendMSG = async (freelancerID: string, proposalId: string) => {
     await checkMessageRoom({ member: [clientID, freelancerID], proposal: proposalId })
-    navigate(`/messages?proposalId=${proposalId}`)
+      .then(res => {
+        console.log(res.data)
+        if (res.data.exist) {
+          navigate(`/messages?proposalId=${proposalId}`)
+        } else {
+          message.success(
+            `Sent request to message to ${freelancers.find(freelancer => freelancer.user === freelancerID)?.name}`
+          )
+        }
+      })
+      .catch(err => message.error(err))
   }
 
   const handleReject = async () => {
@@ -122,68 +133,84 @@ export default function ReviewProposalsCard() {
                   style={{ width: '70px', height: '70px' }}
                 />
               </div>
-              <div className="col-lg-6 pt-lg-3 ">
+              <Space className="col-lg-6 pt-lg-3" direction="vertical" size={'middle'}>
                 <Link
-                  to={`/freelancer-profile/${currentFreelancer?.authID}`}
+                  to={`/freelancer-profile/${currentFreelancer?._id}`}
                   id="job-title-home-page "
-                  className="link-dark job-title-hover fw-bold text-success"
+                  className=" fw-bold "
                 >
                   {currentFreelancer?.name}
                 </Link>
-                <p id="job-title-home-page" className="link-dark my-1">
-                  <span className="text-muted">{t('Introduction')}: </span>
-                  <span className="fw-bold">{currentFreelancer?.intro}</span>
-                </p>
                 <div>
-                  <span className="text-muted">{t('Locations')}: </span>
-
-                  <Space split={'|'}>
-                    {currentFreelancer?.currentLocations?.map(l =>
-                      locations.find(loc => loc.code === l)?.name ? (
-                        <div key={l} className="text-muted  fw-bold ">
-                          {locations.find(loc => loc.code === l)?.name}
-                        </div>
-                      ) : null
-                    )}
-                  </Space>
+                  <span className="text-muted fw-bold">{t('Introduction')}: </span>
+                  <div className="fw-bold">{currentFreelancer?.intro}</div>
                 </div>
-                <div className="row py-3">
+                <div>
+                  <span className="text-muted fw-bold">{t('Locations')}: </span>
+
+                  <span className="fw-bold">
+                    {currentFreelancer?.currentLocations
+                      ?.filter(l => locations.find(loc => loc.code === l)?.name)
+                      .map(l => locations.find(loc => loc.code === l)?.name)
+                      .join(', ')}
+                  </span>
+                </div>
+                <div className="row">
                   <div className="col">
-                    <span className="text-muted">{t('Hourly rate')}:</span>
+                    <span className="text-muted fw-bold">{t('Hourly rate')}:</span>
                     <span className="fw-bold"> ${currentFreelancer?.expectedAmount} /hr</span>
                   </div>
-                  <div className="col">
-                    <span className="text-muted">{t('Earned')}: </span>
+                  {/* <div className="col">
+                    <span className="text-muted fw-bold">{t('Earned')}: </span>
                     <span className="fw-bold">${currentFreelancer?.earned}</span>
-                  </div>
+                  </div> */}
                 </div>
 
-                <div className="col-lg-10">
-                  <div>
-                    <span className="text-muted">{t('Skills')}:</span>
-                    <div className="d-flex justify-content-start">
-                      {currentSkills?.map((skill, index) => (
-                        <div className="chip mb-3 ms" key={index}>
-                          <span> {t(skill?.name)}</span>
-                        </div>
-                      ))}
-                    </div>
+                <div>
+                  <span className="text-muted fw-bold">{t('Skills')}:</span>
+                  <div className="d-flex justify-content-start">
+                    {currentSkills?.map((skill, index) => (
+                      <div className="chip mb-3 ms" key={index}>
+                        <span> {t(skill?.name)}</span>
+                      </div>
+                    ))}
                   </div>
-                  <p>
-                    <span className="text-muted">{t('Certificates')}: </span>
-                    <span className="fw-bold"> {currentFreelancer?.certificate}</span>
-                  </p>
-                  <p>
-                    <span className="text-muted">{t('Expected payment amount')}: </span>
-                    <span className="fw-bold">${proposal?.expectedAmount}</span>
-                  </p>
-                  <p id="Cover-Letter">
-                    <span className="text-muted">{t('Cover Letter')}: </span>
-                    <span className="fw-bold">{proposal.description}</span>
-                  </p>
                 </div>
-              </div>
-              <div className="col py-3" style={{ justifyContent: 'end', display: 'flex', alignItems: 'start' }}>
+                <div>
+                  <span className="text-muted fw-bold">{t('Certificates')}: </span>
+                  <span className="fw-bold"> {currentFreelancer?.certificate}</span>
+                </div>
+                <div>
+                  <span className="text-muted fw-bold">{t('Expected payment amount')}: </span>
+                  <span className="fw-bold">${proposal?.expectedAmount}</span>
+                </div>
+                <div>
+                  <span className="text-muted fw-bold">{t('Cover Letter')}: </span>
+                  <span className="fw-bold">{proposal.description}</span>
+                </div>
+
+                {proposal?.job?.questions?.length ? (
+                  <div>
+                    <span className="text-muted fw-bold">{t("Fast Client's Questions:")}</span>
+                    {proposal?.job?.questions?.map((question, index) => (
+                      <div style={{ paddingLeft: 12, marginTop: 8 }}>
+                        <span className="text-muted">{question}</span>
+                        <p className="text-muted fw-bold">{proposal.answers[index]}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </Space>
+              <div
+                className="col py-3"
+                style={{
+                  justifyContent: 'start',
+                  display: 'flex',
+                  alignItems: 'end',
+                  flexDirection: 'column',
+                  gap: 20,
+                }}
+              >
                 <Space>
                   {proposal.currentStatus !== EStatus.REJECTED ? (
                     <Button onClick={() => sendMSG(currentFreelancer.user, proposal._id)}>{t('Messages')}</Button>
@@ -210,6 +237,10 @@ export default function ReviewProposalsCard() {
                     </>
                   )}
                 </Space>
+
+                {proposal?.attachments?.length ? (
+                  <FileDisplay files={proposal?.attachments} style={{ margin: 0 }} />
+                ) : null}
               </div>
             </div>
           )

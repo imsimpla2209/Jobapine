@@ -2,8 +2,8 @@ import { EStatus } from 'src/utils/enum'
 import { filterFreelancersQuery } from './freelancer'
 
 export interface IProposal {
-  _id: string
-  job: string
+  _id?: string
+  job: any
   freelancer: string
   expectedAmount?: number
   description?: string
@@ -13,7 +13,7 @@ export interface IProposal {
   attachments?: string[]
   contract?: string
   messages?: string[]
-  answers?: Record<number, string>
+  answers?: any
   priority?: number
   currentStatus?: EStatus
 }

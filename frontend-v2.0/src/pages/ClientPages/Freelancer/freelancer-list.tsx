@@ -1,4 +1,4 @@
-import { Card, Empty, Pagination, Result, Row, Spin } from 'antd'
+import { Card, Pagination, Result, Row, Spin } from 'antd'
 import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 import Saved from 'src/Components/ClientComponents/SavedComponent'

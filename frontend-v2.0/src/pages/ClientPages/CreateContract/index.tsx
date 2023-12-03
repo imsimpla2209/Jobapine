@@ -61,7 +61,7 @@ export default function CreateContract() {
       .then(res => {
         if (res) {
           message.success('Created contract successfully')
-          navigate('')
+          navigate(-1)
         }
       })
       .catch(e => console.error(e))

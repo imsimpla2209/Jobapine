@@ -1,4 +1,3 @@
-
 .ant-layout.ant-layout-has-sider {
   flex-direction: row;
 }
@@ -2451,27 +2450,6 @@ section.ant-layout.ant-layout-has-sider.layout-dashboard.layout-profile .btn-sig
 }
 .card-profile-information hr {
   opacity: 0.2;
-}
-
-.p-5,
-.pr-5,
-.px-5 {
-  padding-right: 5px !important;
-}
-.p-5,
-.pl-5,
-.px-5 {
-  padding-left: 5px !important;
-}
-.m-5,
-.mr-5,
-.mx-5 {
-  margin-right: 5px !important;
-}
-.m-5,
-.ml-5,
-.mx-5 {
-  margin-left: 5px !important;
 }
 
 .card-profile-information .ant-descriptions .ant-descriptions-row > td,

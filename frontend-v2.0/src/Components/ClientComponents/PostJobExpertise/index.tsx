@@ -1,6 +1,7 @@
+import { Form } from 'antd'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MultiSkillPicker } from 'src/Components/SharedComponents/SkillPicker'
+import SkillPicker from 'src/Components/SharedComponents/SkillPicker'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { ELevel } from 'src/utils/enum'
 import { postJobSubscribtion } from '../PostJobGetStarted'
@@ -17,7 +18,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
 
   const addData = () => {
     postJobSubscribtion.updateState({
-      reqSkills: job.skills.map(skill => ({ skill, level: 1 })),
+      reqSkills: job.skills,
       experienceLevel: job.jobExperienceLevel,
     })
     setBtns({ ...btns, visibility: false })
@@ -37,7 +38,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
   const onSkillsChange = skills => {
     setJob({
       ...job,
-      skills: skills.map(skill => skill.value),
+      skills: skills.filter(item => item?.skill),
     })
   }
   return (
@@ -87,8 +88,11 @@ export default function PostJobExpertise({ setBtns, btns }) {
               <div>{t('Looking for comprehensive and deep expertise in this field')}</div>
             </label>
           </div>
+
           <p className="fw-bold">{t('Enter the skills of your job post?')}</p>
-          <MultiSkillPicker reset handleChange={onSkillsChange} istakeValue></MultiSkillPicker>
+          <Form>
+            <SkillPicker handleChange={onSkillsChange} />
+          </Form>
         </div>
       </section>
 
@@ -102,7 +106,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
           >
             <span className="btn border text-success me-4 px-5">{t('Back')}</span>
           </button>
-          <button className={`btn ${!job.jobExperienceLevel?.length && !job.skills?.length && 'disabled'}`}>
+          <button className={`btn ${(!job.jobExperienceLevel?.length || !job.skills?.length) && 'disabled'}`}>
             <span className="btn bg-jobsicker px-5" onClick={addData}>
               {t('Next')}
             </span>

@@ -108,7 +108,11 @@ export const queryJobs = async (
       skillFilter,
       ...filterByFreelancer,
       { isDeleted: { $ne: true } },
-      { currentStatus: { $in: [EJobStatus.OPEN, EJobStatus.PENDING] } },
+      {
+        currentStatus: {
+          $in: filter['currentStatus']?.length ? filter['currentStatus'] : [EJobStatus.OPEN, EJobStatus.PENDING],
+        },
+      },
     ],
   }
 
