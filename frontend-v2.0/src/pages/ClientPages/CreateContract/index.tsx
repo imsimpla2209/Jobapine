@@ -11,6 +11,7 @@ import { getSkills } from 'src/api/job-apis'
 import { getProposal } from 'src/api/proposal-apis'
 import { defaultPaymenType } from 'src/utils/constants'
 import { EComplexityGet } from 'src/utils/enum'
+import { formatMoney } from 'src/utils/formatMoney'
 import { randomDate } from 'src/utils/helperFuncs'
 
 export default function CreateContract() {
@@ -190,7 +191,7 @@ export default function CreateContract() {
                 <Form.Item label="Payment amount:">
                   <InputNumber
                     min={0}
-                    addonBefore={'$'}
+                    addonBefore={'VND'}
                     addonAfter={
                       <Select
                         defaultValue={contract?.paymentType || 'PerHour'}
@@ -202,6 +203,7 @@ export default function CreateContract() {
                       />
                     }
                     defaultValue={contract?.agreeAmount || 0}
+                    formatter={val => formatMoney(val)}
                     value={contract?.agreeAmount || 0}
                     onChange={val => setContract({ ...contract, agreeAmount: val })}
                   />
@@ -215,29 +217,6 @@ export default function CreateContract() {
               <div className="ps-4 pt-2 pe-4">
                 <p className="fw-bold">{t('Overview')}</p>
                 <textarea name="coverLetter" className="form-control" rows={8} defaultValue={''} onChange={handlVal} />
-              </div>
-
-              <div className="ps-4 pt-2 pe-4 mt-3">
-                {jobData?.questions?.length && (
-                  <>
-                    <p className="fw-bold">{t("Fast Client's Questions")}</p>
-                    {jobData?.questions?.map((question, ix) => (
-                      <Form.Item
-                        label={question + '?'}
-                        key={question}
-                        required
-                        tooltip={t('You need to answer this question')}
-                      >
-                        <Input
-                          placeholder={t('You need to answer this question')}
-                          onChange={(e: any) => {
-                            setAnswer({ ...answer, [ix]: e.target.value })
-                          }}
-                        />
-                      </Form.Item>
-                    ))}
-                  </>
-                )}
               </div>
 
               <div className="mx-4 mt-3 py-2 pb-4">
