@@ -35,6 +35,8 @@ export enum ELevel {
   EXPERT = 6,
 }
 
+export const LevelName = ['BEGINNER', 'INTERMEDIATE', 'JUNIOR', 'MID', 'SENIOR', 'MASTER', 'EXPERT']
+
 export enum EComplexity {
   EASY = 0,
   MEDIUM = 1,

@@ -6,6 +6,7 @@ import './style.css'
 import { EPaymenType } from 'src/utils/enum'
 import { IJobPayment } from 'src/types/job'
 import { InputNumber, Select } from 'antd'
+import { useSubscription } from 'src/libs/global-state-hook'
 
 const paymentTypeOptions = [
   { label: 'per task', type: 'PerTask' },
@@ -17,10 +18,14 @@ const paymentTypeOptions = [
 
 export default function Postbudget({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
+  const {
+    state: { payment, budget },
+  } = useSubscription(postJobSubscribtion, ['payment', 'budget'])
+
   const { t } = useTranslation(['main'])
   const [job, setJob] = useState<{ payment: IJobPayment; budget: number }>({
-    payment: { amount: 100, type: EPaymenType.PERHOURS },
-    budget: 1,
+    payment,
+    budget,
   })
 
   const addData = () => {
@@ -55,7 +60,7 @@ export default function Postbudget({ setBtns, btns }) {
   )
   return (
     <>
-      <section className=" bg-white border rounded mt-3 pt-4">
+      <section className=" bg-white border rounded pt-4">
         <div className="border-bottom ps-4">
           <h4>{t('Budget')}</h4>
           <p>{t('Step 6 of 7')}</p>

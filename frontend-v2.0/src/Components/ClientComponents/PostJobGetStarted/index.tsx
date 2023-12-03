@@ -4,7 +4,7 @@ import { InputNumber, Slider } from 'antd'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { createSubscription } from 'src/libs/global-state-hook'
+import { createSubscription, useSubscription } from 'src/libs/global-state-hook'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { ICreateJobBody } from 'src/types/job'
 import { EComplexity, EJobType, ELevel, EPaymenType } from 'src/utils/enum'
@@ -15,9 +15,9 @@ export const defaultPostJobState: ICreateJobBody = {
   description: '',
   categories: [],
   type: EJobType.ONE_TIME_PROJECT,
-  payment: { amount: 0, type: EPaymenType.PERHOURS },
-  scope: { complexity: EComplexity.EASY, duration: 0 },
-  budget: 0,
+  payment: { amount: 100, type: EPaymenType.PERHOURS },
+  scope: { complexity: EComplexity.EASY, duration: 1 },
+  budget: 1,
   experienceLevel: [ELevel.BEGINNER],
   reqSkills: [],
   checkLists: [],
@@ -54,7 +54,13 @@ const complexityOptions = [
 ]
 
 export default function PostJobGetStarted({ setBtns, btns }) {
-  const [value, setValue] = useState(0)
+  const {
+    state: {
+      jobDuration,
+      scope: { duration, complexity },
+    },
+  } = useSubscription(postJobSubscribtion, ['jobDuration', 'scope'])
+  const [value, setValue] = useState(complexity || 0)
 
   const mid = Number((3 / 2).toFixed(5))
   const preColorCls = value >= mid ? '' : 'icon-wrapper-active'
@@ -63,8 +69,8 @@ export default function PostJobGetStarted({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
   const [start, setStart] = useState(false)
   const { t } = useTranslation(['main'])
-  const [job, setJob] = useState({ jobDuration: '' })
-  const [durationLength, setDurationLength] = useState(1)
+  const [job, setJob] = useState({ jobDuration: jobDuration || '' })
+  const [durationLength, setDurationLength] = useState(duration || 1)
 
   const createJob = () => {
     setStart(true)

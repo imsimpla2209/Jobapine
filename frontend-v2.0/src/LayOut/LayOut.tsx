@@ -1,17 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react'
-import BeforeLoginRoutes from '../Routes/BeforeLoginRoutes'
-import ClientRoutes from '../Routes/ClientRoutes'
-import FreelancerRoutes from './../Routes/FreelancerRoutes'
-import Loader from './../Components/SharedComponents/Loader/Loader'
+import { useEffect, useState } from 'react'
 import { useAuth } from 'src/Components/Providers/AuthProvider'
+import AdminRoutesWithSeparateCss from 'src/Routes/AdminRoutesWithoutCss'
 import { categoryStore, locationStore, skillStore } from 'src/Store/commom.store'
+import { getAllCategories } from 'src/api/category-apis'
+import { getSkills } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { useSocket } from 'src/socket.io'
 import { ESocketEvent } from 'src/utils/enum'
-import AdminRoutes from 'src/Routes/AdminRoutes'
-import { getSkills } from 'src/api/job-apis'
-import { getAllCategories } from 'src/api/category-apis'
+import BeforeLoginRoutes from '../Routes/BeforeLoginRoutes'
+import ClientRoutes from '../Routes/ClientRoutes'
+import Loader from './../Components/SharedComponents/Loader/Loader'
+import FreelancerRoutes from './../Routes/FreelancerRoutes'
 
 export default function LayOut() {
   const { authenticated, loading, id } = useAuth()
@@ -57,7 +57,7 @@ export default function LayOut() {
       } else if (usrType === 'Client') {
         return <ClientRoutes />
       } else if (usrType === 'admin') {
-        return <AdminRoutes />
+        return <AdminRoutesWithSeparateCss />
       } else {
         return (
           <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
