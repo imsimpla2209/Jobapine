@@ -18,7 +18,7 @@ export interface IProposal {
   attachments?: string[]
   contract?: IContractDoc['_id']
   messages?: IMessageDoc['_id'][]
-  answers?: Record<number, string>
+  answers?: any
   priority?: number
   currentStatus?: string
   msgRequestSent?: boolean

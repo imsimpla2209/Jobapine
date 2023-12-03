@@ -14,7 +14,9 @@ export default function Postdescription({ setBtns, btns }) {
   let [description, setDescription] = useState('')
   let [files, setFiles] = useState([])
   const [inputVal, setInputVal] = useState('')
+  const [inputQuestion, setInputQuestion] = useState('')
   const [tagList, settagList] = useState([])
+  const [questionList, setquestionList] = useState([])
   const [locations, setLocations] = useState([])
 
   const getData = e => {
@@ -24,9 +26,18 @@ export default function Postdescription({ setBtns, btns }) {
       case 'jobTags':
         setInputVal(val)
         break
+      case 'jobQuestions':
+        setInputQuestion(val)
+        break
       default:
         break
     }
+  }
+
+  const addQuestions = () => {
+    questionList.push(inputQuestion)
+    setquestionList(questionList)
+    setInputQuestion('')
   }
 
   const addTags = () => {
@@ -104,21 +115,41 @@ export default function Postdescription({ setBtns, btns }) {
           )}
         </p>
 
-        <p className="fw-bold">{t('Enter the tags of your job post')}</p>
-        <div className="my-4 d-flex justify-content-between">
+        <p className="fw-bold">{t('Enter the questions of your job post')}</p>
+        <div className="my-3 d-flex justify-content-between">
           <input
             className="form-control w-75 shadow-none"
             type="text"
             name="jobTags"
             value={inputVal}
             onChange={getData}
+            placeholder="Enter tags here..."
           />
           <button className="btn bg-jobsicker px-5" disabled={!inputVal} onClick={addTags}>
             Add
           </button>
-          <div className="my-4 d-flex justify-content-between"></div>
         </div>
         {tagList.map((item, index) => (
+          <div className="chip mb-3 ms" key="index">
+            <span>{item}</span>
+          </div>
+        ))}
+
+        <p className="fw-bold">{t('Enter the questions that you want to ask freelancers')}</p>
+        <div className="my-3 d-flex justify-content-between">
+          <input
+            className="form-control w-75 shadow-none"
+            type="text"
+            name="jobQuestions"
+            value={inputQuestion}
+            onChange={getData}
+            placeholder="Enter questions here..."
+          />
+          <button className="btn bg-jobsicker px-5" disabled={!inputQuestion} onClick={addQuestions}>
+            Add
+          </button>
+        </div>
+        {questionList.map((item, index) => (
           <div className="chip mb-3 ms" key="index">
             <span>{item}</span>
           </div>
@@ -132,7 +163,7 @@ export default function Postdescription({ setBtns, btns }) {
         <button className="btn" onClick={() => setStep('title')}>
           <span className="btn border text-success me-4 px-5">{t('Back')}</span>
         </button>
-        <button className={`btn ${description === '' && 'disabled'}`}>
+        <button className={`btn ${(description === '' || !locations?.length) && 'disabled'}`}>
           <span className="btn bg-jobsicker px-5" onClick={addData}>
             {t('Next')}
           </span>

@@ -112,7 +112,7 @@ export const createRequestMessage = async (from: any, to: any, proposalId?: any,
       throw new ApiError(httpStatus.NOT_FOUND, 'From or To user not found')
     }
     if (proposalId) {
-      proposal = await updateProposalById(new mongoose.Types.ObjectId(proposalId), { msgRequestSent: true })
+      proposal = await updateProposalById(new mongoose.Types.ObjectId(proposalId), { msgRequestSent: true }, true)
       if (!proposal) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
       }

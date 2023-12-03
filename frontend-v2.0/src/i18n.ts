@@ -1,9 +1,9 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
 // import Backend from 'i18next-http-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import LanguageDetector from 'i18next-browser-languagedetector'
 // import i18nextConfig from 'src/config/react-i18next.config';
-import resourcesToBackend from 'i18next-resources-to-backend';
+import resourcesToBackend from 'i18next-resources-to-backend'
 
 i18n
   // .use(Backend)
@@ -24,17 +24,16 @@ i18n
     //   loadPath: './locales/vi/main.json',
     // },
     // supportedLngs: i18nextConfig.i18n.locales, // List of supported languages
-    debug: true,
+    // debug: true,
     detection: {
-      order: ['localStorage', 'navigator'], // Check localStorage first, then use browser navigator 
+      order: ['localStorage', 'navigator'], // Check localStorage first, then use browser navigator
       lookupFromPathIndex: 0,
       caches: ['localStorage'],
     },
     keySeparator: false,
     interpolation: {
       escapeValue: false,
-    }
-  });
+    },
+  })
 
-
-export default i18n;
+export default i18n

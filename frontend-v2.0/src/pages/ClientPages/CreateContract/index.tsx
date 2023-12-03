@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Form, Input, InputNumber, Select, Space, message } from 'antd'
+import { Button, Form, InputNumber, Select, Space, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -19,7 +19,6 @@ export default function CreateContract() {
   const { t } = useTranslation(['main'])
   const [jobData, setJobData] = useState(null)
   const [files, setFiles] = useState([])
-  const [answer, setAnswer] = useState<Record<number, string>>({})
   const [proposalData, setProposalData] = useState(null)
   const [searchParams] = useSearchParams()
   const freelancerID = searchParams.get('freelancerID')
@@ -62,7 +61,7 @@ export default function CreateContract() {
       .then(res => {
         if (res) {
           message.success('Created contract successfully')
-          navigate('')
+          navigate(-1)
         }
       })
       .catch(e => console.error(e))
@@ -81,7 +80,7 @@ export default function CreateContract() {
   if (!proposalData) return <Loader />
 
   return (
-    <div className="container my-5 px-5">
+    <div className="container" style={{ paddingTop: 20 }}>
       <h3>Create Contract</h3>
 
       <main>
@@ -167,7 +166,7 @@ export default function CreateContract() {
           </div>
           <div className="row mt-5">
             <div className="bg-white border" style={{ borderRadius: 16 }}>
-              <h2 className="h4 border-bottom p-4">{t('Terms')}</h2>
+              <h2 className="h4 border-bottom p-4">{t('General details')}</h2>
               <Form layout="horizontal" labelCol={{ span: 4 }} wrapperCol={{ span: 14 }} style={{ padding: 16 }}>
                 <Form.Item label="Start date:">
                   <input
@@ -191,7 +190,6 @@ export default function CreateContract() {
                 <Form.Item label="Payment amount:">
                   <InputNumber
                     min={0}
-                    addonBefore={'VND'}
                     addonAfter={
                       <Select
                         defaultValue={contract?.paymentType || 'PerHour'}
@@ -203,7 +201,7 @@ export default function CreateContract() {
                       />
                     }
                     defaultValue={contract?.agreeAmount || 0}
-                    formatter={val => formatMoney(val)}
+                    formatter={val => `VND ${formatMoney(val)}`}
                     value={contract?.agreeAmount || 0}
                     onChange={val => setContract({ ...contract, agreeAmount: val })}
                   />
