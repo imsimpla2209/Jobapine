@@ -1,9 +1,10 @@
-import { EStatus } from "src/utils/enum";
-import { filterFreelancersQuery } from "./freelancer";
+import { EStatus } from 'src/utils/enum'
+import { filterFreelancersQuery } from './freelancer'
 
 export interface IProposal {
-  job: string;
-  freelancer: string;
+  _id: string
+  job: string
+  freelancer: string
   expectedAmount?: number
   description?: string
   status?: [{ status: EStatus; date: Date }]
@@ -14,13 +15,13 @@ export interface IProposal {
   messages?: string[]
   answers?: Record<number, string>
   priority?: number
-  currentStatus?: string
+  currentStatus?: EStatus
 }
 
-export interface IProposalQuery extends filterFreelancersQuery{
+export interface IProposalQuery extends filterFreelancersQuery {
   freelancer?: string
   currentStatus?: EStatus
-  job?: string,
-  _id?: string,
-  'status.status'?: EStatus,
+  job?: string
+  _id?: string
+  'status.status'?: EStatus
 }

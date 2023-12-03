@@ -61,6 +61,7 @@ export const updateProposalStatus = {
   body: Joi.object()
     .keys({
       status: Joi.string().valid(...Object.values(EStatus)),
+      comment: Joi.string().allow(null, ''),
     })
     .min(1),
 }

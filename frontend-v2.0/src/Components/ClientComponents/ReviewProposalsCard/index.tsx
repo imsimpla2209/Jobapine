@@ -18,6 +18,7 @@ import img from '../../../assets/img/icon-user.svg'
 import Loader from './../../SharedComponents/Loader/Loader'
 import ReviewProposalsPageHeader from './../ReviewProposalsPageHeader'
 import { EStatus } from 'src/utils/enum'
+import { IProposal } from 'src/types/proposal'
 
 export const { Text } = Typography
 
@@ -29,11 +30,12 @@ export default function ReviewProposalsCard() {
   const { t } = useTranslation(['main'])
   const { id } = useParams()
   const [loading, setLoading] = useState(true)
-  const [proposals, setProposals] = useState([])
+  const [proposals, setProposals] = useState<IProposal[]>([])
   const [freelancers, setFreelancers] = useState([])
   const [skills, setSkills] = useState([])
   const [rejectMessage, setRejectMessage] = useState('')
-  const [openModal, setOpenModal] = useState(false)
+  const [openModal, setOpenModal] = useState('')
+  const [forceUpdate, setForceUpdate] = useState({})
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -45,6 +47,14 @@ export default function ReviewProposalsCard() {
       .finally(() => setLoading(false))
   }, [])
 
+  useEffect(() => {
+    setLoading(true)
+
+    getAllProposalInJob(id)
+      .then(res => setProposals(res.data.results))
+      .finally(() => setLoading(false))
+  }, [forceUpdate])
+
   console.log('proposals', proposals)
   const sendMSG = async (freelancerID: string, proposalId: string) => {
     await checkMessageRoom({ member: [clientID, freelancerID], proposal: proposalId })
@@ -52,9 +62,20 @@ export default function ReviewProposalsCard() {
   }
 
   const handleReject = async () => {
-    await updateStatusProposal(id, {
+    await updateStatusProposal(openModal, {
       status: EStatus.REJECTED,
       comment: rejectMessage || 'Your proposal does not meet my requirements.',
+    })
+      .then(() => setForceUpdate({}))
+      .then(() => setOpenModal(''))
+  }
+
+  const handleUnreject = async (proposalId: string) => {
+    await updateStatusProposal(proposalId, {
+      status: EStatus.INPROGRESS,
+      comment: '',
+    }).then(() => {
+      setForceUpdate({})
     })
   }
 
@@ -64,13 +85,13 @@ export default function ReviewProposalsCard() {
     <>
       <ReviewProposalsPageHeader proposals={proposals.length} />
       <Modal
-        open={openModal}
+        open={!!openModal}
         title={t('Do you want to reject this proposal ?')}
         okText={t('Reject')}
         okType="danger"
         onOk={handleReject}
         onCancel={() => {
-          setOpenModal(false)
+          setOpenModal('')
           setRejectMessage('')
         }}
       >
@@ -87,9 +108,12 @@ export default function ReviewProposalsCard() {
         proposals.map((proposal, index) => {
           const currentFreelancer = freelancers.find(({ _id }) => _id === proposal.freelancer)
           const currentSkills = skills.filter(({ _id }) => currentFreelancer?.skills?.find(item => item.skill === _id))
-          console.log(currentFreelancer)
           return (
-            <div className="row border bg-white border-1 ms-0 pt-2" key={index}>
+            <div
+              className="row border border-1 ms-0 pt-2"
+              key={index}
+              style={{ background: proposal.currentStatus === EStatus.REJECTED ? '#cfcfcff4' : '#ffffff' }}
+            >
               <div className="col-1 pt-lg-3">
                 <img
                   alt=""
@@ -161,20 +185,26 @@ export default function ReviewProposalsCard() {
               </div>
               <div className="col py-3" style={{ justifyContent: 'end', display: 'flex', alignItems: 'start' }}>
                 <Space>
-                  <Button onClick={() => sendMSG(currentFreelancer.user, proposal._id)}>Messages</Button>
-                  {proposal.currentStatus === 'accepted' ? (
+                  {proposal.currentStatus !== EStatus.REJECTED ? (
+                    <Button onClick={() => sendMSG(currentFreelancer.user, proposal._id)}>{t('Messages')}</Button>
+                  ) : null}
+                  {proposal.currentStatus === EStatus.ACCEPTED ? (
                     <Space>
                       <CheckCircleTwoTone twoToneColor="#52c41a" />
                       <Text type="success">{t('Accepted')}</Text>
                     </Space>
+                  ) : proposal.currentStatus === EStatus.REJECTED ? (
+                    <Button type="primary" danger onClick={() => handleUnreject(proposal._id)}>
+                      {t('Un-reject')}
+                    </Button>
                   ) : (
                     <>
-                      <Button type="primary" danger onClick={() => setOpenModal(true)}>
+                      <Button type="primary" danger onClick={() => setOpenModal(proposal._id)}>
                         {t('Reject')}
                       </Button>
                       <Button type="primary">
                         <Link to={`/create-contract/${proposal._id}?freelancerID=${currentFreelancer?._id}`}>
-                          {t('Accept')}
+                          {t('Make contract')}
                         </Link>
                       </Button>
                     </>

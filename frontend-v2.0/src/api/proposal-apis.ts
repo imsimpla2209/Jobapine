@@ -8,11 +8,14 @@ export const createProposal = (
   return instance.post('proposals', data)
 }
 
-export const updateStatusProposal = (id: string, statusData: {
-  status: EStatus
-  comment: string
-}) => {
-  return instance.patch(`contracts/status/${id}`, statusData);
+export const updateStatusProposal = (
+  id: string,
+  statusData: {
+    status: EStatus
+    comment: string
+  }
+) => {
+  return instance.patch(`proposals/status/${id}`, statusData)
 }
 
 export const getProposals = (data: IProposalQuery) => {
