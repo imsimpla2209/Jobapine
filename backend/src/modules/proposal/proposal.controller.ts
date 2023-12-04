@@ -1,4 +1,4 @@
-import { getFreelancerById } from '@modules/freelancer/freelancer.service'
+import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
 import { Request, Response } from 'express'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
@@ -48,7 +48,7 @@ export const updateProposalStatus = catchAsync(async (req: Request, res: Respons
 
 export const withdrawProposal = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
-    const freelancer = await getFreelancerById(req?.user?._id)
+    const freelancer = await getFreelancerByOptions({ user: req?.user?._id })
     if (!freelancer) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
     }

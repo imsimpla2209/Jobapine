@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { getSkills } from "src/api/job-apis";
 import { pickName } from "src/utils/helperFuncs";
 import { Link } from "react-router-dom";
+import { MenuUnfoldOutlined } from "@ant-design/icons";
 
 export default function Header() {
 	const { t, i18n } = useTranslation(['main'])
@@ -61,7 +62,7 @@ export default function Header() {
 								<button className="navbar-toggler" type="button" data-bs-toggle="collapse"
 									data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
 									aria-label="Toggle navigation" onClick={hideSearchIcon}>
-									{showSearchIcon ? <span className="navbar-toggler-icon"></span> : <span><i className="fas fa-times text-white"></i></span>}
+									{<span><MenuUnfoldOutlined className="text-dark" /></span>}
 								</button>
 							</nav>
 							<Logo />

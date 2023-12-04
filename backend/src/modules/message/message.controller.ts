@@ -61,7 +61,7 @@ export const checkMessageRoom = catchAsync(async (req: Request, res: Response) =
 export const getMessageRooms = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['member', 'proposal'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
-  const result = await messageService.queryMessageRooms(filter, options)
+  const result = await messageService.queryMessageRooms(filter, options, new mongoose.Types.ObjectId(req.user?._id))
   res.send(result)
 })
 

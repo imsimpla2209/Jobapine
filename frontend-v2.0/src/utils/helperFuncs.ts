@@ -164,3 +164,20 @@ export const getBase64 = (file: RcFile): Promise<string> =>
     reader.onload = () => resolve(reader.result as string)
     reader.onerror = error => reject(error)
   })
+
+export const getStatusColor = (status) => {
+  switch (status) {
+    case "pending": return 'grey'
+    case "open": return "#52c41a"
+    case "inProgress": return 'blue'
+    case "completed": return 'darkgreen'
+    case "rejected": return '#c94043'
+    case "accepted": return '#09de57'
+    case "closed": return 'darkseagreen'
+    case "cancelled": return 'brown'
+    case "late": return '#751b13'
+    case "paid": return 'green'
+    case "archive": return '#8f6e27'
+    default: return 'black'
+  }
+}

@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal, Popconfirm, Result, Space } from "antd";
+import { Button, Collapse, Form, Input, Modal, Popconfirm, Result, Space, Timeline } from "antd";
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -9,12 +9,14 @@ import acceptimg from '../../../assets/img/accept.png';
 import archiveimg from '../../../assets/img/archive.png';
 import pendingimg from '../../../assets/img/pending.png';
 import rejectimg from '../../../assets/img/reject.png';
+import cancelimg from '../../../assets/img/cancel.png';
 import SubmitProposalFixed from "../SubmitProposalFixed";
 import SubmitProposalHourly from "../SubmitProposalHourly";
 import { Link } from "react-router-dom";
-import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
+import { currencyFormatter, getStatusColor, randomDate } from "src/utils/helperFuncs";
 import RBModal from 'react-bootstrap/Modal';
 import FileDisplay from "src/pages/ForumPages/ideas/idea-detail/file-display";
+import { ClockCircleOutlined } from "@ant-design/icons";
 
 const ProposalDetail = ({ proposal, user, onRefresh }) => {
   const [files, setFiles] = useState([])
@@ -144,6 +146,15 @@ const ProposalDetail = ({ proposal, user, onRefresh }) => {
                 zIndex: 10,
               }} />
             )}
+            {proposal?.currentStatus === EStatus.CANCELLED && (
+              <img src={cancelimg} alt="ok" style={{
+                position: 'absolute',
+                top: 24,
+                height: 64,
+                right: 36,
+                zIndex: 10,
+              }} />
+            )}
             {
               (proposal?.currentStatus === EStatus.PENDING || proposal?.currentStatus === EStatus.INPROGRESS) ?
                 <>
@@ -171,14 +182,72 @@ const ProposalDetail = ({ proposal, user, onRefresh }) => {
                   </div>
                 </>
                 : <>
-                  <h2 className="h4 border-bottom p-4">{t("This Proposal has been accepted")}</h2>
-                  <div className="ps-4 pt-2">
-                    <p className="fw-bold">Please wait or connect to client about next process </p>
-                  </div>
-                </>}
+                  {
+                    proposal?.currentStatus === EStatus.ACCEPTED ? (
+                      <>
+                        <h2 className="h4 border-bottom p-4">{t("This Proposal has been accepted")}</h2>
+                        <div className="ps-4 pt-2">
+                          <p className="fw-bold">Please wait or connect to client about next process </p>
+                        </div>
+                      </>
+                    ) : <>
+                      <h2 className="h4 border-bottom p-4">{t("Proposal Details")}</h2>
+                      <div className="ps-4 pt-2">
+                        <p className="fw-bold">This Proposal No longer Can be Used </p>
+                      </div>
+                    </>
+                  }
+                </>
+            }
           </div>
         </div>
-        <div className="row mt-5">
+        <Collapse style={{ marginTop: 16, marginBottom: 8 }} items={[
+          {
+            key: '1',
+            label: 'Proposal Status Logs',
+            children: <Timeline
+              style={{ color: "black", marginTop: 16 }}
+              mode="alternate"
+              items={proposal?.status?.map((status, ix) => ({
+                children: <div style={{
+                  padding: 6,
+                  borderRadius: 8,
+                  background: '#f5f5f5',
+                }}><span style={{
+                  fontWeight: 'bold',
+                  textTransform: 'capitalize',
+                  background: getStatusColor(status?.status),
+                  padding: 6,
+                  borderRadius: 8,
+                  margin: 8,
+                  color: 'white',
+                }}>{status?.status}</span><span className="text-muted text-center text-capitalize">{status?.comment}</span></div>,
+                dot: <div className="d-flex align-items-center justify-content-end" style={{
+                  marginRight: (ix + 1) % 2 !== 0 ? 108 : 0,
+                  marginLeft: (ix + 1) % 2 === 0 ? 100 : 0
+                }}>
+                  {(ix + 1) % 2 !== 0 && <div className="text-muted text-center" style={{ fontSize: 14 }}>{new Date(status?.date).toLocaleString("vi-VN", {
+                    weekday: "short",
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "numeric"
+                  })}</div>}
+                  <ClockCircleOutlined style={{ fontSize: '16px', margin: '0 12px' }} />
+                  {(ix + 1) % 2 === 0 && <div style={{ fontSize: 14 }} className="text-muted text-center">{new Date(status?.date).toLocaleString("vi-VN", {
+                    weekday: "short",
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "numeric"
+                  })}</div>}
+                </div>,
+                color: getStatusColor(status?.status),
+              }))}
+            />
+          }
+        ]}>
+
+        </Collapse>
+        <div className="row mt-3">
           <div className="bg-white border" style={{ borderRadius: 16 }}>
             <h2 className="h4 border-bottom p-4">{t('Job details')}</h2>
             <div className="ps-4 pt-2 d-flex flex-md-row flex-column">

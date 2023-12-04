@@ -39,33 +39,95 @@ export const createMessageRoom = async (messageBody: NewCreatedMessageRoom): Pro
  * @param {Object} options - Query options
  * @returns {Promise<QueryResult>}
  */
-export const queryMessageRooms = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
+export const queryMessageRooms = async (
+  filter: Record<string, any>,
+  options: IOptions,
+  userId: mongoose.Types.ObjectId
+): Promise<any> => {
+  // filter['proposal'] && (filter['proposal'] = { proposal: `${filter['proposal']}` })
+  // filter['member'] &&
+  //   (filter['member'] = { member: { $in: filter['member'].map(m => new mongoose.Types.ObjectId(m)) } })
+
+  // const filterExtract = Object.keys(filter).map(f => filter[f])
+  // const queryFilter = {
+  //   $and: [...filterExtract, { isDeleted: { $ne: true } }],
+  // }
+
+  // options.populate = 'member,proposal.job'
+
+  // if (!options.projectBy) {
+  //   options.projectBy =
+  //     '_id, proposal, member, seen, isDeleted, proposalStatusCatalog, image, background, createdAt, updatedAt, attachments'
+  // }
+
+  // if (!options.sortBy) {
+  //   options.sortBy = 'createdAt:desc'
+  // }
+
+  // if (!options.limit) {
+  //   options.limit = 200
+  // }
+
+  // const messages = await MessageRoom.paginate(queryFilter, options)
+  // return messages
+
+  // Apply specific filters
   filter['proposal'] && (filter['proposal'] = { proposal: `${filter['proposal']}` })
   filter['member'] &&
-    (filter['member'] = { member: { $in: filter['member'].map(m => new mongoose.Types.ObjectId(m)) } })
+    (filter['member'] = {
+      member: { $in: filter['member'].map(m => new mongoose.Types.ObjectId(m)) },
+    })
 
   const filterExtract = Object.keys(filter).map(f => filter[f])
   const queryFilter = {
     $and: [...filterExtract, { isDeleted: { $ne: true } }],
   }
 
-  options.populate = 'member,proposal'
+  // const options = {
+  //   populate: 'member proposal.job',
+  //   projectBy:
+  //     '_id proposal member seen isDeleted proposalStatusCatalog image background createdAt updatedAt attachments',
+  //   sortBy: 'createdAt:desc',
+  //   limit: 200
+  // };
 
-  if (!options.projectBy) {
-    options.projectBy =
-      '_id, proposal, member, seen, isDeleted, proposalStatusCatalog, image, background, createdAt, updatedAt, attachments'
+  const aggregatePipeline = [
+    { $match: queryFilter },
+    { $unwind: '$member' },
+    {
+      $group: {
+        _id: {
+          $cond: {
+            if: { $ne: ['$member', userId] },
+            then: '$member',
+            else: '$$REMOVE',
+          },
+        },
+        rooms: { $push: '$$ROOT' },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        memberId: '$_id',
+        rooms: 1,
+        count: 1,
+        _id: 0,
+      },
+    },
+  ]
+
+  try {
+    const result = await MessageRoom.aggregate(aggregatePipeline).exec()
+    const fullfillJobs = await MessageRoom.populate(result, [
+      { path: 'memberId', model: 'User' },
+      { path: 'rooms.proposal', model: 'Proposal', populate: { path: 'job', model: 'Job' } },
+    ])
+    return fullfillJobs
+  } catch (err) {
+    throw new ApiError(httpStatus.BAD_GATEWAY, 'Cannot fetch message rooms')
+    // Handle errors
   }
-
-  if (!options.sortBy) {
-    options.sortBy = 'createdAt:desc'
-  }
-
-  if (!options.limit) {
-    options.limit = 200
-  }
-
-  const messages = await MessageRoom.paginate(queryFilter, options)
-  return messages
 }
 
 /**

@@ -50,293 +50,323 @@ const UserInfo = ({ user, type }: any) => {
   return (
     <Row gutter={[24, 0]} style={{ background: "#f3edf5", paddingTop: 24 }}>
 
-      <Col span={24} className="d-flex p-2 justify-content-end">
-        <Button key="back" onClick={() => {
-          openNotifyModal(true)
-        }}>
-          Notify
-        </Button>,
-
-        <Button key="submit" type="primary" >
-          Direct Message
-        </Button>,
-        {
-          verified ? null : <Popconfirm title={"Are you sure you want to verify this profile?"} onConfirm={() => {
-            type === EUserType.FREELANCER ? verifyFreelancer(user.id).then(() => {
-              toast.success('Profile Verified')
-              setVerified(true)
-            }) : verifyClient(user.id).then(() => {
-              toast.success('Profile Verified')
-              setVerified(true)
-            })
-          }}>
-            <Button
-              type="primary"
-            >
-              Verify Profile
+      {
+        type !== EUserType.ADMIN ? (
+          <Col span={24} className="d-flex p-2 justify-content-end">
+            <Button key="back" onClick={() => {
+              openNotifyModal(true)
+            }}>
+              Notify
             </Button>
-          </Popconfirm>
-        }
-        <Popconfirm title={"Are you sure you want to do this?"} onConfirm={() => {
-          changeActiveUser(user?.user?.id).then(() => {
-            toast.success('Account Active changed')
-            setActive(!isActive)
-            setVerified(true)
-          })
-        }}>
-          <Button key="submit" type="dashed" danger={isActive} >
-            {isActive ? 'DeActive' : 'ReActive'}
-          </Button>
-        </Popconfirm>
-      </Col>
-      <Col span={24} md={8} className="mb-24 ">
-        <Card
-          bordered={false}
-          className="header-solid h-full"
-          title={<h6 className="font-semibold m-0">{t("Platform Setting")}</h6>}
-        >
-          <ul className="list settings-list">
-            <li>
-              <h6 className="list-header text-sm text-muted">ACCOUNT ABILITY</h6>
-            </li>
-            <li>
-              <Switch defaultChecked />
-              <span>Active</span>
-            </li>
-            <li>
-              <Switch />
-              <span>Email Receive</span>
-            </li>
-            <li>
-              <Switch defaultChecked />
-              <span>Apply For Jobs</span>
-            </li>
-            <li>
-              <Switch defaultChecked />
-              <span>Invite Message</span>
-            </li>
-            <li>
-              <h6 className="list-header text-sm text-muted m-0">
-                APPLICATION
-              </h6>
-            </li>
-            <li>
-              <Switch defaultChecked />
-              <span>2FA Verification</span>
-            </li>
-            <li>
-              <Switch defaultChecked />
-              <span>System Notifications</span>
-            </li>
-            <li>
-              <Switch defaultChecked />
-              <span>Tracking Behaviour</span>
-            </li>
-          </ul>
-        </Card>
-      </Col>
-      <Col span={24} md={8} className="mb-24">
-        <Card
-          bordered={false}
-          title={<h6 className="font-semibold m-0">Profile Information</h6>}
-          className="header-solid h-full card-profile-information"
-          extra={<Button type="link">{pencil}</Button>}
-          bodyStyle={{ paddingTop: 0, paddingBottom: 16, fontSize: 14 }}
-        >
-          <Descriptions title={<>
-            <Avatar shape="square"
-              size={100}
-              src={user?.user?.avatar || defaultAvate}>
-            </Avatar> <span style={{ textTransform: 'capitalize' }}>
-              {user?.user?.name}
-            </span>
-          </>} >
-            <Descriptions.Item label="Joint Date" span={3} style={{ textTransform: 'capitalize' }}>
-              {new Date(user?.user?.createdAt).toLocaleString("vi-VN", {
-                weekday: "short",
-                year: "numeric",
-                month: "2-digit",
-                day: "numeric"
-              })}
-            </Descriptions.Item>
-            <Descriptions.Item label="User Name" span={3} style={{ textTransform: 'capitalize' }}>
-              {user?.user?.username}
-            </Descriptions.Item>
-            <Descriptions.Item label="Role" span={3} style={{ textTransform: 'capitalize' }}>
-              {user?.user?.role}
-            </Descriptions.Item>
-            <Descriptions.Item label="Citizen ID" span={3} style={{ textTransform: 'capitalize' }}>
-              {user?.user?.nationalId || t("Unknown")}
-            </Descriptions.Item>
-            <Descriptions.Item label="Mobile" span={3}>
-              {user?.user?.phone || 'No Phone'} - <span className="text-muted ms-1">{user?.user?.isPhoneVerified ? ` ${t("Verified")}✅` : `${t("Not Verified")} ⛔`}</span>
-            </Descriptions.Item>
-            <Descriptions.Item label="Email" span={3}>
-              {user?.user?.email || 'No Email'} - <span className="text-muted ms-1">{user?.user?.isEmailVerified ? ` ${t("Verified")}✅` : `${t("Not Verified")} ⛔`}</span>
-            </Descriptions.Item>
-            <Descriptions.Item label={"Balance 💳"} span={3}> {currencyFormatter(user?.user?.balance)} </Descriptions.Item>
-            <Descriptions.Item label={"Sick Points"} span={3}> {user?.user?.sickPoints || 0}</Descriptions.Item>
-            <Descriptions.Item label={"Plan"} span={3}> {user?.user?.plan || 'Free'}</Descriptions.Item>
-            <Descriptions.Item label="Social" span={3}>
-              <a href="#" className="mx-5 px-5">
-                {<TwitterOutlined />}
-              </a>
-              <a href="#" className="mx-5 px-5">
-                {<FacebookOutlined style={{ color: "#344e86" }} />}
-              </a>
-              <a href="#" className="mx-5 px-5">
-                {<InstagramOutlined style={{ color: "#e1306c" }} />}
-              </a>
-            </Descriptions.Item>
-          </Descriptions>
-        </Card>
-      </Col>
-      <Col span={24} md={8} className="mb-24">
-        {
-          type === EUserType.FREELANCER ? <Card
-            bordered={false}
-            title={<h6 className="font-semibold m-0">{user?.lastLoginAs} Profile</h6>}
-            className="header-solid h-full card-profile-information"
-            extra={<Button type="link">{pencil}</Button>}
-            bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
-          >
-            <p className="text-dark">
-              {" "}
-              {user?.intro || `Hi, I’m Alec Thompson, Decisions: If you can’t decide, the answer
+
+            <Button key="submit" type="primary" >
+              Direct Message
+            </Button>
+            {
+              verified ? null : <Popconfirm title={"Are you sure you want to verify this profile?"} onConfirm={() => {
+                type === EUserType.FREELANCER ? verifyFreelancer(user.id).then(() => {
+                  toast.success('Profile Verified')
+                  setVerified(true)
+                }) : verifyClient(user.id).then(() => {
+                  toast.success('Profile Verified')
+                  setVerified(true)
+                })
+              }}>
+                <Button
+                  type="primary"
+                >
+                  Verify Profile
+                </Button>
+              </Popconfirm>
+            }
+            <Popconfirm title={"Are you sure you want to do this?"} onConfirm={() => {
+              changeActiveUser(user?.user?.id).then(() => {
+                toast.success('Account Active changed')
+                setActive(!isActive)
+                setVerified(true)
+              })
+            }}>
+              <Button key="submit" type="dashed" danger={isActive} >
+                {isActive ? 'DeActive' : 'ReActive'}
+              </Button>
+            </Popconfirm>
+          </Col>
+        ) : (
+          <Col span={24} className="d-flex p-2 justify-content-end">
+            <Button key="back" onClick={() => {
+              openNotifyModal(true)
+            }}>
+              Notify
+            </Button>,
+
+            <Button key="submit" type="primary" >
+              Direct Message
+            </Button>,
+            <Popconfirm title={"Are you sure you want to do this?"} onConfirm={() => {
+              changeActiveUser(user?.id).then(() => {
+                toast.success('Account Active changed')
+                setActive(!user?.isActive)
+                setVerified(true)
+              })
+            }}>
+              <Button key="submit" type="dashed" danger={isActive} >
+                {user?.isActive ? 'DeActive' : 'ReActive'}
+              </Button>
+            </Popconfirm>
+          </Col>
+        )
+      }
+      {
+        type !== EUserType.ADMIN && (
+          <>
+            <Col span={24} md={8} className="mb-24 ">
+              <Card
+                bordered={false}
+                className="header-solid h-full"
+                title={<h6 className="font-semibold m-0">{t("Platform Setting")}</h6>}
+              >
+                <ul className="list settings-list">
+                  <li>
+                    <h6 className="list-header text-sm text-muted">ACCOUNT ABILITY</h6>
+                  </li>
+                  <li>
+                    <Switch defaultChecked />
+                    <span>Active</span>
+                  </li>
+                  <li>
+                    <Switch />
+                    <span>Email Receive</span>
+                  </li>
+                  <li>
+                    <Switch defaultChecked />
+                    <span>Apply For Jobs</span>
+                  </li>
+                  <li>
+                    <Switch defaultChecked />
+                    <span>Invite Message</span>
+                  </li>
+                  <li>
+                    <h6 className="list-header text-sm text-muted m-0">
+                      APPLICATION
+                    </h6>
+                  </li>
+                  <li>
+                    <Switch defaultChecked />
+                    <span>2FA Verification</span>
+                  </li>
+                  <li>
+                    <Switch defaultChecked />
+                    <span>System Notifications</span>
+                  </li>
+                  <li>
+                    <Switch defaultChecked />
+                    <span>Tracking Behaviour</span>
+                  </li>
+                </ul>
+              </Card>
+            </Col>
+            <Col span={24} md={8} className="mb-24">
+              <Card
+                bordered={false}
+                title={<h6 className="font-semibold m-0">Profile Information</h6>}
+                className="header-solid h-full card-profile-information"
+                extra={<Button type="link">{pencil}</Button>}
+                bodyStyle={{ paddingTop: 0, paddingBottom: 16, fontSize: 14 }}
+              >
+                <Descriptions title={<>
+                  <Avatar shape="square"
+                    size={100}
+                    src={user?.user?.avatar || defaultAvate}>
+                  </Avatar> <span style={{ textTransform: 'capitalize' }}>
+                    {user?.user?.name}
+                  </span>
+                </>} >
+                  <Descriptions.Item label="Joint Date" span={3} style={{ textTransform: 'capitalize' }}>
+                    {new Date(user?.user?.createdAt).toLocaleString("vi-VN", {
+                      weekday: "short",
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "numeric"
+                    })}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="User Name" span={3} style={{ textTransform: 'capitalize' }}>
+                    {user?.user?.username}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Role" span={3} style={{ textTransform: 'capitalize' }}>
+                    {user?.user?.role}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Citizen ID" span={3} style={{ textTransform: 'capitalize' }}>
+                    {user?.user?.nationalId || t("Unknown")}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Mobile" span={3}>
+                    {user?.user?.phone || 'No Phone'} - <span className="text-muted ms-1">{user?.user?.isPhoneVerified ? ` ${t("Verified")}✅` : `${t("Not Verified")} ⛔`}</span>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Email" span={3}>
+                    {user?.user?.email || 'No Email'} - <span className="text-muted ms-1">{user?.user?.isEmailVerified ? ` ${t("Verified")}✅` : `${t("Not Verified")} ⛔`}</span>
+                  </Descriptions.Item>
+                  <Descriptions.Item label={"Balance 💳"} span={3}> {currencyFormatter(user?.user?.balance)} </Descriptions.Item>
+                  <Descriptions.Item label={"Sick Points"} span={3}> {user?.user?.sickPoints || 0}</Descriptions.Item>
+                  <Descriptions.Item label={"Plan"} span={3}> {user?.user?.plan || 'Free'}</Descriptions.Item>
+                  <Descriptions.Item label="Social" span={3}>
+                    <a href="#" className="mx-5 px-5">
+                      {<TwitterOutlined />}
+                    </a>
+                    <a href="#" className="mx-5 px-5">
+                      {<FacebookOutlined style={{ color: "#344e86" }} />}
+                    </a>
+                    <a href="#" className="mx-5 px-5">
+                      {<InstagramOutlined style={{ color: "#e1306c" }} />}
+                    </a>
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            </Col>
+            <Col span={24} md={8} className="mb-24">
+              {
+                type === EUserType.FREELANCER ? <Card
+                  bordered={false}
+                  title={<h6 className="font-semibold m-0">{user?.lastLoginAs} Profile</h6>}
+                  className="header-solid h-full card-profile-information"
+                  extra={<Button type="link">{pencil}</Button>}
+                  bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
+                >
+                  <p className="text-dark">
+                    {" "}
+                    {user?.intro || `Hi, I’m Alec Thompson, Decisions: If you can’t decide, the answer
             is no. If two equally difficult paths, choose the one more painful
             in the short term (pain avoidance is creating an illusion of
             equality)`}.{" "}
-            </p>
-            <hr className="my-25" />
-            <Descriptions>
-              <Descriptions.Item label="Skills" span={3}>
-                {user?.skills?.map((skill, index) => (
-                  <Space key={index} size={1} className="me-2 " wrap={true}>
-                    {index + 1}. {pickName(skill?.skill, i18n.language)}
-                  </Space>
-                ))}
-              </Descriptions.Item>
-              <Descriptions.Item label="Prefer Job Types" span={3}>
-                {user?.preferJobType?.map((c, index) => (
-                  <Space key={index} size={1} className="me-2" wrap={true}>
-                    {c?.name}
-                  </Space>
-                ))}
-              </Descriptions.Item>
-              {/* <Descriptions.Item label="Earned" span={3}>
-              2,300,000.00 VND
-            </Descriptions.Item> */}
-              <Descriptions.Item label="Number of WIP Jobs" span={3}>
-                {user?.jobsDone?.number || 0}
-              </Descriptions.Item>
-              <Descriptions.Item label="Expected Salary" span={3}>
-                {currencyFormatter(user?.expectedAmount)} \ {t(user?.expectedPaymentType)}
-              </Descriptions.Item>
-              <Descriptions.Item label="Location" span={3}>
-                {
-                  user?.currentLocations?.filter(l => locations?.find(s => s.code === l.toString())?.name).map(l => (
-                    <span key={l} style={{ marginLeft: 8 }}>
-                      {locations?.find(s => s.code === l.toString())?.name}
-                    </span>
-                  ))
-                }
-              </Descriptions.Item>
-              <Descriptions.Item label="Online Expertise Level" span={3}>
-                {t(EComplexityGet[user?.expertiseLevel])}
-              </Descriptions.Item>
-              <Descriptions.Item label="Rating" span={3}>
-                <Rate disabled={true} value={user.rating} />
-              </Descriptions.Item>
-              <Descriptions.Item label="Profile Verified" span={3}>
-                {user?.isProfileVerified ? ` ${t("Verified")}✅` : `${t("Not Verified")} ⛔`}
-              </Descriptions.Item>
-              <Descriptions.Item label="Profile Submited" span={3}>
-                {user?.isSubmitProfile ? ` ${t("Submitted")}✅` : `${t("Not Submited")} ⛔`}
-              </Descriptions.Item>
-              <Descriptions.Item label="Profile Completion" span={3}>
-                <Progress percent={user?.profileCompletion || 0}></Progress>
-              </Descriptions.Item>
-              <Descriptions.Item label="English Profiency" span={3}>
-                {user?.englishProficiency}
-              </Descriptions.Item>
-            </Descriptions>
-            <div className="mt-4 border  rounded-2 p-2" style={{ color: "black", fontSize: 14 }}>
-              <div><strong>{t('Education')}</strong></div>
-              <div><strong>- School: </strong>{user?.education?.school || t("Unknown")}</div>
-              <div><strong>- Major: </strong>{user?.education?.areaOfStudy || t("Unknown")}</div>
-              <div><strong>- Degree: </strong>{user?.education?.degree || t("Unknown")}</div>
-              <div><strong>- Graduation Year: </strong>{user?.education?.gradYear ? new Date(user?.education?.gradYear).toLocaleString("vi-VN", {
-                weekday: "short",
-                year: "numeric",
-                month: "2-digit",
-                day: "numeric"
-              }) : t("Unknown")}</div>
-            </div>
-            <div className="mt-4" style={{ color: "black", fontSize: 14 }}>
-              <div><strong>{t('History Works')}</strong></div>
-              {user?.historyWork?.map((e, ix) =>
-                <div className="border rounded p-2" key={ix}>
-                  <strong>{ix + 1}. </strong><span>{e?.jobName}</span> -
-                  <span>{e?.jobTitle}</span> -
-                  {e?.stillWork ? <span>Still Work</span> : null}
-                </div>
-              )}
-            </div>
-          </Card> : <Card
-            bordered={false}
-            title={<h6 className="font-semibold m-0">{user?.lastLoginAs} Profile</h6>}
-            className="header-solid h-full card-profile-information"
-            extra={<Button type="link">{pencil}</Button>}
-            bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
-          >
-            <p className="text-dark">
-              {" "}
-              {user?.intro}
-            </p>
-            <hr className="my-25" />
-            <Descriptions>
-              <Descriptions.Item label="Finding Skills" span={3}>
-                {user?.findingSkills?.map((skill, index) => (
-                  <Space key={index} size={1} className="me-2 " wrap={true}>
-                    {index + 1}. {pickName(skill?.skill, i18n.language)}
-                  </Space>
-                ))}
-              </Descriptions.Item>
-              <Descriptions.Item label="Prefer Job Types" span={3}>
-                {user?.preferJobType?.map((c, index) => (
-                  <Space key={index} size={1} className="me-2" wrap={true}>
-                    {index + 1}. {c?.name}
-                  </Space>
-                ))}
-              </Descriptions.Item>
-              <Descriptions.Item label="Number of Jobs" span={3}>
-                {user?.jobs?.length || 0}
-              </Descriptions.Item>
-              <Descriptions.Item label="Location" span={3}>
-                {
-                  user?.preferLocations?.filter(l => locations?.find(s => s.code === l.toString())?.name).map(l => (
-                    <span key={l} style={{ marginLeft: 8 }}>
-                      {locations?.find(s => s.code === l.toString())?.name}
-                    </span>
-                  ))
-                }
-              </Descriptions.Item>
-              <Descriptions.Item label="Online Expertise Level" span={3}>
-                {t(EComplexityGet[user?.expertiseLevel])}
-              </Descriptions.Item>
-              <Descriptions.Item label="Rating" span={3}>
-                <Rate disabled={true} value={user.rating} />
-              </Descriptions.Item>
-              <Descriptions.Item label="Profile Verified" span={3}>
-                {user?.paymentVerified ? ` ${t("Verified")}✅` : `${t("Not Verified")} ⛔`}
-              </Descriptions.Item>
-              <Descriptions.Item label="Profile Submited" span={3}>
-                {user?.isSubmitProfile ? ` ${t("Submitted")}✅` : `${t("Not Submited")} ⛔`}
-              </Descriptions.Item>
-            </Descriptions>
-          </Card>
-        }
-      </Col>
+                  </p>
+                  <hr className="my-25" />
+                  <Descriptions>
+                    <Descriptions.Item label="Skills" span={3}>
+                      {user?.skills?.map((skill, index) => (
+                        <Space key={index} size={1} className="me-2 " wrap={true}>
+                          {index + 1}. {pickName(skill?.skill, i18n.language)}
+                        </Space>
+                      ))}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Prefer Job Types" span={3}>
+                      {user?.preferJobType?.map((c, index) => (
+                        <Space key={index} size={1} className="me-2" wrap={true}>
+                          {c?.name}
+                        </Space>
+                      ))}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Number of WIP Jobs" span={3}>
+                      {user?.jobsDone?.number || 0}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Expected Salary" span={3}>
+                      {currencyFormatter(user?.expectedAmount)} \ {t(user?.expectedPaymentType)}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Location" span={3}>
+                      {
+                        user?.currentLocations?.filter(l => locations?.find(s => s.code === l.toString())?.name).map(l => (
+                          <span key={l} style={{ marginLeft: 8 }}>
+                            {locations?.find(s => s.code === l.toString())?.name}
+                          </span>
+                        ))
+                      }
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Online Expertise Level" span={3}>
+                      {t(EComplexityGet[user?.expertiseLevel])}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Rating" span={3}>
+                      <Rate disabled={true} value={user.rating} />
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Profile Verified" span={3}>
+                      {user?.isProfileVerified ? ` ${t("Verified")}✅` : `${t("Not Verified")} ⛔`}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Profile Submited" span={3}>
+                      {user?.isSubmitProfile ? ` ${t("Submitted")}✅` : `${t("Not Submited")} ⛔`}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Profile Completion" span={3}>
+                      <Progress percent={user?.profileCompletion || 0}></Progress>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="English Profiency" span={3}>
+                      {user?.englishProficiency}
+                    </Descriptions.Item>
+                  </Descriptions>
+                  <div className="mt-4 border  rounded-2 p-2" style={{ color: "black", fontSize: 14 }}>
+                    <div><strong>{t('Education')}</strong></div>
+                    <div><strong>- School: </strong>{user?.education?.school || t("Unknown")}</div>
+                    <div><strong>- Major: </strong>{user?.education?.areaOfStudy || t("Unknown")}</div>
+                    <div><strong>- Degree: </strong>{user?.education?.degree || t("Unknown")}</div>
+                    <div><strong>- Graduation Year: </strong>{user?.education?.gradYear ? new Date(user?.education?.gradYear).toLocaleString("vi-VN", {
+                      weekday: "short",
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "numeric"
+                    }) : t("Unknown")}</div>
+                  </div>
+                  <div className="mt-4" style={{ color: "black", fontSize: 14 }}>
+                    <div><strong>{t('History Works')}</strong></div>
+                    {user?.historyWork?.map((e, ix) =>
+                      <div className="border rounded p-2" key={ix}>
+                        <strong>{ix + 1}. </strong><span>{e?.jobName}</span> -
+                        <span>{e?.jobTitle}</span> -
+                        {e?.stillWork ? <span>Still Work</span> : null}
+                      </div>
+                    )}
+                  </div>
+                </Card> : <Card
+                  bordered={false}
+                  title={<h6 className="font-semibold m-0">{user?.lastLoginAs} Profile</h6>}
+                  className="header-solid h-full card-profile-information"
+                  extra={<Button type="link">{pencil}</Button>}
+                  bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
+                >
+                  <p className="text-dark">
+                    {" "}
+                    {user?.intro}
+                  </p>
+                  <hr className="my-25" />
+                  <Descriptions>
+                    <Descriptions.Item label="Finding Skills" span={3}>
+                      {user?.findingSkills?.map((skill, index) => (
+                        <Space key={index} size={1} className="me-2 " wrap={true}>
+                          {index + 1}. {pickName(skill?.skill, i18n.language)}
+                        </Space>
+                      ))}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Prefer Job Types" span={3}>
+                      {user?.preferJobType?.map((c, index) => (
+                        <Space key={index} size={1} className="me-2" wrap={true}>
+                          {index + 1}. {c?.name}
+                        </Space>
+                      ))}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Number of Jobs" span={3}>
+                      {user?.jobs?.length || 0}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Location" span={3}>
+                      {
+                        user?.preferLocations?.filter(l => locations?.find(s => s.code === l.toString())?.name).map(l => (
+                          <span key={l} style={{ marginLeft: 8 }}>
+                            {locations?.find(s => s.code === l.toString())?.name}
+                          </span>
+                        ))
+                      }
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Online Expertise Level" span={3}>
+                      {t(EComplexityGet[user?.expertiseLevel])}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Rating" span={3}>
+                      <Rate disabled={true} value={user.rating} />
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Profile Verified" span={3}>
+                      {user?.paymentVerified ? ` ${t("Verified")}✅` : `${t("Not Verified")} ⛔`}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Profile Submited" span={3}>
+                      {user?.isSubmitProfile ? ` ${t("Submitted")}✅` : `${t("Not Submited")} ⛔`}
+                    </Descriptions.Item>
+                  </Descriptions>
+                </Card>
+              }
+            </Col>
+          </>
+        )
+      }
       <Modal
         open={isNotifyModalOpen}
         title={t('Write your notification ?')}
