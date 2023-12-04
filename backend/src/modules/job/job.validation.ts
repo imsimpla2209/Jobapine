@@ -59,6 +59,7 @@ export const getJobs = {
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
     searchText: Joi.string(),
+    currentStatus: Joi.array().items(Joi.string()).allow(null),
   }),
 }
 

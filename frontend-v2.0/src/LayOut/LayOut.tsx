@@ -5,7 +5,7 @@ import ClientRoutes from '../Routes/ClientRoutes'
 import FreelancerRoutes from './../Routes/FreelancerRoutes'
 import Loader from './../Components/SharedComponents/Loader/Loader'
 import { useAuth } from 'src/Components/Providers/AuthProvider'
-import { locationStore } from 'src/Store/commom.store'
+import { categoryStore, locationStore, skillStore } from 'src/Store/commom.store'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { useSocket } from 'src/socket.io'
 import { ESocketEvent } from 'src/utils/enum'
@@ -14,6 +14,8 @@ import { userStore } from 'src/Store/user.store'
 import { logout } from 'src/api/auth-apis'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+import { getSkills } from 'src/api/job-apis'
+import { getAllCategories } from 'src/api/category-apis'
 
 export default function LayOut() {
   const { authenticated, loading, id } = useAuth()
@@ -60,6 +62,9 @@ export default function LayOut() {
   }, [authenticated])
 
   useEffect(() => {
+    getSkills().then(res => skillStore.updateState(res.data))
+    getAllCategories().then(res => categoryStore.updateState(res.data))
+
     fetch('https://raw.githubusercontent.com/sunrise1002/hanhchinhVN/master/dist/tinh_tp.json') //eslint-disable-line
       .then(response => response.json())
       .then(responseJson => {

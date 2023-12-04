@@ -1,23 +1,28 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Button, Space, message } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import Progress from 'src/Components/SharedComponents/Progress'
+import { categoryStore, skillStore } from 'src/Store/commom.store'
+import { clientStore } from 'src/Store/user.store'
+import { createJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
+import { currencyFormatter, fetchAllToCL, pickName } from 'src/utils/helperFuncs'
 import Loader from '../../SharedComponents/Loader/Loader'
 import { defaultPostJobState, postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
-import { createJob } from 'src/api/job-apis'
-import { fetchAllToCL } from 'src/utils/helperFuncs'
-import { Button, message } from 'antd'
-import { clientStore } from 'src/Store/user.store'
 
 export default function PostJobReview() {
   const { state: userStoreState } = useSubscription(clientStore)
-  const { t } = useTranslation(['main'])
+  const { t, i18n } = useTranslation(['main'])
+  const lang = i18n.language
   const { state } = useSubscription(postJobSubscribtion)
+  const { state: allCategories } = useSubscription(categoryStore)
+  const { state: allSkills } = useSubscription(skillStore)
 
   const publishJob = async () => {
     if (state.attachments?.length) {
-      await fetchAllToCL(state.attachments)
+      await fetchAllToCL(state.attachments, false)
         .then(res => {
           state['attachments'] = res?.filter(url => !!url) || []
         })
@@ -40,6 +45,8 @@ export default function PostJobReview() {
     postJobSubscribtion.updateState(defaultPostJobState)
   }
 
+  console.log(allSkills, state?.reqSkills, Object.values(allSkills || {}))
+
   return (
     <>
       {state !== null ? (
@@ -57,16 +64,16 @@ export default function PostJobReview() {
                 <div className="my-4">
                   <p>{state?.title}</p>
                 </div>
-                <div>
+                <div style={{ paddingBottom: 20 }}>
                   <h6 className="text-muted">{t('Job Category')}</h6>
                   {/* <p>{state?.categories}</p> */}
-                  {/* {state?.categories?.map((c, index) => (
-                    <div key={index}>
+                  <Space direction="horizontal">
+                    {state?.categories?.map((c, index) => (
                       <button type="button" className="btn text-light btn-sm rounded-pill cats mx-1">
-                        {c}
+                        {Object.values(allCategories || {})?.find(cat => cat?._id === c)?.name}
                       </button>
-                    </div>
-                  ))} */}
+                    ))}
+                  </Space>
                 </div>
               </div>
             </div>
@@ -102,7 +109,23 @@ export default function PostJobReview() {
                 <div className="my-4">
                   <h6 className="text-muted">{t('Experience Level')}</h6>
                   <p>{state?.experienceLevel}</p>
-                  {/* <p>{state?.reqSkills}</p> */}
+                </div>
+
+                <div className="my-4">
+                  <h6 className="text-muted">{t('Skill Level')}</h6>
+
+                  {state?.reqSkills?.map((skill, index) => (
+                    <Space key={index} size={1} className="me-sm-5 " wrap={true}>
+                      <span className="btn text-light btn-sm rounded-pill cats mx-1 my-1">
+                        {pickName(
+                          Object.values(allSkills).find(s => s?._id === skill?.skill),
+                          lang
+                        )}
+                        :
+                      </span>
+                      <Progress done={skill?.level} />
+                    </Space>
+                  ))}
                 </div>
               </div>
             </div>
@@ -129,12 +152,14 @@ export default function PostJobReview() {
               <h5>{t('Budget')}</h5>
               <div className="d-flex">
                 <div className="my-4 w-50">
-                  <h6 className="text-muted">{t('JobHourly or Fixed-Price')}</h6>
-                  <p>{state?.payment.type}</p>
+                  <h6 className="text-muted">{t('Payment')}</h6>
+                  <p>
+                    {t(state?.payment.type)}: {currencyFormatter(state?.payment.amount)}
+                  </p>
                 </div>
                 <div className="my-4">
-                  <h6 className="text-muted">{'Budget'}</h6>
-                  <p>{state?.budget}</p>
+                  <h6 className="text-muted">{t('Budget')}</h6>
+                  <p>{currencyFormatter(state?.budget)}</p>
                 </div>
               </div>
             </div>

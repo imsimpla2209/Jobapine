@@ -116,14 +116,15 @@ export const getProposalByOptions = async (Options: any): Promise<IProposalDoc |
  */
 export const updateProposalById = async (
   proposalId: mongoose.Types.ObjectId,
-  updateBody: UpdateProposalBody
+  updateBody: UpdateProposalBody,
+  force = false
 ): Promise<IProposalDoc | null> => {
   try {
     const proposal = await getProposalById(proposalId)
     if (!proposal) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
     }
-    if (proposal.currentStatus === EStatus.ACCEPTED) {
+    if (proposal.currentStatus === EStatus.ACCEPTED && !force) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Proposal is already accepted')
     }
     Object.assign(proposal, updateBody)

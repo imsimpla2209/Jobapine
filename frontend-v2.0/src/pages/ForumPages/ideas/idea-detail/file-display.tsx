@@ -1,12 +1,13 @@
 import {
   FileExcelOutlined,
-  FileFilled, FileImageOutlined,
+  FileFilled,
+  FileImageOutlined,
   FilePdfOutlined,
   FilePptOutlined,
   FileWordOutlined,
   FileZipOutlined,
   PaperClipOutlined,
-  PlayCircleOutlined
+  PlayCircleOutlined,
 } from '@ant-design/icons'
 import { Button, List, Typography } from 'antd'
 
@@ -14,7 +15,9 @@ const handleFile = file => {
   const ext = file.toString().substring(file.toString().lastIndexOf('.') + 1)
   switch (ext) {
     case 'pdf':
-      return <FileCard title="PDF file" item={file} chilren={<FilePdfOutlined style={{color:'#FF4E50'}} />}></FileCard>
+      return (
+        <FileCard title="PDF file" item={file} chilren={<FilePdfOutlined style={{ color: '#FF4E50' }} />}></FileCard>
+      )
     case 'jpeg':
     case 'png':
     case 'jpg':
@@ -23,35 +26,68 @@ const handleFile = file => {
     case 'svg':
     case 'webp':
     case 'webg':
-      return <FileCard title="Image file" item={file} chilren={<FileImageOutlined style={{color: '#9B57B0'}} />}></FileCard>
+      return (
+        <FileCard
+          title="Image file"
+          item={file}
+          chilren={<FileImageOutlined style={{ color: '#9B57B0' }} />}
+        ></FileCard>
+      )
     case 'doc':
     case 'docx':
     case 'txt':
-      return <FileCard title="Text/word file" item={file} chilren={<FileWordOutlined style={{color: '#49708A'}} />}></FileCard>
+      return (
+        <FileCard
+          title="Text/word file"
+          item={file}
+          chilren={<FileWordOutlined style={{ color: '#49708A' }} />}
+        ></FileCard>
+      )
     case 'zip':
     case 'rar':
-      return <FileCard title="Zip file" item={file} chilren={<FileZipOutlined style={{color: '#EB6841'}} />}></FileCard>
+      return (
+        <FileCard title="Zip file" item={file} chilren={<FileZipOutlined style={{ color: '#EB6841' }} />}></FileCard>
+      )
     case 'xls':
     case 'xlsx':
     case 'csv':
-      return <FileCard title="Excel file" item={file} chilren={<FileExcelOutlined style={{color: '#519548'}} />}></FileCard>
+      return (
+        <FileCard
+          title="Excel file"
+          item={file}
+          chilren={<FileExcelOutlined style={{ color: '#519548' }} />}
+        ></FileCard>
+      )
     case 'ppt':
     case 'pptx':
-      return <FileCard title="Powerpoint file" item={file} chilren={<FilePptOutlined style={{color: '#CC333F'}} />}></FileCard>
+      return (
+        <FileCard
+          title="Powerpoint file"
+          item={file}
+          chilren={<FilePptOutlined style={{ color: '#CC333F' }} />}
+        ></FileCard>
+      )
     default:
-      return <FileCard title="Other file" item={file} chilren={<FileFilled style={{color: '#ccc'}} />}></FileCard>
+      return <FileCard title="Other file" item={file} chilren={<FileFilled style={{ color: '#ccc' }} />}></FileCard>
   }
 }
 
 const FileCard = ({ title, item, chilren }) => (
   <List.Item
-    style={{ 
+    style={{
       padding: '0 16px',
       border: '1px solid #ccc',
       borderRadius: '5px',
     }}
     actions={[
-      <Button key="list-loadmore-edit" icon={<PlayCircleOutlined />} type='text' href={item} target="_blank" rel="noreferrer">
+      <Button
+        key="list-loadmore-edit"
+        icon={<PlayCircleOutlined />}
+        type="text"
+        href={item}
+        target="_blank"
+        rel="noreferrer"
+      >
         Preview
       </Button>,
     ]}
@@ -63,10 +99,10 @@ const FileCard = ({ title, item, chilren }) => (
   </List.Item>
 )
 
-export default function FileDisplay({files, isFit } : {files: any, isFit?: any}) {
+export default function FileDisplay({ files, isFit, style }: { files: any; isFit?: any; style?: any }) {
   return (
     <List
-      style={{ margin: isFit ? '0' : '0 24px' }}
+      style={{ margin: isFit ? '0' : '0 24px', padding: 8, ...style }}
       header={
         <>
           <PaperClipOutlined /> <Typography.Text strong>Attachments</Typography.Text>

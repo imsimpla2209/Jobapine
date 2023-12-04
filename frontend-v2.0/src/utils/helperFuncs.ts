@@ -102,10 +102,15 @@ export const fetchPresignedUrl = async (url: any, file: any) => {
 // );
 // widget.open();
 
-export const fetchAllToCL = async (files: any) => {
+export const fetchAllToCL = async (files: any, useOriginFile = true) => {
   const url = 'data/preSignCLUrl'
   const requests = files.map(async (file: any) => {
-    return await fetchPresignedUrl(url, file).then(result => result)
+    let fileBase64 = null
+    if (!useOriginFile) {
+      fileBase64 = await getBase64(file.originFileObj as RcFile)
+    }
+
+    return await fetchPresignedUrl(url, useOriginFile ? file : fileBase64).then(result => result)
   })
 
   return Promise.all(requests)

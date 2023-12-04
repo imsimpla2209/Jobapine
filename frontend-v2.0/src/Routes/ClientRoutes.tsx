@@ -26,6 +26,7 @@ import './styles.css'
 import HomeLayout from 'src/Components/ClientComponents/HomeLayout'
 import { getAllJobs } from 'src/api/job-apis'
 import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
+import ProfileFreelancerInClientPage from 'src/pages/ClientPages/Freelancer/freelancer-profile'
 
 export default function ClientRoutes() {
   const [freelancerArr, setfreelancerArr] = useState([])
@@ -72,7 +73,7 @@ export default function ClientRoutes() {
             <Route path="/post-job" element={<PostJob />} />
             <Route path="/freelancer" element={<FreelancerList saved={false} key={'all-freelancers'} />} />
             <Route path="/saved-freelancer" element={<FreelancerList saved={true} key={'saved-freelancers'} />} />
-            <Route path="/freelancer-profile/:id" element={<FreelancerProfile />} />
+            <Route path="/freelancer-profile/:id" element={<ProfileFreelancerInClientPage />} />
             <Route path="/all-proposals/:id" element={<ReviewProposals />} />
             <Route path="/billing-history" element={<Reports />} />
             <Route path="/transaction-history" element={<TransactionHistory />} />
