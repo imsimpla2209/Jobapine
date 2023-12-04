@@ -34,16 +34,18 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
   }
 
   useEffect(() => {
-    if (job) {
-      setJobData(job)
-    } else if (jobId) {
-      getJob(jobId)
-        .then(res => {
-          setJobData(res.data)
-        })
-        .catch(err => console.log(err))
+    if (proposal) {
+      if (job) {
+        setJobData(job)
+      } else {
+        getJob(jobId)
+          .then(res => {
+            setJobData(res.data)
+          })
+          .catch(err => console.log(err))
+      }
     }
-  }, [job, jobId])
+  }, [job, jobId, proposal])
 
   const createRequestMSGRoom = () => {
     setLoading(true)
@@ -64,18 +66,25 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
       })
   }
 
+  console.log(jobData)
+
   return (
     <>
       {
         jobId || job
           &&
           jobData?.title ? (
-          <div className="card p-4 mb-3" onClick={showDrawer}>
+          <div className="card p-4 mb-3">
             <div className="row">
               <div className="col-md-7 col-12 ">
                 <Link
-                  to={`/job/review-proposal/${proposal._id}`}
-                  className={`fw-bold ${proposal?.currentStatus === EStatus.ACCEPTED ? "" : "pe-none"}`}
+                  to='/'
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    showDrawer()
+                  }}
+                  className={`fw-bold `}
                   style={{ color: "#6600cc" }}
                 >
                   {

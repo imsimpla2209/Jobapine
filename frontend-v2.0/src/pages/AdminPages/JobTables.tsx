@@ -1,12 +1,15 @@
+import { SearchOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Badge,
   Button,
   Card,
   Col,
+  Input,
   Modal,
   Radio,
   Row,
+  Space,
   Table,
   Typography
 } from "antd";
@@ -19,7 +22,7 @@ import JobInfo from "src/Components/AdminComponents/Modal/JobInfo";
 import { IJobData } from "src/Store/job.store";
 import { getAllJobsforAdmin, getJobs } from "src/api/job-apis";
 import { EComplexityGet } from "src/utils/enum";
-import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
+import { currencyFormatter, getStatusColor, randomDate } from "src/utils/helperFuncs";
 
 const { Title } = Typography;
 
@@ -54,19 +57,21 @@ const columns = [
   },
 ];
 
-
 function JobTables() {
-  const onChange = (e) => console.log(`radio checked:${e.target.value}`);
   const [jobs, setJobs] = useState([])
+  const [filterJobs, setFilterJobs] = useState([])
   const [seletecJob, setSelectedJob] = useState({})
   const [openModal, setOpenModal] = useState(false)
   const { t } = useTranslation(['main'])
   const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('all')
+  const [search, setSeach] = useState('')
 
   useEffect(() => {
     setLoading(true)
     getAllJobsforAdmin().then((res) => {
       setJobs(res.data)
+      setFilterJobs(res.data)
     }).finally(() => {
       setLoading(false)
     })
@@ -78,7 +83,18 @@ function JobTables() {
   }
 
   const getJobsData = (jobs) => {
-    return jobs?.map((job, ix) => ({
+    return jobs?.filter(j => j?.title?.toLowerCase()?.includes(search) 
+    || j?.description?.toLowerCase()?.includes(search) 
+    || j?.reqSkills?.find(j => j?.skill?.name?.toLowerCase()?.includes(search) || j?.skill?.name_vi?.toLowerCase()?.includes(search))
+    || j?.categories?.find(j => j?.name?.toLowerCase()?.includes(search))
+    || j?.checkLists?.find(j => j?.toLowerCase()?.includes(search))
+    || j?.questions?.find(j => j?.toLowerCase()?.includes(search))
+    || j?.jobDuration?.toLowerCase()?.includes(search)
+    || j?.budget?.toString()?.toLowerCase()?.includes(search)
+    || j?.tags?.find(j => j?.toLowerCase()?.includes(search))
+    || j?.payment?.type?.toLowerCase()?.includes(search)
+    )
+    ?.map((job, ix) => ({
       key: ix,
       name: (
         <>
@@ -100,7 +116,7 @@ function JobTables() {
 
       status: (
         <Badge count={job?.currentStatus} className="tag-primary"
-          style={{ backgroundColor: "#52c41a", textTransform: "capitalize" }}
+          style={{ backgroundColor: getStatusColor(job?.currentStatus), textTransform: "capitalize" }}
         >
         </Badge>
       ),
@@ -123,6 +139,12 @@ function JobTables() {
     }))
   };
 
+  const onChangeJobsFilter = e => {
+    setFilter(e.target.value)
+    console.log(e.target.value)
+    return e?.target?.value === 'all' ? setFilterJobs(jobs) : setFilterJobs(jobs?.filter(job => job?.currentStatus === e?.target?.value))
+  }
+
   return (
     <div className="tabled">
       <Row gutter={[24, 0]}>
@@ -132,16 +154,31 @@ function JobTables() {
             className="criclebox tablespace mb-24"
             title="Jobs Management Table"
             extra={
-              <Radio.Group onChange={onChange} defaultValue="a">
-                <Radio.Button value="a">All</Radio.Button>
-                <Radio.Button value="b">ONLINE</Radio.Button>
-              </Radio.Group>
+              <Space>
+                <Input
+                  className="header-search"
+                  placeholder="Search by name, types, skill, budget, description, etc..."
+                  prefix={<SearchOutlined />}
+                  value={search}
+                  onInput={(e: any) => setSeach(e?.target?.value)}
+                />
+                <Radio.Group onChange={onChangeJobsFilter} value={filter}>
+                  <Radio.Button value="all">All</Radio.Button>
+                  <Radio.Button value="pending">Pending</Radio.Button>
+                  <Radio.Button value="open">Open</Radio.Button>
+                  <Radio.Button value="inProgress">In Progress</Radio.Button>
+                  <Radio.Button value="completed">Completed</Radio.Button>
+                  <Radio.Button value="closed">Closed</Radio.Button>
+                  <Radio.Button value="cancelled">Cancelled</Radio.Button>
+                </Radio.Group>
+
+              </Space>
             }
           >
             <div className="table-responsive">
               <Table
                 columns={columns}
-                dataSource={getJobsData(jobs)}
+                dataSource={getJobsData(filterJobs)}
                 pagination={{}}
                 className="ant-border-space"
                 loading={loading}
@@ -157,20 +194,7 @@ function JobTables() {
             }}
             width={1250}
             footer={[
-              <Button key="back" onClick={() => {
-                setOpenModal(false)
-                setSelectedJob({})
-              }}>
-                Soft Delete
-              </Button>,
-              <Button key="submit" type="primary" >
-                Force Delete
-              </Button>,
-              <Button
-                type="primary"
-              >
-                Verify Profile
-              </Button>,
+              
             ]}
           >
             <JobInfo job={seletecJob as IJobData} />

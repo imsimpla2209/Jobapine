@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { deleteContractByOptions } from '@modules/contract/contract.service'
 import { addProposaltoFreelancerById, getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
-import { addApplytoJobById, addProposaltoJobById, getJobById, isJobOpened } from '@modules/job/job.service'
+import { Job } from '@modules/job'
+import { addApplytoJobById, addProposaltoJobById, isJobOpened } from '@modules/job/job.service'
 import { Message } from '@modules/message'
 import { createNotify, deleteNotifyByOption } from '@modules/notify/notify.service'
 import { updateSickPointsById } from '@modules/user/user.service'
@@ -261,7 +262,7 @@ export const withdrawProposalById = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
   }
 
-  const job = await getJobById(proposal?.job?._id)
+  const job = await Job.findById(proposal?.job?._id)
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Proposal`s Job not found')
   }
@@ -277,7 +278,7 @@ export const withdrawProposalById = async (
   })
 
   await proposal.save()
-  await deleteNotifyByOption({ attachedId: proposal?._id?.toString() })
+  deleteNotifyByOption({ attachedId: proposal?._id })
   await job.save()
   return proposal
 }

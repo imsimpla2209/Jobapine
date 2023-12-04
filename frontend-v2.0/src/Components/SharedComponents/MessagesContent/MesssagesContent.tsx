@@ -150,7 +150,7 @@ export default function MesssagesContent({ selectedMessageRoom, userID }: any) {
               <ProposalCard
                 proposal={selectedMessageRoom?.proposal}
                 isInMSG={true}
-                jobId={selectedMessageRoom?.proposal?.job}
+                job={selectedMessageRoom?.proposal?.job}
                 ind={0}
               />
             )}

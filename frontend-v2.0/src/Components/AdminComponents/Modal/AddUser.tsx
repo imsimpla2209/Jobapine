@@ -154,12 +154,11 @@ export default function AddUser({onRefresh }: any) {
   const signUpComplete = async () => {
     await createUser({...userInfo, role: userInfo.lastLoginAs === 'admin' ? 'admin' : 'user'})
       .then(async res => {
-        if (res.data?.user) {
-          localStorage.setItem('userType', userInfo.lastLoginAs)
+        if (res.data) {
           if (userInfo.lastLoginAs === EUserType.FREELANCER) {
             await registerAsFreelancer(
               {
-                user: res.data?.user?.id,
+                user: res.data?.id,
                 name: userInfo.name,
                 ...workInfo
               }
@@ -167,7 +166,7 @@ export default function AddUser({onRefresh }: any) {
           } else if (userInfo.lastLoginAs === EUserType.CLIENT) {
             await registerAsClient(
               {
-                user: res.data?.user?.id,
+                user: res.data?.id,
                 name: userInfo.name,
                 ...workInfo
               }
