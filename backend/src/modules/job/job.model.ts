@@ -118,7 +118,7 @@ const jobSchema = new mongoose.Schema<IJobDoc, IJobModel>(
       type: String,
       default: '',
     },
-    experienceLevel: [{ type: String, default: [] }],
+    experienceLevel: [{ type: Number, default: [] }],
     visibility: {
       type: Boolean,
       default: true,

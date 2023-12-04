@@ -13,7 +13,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
   const {
     state: { reqSkills, experienceLevel },
   } = useSubscription(postJobSubscribtion, ['reqSkills', 'experienceLevel'])
-
+  console.log(213, experienceLevel)
   const [job, setJob] = useState<{ jobExperienceLevel: ELevel[]; skills: any }>({
     jobExperienceLevel: experienceLevel || [],
     skills: reqSkills || [],
@@ -30,7 +30,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
   }
 
   const handleChangeJobExperienceLevel = e => {
-    const level = e.target.value
+    const level = parseInt(e.target.value || '0')
     setJob({
       ...job,
       jobExperienceLevel: job.jobExperienceLevel.includes(level)
@@ -54,8 +54,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
         </div>
         <div className="px-4 mt-3  mb-4">
           <p className="fw-bold mt-2">
-            {t('What level of experience should your freelancer have?')}
-            <span className="text-danger"> *</span>
+            {t('What level of experience should your freelancer have')}?<span className="text-danger"> *</span>
           </p>
           <div className="my-4 d-flex justify-content-between">
             <label className="border border-success rounded p-3 text-center">
@@ -65,7 +64,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
                 name="jobExperienceLevel"
                 value={ELevel.BEGINNER}
                 onInput={handleChangeJobExperienceLevel}
-                checked={job.jobExperienceLevel.includes(ELevel.BEGINNER)}
+                defaultChecked={experienceLevel.includes(ELevel.BEGINNER)}
               />
               <h6 className="my-3">{t('Entry Level')}</h6>
               <div>{t('Looking for someone relatively new to this field')}</div>
@@ -75,11 +74,11 @@ export default function PostJobExpertise({ setBtns, btns }) {
                 type="checkbox"
                 className="float-end"
                 name="jobExperienceLevel"
-                value={ELevel.INTERMEDIATE}
+                value={ELevel.JUNIOR}
                 onInput={handleChangeJobExperienceLevel}
-                checked={job.jobExperienceLevel.includes(ELevel.INTERMEDIATE)}
+                defaultChecked={experienceLevel.includes(ELevel.JUNIOR)}
               />
-              <h6 className="my-3">{t('Intermediate')}</h6>
+              <h6 className="my-3">{t('Junior')}</h6>
               <div>{t('Looking for substantial experience in this field')}</div>
             </label>
             <label className="border border-success rounded p-3 text-center">
@@ -89,7 +88,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
                 name="jobExperienceLevel"
                 value={ELevel.EXPERT}
                 onInput={handleChangeJobExperienceLevel}
-                checked={job.jobExperienceLevel.includes(ELevel.EXPERT)}
+                defaultChecked={experienceLevel.includes(ELevel.EXPERT)}
               />
               <h6 className="my-3">{t('Expert')}</h6>
               <div>{t('Looking for comprehensive and deep expertise in this field')}</div>

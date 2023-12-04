@@ -22,7 +22,7 @@ export interface IJob {
       comment?: string
     }
   ]
-  experienceLevel?: string[]
+  experienceLevel?: number[]
   type: string
   checkLists?: string[]
   attachments?: string[]

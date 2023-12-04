@@ -7,6 +7,7 @@ import { EPaymenType } from 'src/utils/enum'
 import { IJobPayment } from 'src/types/job'
 import { InputNumber, Select } from 'antd'
 import { useSubscription } from 'src/libs/global-state-hook'
+import { currencyFormatter } from 'src/utils/helperFuncs'
 
 const paymentTypeOptions = [
   { label: 'per task', type: 'PerTask' },
@@ -38,6 +39,7 @@ export default function Postbudget({ setBtns, btns }) {
   }
 
   const handleChangeAmount = (amount: string) => {
+    console.log(amount)
     setJob({ ...job, payment: { ...job.payment, amount: parseInt(amount) } })
   }
   const handleChangeBudget = (amount: string) => {
@@ -67,15 +69,18 @@ export default function Postbudget({ setBtns, btns }) {
         </div>
         <div className="px-4 mt-3 mb-3">
           <p className="fw-bold mt-2">{t('How would you like to pay your freelancer?')}</p>
-          <InputNumber
-            addonBefore="VND"
-            addonAfter={selectAfter}
-            onInput={handleChangeAmount}
-            value={job.payment.amount}
-          />
-
+          <div style={{ width: '100%' }}>
+            <InputNumber
+              addonBefore="VND"
+              addonAfter={selectAfter}
+              onInput={handleChangeAmount}
+              value={job.payment.amount}
+            />
+          </div>
           <p className="fw-bold mt-2">{t('Enter your specific budget:')}</p>
-          <InputNumber addonBefore="VND" min={1} onInput={handleChangeBudget} value={job.budget} />
+          <div style={{ width: '100%' }}>
+            <InputNumber addonBefore="VND" min={1} onInput={handleChangeBudget} value={job.budget} />
+          </div>
         </div>
         {/* {job.payment?.type === EPaymenType.WHENDONE ? (
           <div className="px-4 my-3">

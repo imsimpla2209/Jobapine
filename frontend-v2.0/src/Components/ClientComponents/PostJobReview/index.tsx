@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Space, Tag, Typography, message } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Progress from 'src/Components/SharedComponents/Progress'
 import { categoryStore, locationStore, skillStore } from 'src/Store/commom.store'
 import { clientStore } from 'src/Store/user.store'
@@ -16,6 +16,7 @@ import { EJobType, LevelName } from 'src/utils/enum'
 export const { Paragraph } = Typography
 
 export default function PostJobReview() {
+  const navigate = useNavigate()
   const { state: userStoreState } = useSubscription(clientStore)
   const { t, i18n } = useTranslation(['main'])
   const lang = i18n.language
@@ -38,6 +39,7 @@ export default function PostJobReview() {
       .then(res => {
         postJobSubscribtion.updateState({ currentStatus: 'public' })
         message.success('🎉🎉🎉 Job created successfully! 🎉🎉🎉')
+        navigate('/')
       })
       .catch(err => {
         message.error('Failed to create Job')
@@ -46,8 +48,9 @@ export default function PostJobReview() {
 
   const deletePost = () => {
     postJobSubscribtion.updateState(defaultPostJobState)
+    navigate('/')
   }
-  console.log(state.preferences)
+
   return (
     <>
       {state !== null ? (
@@ -55,7 +58,12 @@ export default function PostJobReview() {
           <section className=" bg-white border rounded">
             <div className="ps-4 d-flex border-bottom justify-content-between align-items-center py-4">
               <h4>{t('Review and post')}</h4>
-              <Button className="btn bg-jobsicker px-5" onClick={publishJob}>
+              <Button
+                size="large"
+                className="btn bg-jobsicker px-5"
+                onClick={publishJob}
+                style={{ display: 'flex', alignItems: 'center' }}
+              >
                 {t('Post Job Now')}
               </Button>
             </div>
@@ -228,15 +236,20 @@ export default function PostJobReview() {
             </div>
           </section>
 
-          <section className="bg-white border rounded mt-4">
-            <div className="ps-4 my-3 py-2">
-              <Button className="btn bg-jobsicker px-5" onClick={publishJob}>
+          <section className="bg-white border rounded mt-4 p-4">
+            <Space direction="horizontal">
+              <Button
+                size="large"
+                className="btn bg-jobsicker px-5"
+                onClick={publishJob}
+                style={{ display: 'flex', alignItems: 'center' }}
+              >
                 {t('Post Job Now')}
               </Button>
               <Link className="btn border text-success px-5" to="/home" onClick={deletePost}>
                 {t('Delete & Exit')}
               </Link>
-            </div>
+            </Space>
           </section>
         </>
       ) : (

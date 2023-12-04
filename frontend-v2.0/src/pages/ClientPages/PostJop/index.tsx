@@ -1,6 +1,9 @@
+import { EditOutlined, HomeOutlined } from '@ant-design/icons'
 import PostJobAside from 'Components/ClientComponents/PostJobAside'
 import PostJobGetStarted from 'Components/ClientComponents/PostJobGetStarted'
+import { Breadcrumb, Card, Row } from 'antd'
 import { createContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PostJobBudget from 'src/Components/ClientComponents/PostJobBudget'
 import PostJobDescription from 'src/Components/ClientComponents/PostJobDescription'
 import PostJobDetails from 'src/Components/ClientComponents/PostJobDetails'
@@ -12,6 +15,7 @@ import PostJobVisibility from 'src/Components/ClientComponents/PostJobVisibility
 export const StepContext = createContext({ step: 'started', setStep: val => {} })
 
 export default function PostJob() {
+  const { t } = useTranslation(['main'])
   const [step, setStep] = useState('started')
   const [btns, setBtns] = useState({
     title: true,
@@ -22,11 +26,36 @@ export default function PostJob() {
     budget: true,
     review: true,
   })
-  console.log(step)
+
   return (
     <StepContext.Provider value={{ step, setStep }}>
       <section className="sec-bg-cn p-4">
         <div className="container">
+          <Row style={{ padding: '20px 0px' }}>
+            <Card style={{ width: '100%' }}>
+              <Breadcrumb
+                items={[
+                  {
+                    path: '/',
+                    title: (
+                      <>
+                        <HomeOutlined />
+                        <span className="fw-bold">{t('Home')}</span>
+                      </>
+                    ),
+                  },
+                  {
+                    title: (
+                      <>
+                        <EditOutlined />
+                        <span className="fw-bold">{t('Post Job')}</span>
+                      </>
+                    ),
+                  },
+                ]}
+              />
+            </Card>
+          </Row>
           <div className="row">
             <div className="col-lg-3">
               <PostJobAside btns={btns} />

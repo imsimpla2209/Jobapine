@@ -62,8 +62,9 @@ export default function PostJobDetails({ setBtns, btns }) {
                 type="radio"
                 className="float-end"
                 name="type"
+                onInput={e => setJob({ type: (e.target as any).value })}
                 value={EJobType.ONE_TIME_PROJECT}
-                checked={job.type === EJobType.ONE_TIME_PROJECT}
+                defaultChecked={job.type === EJobType.ONE_TIME_PROJECT}
               />
               <div>
                 <i className="fas fa-briefcase"></i>
@@ -76,8 +77,9 @@ export default function PostJobDetails({ setBtns, btns }) {
                 type="radio"
                 className="float-end"
                 name="type"
+                onInput={e => setJob({ type: (e.target as any).value })}
                 value={EJobType.ONGOING_PROJECT}
-                checked={job.type === EJobType.ONGOING_PROJECT}
+                defaultChecked={job.type === EJobType.ONGOING_PROJECT}
               />
               <div>
                 <i className="fas fa-list-alt"></i>
@@ -90,8 +92,9 @@ export default function PostJobDetails({ setBtns, btns }) {
                 type="radio"
                 className="float-end"
                 name="type"
+                onInput={e => setJob({ type: (e.target as any).value })}
                 value={EJobType.COMPLEX_PROJECTS}
-                checked={job.type === EJobType.COMPLEX_PROJECTS}
+                defaultChecked={job.type === EJobType.COMPLEX_PROJECTS}
               />
               <div>
                 <i className="fas fa-th-large"></i>

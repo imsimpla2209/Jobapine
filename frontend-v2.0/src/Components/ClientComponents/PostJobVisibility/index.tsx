@@ -68,7 +68,7 @@ export default function PostJobVisibility({ setBtns, btns }) {
                 className="float-end"
                 name="visibility"
                 value={EUserVisibility.ANYONE}
-                checked={job.jobVisibility === EUserVisibility.ANYONE}
+                defaultChecked={job.jobVisibility === EUserVisibility.ANYONE}
               />
               <div>
                 <i className="fas fa-user mt-4"></i>
@@ -86,7 +86,7 @@ export default function PostJobVisibility({ setBtns, btns }) {
                 className="float-end"
                 name="visibility"
                 value={EUserVisibility.VERIFIED_USER}
-                checked={job.jobVisibility === EUserVisibility.VERIFIED_USER}
+                defaultChecked={job.jobVisibility === EUserVisibility.VERIFIED_USER}
               />
               <div className="w-50 mx-auto">
                 <img className="bg-dark w-25 rounded-circle mt-4" src={upwork} />
