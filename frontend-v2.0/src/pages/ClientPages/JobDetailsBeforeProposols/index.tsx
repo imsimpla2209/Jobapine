@@ -15,7 +15,7 @@ import { EStatus } from 'src/utils/enum'
 
 const { confirm } = Modal
 
-export const { Title, Paragraph } = Typography
+export const { Title, Paragraph, Text } = Typography
 
 export default function JobDetailsBeforeProposals() {
   const { id } = useParams()

@@ -6,6 +6,7 @@ import { clientStore } from 'src/Store/user.store'
 import { getContracts } from 'src/api/contract-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import OneContract from './OneContract'
+import { Card } from 'antd'
 
 export default function AllContracts() {
   const { t } = useTranslation(['main'])
@@ -19,28 +20,24 @@ export default function AllContracts() {
   }, [])
 
   return (
-    <div className="bg-gray">
-      <div className="container">
-        <div className="row px-5">
-          <h4 className="col-12 mt-5">{t('Contracts')}</h4>
-          <div className="card mt-4 mb-5">
-            {/* <div className="card-header bg-white p-3">
+    <div style={{ padding: '40px 100px' }}>
+      <Card title={t('Contracts')}>
+        {/* <div className="card-header bg-white p-3">
                 {data && <SearchContract />}
               </div> */}
-            <div className="card-body row">
-              <div className="col-12 card-list">
-                {contracts?.length ? (
-                  contracts.map((contract, index) => {
-                    return <OneContract contract={contract} key={index} ind={index} />
-                  })
-                ) : (
-                  <p className="h3 py-5">You haven't started any contracts yet.</p>
-                )}
+
+        {contracts?.length ? (
+          contracts.map((contract, index) => {
+            return (
+              <div className="card mt-3 mb-3 px-4">
+                <OneContract contract={contract} key={index} />
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            )
+          })
+        ) : (
+          <p className="h3 py-5">You haven't started any contracts yet.</p>
+        )}
+      </Card>
     </div>
   )
 }
