@@ -19,6 +19,7 @@ import { useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Header from 'src/Components/ClientComponents/Header'
 import HomeLayout from 'src/Components/ClientComponents/HomeLayout'
+import CreateProfilePhoneNumber from 'src/Components/FreelancerComponents/CreateProfilePhoneNumber'
 import { getAllJobs } from 'src/api/job-apis'
 import ProfileFreelancerInClientPage from 'src/pages/ClientPages/Freelancer/freelancer-profile'
 import Offers from 'src/pages/FreelancerPages/Offers'
@@ -57,6 +58,7 @@ export default function ClientRoutes() {
         <Header />
         <div className="background_body">
           <Routes>
+            <Route path="/create-profile" element={<CreateProfilePhoneNumber />} />
             <Route path="/home" element={<HomeLayout />} />
             <Route path="/" element={<HomeLayout />} />
             <Route path="/messages" element={<Messages />} />

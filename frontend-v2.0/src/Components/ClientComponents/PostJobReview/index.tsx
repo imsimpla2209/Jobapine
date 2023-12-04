@@ -12,10 +12,12 @@ import Loader from '../../SharedComponents/Loader/Loader'
 import { defaultPostJobState, postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
 import { EJobType, LevelName } from 'src/utils/enum'
+import { useState } from 'react'
 
 export const { Paragraph } = Typography
 
 export default function PostJobReview() {
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { state: userStoreState } = useSubscription(clientStore)
   const { t, i18n } = useTranslation(['main'])
@@ -26,6 +28,7 @@ export default function PostJobReview() {
   const locations = useSubscription(locationStore).state
 
   const publishJob = async () => {
+    setLoading(true)
     if (state.attachments?.length) {
       await fetchAllToCL(state.attachments, false)
         .then(res => {
@@ -37,13 +40,14 @@ export default function PostJobReview() {
     }
     createJob({ ...state, client: userStoreState.id })
       .then(res => {
-        postJobSubscribtion.updateState({ currentStatus: 'public' })
+        postJobSubscribtion.updateState(defaultPostJobState)
         message.success('🎉🎉🎉 Job created successfully! 🎉🎉🎉')
         navigate('/')
       })
       .catch(err => {
         message.error('Failed to create Job')
       })
+      .finally(() => setLoading(true))
   }
 
   const deletePost = () => {
@@ -242,6 +246,7 @@ export default function PostJobReview() {
                 size="large"
                 className="btn bg-jobsicker px-5"
                 onClick={publishJob}
+                loading={loading}
                 style={{ display: 'flex', alignItems: 'center' }}
               >
                 {t('Post Job Now')}

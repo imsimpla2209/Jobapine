@@ -19,6 +19,7 @@ import { Text } from '../ReviewProposalsCard'
 import './HomeLayout.css'
 import { CheckCircleTwoTone, DollarTwoTone, FormOutlined } from '@ant-design/icons'
 import { Title } from 'src/pages/ClientPages/JobDetailsBeforeProposols'
+import VerifyPaymentModal from './VerifyPaymentModal'
 
 export default function HomeLayout() {
   const { t, i18n } = useTranslation(['main'])
@@ -211,9 +212,11 @@ export default function HomeLayout() {
 const RightLayout = () => {
   const { state: user } = useSubscription(userStore)
   const { state: client } = useSubscription(clientStore)
+  const [openVerifyModal, setOpenVerifyModal] = useState(false)
   const { t } = useTranslation(['main'])
   return (
     <Col span={8} style={{ paddingLeft: 20 }}>
+      <VerifyPaymentModal open={openVerifyModal} handleClose={() => setOpenVerifyModal(false)} />
       <div className="col d-none d-lg-block" style={{ marginBottom: 16 }}>
         <div
           style={{
@@ -261,8 +264,13 @@ const RightLayout = () => {
                 </Button>
               </>
             ) : (
-              <Button className="text-success" type="dashed" icon={<FormOutlined />}>
-                <Link to={`/create-profile`}>{t('Verify payment')}</Link>
+              <Button
+                className="text-success"
+                type="dashed"
+                icon={<FormOutlined />}
+                onClick={() => setOpenVerifyModal(true)}
+              >
+                {t('Verify payment')}
               </Button>
             )}
           </Space>

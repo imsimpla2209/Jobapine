@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { FrownOutlined, SmileOutlined } from '@ant-design/icons'
+import { DollarCircleTwoTone, FrownOutlined, SmileOutlined } from '@ant-design/icons'
 import { InputNumber, Slider } from 'antd'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom'
 import { createSubscription, useSubscription } from 'src/libs/global-state-hook'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { ICreateJobBody } from 'src/types/job'
-import { EComplexity, EJobType, ELevel, EPaymenType } from 'src/utils/enum'
+import { EComplexity, EJobType, ELevel, EPaymenType, SICKPOINTS_PER_POST } from 'src/utils/enum'
 
 export const defaultPostJobState: ICreateJobBody = {
   client: '',
@@ -100,6 +100,12 @@ export default function PostJobGetStarted({ setBtns, btns }) {
       </div>
       {!start ? (
         <div className="ps-4 my-3">
+          <span className="fw-bold mb-3" style={{ display: 'block' }}>
+            {t('When you post a job, your SickPoints will be decreased by')}
+            {` ${SICKPOINTS_PER_POST} `}
+            <DollarCircleTwoTone twoToneColor="#eb2f96" />
+          </span>
+
           <button className="btn bg-jobsicker" onClick={createJob}>
             {t('Get Start')}
           </button>
@@ -107,10 +113,16 @@ export default function PostJobGetStarted({ setBtns, btns }) {
       ) : (
         <>
           <div className="mx-4 mt-4">
-            <p className="fw-bold">{t('What would you like to do?')}</p>
+            <span className="fw-bold">{t('What would you like to do?')}</span>
             <div className=" w-75 my-4 ms-4 d-flex justify-content-between" onInput={getData}>
               <label className="border border-success rounded p-3 text-center">
-                <input type="radio" className="float-end" name="short-long-job" value="short-term" />
+                <input
+                  type="radio"
+                  className="float-end"
+                  name="short-long-job"
+                  value="short-term"
+                  defaultChecked={job.jobDuration === 'short-term'}
+                />
                 <div>
                   <i className="far fa-clock"></i>
                 </div>
@@ -119,7 +131,13 @@ export default function PostJobGetStarted({ setBtns, btns }) {
                 <div>{t('Less than 3 months')}</div>
               </label>
               <label className="border border-success rounded p-3 text-center">
-                <input type="radio" className="float-end" name="short-long-job" value="long-term" />
+                <input
+                  type="radio"
+                  className="float-end"
+                  name="short-long-job"
+                  value="long-term"
+                  defaultChecked={job.jobDuration === 'long-term'}
+                />
                 <div>
                   <i className="far fa-calendar-plus"></i>
                 </div>
