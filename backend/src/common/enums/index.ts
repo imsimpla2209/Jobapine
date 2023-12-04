@@ -91,6 +91,24 @@ export enum EPaymentMethod {
   BALANCE = 'Balance',
 }
 
+export enum EMessagePurpose {
+  Proposal = 'Proposal',
+  Job = 'Job',
+  None = 'Communication',
+}
+
+export enum ERoomType {
+  Single = 'Single',
+  Multi = 'Multi',
+}
+
+export enum EMessageType {
+  Normal = 'Normal',
+  HTML = 'HTML',
+  Attachment = 'Attachment',
+  Embed = 'Embed',
+}
+
 export enum EPaymentPurpose {
   BUYSICK = 'Buy_Sicks_Point',
   RECHARGE = 'Recharge',

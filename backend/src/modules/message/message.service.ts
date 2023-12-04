@@ -119,7 +119,8 @@ export const queryMessageRooms = async (
 
   try {
     const result = await MessageRoom.aggregate(aggregatePipeline).exec()
-    const fullfillJobs = await MessageRoom.populate(result, [
+    const filterNull = result?.filter(f => !!f.memberId)
+    const fullfillJobs = await MessageRoom.populate(filterNull, [
       { path: 'memberId', model: 'User' },
       { path: 'rooms.proposal', model: 'Proposal', populate: { path: 'job', model: 'Job' } },
     ])
@@ -261,7 +262,6 @@ export const checkMessage = async (member: any[], proposalId?: any) => {
   if (member?.length < 2) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Cannot check msg')
   }
-
   const msgRoom = await getMessageRoomByOptions({
     $and: [
       { member: { $all: member.map(m => new mongoose.Types.ObjectId(m)) } },
@@ -274,13 +274,27 @@ export const checkMessage = async (member: any[], proposalId?: any) => {
     if (!fromUser || !toUser) {
       throw new ApiError(httpStatus.NOT_FOUND, 'From or To user not found')
     }
-    const invi = await createRequestMessage(
-      new mongoose.Types.ObjectId(member[0]),
-      new mongoose.Types.ObjectId(member[1]),
-      new mongoose.Types.ObjectId(proposalId),
-      'Request create message'
-    )
-    return { item: invi, exist: false }
+
+    const proposalDoc = await updateProposalStatusById(proposalId, EStatus.INPROGRESS, 'Message Request is Accepted')
+
+    // const invi = await createRequestMessage(
+    //   new mongoose.Types.ObjectId(member[0]),
+    //   new mongoose.Types.ObjectId(member[1]),
+    //   new mongoose.Types.ObjectId(proposalId),
+    //   'Request create message'
+    // )
+    const newMsgRoom = await createMessageRoom({
+      member: member.map(m => new mongoose.Types.ObjectId(m)),
+      proposal: new mongoose.Types.ObjectId(proposalId),
+    })
+
+    createNotify({
+      to: new mongoose.Types.ObjectId(member[1]),
+      path: `${FERoutes.allMessages}?proposalId=${proposalId}`,
+      content: FEMessage(proposalDoc?.job?.title).inProgressProposal,
+    })
+
+    return { item: newMsgRoom, exist: false }
   }
 
   return { item: msgRoom, exist: true }
@@ -333,7 +347,7 @@ export const queryMessages = async (filter: Record<string, any>, options: IOptio
 
   // options.populate = 'proposal,members'
   if (!options.projectBy) {
-    options.projectBy = '_id, from, to, room, isDeleted, content, attachments, createdAt, updatedAt, seen'
+    options.projectBy = '_id, from, to, room, isDeleted, content, attachments, createdAt, updatedAt, seen, type, other'
   }
 
   const messages = await Message.paginate(queryFilter, options)

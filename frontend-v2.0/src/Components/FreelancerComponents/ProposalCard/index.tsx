@@ -127,7 +127,7 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
                     </span>
                   </div>
                   {
-                    proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.PENDING && <>
+                    ((proposal?.currentStatus === EStatus.ACCEPTED || proposal?.currentStatus === EStatus.PENDING || proposal?.currentStatus === EStatus.INPROGRESS)) && <>
                       {
                         !isInMSG && <div>
                           {

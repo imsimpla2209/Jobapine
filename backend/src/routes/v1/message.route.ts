@@ -12,8 +12,8 @@ router
 
 router
   .route('/rooms/')
-  .post(validate(messageValidation.createMessageRoom), messageController.createMessageRoom)
-  .get(validate(messageValidation.getMessageRooms), messageController.getMessageRooms)
+  .post(auth(), validate(messageValidation.createMessageRoom), messageController.createMessageRoom)
+  .get(auth(), validate(messageValidation.getMessageRooms), messageController.getMessageRooms)
 
 router
   .route('/rooms/check')

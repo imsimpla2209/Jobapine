@@ -97,9 +97,9 @@ export const createContract = async (contractBody: NewCreatedContract, isAgree?:
     content: isAgree ? FEMessage().gotJob : FEMessage().createContract,
   })
 
-  if (contractBody?.proposal) {
-    updateProposalStatusById(contractBody?.proposal, EStatus.ACCEPTED, 'Accepted by Client')
-  }
+  // if (contractBody?.proposal) {
+  //   updateProposalStatusById(contractBody?.proposal, EStatus.ACCEPTED, 'Accepted by Client')
+  // }
 
   if (isAgree) {
     addJobtoFreelancer(job._id, freelancer?._id, client?._id)

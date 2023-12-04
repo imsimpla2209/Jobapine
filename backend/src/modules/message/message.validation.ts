@@ -1,4 +1,4 @@
-import { EStatus } from 'common/enums'
+import { EMessagePurpose, EMessageType, EStatus } from 'common/enums'
 import Joi from 'joi'
 import { objectId } from '../../providers/validate/custom.validation'
 import { NewCreatedMessage } from './message.interfaces'
@@ -10,6 +10,8 @@ const createMessageBody: Record<keyof NewCreatedMessage, any> = {
   content: Joi.string().max(969).required(),
   attachments: Joi.array().items(Joi.string()),
   seen: Joi.boolean(),
+  type: Joi.string().valid(...Object.values(EMessageType)),
+  other: Joi.string(),
 }
 
 export const createMessageRoom = {
@@ -19,6 +21,8 @@ export const createMessageRoom = {
     proposal: Joi.string(),
     background: Joi.string(),
     image: Joi.string(),
+    purpose: Joi.string().valid(...Object.values(EMessagePurpose)),
+    type: Joi.string().valid(...Object.values(EMessagePurpose)),
     attachments: Joi.array().items(Joi.string()),
   }),
 }
@@ -100,6 +104,7 @@ export const updateMessageRoom = {
       image: Joi.string(),
       attachments: Joi.array().items(Joi.string()),
       seen: Joi.boolean(),
+      purpose: Joi.string().valid(...Object.values(EMessagePurpose)),
     })
     .min(1),
 }
