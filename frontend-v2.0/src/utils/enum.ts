@@ -46,6 +46,8 @@ export enum EComplexity {
 
 export const EComplexityGet = ['easy', 'medium', 'hard', 'hell']
 
+export const SICKPOINTS_PER_POST = 8
+
 export enum EPriority {
   LOW = 0,
   MEDIUM = 1,

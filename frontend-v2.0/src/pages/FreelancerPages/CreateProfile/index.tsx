@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import CreateProfileAside from 'src/Components/FreelancerComponents/CreateProfileAside';
-import { freelancerStore, userStore } from 'src/Store/user.store';
-import { createSubscription, useSubscription } from 'src/libs/global-state-hook';
-import { IFreelancer } from 'src/types/freelancer';
-import { IUser } from 'src/types/user';
-
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import CreateProfileAside from 'src/Components/FreelancerComponents/CreateProfileAside'
+import { freelancerStore, userStore } from 'src/Store/user.store'
+import { createSubscription, useSubscription } from 'src/libs/global-state-hook'
+import { IFreelancer } from 'src/types/freelancer'
+import { IUser } from 'src/types/user'
 
 export enum EStep {
   START = 0,
@@ -34,27 +33,25 @@ const components = {
   [EStep.LOCATION]: () => import('Components/FreelancerComponents/CreateProfileLocation'),
   [EStep.PHONENUMBER]: () => import('Components/FreelancerComponents/CreateProfilePhoneNumber'),
   [EStep.SUBMIT]: () => import('Components/FreelancerComponents/CreateProfileSubmit'),
-};
+}
 
-
-
-export const profileStepStore = createSubscription<{ step: EStep }>({ step: EStep.START || 0 });
-export const profileFreelancerData = createSubscription<IFreelancer>({} as IFreelancer);
-export const userData = createSubscription<IUser>({} as IUser);
+export const profileStepStore = createSubscription<{ step: EStep }>({ step: EStep.START || 0 })
+export const profileFreelancerData = createSubscription<IFreelancer>({} as IFreelancer)
+export const userData = createSubscription<IUser>({} as IUser)
 
 export default function CreateProfile() {
   const [searchParams, setSearchParams] = useSearchParams()
   const isReview = searchParams.get('isReview')
 
-  const profileStep = useSubscription(profileStepStore).state;
-  const profilesetStep = useSubscription(profileStepStore).setState;
-  const setState = useSubscription(profileFreelancerData).setState;
-  const setStateUser = useSubscription(userData).setState;
-  const currentFreelancerData = useSubscription(freelancerStore).state;
-  const currentUserData = useSubscription(userStore).state;
+  const profileStep = useSubscription(profileStepStore).state
+  const profilesetStep = useSubscription(profileStepStore).setState
+  const setState = useSubscription(profileFreelancerData).setState
+  const setStateUser = useSubscription(userData).setState
+  const currentFreelancerData = useSubscription(freelancerStore).state
+  const currentUserData = useSubscription(userStore).state
 
-  const DynamicComponent = components[profileStep.step];
-  const [Component, setComponent] = useState<React.ComponentType | null>(null);
+  const DynamicComponent = components[profileStep.step]
+  const [Component, setComponent] = useState<React.ComponentType | null>(null)
 
   useEffect(() => {
     if (isReview === 'true') {
@@ -68,27 +65,27 @@ export default function CreateProfile() {
   useEffect(() => {
     console.log(profileStep.step)
     const loadComponent = async () => {
-      const dynamicComponent = await DynamicComponent();
-      setComponent(() => dynamicComponent.default);
-    };
+      const dynamicComponent = await DynamicComponent()
+      setComponent(() => dynamicComponent.default)
+    }
 
-    loadComponent();
-  }, [DynamicComponent]);
+    loadComponent()
+  }, [DynamicComponent])
 
   return (
-    <section className="p-4" style={{ backgroundColor: "#F1F2F4" }}>
+    <section className="p-4" style={{ backgroundColor: '#F1F2F4' }}>
       <div className="container">
         <div className="row">
-          {profileStep.step !== EStep.SUBMIT &&
+          {profileStep.step !== EStep.SUBMIT && (
             <div className="col-lg-3">
               <CreateProfileAside profileStep={profilesetStep} step={profileStep.step} />
             </div>
-          }
-          <div className={profileStep.step === EStep.SUBMIT ? "col-lg-12" : "col-lg-9"}>
+          )}
+          <div className={profileStep.step === EStep.SUBMIT ? 'col-lg-12' : 'col-lg-9'}>
             {Component && <Component />}
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
