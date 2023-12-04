@@ -34,6 +34,17 @@ export const createProposal = async (
   let newProposal: any
   try {
     updateSickPointsById(userId, 2 + (proposalBody?.priority || 0) * 2, true)
+
+    proposalBody['status'] = [
+      {
+        date: new Date(),
+        status: EStatus.PENDING,
+        comment: 'Created from freelancer',
+      },
+    ]
+
+    proposalBody['currentStatus'] = EStatus.PENDING
+
     newProposal = await Proposal.create(proposalBody)
     const jobInfo = await addProposaltoJobById(proposalBody.job, newProposal._id)
     await addProposaltoFreelancerById(proposalBody.freelancer, newProposal._id)

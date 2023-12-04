@@ -156,7 +156,7 @@ img {
 }
 .sent_msg {
   float: right;
-  width: 56%;
+  width: 62%;
 }
 
 .input_msg_write input {
@@ -181,10 +181,25 @@ img {
   font-size: 17px;
   height: 33px;
   position: absolute;
-  right: 0;
-  top: 11px;
+  right: 4px;
+  top: 15px;
   width: 33px;
 }
+
+.msg_menu_btn {
+  background: #ccc none repeat scroll 0 0;
+  border: medium none;
+  border-radius: 50%;
+  color: gray;
+  cursor: pointer;
+  font-size: 17px;
+  height: 33px;
+  position: absolute;
+  left: 4px;
+  top: 15px;
+  width: 33px;
+}
+
 .messaging {
   padding: 0 0 50px 0;
 }

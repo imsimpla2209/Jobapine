@@ -22,13 +22,6 @@ import { createProposal, withdrawProposal } from "src/api/proposal-apis";
 import toast from "react-hot-toast";
 import FileDisplay from "../ForumPages/ideas/idea-detail/file-display";
 
-const customizeRequiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
-  <>
-    {required ? <Tag color="error">Required</Tag> : <Tag color="warning">optional</Tag>}
-    {label}
-  </>
-);
-
 export default function SubmitProposal() {
   const { i18n, t } = useTranslation(['main']);
   let lang = i18n.language;

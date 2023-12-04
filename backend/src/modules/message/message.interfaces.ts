@@ -9,6 +9,8 @@ export interface IMessage {
   from?: IUserDoc['_id']
   to?: IUserDoc['_id']
   content?: string
+  type?: string
+  other?: string
   attachments?: string[]
   room?: IMessageRoomDoc['_id']
   seen?: boolean
@@ -24,6 +26,9 @@ export interface IMessageRoom {
   image?: string
   isDeleted?: boolean
   seen?: boolean
+  type?: string
+  purpose?: string
+  attachments?: string[]
 }
 
 export interface IMessageDoc extends IMessage, Document {}
