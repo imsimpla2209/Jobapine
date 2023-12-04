@@ -3,7 +3,9 @@ import { Button, Form, Select, Slider, Space } from 'antd'
 import { SliderMarks } from 'antd/es/slider'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { skillStore } from 'src/Store/commom.store'
 import { getSkills } from 'src/api/job-apis'
+import { useSubscription } from 'src/libs/global-state-hook'
 import { SkillBody } from 'src/types/freelancer'
 import { pickName } from 'src/utils/helperFuncs'
 
@@ -29,23 +31,15 @@ const marks: SliderMarks = {
 }
 
 const SkillPicker = ({ handleChange, data }: any) => {
-  const [rates, setRates] = useState<SkillBody[]>(data || [])
-  const [skills, setSkills] = useState<any[]>([])
-
   const { i18n } = useTranslation(['main'])
-
-  useEffect(() => {
-    getSkills().then(res => {
-      setSkills(
-        res.data.map((skill: any) => {
-          return {
-            label: pickName(skill, i18n.language),
-            value: skill._id,
-          }
-        })
-      )
-    })
-  }, [])
+  const [rates, setRates] = useState<SkillBody[]>(data || [])
+  const { state } = useSubscription(skillStore)
+  const skills = Object.values(state).map((skill: any) => {
+    return {
+      label: pickName(skill, i18n.language),
+      value: skill._id,
+    }
+  })
 
   useEffect(() => {
     handleChange(rates)

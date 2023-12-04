@@ -132,11 +132,6 @@ export default function NavSmallScreen() {
                   {t('All Contracts')}
                 </Link>
               </li>
-              {/* <li>
-                <Link className="dropdown-item" to="/bring-your-own-freelancer">
-                  {t("Bring Your Own Freelancer")}
-                </Link>
-              </li> */}
               <li>
                 <Link className="dropdown-item" to="/post-job">
                   {t('Post a Job')}

@@ -6,6 +6,8 @@ import './style.css'
 import { EPaymenType } from 'src/utils/enum'
 import { IJobPayment } from 'src/types/job'
 import { InputNumber, Select } from 'antd'
+import { useSubscription } from 'src/libs/global-state-hook'
+import { currencyFormatter } from 'src/utils/helperFuncs'
 
 const paymentTypeOptions = [
   { label: 'per task', type: 'PerTask' },
@@ -17,10 +19,14 @@ const paymentTypeOptions = [
 
 export default function Postbudget({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
+  const {
+    state: { payment, budget },
+  } = useSubscription(postJobSubscribtion, ['payment', 'budget'])
+
   const { t } = useTranslation(['main'])
   const [job, setJob] = useState<{ payment: IJobPayment; budget: number }>({
-    payment: { amount: 100, type: EPaymenType.PERHOURS },
-    budget: 1,
+    payment,
+    budget,
   })
 
   const addData = () => {
@@ -33,6 +39,7 @@ export default function Postbudget({ setBtns, btns }) {
   }
 
   const handleChangeAmount = (amount: string) => {
+    console.log(amount)
     setJob({ ...job, payment: { ...job.payment, amount: parseInt(amount) } })
   }
   const handleChangeBudget = (amount: string) => {
@@ -55,22 +62,25 @@ export default function Postbudget({ setBtns, btns }) {
   )
   return (
     <>
-      <section className=" bg-white border rounded mt-3 pt-4">
+      <section className=" bg-white border rounded pt-4">
         <div className="border-bottom ps-4">
           <h4>{t('Budget')}</h4>
           <p>{t('Step 6 of 7')}</p>
         </div>
         <div className="px-4 mt-3 mb-3">
           <p className="fw-bold mt-2">{t('How would you like to pay your freelancer?')}</p>
-          <InputNumber
-            addonBefore="VND"
-            addonAfter={selectAfter}
-            onInput={handleChangeAmount}
-            value={job.payment.amount}
-          />
-
+          <div style={{ width: '100%' }}>
+            <InputNumber
+              addonBefore="VND"
+              addonAfter={selectAfter}
+              onInput={handleChangeAmount}
+              value={job.payment.amount}
+            />
+          </div>
           <p className="fw-bold mt-2">{t('Enter your specific budget:')}</p>
-          <InputNumber addonBefore="VND" min={1} onInput={handleChangeBudget} value={job.budget} />
+          <div style={{ width: '100%' }}>
+            <InputNumber addonBefore="VND" min={1} onInput={handleChangeBudget} value={job.budget} />
+          </div>
         </div>
         {/* {job.payment?.type === EPaymenType.WHENDONE ? (
           <div className="px-4 my-3">

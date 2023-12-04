@@ -8,12 +8,20 @@ import './style.css'
 import { EUserVisibility } from 'src/utils/enum'
 import { InputNumber } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
+import { useSubscription } from 'src/libs/global-state-hook'
 
 export default function PostJobVisibility({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
+  const {
+    state: {
+      visibility,
+      preferences: { nOEmployee },
+    },
+  } = useSubscription(postJobSubscribtion, ['visibility', 'preferences'])
+
   const [job, setJob] = useState<{ jobVisibility: EUserVisibility; freelancerNeed: number }>({
-    jobVisibility: null,
-    freelancerNeed: 1,
+    jobVisibility: visibility ? EUserVisibility.ANYONE : EUserVisibility.VERIFIED_USER,
+    freelancerNeed: nOEmployee || 1,
   })
   const { t } = useTranslation(['main'])
 
@@ -38,7 +46,7 @@ export default function PostJobVisibility({ setBtns, btns }) {
   const addData = () => {
     postJobSubscribtion.updateState({
       visibility: job.jobVisibility === EUserVisibility.ANYONE,
-      preferences: { nOEmployee: job.freelancerNeed },
+      preferences: { ...postJobSubscribtion.state.preferences, nOEmployee: job.freelancerNeed },
     })
     setBtns({ ...btns, budget: false })
     setStep('budget')
@@ -46,7 +54,7 @@ export default function PostJobVisibility({ setBtns, btns }) {
 
   return (
     <>
-      <section className=" bg-white border rounded mt-3 pt-4">
+      <section className=" bg-white border rounded  pt-4">
         <div className="border-bottom ps-4">
           <h4>{t('Visibility')}</h4>
           <p>{t('Step 5 of 7')}</p>
@@ -55,7 +63,13 @@ export default function PostJobVisibility({ setBtns, btns }) {
           <p className="fw-bold mt-2">{t('Who can see your job?')}</p>
           <div className="my-4 d-flex justify-content-center" onInput={getData}>
             <label className="border border-success rounded p-3 text-center w-50 " style={{ marginRight: 16 }}>
-              <input type="radio" className="float-end" name="visibility" value={EUserVisibility.ANYONE} />
+              <input
+                type="radio"
+                className="float-end"
+                name="visibility"
+                value={EUserVisibility.ANYONE}
+                defaultChecked={job.jobVisibility === EUserVisibility.ANYONE}
+              />
               <div>
                 <i className="fas fa-user mt-4"></i>
               </div>
@@ -67,7 +81,13 @@ export default function PostJobVisibility({ setBtns, btns }) {
               </small>
             </label>
             <label className="border border-success rounded p-3 text-center w-50">
-              <input type="radio" className="float-end" name="visibility" value={EUserVisibility.VERIFIED_USER} />
+              <input
+                type="radio"
+                className="float-end"
+                name="visibility"
+                value={EUserVisibility.VERIFIED_USER}
+                defaultChecked={job.jobVisibility === EUserVisibility.VERIFIED_USER}
+              />
               <div className="w-50 mx-auto">
                 <img className="bg-dark w-25 rounded-circle mt-4" src={upwork} />
               </div>

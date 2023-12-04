@@ -7,17 +7,29 @@ import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
 import LocationPicker from 'src/Components/SharedComponents/LocationPicker'
+import { useSubscription } from 'src/libs/global-state-hook'
 
 export default function Postdescription({ setBtns, btns }) {
   const { setStep } = useContext(StepContext)
+  const {
+    state: {
+      description: stateDescription,
+      attachments,
+      tags,
+      questions,
+      preferences: { locations: stateLocations },
+    },
+  } = useSubscription(postJobSubscribtion, ['description', 'attachments', 'tags', 'questions', 'preferences'])
+
   const { t } = useTranslation(['main'])
-  let [description, setDescription] = useState('')
-  let [files, setFiles] = useState([])
+
+  let [description, setDescription] = useState(stateDescription || '')
+  let [files, setFiles] = useState(attachments || [])
   const [inputVal, setInputVal] = useState('')
   const [inputQuestion, setInputQuestion] = useState('')
-  const [tagList, settagList] = useState([])
-  const [questionList, setquestionList] = useState([])
-  const [locations, setLocations] = useState([])
+  const [tagList, settagList] = useState(tags || [])
+  const [questionList, setquestionList] = useState(questions || [])
+  const [locations, setLocations] = useState(stateLocations || [])
 
   const getData = e => {
     const val = e.target.value
@@ -62,6 +74,7 @@ export default function Postdescription({ setBtns, btns }) {
       description,
       attachments: files,
       tags: tagList,
+      questions: questionList,
       preferences: { ...postJobSubscribtion.state.preferences, locations },
     })
     setBtns({ ...btns, details: false })
@@ -74,7 +87,7 @@ export default function Postdescription({ setBtns, btns }) {
   }
 
   return (
-    <section className=" bg-white border rounded mt-3 pt-4">
+    <section className=" bg-white border rounded pt-4">
       <div className="border-bottom ps-4">
         <h4>{t('Description')}</h4>
         <p>{t('Step 2 of 7')}</p>
@@ -93,6 +106,7 @@ export default function Postdescription({ setBtns, btns }) {
           name="description"
           rows={8}
           onInput={handleChangeDescription}
+          value={description}
         ></textarea>
         <span className="float-end">{t('0/5000 characters (minimum 50)')}</span>
       </div>
@@ -115,7 +129,7 @@ export default function Postdescription({ setBtns, btns }) {
           )}
         </p>
 
-        <p className="fw-bold">{t('Enter the questions of your job post')}</p>
+        <p className="fw-bold">{t('Enter the tags for your job')}</p>
         <div className="my-3 d-flex justify-content-between">
           <input
             className="form-control w-75 shadow-none"
@@ -156,7 +170,7 @@ export default function Postdescription({ setBtns, btns }) {
         ))}
 
         <p className="fw-bold">{t('Add locations')}</p>
-        <LocationPicker handleChange={onChangeLocation} />
+        <LocationPicker handleChange={onChangeLocation} data={stateLocations} />
       </div>
 
       <div className="ps-4 my-3 pt-4 pb-3 pt-3 border-top">

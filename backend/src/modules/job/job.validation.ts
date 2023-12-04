@@ -34,7 +34,7 @@ const createJobBody: Record<keyof NewCreatedJob, any> = {
   budget: Joi.number().positive(),
   tags: Joi.array().items(Joi.string()),
   type: Joi.string(),
-  experienceLevel: Joi.array().items(Joi.string()),
+  experienceLevel: Joi.array().items(Joi.number()),
   visibility: Joi.boolean(),
   jobDuration: Joi.string(),
   proposalNotifyMail: Joi.boolean(),

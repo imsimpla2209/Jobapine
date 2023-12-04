@@ -39,7 +39,7 @@ export const bulkCreateNotify = async (notifyBodies: NewCreatedNotify[]): Promis
     }))
 
     // Perform the bulk write operation
-    const result = await Notify.bulkWrite(notifyOperations)
+    await Notify.bulkWrite(notifyOperations)
 
     // Notify online users if necessary
     const onlineUsers = await io.getAllOnlineUsers()
@@ -51,9 +51,9 @@ export const bulkCreateNotify = async (notifyBodies: NewCreatedNotify[]): Promis
       }
     })
 
-    return result.getRawResponse()
+    return true
   } catch (error) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot write notifies')
+    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot write notifies:' + error)
   }
 }
 
