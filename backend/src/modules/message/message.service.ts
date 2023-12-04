@@ -246,9 +246,10 @@ export const createMessage = async (messageBody: NewCreatedMessage): Promise<IMe
   updateMessageRoomById(messageBody.room, {
     seen: false,
   })
-  if (io.onlineUsers[messageBody?.to]) {
+  const onlineUsers = await io.getAllOnlineUsers()
+  if (onlineUsers[messageBody?.to]) {
     logger.info(`user: ${messageBody?.from}  Send message to user: ${messageBody?.to}`)
-    io.onlineUsers[messageBody?.to].socket.emit(ESocketEvent.SENDMSG, messageBody)
+    onlineUsers[messageBody?.to].socket.emit(ESocketEvent.SENDMSG, messageBody)
   }
   return Message.create(messageBody)
 }

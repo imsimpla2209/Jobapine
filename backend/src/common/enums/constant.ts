@@ -53,6 +53,10 @@ export const FEMessage = (extra?: any) => {
       name: 'One of you favorite client just posted a new job',
       name_vi: '1 trong những khách hàng bạn ưa thích vừa đăng 1 công việc mới',
     },
+    profileVerified: {
+      name: `Congragulation! your profile is entirely verified. Reload page to enjoy our platform now`,
+      name_vi: `Xin chúc mừng! hồ sơ cá nhân của bạn đã được phê duyệt. Tải lại trang để thưởng thức nền tảng ngay bây giờ`,
+    },
     phoneSMSVerify: `JobSickers-Biggest Application Marketplace \n\nYour OTP verification code is/Mã xác thực số điện thoại của bạn là [ ${extra} ]`,
   }
 }

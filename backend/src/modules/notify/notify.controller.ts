@@ -8,7 +8,14 @@ import { IOptions } from '../../providers/paginate/paginate'
 import * as notifyService from './notify.service'
 
 export const createNotify = catchAsync(async (req: Request, res: Response) => {
-  const notify = await notifyService.createNotify(req.body)
+  const msg = {
+    name: req.body.content,
+    name_vi: req.body.content,
+  }
+  const notify = await notifyService.createNotify({
+    ...req.body,
+    content: msg,
+  })
   res.status(httpStatus.CREATED).send(notify)
 })
 

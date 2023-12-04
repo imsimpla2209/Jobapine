@@ -1,10 +1,13 @@
+import Bcrypt from '@core/libs/Bcrypt'
+import { io } from '@core/libs/SocketIO'
+import { ESocketEvent } from 'common/enums'
+import { logger } from 'common/logger'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
-import Bcrypt from '@core/libs/Bcrypt'
-import User from './user.model'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
-import { NewCreatedUser, UpdateUserBody, IUserDoc, NewRegisteredUser } from './user.interfaces'
+import { IUserDoc, NewCreatedUser, NewRegisteredUser, UpdateUserBody } from './user.interfaces'
+import User from './user.model'
 
 /**
  * Create a user
@@ -163,14 +166,36 @@ export const removeRefreshToken = async (userId: mongoose.Types.ObjectId): Promi
  * @param {mongoose.Types.ObjectId} userId
  * @returns {Promise<void>}
  */
-export const changeActiveUser = async (userId: mongoose.Types.ObjectId): Promise<void> => {
+export const changeActiveUser = async (userId: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
   try {
-    await User.findByIdAndUpdate(userId, {
-      isActive: false,
+    const user = await User.findById(userId)
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'User not found')
+    }
+    const futureActive = !user?.isActive
+    Object.assign(user, {
+      isActive: futureActive,
     })
+    if (!futureActive) {
+      const onlineUsers = await io.getAllOnlineUsers()
+      if (onlineUsers[user?._id || user?.id]) {
+        logger.info(`Deactive user: ${user?._id || user?.id}`)
+        onlineUsers[user?._id || user?.id].socket.emit(ESocketEvent.DEACTIVE, {
+          userId: user?._id || user?.id,
+          type: ESocketEvent.DEACTIVE,
+        })
+      }
+    }
+    await user.save()
+    return user
   } catch (error: any) {
     throw new ApiError(httpStatus.BAD_REQUEST, `Something went wrong: ${error.message}`)
   }
+}
+
+export const getOnlineUsers = async () => {
+  const onlineUsers = await io.getAllOnlineUsers()
+  return onlineUsers || {}
 }
 
 /**

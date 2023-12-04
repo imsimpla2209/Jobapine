@@ -22,6 +22,11 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
   res.send(result)
 })
 
+export const getOnlineUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.getOnlineUsers()
+  res.send(result)
+})
+
 export const getUser = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.userId === 'string') {
     const user = await userService.getUserById(new mongoose.Types.ObjectId(req.params.userId))
@@ -30,6 +35,14 @@ export const getUser = catchAsync(async (req: Request, res: Response) => {
     }
     res.send(user)
   }
+})
+
+export const changeActiveUser = catchAsync(async (req: Request, res: Response) => {
+  const user = await userService.changeActiveUser(new mongoose.Types.ObjectId(req.params.userId))
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found')
+  }
+  res.send(user)
 })
 
 export const checkUserUniqueField = catchAsync(async (req: Request, res: Response) => {

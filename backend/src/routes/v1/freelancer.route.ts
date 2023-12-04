@@ -19,7 +19,10 @@ router
   .patch(auth(), validate(freelancerValidation.createProfileFreelancer), freelancerController.createProfile)
 
 router.route('/get-by-options').post(auth(), freelancerController.getFreelancerByOption)
-router.route('/update-similar-doc').post(auth(), freelancerController.updateSimilarById)
+router.route('/update-similar-doc').patch(auth(), freelancerController.updateSimilarById)
+router
+  .route('/verify-profile/:id')
+  .patch(auth('manageUsers'), validate(freelancerValidation.getFreelancer), freelancerController.verifyFreelancerById)
 
 router
   .route('/:id')

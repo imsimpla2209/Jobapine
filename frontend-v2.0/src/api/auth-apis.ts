@@ -46,7 +46,7 @@ export const forgotPassword = (data: { email: string }) => {
 }
 
 export const resetPassword = (data: { password: string }, token: string) => {
-  return instance.post(`auth/forgot-password?token=${token}`, data);
+  return instance.post(`auth/reset-password?token=${token}`, data);
 }
 
 export const sendVerifyEmail = () => {

@@ -70,6 +70,7 @@ export enum ESocketEvent {
   PROPOSALCHANGE = 'Proposal_Change',
   CONTRACTCHANGE = 'Contract_Change',
   BACKUP_DATA = 'Backup_Data',
+  DEACTIVE = 'Deactive',
 }
 
 export enum EJobType {

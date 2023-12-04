@@ -2,6 +2,8 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import queryGen from '@core/libs/queryGennerator'
+import { createNotify } from '@modules/notify/notify.service'
+import { FEMessage } from 'common/enums/constant'
 import { IReview } from 'common/interfaces/subInterfaces'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
@@ -84,11 +86,34 @@ export const updateClientById = async (
   clientId: mongoose.Types.ObjectId,
   updateBody: UpdateClientBody
 ): Promise<IClientDoc | null> => {
-  let client = await getClientById(clientId)
+  const client = await getClientById(clientId)
   if (!client) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Client not found')
   }
   Object.assign(client, updateBody)
+  await client.save()
+  return client
+}
+
+/**
+ * Verify client by id
+ * @param {mongoose.Types.ObjectId} clientId
+ * @param {UpdateClientBody} updateBody
+ * @returns {Promise<IClientDoc | null>}
+ */
+export const verifyClientById = async (clientId: mongoose.Types.ObjectId): Promise<IClientDoc | null> => {
+  const client = await Client.findById(clientId)
+  if (!client) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Client not found')
+  }
+  Object.assign(client, {
+    paymentVerified: true,
+  })
+  createNotify({
+    to: client?.user,
+    path: `/`,
+    content: FEMessage().profileVerified,
+  })
   await client.save()
   return client
 }

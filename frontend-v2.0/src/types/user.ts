@@ -39,6 +39,7 @@ export interface IUser {
   lastLoginAs?: string
   sickPoints?: number
   token?: string
+  password?: string
 }
 
 export interface IUserQuery extends filterFreelancersQuery{

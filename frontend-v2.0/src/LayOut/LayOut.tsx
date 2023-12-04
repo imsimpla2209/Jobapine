@@ -1,8 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from 'src/Components/Providers/AuthProvider'
 import AdminRoutesWithSeparateCss from 'src/Routes/AdminRoutesWithoutCss'
 import { categoryStore, locationStore, skillStore } from 'src/Store/commom.store'
+import { userStore } from 'src/Store/user.store'
+import { logout } from 'src/api/auth-apis'
 import { getAllCategories } from 'src/api/category-apis'
 import { getSkills } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
@@ -17,7 +21,9 @@ export default function LayOut() {
   const { authenticated, loading, id } = useAuth()
   const [usrType, setUsrType] = useState('')
   const { setState } = useSubscription(locationStore)
+  const { state: user } = useSubscription(userStore)
   const { appSocket } = useSocket()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (authenticated) {
@@ -26,6 +32,33 @@ export default function LayOut() {
     }
     return () => {
       appSocket.emit(ESocketEvent.USER_DISCONNECTED, { socketId: appSocket.id, userId: id })
+    }
+  }, [authenticated])
+
+  useEffect(() => {
+    if (authenticated) {
+      appSocket.on(ESocketEvent.DEACTIVE, data => {
+        if (data?.userId === (user?.id || user?._id) && data?.type === ESocketEvent.DEACTIVE) {
+          console.log('Deactive:', data)
+          logout()
+            .then(res => {
+              toast.error('Oops, You are deactived by admin, see yah', {
+                icon: '👋',
+              })
+              console.log(res)
+              navigate('/login')
+              window.location.reload()
+              localStorage.removeItem('userType')
+              localStorage.removeItem('expiredIn')
+            })
+            .catch(error => {
+              console.log(error.message)
+            })
+        }
+      })
+    }
+    return () => {
+      appSocket.off(ESocketEvent.DEACTIVE)
     }
   }, [authenticated])
 
