@@ -1,14 +1,26 @@
-import { Avatar, Badge, Button, Card, Col, Collapse, Descriptions, Row, Space, Table } from 'antd'
-import Title from 'antd/es/typography/Title'
-import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { locationStore } from 'src/Store/commom.store'
-import { IJobData } from 'src/Store/job.store'
-import { getContracts } from 'src/api/contract-apis'
-import { useSubscription } from 'src/libs/global-state-hook'
-import FileDisplay from 'src/pages/ForumPages/ideas/idea-detail/file-display'
-import { EComplexityGet } from 'src/utils/enum'
-import { currencyFormatter, pickName, randomDate } from 'src/utils/helperFuncs'
+import { TwitterOutlined, FacebookOutlined, InstagramOutlined } from "@ant-design/icons"
+import { Row, Col, Card, Switch, Button, Descriptions, List, Avatar, Rate, Space, Collapse, Table, Badge, Modal, Input, Popconfirm } from "antd"
+import { t } from "i18next"
+import { useEffect, useState } from "react"
+import { getClientByOptions } from "src/api/client-apis"
+import { getFreelancerByOptions } from "src/api/freelancer-apis"
+import { EComplexityGet, EJobStatus, EUserType } from "src/utils/enum"
+import { currencyFormatter, pickName, randomDate } from "src/utils/helperFuncs"
+import defaultAvate from 'assets/img/icon-job.svg'
+import sickPoint from 'assets/img/logo.png'
+import { IJobData } from "src/Store/job.store"
+import { Link } from "react-router-dom"
+import { useSubscription } from "src/libs/global-state-hook"
+import { locationStore } from "src/Store/commom.store"
+import Progress from "src/Components/SharedComponents/Progress"
+import { useTranslation } from "react-i18next"
+import FileDisplay from "src/pages/ForumPages/ideas/idea-detail/file-display"
+import { getContracts } from "src/api/contract-apis"
+import Title from "antd/es/typography/Title"
+import { deleteJob, forcedDeleteJob } from "src/api/job-apis"
+import { createNotify } from "src/api/message-api"
+import toast from "react-hot-toast"
+
 
 const pencil = [
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" key={0}>
@@ -88,98 +100,58 @@ const JobInfo = ({ job }: { job: IJobData }) => {
   const locations = useSubscription(locationStore).state
   const { t, i18n } = useTranslation(['main'])
   const [contracts, setContracts] = useState<any>([])
+  const [isNotifyModalOpen, openNotifyModal] = useState(false)
+  const [notifyMsg, setNotifyMsg] = useState('')
+  const [isDeleted, setDeleted] = useState(job?.isDeleted)
   useEffect(() => {
     getContracts({ job: job._id }).then(res => {
       setContracts(res.data?.results)
     })
   }, [])
 
-  const getProposalsData = proposals => {
-    return proposals?.map((proposal, ix) => ({
-      key: ix,
-      name: (
-        <>
-          <Avatar.Group>
-            <div className="avatar-info">
-              <Title level={5}>{ix + 1}</Title>
-            </div>
-          </Avatar.Group>{' '}
-        </>
-      ),
-      function: (
-        <div className="author-info">
-          <Title level={5} style={{ textTransform: 'capitalize' }}>
-            {currencyFormatter(proposal?.expectedAmount)}
-          </Title>
-        </div>
-      ),
-
-      status: (
-        <Badge
-          count={proposal?.currentStatus}
-          className="tag-primary"
-          style={{ backgroundColor: '#52c41a', textTransform: 'capitalize' }}
-        ></Badge>
-      ),
-      active: (
-        <div className="author-info">
-          <Title level={5} style={{ textTransform: 'capitalize' }} className="text-truncate">
-            {proposal?.description}
-          </Title>
-        </div>
-      ),
-      JointDate: (
-        <div className="ant-employed">
-          <span>
-            {proposal?.createdAt
-              ? new Date(`${proposal?.createdAt}`).toLocaleString()
-              : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}
-          </span>
-        </div>
-      ),
-    }))
-  }
-
-  const getContractsData = contractss => {
-    return contractss?.map((contract, ix) => ({
-      key: ix,
-      name: (
-        <>
-          <Avatar.Group>
-            <div className="avatar-info">
-              <Title level={5} style={{ textTransform: 'capitalize' }}>
-                {contract?.overview}
-              </Title>
-            </div>
-          </Avatar.Group>{' '}
-        </>
-      ),
-      function: (
-        <div className="author-info">
-          <Title level={5} style={{ textTransform: 'capitalize' }}>
-            {currencyFormatter(contract?.agreeAmount)}/{contract?.paymentType}
-          </Title>
-        </div>
-      ),
-
-      status: (
-        <Badge
-          count={contract?.currentStatus}
-          className="tag-primary"
-          style={{ backgroundColor: '#52c41a', textTransform: 'capitalize' }}
-        ></Badge>
-      ),
-
-      JointDate: (
-        <div className="ant-employed">
-          <span>{monthDiff(new Date(contract?.startDate), new Date(contract?.endDate))} months</span>
-        </div>
-      ),
-    }))
-  }
-
   return (
-    <Row gutter={[24, 0]} style={{ background: '#f3edf5', paddingTop: 24 }}>
+    <Row gutter={[24, 0]} style={{ background: !isDeleted ? "#f3edf5" : 'grey', paddingTop: 24 }}>
+      <Col span={24} className="d-flex justify-content-end mb-3" >
+        <Button key="back" className="me-3" onClick={() => {
+          openNotifyModal(true)
+        }}>
+          Notify Owner
+        </Button>,
+
+        <Button key="submit" className="me-3" type="primary" >
+          Direct Message
+        </Button>
+        <Popconfirm title={"Are you sure you want to do this?"} onConfirm={() => {
+          deleteJob(job?._id).then(() => {
+            toast.success('Account Active changed')
+            setDeleted(true)
+          })
+        }}>
+          <Button key="back" className="me-3">
+            Soft Delete
+          </Button>
+        </Popconfirm>
+        <Popconfirm title={"Are you sure you want to do this?"} onConfirm={() => {
+          forcedDeleteJob(job?._id).then(() => {
+            toast.success('Account Active changed')
+            setDeleted(true)
+          })
+        }}>
+          <Button key="back" className="me-3">
+            Force Delete
+          </Button>
+        </Popconfirm>
+
+        {
+          job?.currentStatus === EJobStatus.PENDING && (
+            <Button
+              type="primary"
+            >
+              Verify Job
+            </Button>
+          )
+        }
+      </Col>
       <Col span={24} md={8} className="mb-24 ">
         <Card
           bordered={false}
@@ -337,8 +309,114 @@ const JobInfo = ({ job }: { job: IJobData }) => {
           <FileDisplay files={job?.attachments}></FileDisplay>
         </Card>
       </Col>
-    </Row>
-  )
+      <Modal
+        open={isNotifyModalOpen}
+        title={t('Write your notification ?')}
+        okText={t('Accept')}
+        okType="danger"
+        onOk={() => {
+          createNotify({
+            content: 'From Admin to your Job: ' + notifyMsg,
+            to: job?.client?.user,
+            image: 'https://cdni.iconscout.com/illustration/premium/thumb/forgot-login-password-5800309-4861087.png?f=webp'
+          }).then((res) => {
+            toast.success('Sent Notify Success')
+            openNotifyModal(false)
+          }).catch(err => {
+            toast.error(err.message)
+          }).finally(() => {
+            setNotifyMsg('')
+          })
+        }}
+        onCancel={() => {
+          openNotifyModal(false)
+          setNotifyMsg('')
+        }}
+      >
+        <span className="text-muted">You want to notify its owner something?</span>
+        <Input
+          style={{ marginTop: 8 }}
+          value={notifyMsg}
+          autoFocus
+          placeholder="Notification Message"
+          onInput={e => setNotifyMsg((e.target as any).value)}
+        />
+      </Modal>
+    </Row>)
 }
 
 export default JobInfo
+
+const getProposalsData = (proposals) => {
+  return proposals?.map((proposal, ix) => ({
+    key: ix,
+    name: (
+      <>
+        <Avatar.Group>
+          <div className="avatar-info">
+            <Title level={5}>{ix + 1}</Title>
+          </div>
+        </Avatar.Group>{" "}
+      </>
+    ),
+    function: (
+      <div className="author-info">
+        <Title level={5} style={{ textTransform: 'capitalize' }}>{currencyFormatter(proposal?.expectedAmount)}</Title>
+      </div>
+    ),
+
+    status: (
+      <Badge count={proposal?.currentStatus} className="tag-primary"
+        style={{ backgroundColor: "#52c41a", textTransform: "capitalize" }}
+      >
+      </Badge>
+    ),
+    active: (
+      <div className="author-info">
+        <Title level={5} style={{ textTransform: 'capitalize' }} className="text-truncate">{proposal?.description}</Title>
+      </div>
+    ),
+    JointDate: (
+      <div className="ant-employed">
+        <span>{proposal?.createdAt
+          ? new Date(`${proposal?.createdAt}`).toLocaleString()
+          : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}</span>
+      </div>
+    ),
+
+  }))
+};
+
+const getContractsData = (contractss) => {
+  return contractss?.map((contract, ix) => ({
+    key: ix,
+    name: (
+      <>
+        <Avatar.Group>
+          <div className="avatar-info">
+            <Title level={5} style={{ textTransform: 'capitalize' }}>{contract?.overview}</Title>
+          </div>
+        </Avatar.Group>{" "}
+      </>
+    ),
+    function: (
+      <div className="author-info">
+        <Title level={5} style={{ textTransform: 'capitalize' }}>{currencyFormatter(contract?.agreeAmount)}/{contract?.paymentType}</Title>
+      </div>
+    ),
+
+    status: (
+      <Badge count={contract?.currentStatus} className="tag-primary"
+        style={{ backgroundColor: "#52c41a", textTransform: "capitalize" }}
+      >
+      </Badge>
+    ),
+
+    JointDate: (
+      <div className="ant-employed">
+        <span>{monthDiff(new Date(contract?.startDate), new Date(contract?.endDate))} months</span>
+      </div>
+    ),
+
+  }))
+};

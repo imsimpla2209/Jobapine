@@ -28,13 +28,17 @@ export default function Proposals() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(1)
   const [loading, onLoading] = useState(true)
-  const [refresh, onRefresh] = useState(true)
+  const [refresh, setRefresh] = useState(true)
 
   useEffect(() => {
     if (freelancer?._id) {
       getProposal();
     }
   }, [freelancer?._id, tab, refresh])
+
+  const onRefresh = () => {
+    setRefresh(!refresh)
+  }
 
   const getProposal = (p?: number) => {
     onLoading(true);
@@ -95,7 +99,7 @@ export default function Proposals() {
           <Tabs
             onChange={(t) => setTab(t as EStatus)}
             type="card"
-            tabBarStyle={{ color: "purple" }}
+            tabBarStyle={{ color: "black", fontWeight: 600}}
             items={Object.keys(tabLists).map((k, i) => {
               return {
                 label: `${t(`${k}`)}`,
@@ -107,7 +111,7 @@ export default function Proposals() {
             loading ? <Loader></Loader>
               : <>
                 {proposals?.map((proposal, index) => (
-                  <ProposalCard job={proposal?.job} proposal={proposal} key={index} ind={index} />
+                  <ProposalCard job={proposal?.job} proposal={proposal} key={index} ind={index} onRefresh={onRefresh} />
                 ))}
               </>
           }

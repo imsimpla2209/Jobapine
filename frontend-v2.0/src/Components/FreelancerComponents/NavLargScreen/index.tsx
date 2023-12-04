@@ -204,9 +204,14 @@ export default function NavLargScreen() {
                   {t("Invitations")}
                 </Link>
               </li>
+              <li>
+                <Link className={`dropdown-item  `} to="/connects-history">
+                  {t("Connects History")}
+                </Link>
+              </li>
             </ul>
           </li>
-          <li className="nav-item hov-cn">
+          {/* <li className="nav-item hov-cn">
             <NavLink className={`nav-link reports-cn `}
 
               to="/overview">
@@ -241,7 +246,7 @@ export default function NavLargScreen() {
               </li>
               <li><a className="dropdown-item" href="#">Certificate of Earnings</a></li>
             </ul>
-          </li>
+          </li> */}
           {/* <li className="nav-item me-5">
             <NavLink className={`nav-link  `} to="/messages">
               {t("Messages")}

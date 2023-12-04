@@ -235,7 +235,7 @@ body[dir = "rtl"] .nav-item.hov-cn:hover .dropdown-menu.Reports-cn
   }
 
   #navbarNavDropdown li > a {
-    color: white;
+    color: #6600cc;
   }
 
   .nav-item .nav-link.active,
@@ -261,7 +261,7 @@ body[dir = "rtl"] .nav-item.hov-cn:hover .dropdown-menu.Reports-cn
   .sub-drop-cn {
     position: relative !important;
     width: 96%;
-    background-color: transparent;
+    background-color: #6600cc;
     border: 0;
   }
 

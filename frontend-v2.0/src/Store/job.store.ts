@@ -6,7 +6,9 @@ export interface IJobData {
   client: any
   title: string
   description?: string
+  currentStatus?: string
   type: string
+  isDeleted?: boolean
   experienceLevel?: string[]
   reqSkills?: any[]
   checkLists?: string[]

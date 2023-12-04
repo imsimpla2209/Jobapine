@@ -38,7 +38,7 @@ const proposalSchema = new mongoose.Schema<IProposalDoc, IProposalModel>(
         default: {
           date: new Date(),
           status: EStatus.PENDING,
-          comment: '',
+          comment: 'Created from freelancer',
         },
       },
     ],
