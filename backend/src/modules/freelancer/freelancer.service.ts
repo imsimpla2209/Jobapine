@@ -17,6 +17,8 @@ import keywordExtractor from 'keyword-extractor'
 import { union } from 'lodash'
 import mongoose from 'mongoose'
 import { createFuzzyRegex, extractKeywords } from 'utils/helperFunc'
+import { createNotify } from '@modules/notify/notify.service'
+import { FEMessage } from 'common/enums/constant'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import {
@@ -26,8 +28,6 @@ import {
   UpdateFreelancerBody,
 } from './freelancer.interfaces'
 import Freelancer, { SimilarFreelancer } from './freelancer.model'
-import { createNotify } from '@modules/notify/notify.service'
-import { FEMessage } from 'common/enums/constant'
 
 /**
  * Register a freelancer
@@ -431,12 +431,12 @@ export const updateSimilarData = (
     if (job?.reqSkills?.length) {
       updatedData.foundSkills = union(
         updatedData.foundSkills,
-        job.reqSkills.map(c => c?.skill?._id)
+        job.reqSkills.map(c => c?.skill?._id || c?.skill)
       )
     }
-    if (job?.preferences?.locations?.length) {
-      updatedData.foundLocations = union(updatedData.foundLocations, job.preferences.locations)
-    }
+    // if (job?.preferences?.locations?.length) {
+    //   updatedData.foundLocations = union(updatedData.foundLocations, job.preferences.locations)
+    // }
     updatedData.newDescription += `${job?.description} ${job?.title}`
     updatedData.foundClients = union(updatedData.foundClients, [job?.client?._id || job?.client])
   })
@@ -503,14 +503,11 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
       similarJobs = union(similarJobs, [...freelancer.favoriteJobs])
     }
     if (freelancer?.relevantClients) {
-      const freelancerJobs = await getJobsByOptions({ client: { $in: freelancer?.relevantClients?.map(c => c?._id) } })
-      similarJobs = union(similarJobs, [...freelancerJobs])
+      // const freelancerJobs = await getJobsByOptions({ client: { $in: freelancer?.relevantClients?.map(c => c?._id) } })
+      // similarJobs = union(similarJobs, [...freelancerJobs])
       freelancer?.relevantClients?.forEach(e => {
-        e?.preferJobType?.forEach(c => {
-          if (!initialSimilarDocs.foundCats?.includes(c)) {
-            initialSimilarDocs.foundCats.push(c)
-          }
-        })
+        initialSimilarDocs.foundCats = union(initialSimilarDocs.foundCats, e?.preferJobType || [])
+
         similarJobs = union(similarJobs, e?.jobs)
 
         initialSimilarDocs.foundLocations = union(initialSimilarDocs.foundLocations, e?.preferLocations)

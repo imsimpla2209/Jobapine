@@ -177,14 +177,22 @@ export const changeActiveUser = async (userId: mongoose.Types.ObjectId): Promise
       isActive: futureActive,
     })
     if (!futureActive) {
-      const onlineUsers = await io.getAllOnlineUsers()
-      if (onlineUsers[user?._id || user?.id]) {
+      const onlineUser = await io.getOnlineUserWithSocket(user?._id?.toString() || user?.id?.toString())
+      if (onlineUser) {
         logger.info(`Deactive user: ${user?._id || user?.id}`)
-        onlineUsers[user?._id || user?.id].socket.emit(ESocketEvent.DEACTIVE, {
+        io.sendToId(onlineUser.socketId, ESocketEvent.DEACTIVE, {
           userId: user?._id || user?.id,
           type: ESocketEvent.DEACTIVE,
         })
       }
+      // const onlineUsers = await io.getAllOnlineUsers()
+      // if (onlineUsers[user?._id || user?.id]) {
+      //   logger.info(`Deactive user: ${user?._id || user?.id}`)
+      //   onlineUsers[user?._id || user?.id].socket.emit(ESocketEvent.DEACTIVE, {
+      //     userId: user?._id || user?.id,
+      //     type: ESocketEvent.DEACTIVE,
+      //   })
+      // }
     }
     await user.save()
     return user
