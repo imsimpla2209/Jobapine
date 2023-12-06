@@ -10,8 +10,8 @@ import { clientStore } from 'src/Store/user.store'
 import { getContracts } from 'src/api/contract-apis'
 import { deleteJob, getJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
+import { EJobStatus, EStatus } from 'src/utils/enum'
 import Loader from '../../../Components/SharedComponents/Loader/Loader'
-import { EStatus } from 'src/utils/enum'
 
 const { confirm } = Modal
 
@@ -24,10 +24,16 @@ export default function JobDetailsBeforeProposals() {
   const [deleting, setDeleting] = useState(null)
   const client = useSubscription(clientStore).state
   const [contracts, setContracts] = useState([])
-  console.log('😘contracts', contracts)
+  const [notAllowEdit, setNotAllowEdit] = useState(true)
+
+  console.log('😘contracts', jobData)
   useEffect(() => {
     getJob(id).then(res => {
       setJobData(res.data)
+      const isnotAllowEdit = res.data.status.find(({ status }) =>
+        [EJobStatus.CANCELLED, EJobStatus.CLOSED, EJobStatus.COMPLETED, EJobStatus.INPROGRESS].includes(status)
+      )
+      setNotAllowEdit(isnotAllowEdit)
     })
     getContracts({
       client: client._id || client.id,
@@ -69,9 +75,12 @@ export default function JobDetailsBeforeProposals() {
           <div className="d-lg-block">
             <Row align={'middle'} style={{ padding: '20px 0px', justifyContent: 'space-between' }}>
               <Title style={{ margin: 0 }}>{t('Job details')}</Title>
-              {isCurrentClientJob ? (
+              {isCurrentClientJob && !notAllowEdit ? (
                 <Space>
-                  <Button type="primary">Edit</Button>
+                  <Button type="primary">
+                    <Link to={`/job-details/edit/${jobData._id}`}>Edit</Link>
+                  </Button>
+
                   <Button type="primary" danger onClick={showDeleteConfirm} loading={deleting}>
                     Delete
                   </Button>

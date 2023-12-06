@@ -9,7 +9,7 @@ export default function PostJobAside({ btns }) {
   const { t } = useTranslation(['main'])
   return (
     <aside>
-      <Card>
+      <Card bodyStyle={{ padding: 10 }}>
         <div className="py-1 my-2">
           <button className="btn w-100" disabled={btns.started} onClick={() => setStep('started')}>
             <a

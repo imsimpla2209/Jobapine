@@ -1,22 +1,26 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Space, Tag, Typography, message } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Progress from 'src/Components/SharedComponents/Progress'
 import { categoryStore, locationStore, skillStore } from 'src/Store/commom.store'
 import { clientStore } from 'src/Store/user.store'
-import { createJob } from 'src/api/job-apis'
+import { createJob, updateJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { currencyFormatter, fetchAllToCL, pickName } from 'src/utils/helperFuncs'
 import Loader from '../../SharedComponents/Loader/Loader'
 import { defaultPostJobState, postJobSubscribtion } from '../PostJobGetStarted'
 import './style.css'
-import { EJobType, LevelName } from 'src/utils/enum'
-import { useState } from 'react'
+import { EComplexity, EJobType, ELevel, EPaymenType, LevelName } from 'src/utils/enum'
+import { useContext, useState } from 'react'
+import { StepContext } from 'src/pages/ClientPages/PostJop'
+import { cloneDeep } from 'lodash'
 
 export const { Paragraph } = Typography
 
 export default function PostJobReview() {
+  const { id } = useParams()
+  const { isEdit } = useContext(StepContext)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { state: userStoreState } = useSubscription(clientStore)
@@ -26,7 +30,6 @@ export default function PostJobReview() {
   const { state: allCategories } = useSubscription(categoryStore)
   const { state: allSkills } = useSubscription(skillStore)
   const locations = useSubscription(locationStore).state
-
   const publishJob = async () => {
     setLoading(true)
     if (state.attachments?.length) {
@@ -38,16 +41,53 @@ export default function PostJobReview() {
           state['attachments'] = []
         })
     }
-    createJob({ ...state, client: userStoreState.id })
-      .then(res => {
-        postJobSubscribtion.updateState(defaultPostJobState)
-        message.success('🎉🎉🎉 Job created successfully! 🎉🎉🎉')
-        navigate('/')
-      })
-      .catch(err => {
-        message.error('Failed to create Job')
-      })
-      .finally(() => setLoading(true))
+    console.log(state)
+    if (isEdit) {
+      updateJob(
+        {
+          title: state?.title || '',
+          description: state.description || '',
+          categories: state.categories || [],
+          type: state.type || EJobType.ONE_TIME_PROJECT,
+          payment: { amount: state.payment.amount || 100, type: state.payment.type || EPaymenType.PERHOURS },
+          scope: { complexity: state.scope.complexity || EComplexity.EASY, duration: state.scope.duration || 1 },
+          budget: state.budget || 1,
+          experienceLevel: state.experienceLevel || [ELevel.BEGINNER],
+          reqSkills: state.reqSkills || [],
+          checkLists: state.checkLists || [],
+          attachments: state.attachments || [],
+          tags: state.tags || [],
+          questions: state.questions || [],
+          preferences: {
+            nOEmployee: state.preferences.nOEmployee || 1,
+            locations: state.preferences.locations || [],
+          },
+          visibility: state.visibility || true,
+          jobDuration: state.jobDuration || 'short-term',
+        },
+        id
+      )
+        .then(res => {
+          postJobSubscribtion.updateState(defaultPostJobState)
+          message.success('🎉🎉🎉 Job updated successfully! 🎉🎉🎉')
+          navigate(`/job-details/${id}`)
+        })
+        .catch(err => {
+          message.error('Failed to update Job')
+        })
+        .finally(() => setLoading(true))
+    } else {
+      createJob({ ...state, client: userStoreState.id })
+        .then(res => {
+          postJobSubscribtion.updateState(defaultPostJobState)
+          message.success('🎉🎉🎉 Job created successfully! 🎉🎉🎉')
+          navigate('/')
+        })
+        .catch(err => {
+          message.error('Failed to create Job')
+        })
+        .finally(() => setLoading(true))
+    }
   }
 
   const deletePost = () => {
@@ -68,7 +108,7 @@ export default function PostJobReview() {
                 onClick={publishJob}
                 style={{ display: 'flex', alignItems: 'center' }}
               >
-                {t('Post Job Now')}
+                {isEdit ? t('Update job') : t('Post Job Now')}
               </Button>
             </div>
             <div className="px-4 mt-4">
@@ -249,7 +289,7 @@ export default function PostJobReview() {
                 loading={loading}
                 style={{ display: 'flex', alignItems: 'center' }}
               >
-                {t('Post Job Now')}
+                {isEdit ? t('Update job') : t('Post Job Now')}
               </Button>
               <Link className="btn border text-success px-5" to="/home" onClick={deletePost}>
                 {t('Delete & Exit')}
