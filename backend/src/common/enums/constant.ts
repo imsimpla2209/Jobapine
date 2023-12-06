@@ -13,6 +13,10 @@ export const FEMessage = (extra?: any) => {
       name: `Your Posted got a new proposal for the job: ${extra}`,
       name_vi: `Công việc của bạn vừa nhận được 1 proposal mới tới công việc: ${extra}`,
     },
+    inProgressProposal: {
+      name: `The owner of job(${extra}) which you applied wants to talk to you directly`,
+      name_vi: `Khách hàng của Công việc( ${extra}) mà bạn đã nộp proposal muốn trao đổi trực tiếp với bạn`,
+    },
     rejectProposalDueJobDeleted: {
       name: `The job: ${extra} you applied is deleted by owner and you got a you will be refunded the sickPoints used to create the proposal`,
       name_vi: `Công việc: ${extra} bạn nộp đơn đã bị chủ sở hữu xóa và bạn nhận được công việc, bạn sẽ được hoàn lại số sickPoints đã dùng để tạo đề xuất`,

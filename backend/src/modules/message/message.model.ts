@@ -1,4 +1,4 @@
-import { EStatus } from 'common/enums'
+import { EMessagePurpose, EMessageType, ERoomType, EStatus } from 'common/enums'
 import mongoose from 'mongoose'
 import paginate from '../../providers/paginate/paginate'
 import toJSON from '../../common/toJSON/toJSON'
@@ -15,6 +15,15 @@ const messageSchema = new mongoose.Schema<IMessageDoc, IMessageModel>(
       type: String,
       required: true,
     },
+    other: {
+      type: String,
+      required: false,
+    },
+    type: {
+      type: String,
+      enum: EMessageType,
+      default: EMessageType.Normal,
+    },
     attachments: [{ type: String, required: 'false', default: [] }],
   },
   {
@@ -29,6 +38,16 @@ const messageRoomSchema = new mongoose.Schema<IMessageRoomDoc, IMessageRoomModel
     proposal: { type: mongoose.Types.ObjectId, ref: 'Proposal' },
     member: [{ type: mongoose.Types.ObjectId, ref: 'User' }],
     proposalStatusCatalog: [{ type: String, required: 'false', default: [] }],
+    purpose: {
+      type: String,
+      enum: EMessagePurpose,
+      default: EMessagePurpose.Proposal,
+    },
+    type: {
+      type: String,
+      enum: ERoomType,
+      default: ERoomType.Single,
+    },
     background: {
       type: String,
       default: '',
@@ -37,6 +56,7 @@ const messageRoomSchema = new mongoose.Schema<IMessageRoomDoc, IMessageRoomModel
       type: String,
       default: '',
     },
+    attachments: [{ type: String, required: 'false', default: [] }],
     status: [
       {
         type: {
