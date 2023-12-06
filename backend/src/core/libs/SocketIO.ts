@@ -38,6 +38,20 @@ export class SocketIO {
     return onlineUsers
   }
 
+  public async getAllOnlineUsersWithSocket(): Promise<any[]> {
+    // const keys = await this.redisHandler.client.smembers('online_users')
+    const keys = await this.redisHandler.client.keys('online_users:*')
+    const users = await this.redisHandler.client.mget(...keys)
+    return users?.map(s => JSON.parse(s))
+  }
+
+  public async getOnlineUserWithSocket(userId: string): Promise<any[]> {
+    // const keys = await this.redisHandler.client.smembers('online_users')
+    // const keys = await this.redisHandler.client.keys('online_users:*')
+    const users = await this.redisHandler.client.get(`online_users:${userId}`)
+    return JSON.parse(users)
+  }
+
   private async init() {
     this.io.on('connect', async (socket: socketio.Socket) => {
       logger.warn('NEW CONNECTION', socket.id)
@@ -71,8 +85,9 @@ export class SocketIO {
       /**
        * BROADCAST IF SOMEONE GOT DISCONNECTED EXCEPT SENDER
        */
-      socket.on('disconnect', () => {
+      socket.on('disconnect', async (user: any) => {
         logger.error('SOCKET DISCONNECTED', socket.id, this.onlineUsers)
+        await this.redisHandler.deleteKey(`online_users:${user?.userId}`)
 
         /** OPTIONAL NOTE: Implement disconnect event on client side */
         // socket.broadcast.emit('disconnect_connection', socket.id)
@@ -88,7 +103,7 @@ export class SocketIO {
 
   /** SEND TO SPECIFIC ID */
   sendToId(socket_id: string, event: string, payload: unknown): void {
-    logger.info('SENDING TO SPECIFIC ID:', socket_id)
+    logger.info(`SENDING TO SPECIFIC ID:${socket_id}`)
     this.io.to(socket_id).emit(event, payload)
   }
 }

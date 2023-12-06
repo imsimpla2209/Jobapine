@@ -5,7 +5,6 @@ import { io } from '@core/libs/SocketIO'
 import { ESocketEvent, EStatus } from 'common/enums'
 import { logger } from 'common/logger'
 import httpStatus from 'http-status'
-import { isEmpty } from 'lodash'
 import mongoose from 'mongoose'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
@@ -18,14 +17,17 @@ import Notify, { Invitation } from './notify.model'
  * @returns {Promise<INotifyDoc>}
  */
 export const createNotify = async (notifyBody: NewCreatedNotify): Promise<INotifyDoc> => {
-  // if (await Notify.isUserSigned(notifyBody.user)) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'This user already is a Notify')
+  // const onlineUsers = await io.getAllOnlineUsers()
+  // if (onlineUsers[notifyBody?.to]) {
+  //   logger.info(`Send notify to user: ${notifyBody?.to}`)
+  //   onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
+  //   // .to(io.onlineUsers[notifyBody?.to]?.socketId)
   // }
-  const onlineUsers = await io.getAllOnlineUsers()
-  if (onlineUsers[notifyBody?.to]) {
+  const onlineUser = await io.getOnlineUserWithSocket(notifyBody?.to?.toString())
+  if (onlineUser) {
     logger.info(`Send notify to user: ${notifyBody?.to}`)
-    onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
-    // .to(io.onlineUsers[notifyBody?.to]?.socketId)
+    io.sendToId(onlineUser.socketId, ESocketEvent.SENDNOTIFY, notifyBody)
+    // onlineUser[messageBody?.to].socket.emit(ESocketEvent.SENDMSG, messageBody)
   }
   return Notify.create(notifyBody)
 }
@@ -42,29 +44,18 @@ export const bulkCreateNotify = async (notifyBodies: NewCreatedNotify[]): Promis
     await Notify.bulkWrite(notifyOperations)
 
     // Notify online users if necessary
-    const onlineUsers = await io.getAllOnlineUsers()
-    notifyBodies?.forEach(notifyBody => {
-      if (onlineUsers[notifyBody?.to]) {
-        logger.info(`Send notify to user: ${notifyBody?.to}`)
-        onlineUsers[notifyBody?.to].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
-        // .to(io.onlineUsers[notifyBody?.to]?.socketId)
-      }
+    const notifiedUsers = notifyBodies?.forEach(notifyBody => {
+      createNotify(notifyBody)
     })
 
-    return true
+    return notifiedUsers
   } catch (error) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Cannot write notifies:' + error)
+    throw new ApiError(httpStatus.NOT_FOUND, `Cannot write notifies:${error}`)
   }
 }
 
 export const createNotifyforAll = async (notifyBody: NewCreatedNotify): Promise<INotifyDoc> => {
-  const onlineUsers = await io.getAllOnlineUsers()
-  if (!isEmpty(onlineUsers)) {
-    Object.keys(onlineUsers).forEach(key => {
-      logger.info(`Send notify to user: ${notifyBody?.to}`)
-      onlineUsers[key].socket.emit(ESocketEvent.SENDNOTIFY, notifyBody)
-    })
-  }
+  await io.broadcastAll(ESocketEvent.SENDNOTIFY, notifyBody)
   return Notify.create(notifyBody)
 }
 
