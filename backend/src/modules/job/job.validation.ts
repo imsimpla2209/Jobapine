@@ -105,7 +105,7 @@ export const updateJob = {
     .keys({
       title: Joi.string().required(),
       description: Joi.string().max(969),
-      reqSkills: Joi.array().items(Joi.string()),
+      reqSkills: Joi.array(),
       checkLists: Joi.array().items(Joi.string()),
       attachments: Joi.array().items(Joi.string()),
       categories: Joi.array().items(Joi.string()),
@@ -115,6 +115,11 @@ export const updateJob = {
       preferences: jobPreferencesBody,
       budget: Joi.number().positive(),
       tags: Joi.array().items(Joi.string()),
+      type: Joi.string(),
+      experienceLevel: Joi.array().items(Joi.number()),
+      visibility: Joi.boolean(),
+      jobDuration: Joi.string(),
+      proposalNotifyMail: Joi.boolean().allow(null),
     })
     .min(1),
 }

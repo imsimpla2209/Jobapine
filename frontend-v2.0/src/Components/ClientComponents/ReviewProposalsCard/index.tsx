@@ -195,7 +195,7 @@ export default function ReviewProposalsCard() {
                     {proposal?.job?.questions?.map((question, index) => (
                       <div style={{ paddingLeft: 12, marginTop: 8 }}>
                         <span className="text-muted">{question}</span>
-                        <p className="text-muted fw-bold">{proposal.answers[index]}</p>
+                        <p className="text-muted fw-bold">{proposal?.answers?.[index]}</p>
                       </div>
                     ))}
                   </div>
