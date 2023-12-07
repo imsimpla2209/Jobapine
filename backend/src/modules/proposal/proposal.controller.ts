@@ -53,6 +53,13 @@ export const updateProposalStatus = catchAsync(async (req: Request, res: Respons
         attachedId: proposal?._id,
         content: FEMessage(proposal?.job?.title).inProgressProposal,
       })
+    } else if (req.body?.status === EStatus.REJECTED) {
+      createNotify({
+        to: proposal?.freelancer?.user,
+        path: FERoutes.allProposals + (proposal?._id || ''),
+        attachedId: proposal?._id,
+        content: FEMessage(proposal?.job?.title).rejectProposal,
+      })
     }
 
     res.send(proposal)

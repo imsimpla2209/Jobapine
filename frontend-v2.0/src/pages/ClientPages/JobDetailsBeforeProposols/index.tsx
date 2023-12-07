@@ -12,6 +12,7 @@ import { deleteJob, getJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { EJobStatus, EStatus } from 'src/utils/enum'
 import Loader from '../../../Components/SharedComponents/Loader/Loader'
+import ContractsInJob from './ContractsInJob'
 
 const { confirm } = Modal
 
@@ -26,7 +27,7 @@ export default function JobDetailsBeforeProposals() {
   const [contracts, setContracts] = useState([])
   const [notAllowEdit, setNotAllowEdit] = useState(true)
 
-  console.log('😘contracts', jobData)
+  console.log('😘contracts', contracts)
   useEffect(() => {
     getJob(id).then(res => {
       setJobData(res.data)
@@ -94,7 +95,7 @@ export default function JobDetailsBeforeProposals() {
               <Col span={6}>
                 <Card>
                   <h5 className="fw-bold " style={{ margin: 0 }}>
-                    {t('Activity on this job')}
+                    {t('Activities in this job')}
                   </h5>
 
                   <Paragraph className="mt-3" style={{ color: 'black' }}>
@@ -126,6 +127,16 @@ export default function JobDetailsBeforeProposals() {
                     ) : null}
                   </Row>
                 </Card>
+
+                {contracts?.length && isCurrentClientJob ? (
+                  <Card className="mt-3">
+                    <h5 className="fw-bold " style={{ margin: 0 }}>
+                      {t('Contracts in this job')}
+                    </h5>
+
+                    <ContractsInJob contracts={contracts} />
+                  </Card>
+                ) : null}
               </Col>
             </Row>
           </div>
