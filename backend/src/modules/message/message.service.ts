@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { io } from '@core/libs/SocketIO'
+import { Invitation } from '@modules/notify/notify.model'
 import { createInvitation, createNotify, updateInvitationStatusById } from '@modules/notify/notify.service'
 import { updateProposalById, updateProposalStatusById } from '@modules/proposal/proposal.service'
 import { getUserById } from '@modules/user/user.service'
@@ -277,12 +278,20 @@ export const checkMessage = async (member: any[], proposalId?: any) => {
 
     const proposalDoc = await updateProposalStatusById(proposalId, EStatus.INPROGRESS, 'Message Request is Accepted')
 
-    // const invi = await createRequestMessage(
-    //   new mongoose.Types.ObjectId(member[0]),
-    //   new mongoose.Types.ObjectId(member[1]),
-    //   new mongoose.Types.ObjectId(proposalId),
-    //   'Request create message'
-    // )
+    const existInvi = await Invitation.findOne({
+      $and: [
+        { from: { $in: member.map(m => new mongoose.Types.ObjectId(m)) } },
+        { to: { $in: member.map(m => new mongoose.Types.ObjectId(m)) } },
+        { type: EInvitationType.MESSAGE },
+        { 'content.proposal': proposalId },
+        { 'content.jobId': proposalDoc?.job?._id },
+      ],
+    })
+
+    if (existInvi) {
+      await updateInvitationStatusById(existInvi._id, EStatus.ACCEPTED, 'Accepted By Client')
+    }
+
     const newMsgRoom = await createMessageRoom({
       member: member.map(m => new mongoose.Types.ObjectId(m)),
       proposal: new mongoose.Types.ObjectId(proposalId),
@@ -322,10 +331,11 @@ export const createMessage = async (messageBody: NewCreatedMessage): Promise<IMe
   updateMessageRoomById(messageBody.room, {
     seen: false,
   })
-  const onlineUsers = await io.getAllOnlineUsers()
-  if (onlineUsers[messageBody?.to]) {
+  const onlineUser = await io.getOnlineUserWithSocket(messageBody?.to?.toString())
+  if (onlineUser) {
     logger.info(`user: ${messageBody?.from}  Send message to user: ${messageBody?.to}`)
-    onlineUsers[messageBody?.to].socket.emit(ESocketEvent.SENDMSG, messageBody)
+    io.sendToId(onlineUser.socketId, ESocketEvent.SENDMSG, messageBody)
+    // onlineUser[messageBody?.to].socket.emit(ESocketEvent.SENDMSG, messageBody)
   }
   return Message.create(messageBody)
 }

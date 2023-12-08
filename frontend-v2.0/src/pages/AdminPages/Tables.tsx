@@ -65,7 +65,7 @@ const columns = [
 function Tables() {
 
   const [users, setUsers] = useState<any>({})
-  const [onlineUsers, setOnlineUsers] = useState<any>({})
+  const [onlineUsers, setOnlineUsers] = useState<any>([])
   const [seletecUser, setSelectedUser] = useState<any>({ user: {}, type: '' })
   const [openModal, setOpenModal] = useState(false)
   const [loading, setLoading] = useState(true)

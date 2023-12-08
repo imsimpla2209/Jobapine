@@ -12,12 +12,17 @@ import Loader from "../../SharedComponents/Loader/Loader";
 import { getFreelancer, updateFreelancer } from "src/api/freelancer-apis";
 import { useSubscription } from "src/libs/global-state-hook";
 import { freelancerStore, userStore } from "src/Store/user.store";
-import { getUser } from "src/api/user-apis";
+import { getUser, updateUser } from "src/api/user-apis";
 import { locationStore } from "src/Store/commom.store";
-import { currencyFormatter, pickName } from "src/utils/helperFuncs";
-import { Button, Col, Form, Row, Space } from "antd";
+import { currencyFormatter, fetchAllToCL, getBase64, pickName, timeAgo } from "src/utils/helperFuncs";
+import { Button, Col, Form, Modal, Row, Space, Upload, UploadFile } from "antd";
 import SkillPicker from "src/Components/SharedComponents/SkillPicker";
 import Progress from "src/Components/SharedComponents/Progress";
+import { getContracts } from "src/api/contract-apis";
+import MyJobsActiveContractFixed from "../MyJobsActiveContractFixed";
+import { PlusOutlined } from "@ant-design/icons";
+import { checkFileFunc } from "src/Components/CommonComponents/upload/upload";
+import { RcFile } from "antd/es/upload";
 
 
 export default function FirstSectionProfileFreelancer() {
@@ -41,20 +46,29 @@ export default function FirstSectionProfileFreelancer() {
   const [EmpStillWork, setEmpStillWork] = useState(false);
   let [user, setUser] = useState<any>(null);
   let [freelancer, setFreelancer] = useState<any>(null);
-  const userData = useSubscription(userStore).state;
-  const {state: freelancerData, setState} = useSubscription(freelancerStore);
+  const { state: userData, setState: setUserState } = useSubscription(userStore);
+  const { state: freelancerData, setState } = useSubscription(freelancerStore);
   const locations = useSubscription(locationStore).state
-
+  const [contracts, setContracts] = useState([])
+  const [files, setFiles] = useState(null)
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
   const [EmpList, setEmpList] = useState([]);
+  const handleCancel = () => setPreviewOpen(false);
 
   useEffect(() => {
     if (id === 'me') {
       setFreelancer(freelancerData);
       setUser(userData);
+      if (freelancerData?._id) {
+        console.log(freelancerData)
+        getContracts({ freelancer: freelancerData?._id }).then(res => setContracts(res.data?.results))
+      }
     }
     else {
       getFreelancer(id).then((res) => {
         setFreelancer(res.data);
+        getContracts({ freelancer: res.data?._id }).then(res => setContracts(res.data?.results))
         return res
       }).then((res) => {
         getUser(res?.data?.user).then((res) => {
@@ -66,35 +80,15 @@ export default function FirstSectionProfileFreelancer() {
         console.log('Error: cannot get this freelancer', err)
       })
     }
-  }, []);
+  }, [userData]);
 
-  const getData = ({ target }) => {
-    if (target.files[0]) {
-      // const uploadStep = storage.ref(`images/${target.files[0].name}`).put(target.files[0]);
-      // uploadStep.on(
-      //   "state_changed",
-      //   (snapshot) => {
-      //     const progress = Math.round(
-      //       (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-      //     );
-      //     setprogress(progress);
-      //   },
-      //   (err) => {
-      //     console.log(err);
-      //   },
-      //   () => {
-      //     storage
-      //       .ref("images")
-      //       .child(target.files[0].name)
-      //       .getDownloadURL()
-      //       .then((URL) => {
-      //         let imgu = URL;
-      //         setimgUrl(imgu);
-      //       });
-      //   }
-      // );
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
     }
-  };
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+  }
 
   const skillVal = (e) => {
     setinputVal(e.target.value)
@@ -146,8 +140,8 @@ export default function FirstSectionProfileFreelancer() {
   };
   const UpdateEditprofileTitleOverView = () => {
     updateFreelancer({ title: profileTitle, intro: profileOverview }, freelancer?._id).then((res) => {
-      setFreelancer({...freelancerData, title: profileTitle, intro: profileOverview });
-      setState({...freelancerData, title: profileTitle, intro: profileOverview })
+      setFreelancer({ ...freelancerData, title: profileTitle, intro: profileOverview });
+      setState({ ...freelancerData, title: profileTitle, intro: profileOverview })
     })
   }
   const UpdateEditPortofolio = () => {
@@ -167,6 +161,17 @@ export default function FirstSectionProfileFreelancer() {
     }
   }
 
+  const updateAvatar = async () => {
+    let avatar = userData?.avatar;
+    if (userData?.avatar !== files) {
+      const fileNameList = await fetchAllToCL(files)
+      avatar = fileNameList[0]
+    }
+    await updateUser({ avatar }, user?.id).then((res) => {
+      setUserState(res.data)
+    })
+  }
+
 
   return (
 
@@ -174,20 +179,41 @@ export default function FirstSectionProfileFreelancer() {
       user !== null
         ?
         <>
-          <div className="container card mb-3 mt-5 ">
+          <div className=" container-xxl container-fluid-sm bg-white mb-3 mt-5 ">
             <div className="row mt-3 ps-4 pt-2">
               <div className="col-lg-2 pt-lg-3">
-                <div className="ms-3 mb-3" style={{ width: "100px", height: "100px", borderRadius: "50%", overflow: "hidden" }}>
+                <div className="ms-3 mb-1" style={{ maxWidth: "169px", maxHeight: "169px", borderRadius: "20%", overflow: "hidden" }}>
                   <img
                     alt=""
-                    style={{ width: "100px", }}
+                    style={{ width: "169px", }}
                     className=" avatar vertical-align-middle m-0 avatar-sm avatar-responsive"
                     src={user?.avatar ? user?.avatar : img}
                   />
-                  {/* <span className="hotspotimg">
-                <span className="hotspotimg__btn"></span>
-              </span> */}
+
                 </div>
+                {
+                  id === 'me' && <div className="ms-3">
+                    {!clientRoute &&
+                      <button
+                        type="button"
+                        className="btn btn-default me-2 d-flex justify-content-center border rounded-circle"
+                        style={{
+                          width: 30,
+                          height: 30,
+                          textAlign: "center",
+                          paddingTop: 3,
+                          paddingBottom: 3,
+                        }}
+                        data-bs-toggle="modal"
+                        data-bs-target="#editAvatar"
+                      >
+                        <div>
+                          <i className="fas fa-pen" />
+                        </div>
+                      </button>
+                    }
+                  </div>
+                }
               </div>
               <div className="col-lg-6 pt-lg-5 mx-3">
                 <h2 className="fw-bold">
@@ -232,19 +258,6 @@ export default function FirstSectionProfileFreelancer() {
                       } {" "}
                       {t("Profile Verified")}
                     </span>
-                    {/* <span className="text-primary">
-                      {
-                        user?.jobsDone?.number === 0
-                          ? user?.jobsDone?.number
-                          : user?.employmentHistory?.legnth <= 5
-                            ? (lang === 'vi' ? user?.badge?.risingFreelancerAr : user?.badge?.risingFreelancer)
-                            : user?.employmentHistory?.legnth <= 10
-                              ? (lang === 'vi' ? user?.badge?.topRatedAr : user?.badge?.topRated)
-                              : user?.employmentHistory?.legnth <= 15
-                                ? (lang === 'vi' ? user?.badge?.expertAr : user?.badge?.expert)
-                                : ""
-                      }
-                    </span> */}
                   </div>
                 </div>
               </div>
@@ -282,7 +295,7 @@ export default function FirstSectionProfileFreelancer() {
                     {t("Availability")}
                   </h5>
                   <h6 >
-                    {lang === 'vi' ? freelancer?.available === true ? "Đang rảnh" : "Đéo rảnh" : freelancer?.available === true ? "available" : "not available"}
+                    {lang === 'vi' ? freelancer?.available === true ? "Đang rảnh" : "Không rảnh" : freelancer?.available === true ? "available" : "not available"}
                   </h6>
 
 
@@ -307,9 +320,33 @@ export default function FirstSectionProfileFreelancer() {
 
                 </div>
 
-                <div className="col-6 px-4">
-                  <h4 className="fw-bold"> {t("Description")}</h4>
-
+                <div className="col-5 px-4">
+                  <div className="d-flex justify-content-between">
+                    <h4 className="fw-bold"> {t("Description")}</h4>
+                    {
+                      id === 'me' && <div className="col-1 d-flex justify-content-end">
+                        {!clientRoute &&
+                          <button
+                            type="button"
+                            className="btn btn-default me-2 d-flex justify-content-center border rounded-circle"
+                            style={{
+                              width: 30,
+                              height: 30,
+                              textAlign: "center",
+                              paddingTop: 3,
+                              paddingBottom: 3,
+                            }}
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalProfileTitleAndDescription"
+                          >
+                            <div>
+                              <i className="fas fa-pen" />
+                            </div>
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
                   <ShowMore className="mb-0 mt-4" maxHeight={100} button={<button id="seemorebutton" className="advanced-search-link " style={{ color: 'green', position: 'absolute', left: 0 }}>
                     more
                   </button>}>
@@ -318,12 +355,11 @@ export default function FirstSectionProfileFreelancer() {
 
 
 
-                  <hr />
 
+                  <hr />
                   <div className="row">
-                    <h3 className="col mx-0 text-muted">{t("Work History")}</h3>
-                    {
-                      !clientRoute &&
+                    <h3 className="col-4 mx-0 text-muted">{t("Portfolio")}</h3>
+                    {!clientRoute &&
                       <button
                         type="button"
                         className=" col-1 btn btn-default d-flex justify-content-center border rounded-circle"
@@ -333,262 +369,143 @@ export default function FirstSectionProfileFreelancer() {
                           textAlign: "center",
                           paddingTop: 3,
                           paddingBottom: 3,
-                          marginRight: 350,
+                          marginRight: 10,
                         }}
                         data-bs-toggle="modal"
-                        data-bs-target="#exampleModal13"
+                        data-bs-target="#modalPortfolioWithImages"
                       >
                         <div>
-                          <i className="fas fa-ellipsis-h"></i>{" "}
+                          <i className="fas fa-plus"></i>{" "}
                         </div>
-                      </button>
-                    }
+                      </button>}
+
+
                   </div>
-                  <hr />
-                  <div className="bg-white py-lg-1 row py-xs-5">
-                    <div className="col-10 py-3">
-                      <a className="advanced-search-link fw-bold">
-                        I'm looking for video, carousel and image advertising
-                        creation with branding to make facebook ads
-                      </a>
-                      <p className="my-3">
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>{" "}
-                        <span className="fw-bold"> 5.00</span>{" "}
-                        <span className="text-muted">
-                          Mar 22 2021 - April 21 2021
-                        </span>
-                      </p>
-                      <div className="row mb-3">
-                        <div className="col">
-                          <div className="fw-bold">$5</div>
+                  <div className="card-group">
+                    <Space size="small" wrap>
+                      <div className='fw-bold me-1 text-muted' style={{ fontSize: "0.9em" }}>{t("Categories") + ":"}</div>
+                      {freelancer?.preferJobType?.map((c, index) => (
+                        <div key={index}>
+                          <Link to={`/search?categoryId=${c?._id}`}
+                            key={index}
+                            type="button"
+                            className="btn text-light btn-sm rounded-pill cats mx-1"
+                          >
+                            {c?.name}
+                          </Link>
                         </div>
-                        <div className="col">
-                          <div className="fw-bold">$1/hr</div>
-                        </div>
-                        <div className="col">
-                          <span className="fw-bold">5</span>
-                          <span className="fs-6"> Hours</span>
-                        </div>
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="col-10 py-3">
-                      <a className="advanced-search-link fw-bold">
-                        I'm looking for video, carousel and image advertising
-                        creation with branding to make facebook ads
-                      </a>
-                      <p className="my-3">
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>
-                        <svg
-                          id="up-rs"
-                          viewBox="0 0 14 14"
-                          width="15px"
-                          fill="green"
-                        >
-                          <polygon points="7,0.5 9,4.8 13.5,5.5 10.2,8.8 11,13.5 7,11.3 3,13.5 3.8,8.8 0.5,5.5 5,4.8"></polygon>
-                        </svg>{" "}
-                        <span className="fw-bold"> 5.00</span>{" "}
-                        <span className="text-muted">
-                          Mar 22 2021 - April 21 2021
-                        </span>
-                      </p>
-                      <div className="row mb-3">
-                        <div className="col">
-                          <div className="fw-bold">$25</div>
-                        </div>
-                        <div className="col">
-                          <div className="fw-bold">$5/hr</div>
-                        </div>
-                        <div className="col">
-                          <span className="fw-bold">5</span>
-                          <span className="fs-6"> Hours</span>
-                        </div>
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="row">
-                      <h3 className="col-4 mx-0 text-muted">{t("Portfolio")}</h3>
-                      {!clientRoute &&
-                        <button
-                          type="button"
-                          className=" col-1 btn btn-default d-flex justify-content-center border rounded-circle"
-                          style={{
-                            width: 30,
-                            height: 30,
-                            textAlign: "center",
-                            paddingTop: 3,
-                            paddingBottom: 3,
-                            marginRight: 10,
-                          }}
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalPortfolioWithImages"
-                        >
-                          <div>
-                            <i className="fas fa-plus"></i>{" "}
-                          </div>
-                        </button>}
-
-
-                    </div>
-                    <div className="card-group">
-                      <Space size="small" wrap>
-                        <div className='fw-bold me-1 text-muted' style={{ fontSize: "0.9em" }}>{t("Categories") + ":"}</div>
-                        {freelancer?.preferJobType?.map((c, index) => (
-                          <div key={index}>
-                            <Link to={`/search?categoryId=${c?._id}`}
-                              key={index}
-                              type="button"
-                              className="btn text-light btn-sm rounded-pill cats mx-1"
-                            >
-                              {c?.name}
-                            </Link>
-                          </div>
-                        ))}
-                      </Space>
-                    </div>
-
-
-                    <div className="row mt-5">
-                      <hr />
-                      <h3 className="col-4 mx-0 text-muted">{t("Skills and experties")}</h3>
-                      {!clientRoute &&
-                        <button
-                          type="button"
-                          className=" col-1 btn btn-default d-flex justify-content-center border rounded-circle"
-                          style={{
-                            width: 30,
-                            height: 30,
-                            textAlign: "center",
-                            paddingTop: 3,
-                            paddingBottom: 3,
-                            marginRight: 10,
-                          }}
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalAddSkills"
-                        >
-                          <div>
-                            <i className="fas fa-plus"></i>{" "}
-                          </div>
-                        </button>}
-                    </div>
-                    <div className="bg-white py-lg-4 px-4 border border-1 row pb-sm-3 py-xs-5">
-                      <div className="col">
-                        {freelancer?.skills?.map((skill, index) => (
-                          <Space key={index} size={1} className="me-sm-5 " wrap={true}>
-                            <Button
-                              key={index}
-                              className="btn text-light btn-sm rounded-pill cats mx-1 my-1"
-                            >
-                              {pickName(skill?.skill, lang)}:
-                            </Button>
-                            <Progress done={skill?.level} />
-                          </Space>
-                        ))}
-                      </div>
-                    </div>
+                      ))}
+                    </Space>
                   </div>
-                </div>
-                <h5 className=" mt-2 fw-bold col-2"> {currencyFormatter(freelancerData?.expectedAmount || 0)} / {t(freelancerData?.expectedPaymentType)}</h5>
-                {
-                  id === 'me' && <div className="col-1 d-flex justify-content-end">
+
+
+                  <div className="row mt-5">
+                    <hr />
+                    <h3 className="col-4 mx-0 text-muted">{t("Skills and experties")}</h3>
                     {!clientRoute &&
                       <button
                         type="button"
-                        className="btn btn-default me-2 d-flex justify-content-center border rounded-circle"
+                        className=" col-1 btn btn-default d-flex justify-content-center border rounded-circle"
                         style={{
                           width: 30,
                           height: 30,
                           textAlign: "center",
                           paddingTop: 3,
                           paddingBottom: 3,
+                          marginRight: 10,
                         }}
                         data-bs-toggle="modal"
-                        data-bs-target="#modalProfileTitleAndDescription"
+                        data-bs-target="#modalAddSkills"
                       >
                         <div>
-                          <i className="fas fa-pen" />
+                          <i className="fas fa-plus"></i>{" "}
                         </div>
-                      </button>
+                      </button>}
+                  </div>
+                  <div className="bg-white py-lg-4 px-4 border border-1 row pb-sm-3 py-xs-5">
+                    <div className="col">
+                      {freelancer?.skills?.map((skill, index) => (
+                        <Space key={index} size={1} className="me-sm-5 " wrap={true}>
+                          <Link
+                            key={index}
+                            className="btn text-light btn-sm rounded-pill cats mx-1 my-1" to={`/search?skillId=${skill?._id}`}                          >
+                            {pickName(skill?.skill, lang)}:
+                          </Link>
+                          <Progress done={skill?.level} />
+                        </Space>
+                      ))}
+                    </div>
+                  </div>
+                  <hr />
+
+
+                </div>
+                <div className=" col-4 ms-1" style={{ borderLeft: '0.5px solid #ccc' }}>
+                  <div className="ms-2 row">
+                    <h3 className="col mx-0 text-muted">{t("Expected Amount")}</h3>
+                  </div>
+                  <hr />
+                  <h5 className="ms-4 mt-2 fw-bold"> {currencyFormatter(freelancerData?.expectedAmount || 0)} / {t(freelancerData?.expectedPaymentType)}</h5>
+                  <hr />
+                  <div className="ms-2 row">
+                    <h3 className="col mx-0 text-muted">{t("Work History")}</h3>
+                  </div>
+                  <hr />
+                  <div className="bg-white py-lg-1 row py-xs-5 overflow-auto" style={{ maxHeight: '600px' }}>
+                    {
+                      contracts?.map((c) => {
+                        return (
+                          <div key={c?._id} className="col-12">
+                            <div className="card">
+                              <div className="card-body">
+                                <h5 className="card-title job-title">{c?.job?.title}</h5>
+                                <div className="card-company-glassdoor">
+                                  <p className="card-company-name text-truncate ">{c?.job?.description}</p>
+                                </div>
+                                <div className="card-job-details mb-3">
+                                  <p className="card-company-location">
+                                    <i className="fas fa-map-marker-alt"></i>
+                                    {
+                                      c?.job?.preferences?.locations?.map(l => (
+                                        <span key={l} style={{ marginLeft: 2 }}>
+                                          {locations?.find(s => s.code === l.toString())?.name} |
+                                        </span>
+                                      ))
+                                    }
+                                  </p>
+                                  <p className="card-job-duration">
+                                    <i className="fas fa-clock me-2"></i>
+                                    {t("Start working from")} -
+                                    <span style={{ marginLeft: 2 }}>{timeAgo(c?.startDate, t)}</span>
+                                  </p>
+
+                                  <p className="card-listing-date">
+                                    <i className="fas fa-upload me-2"></i>
+                                    {t("End date")} -
+                                    <span style={{ marginLeft: 2 }}>{new Date(c?.endDate).toLocaleString()}</span>
+                                  </p>
+
+                                  <p className="card-salary-range">
+                                    <i className="fas fa-wallet me-2"></i>
+                                    {currencyFormatter(c?.agreeAmount)} / {t(`${c?.paymentType}`)}
+                                  </p>
+
+                                </div>
+                              </div>
+                            </div >
+                          </div>
+                        )
+                      })
                     }
 
-
                   </div>
-                }
+                </div>
+
               </div>
             </div>
           </div>
 
-          <div className="container card mb-3 mt-5">
+          <div className="container bg-white mb-3 mt-5">
             <div className="row mt-3 px-4">
               <div className="row">
 
@@ -632,6 +549,82 @@ export default function FirstSectionProfileFreelancer() {
               </div>
             </div>
           </div>
+
+          <div
+            className="modal fade"
+            id="editAvatar"
+            tabIndex={-1}
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title" id="exampleModalLabel">
+                    Change Avatar
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  />
+                </div>
+                <div className="modal-body">
+                  <form>
+                    <Upload
+                      name="avatar"
+                      listType="picture-card"
+                      className="avatar-uploader ms-5"
+                      defaultFileList={files ? [files] : []}
+                      onPreview={handlePreview}
+                      accept="image/*"
+                      beforeUpload={file => {
+                        const checkedFile = checkFileFunc(file);
+                        console.log('checkedFile', checkedFile)
+                        if (checkedFile) {
+                          setFiles([file])
+                        }
+                        return false
+                      }}
+                      maxCount={1}
+                    >
+                      <div>
+                        <PlusOutlined />
+                        <div style={{ marginTop: 8 }}>Select new avatar</div>
+                      </div>
+                    </Upload>
+                    <Modal open={previewOpen} style={{ zIndex: 100 }} title={'Avatar'} footer={null} onCancel={handleCancel}>
+                      <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                    </Modal>
+                  </form>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-link border rounded-border "
+                    data-bs-dismiss="modal"
+                    style={{
+                      color: "#6058c4",
+                      backgroundColor: "white",
+                      textDecoration: "none",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={updateAvatar}
+                    type="button"
+                    data-bs-dismiss="modal"
+                    className="btn btn-default border rounded-border"
+                  >
+                    {t("Save changes")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div
             className="modal fade"
             id="editEmploymentHistory"
@@ -719,7 +712,7 @@ export default function FirstSectionProfileFreelancer() {
                     type="button"
                     className="btn btn-default border rounded-border"
                   >
-                    EditEmployment{" "}
+                    Edit Employment{" "}
                   </button>
                 </div>
               </div>
@@ -802,7 +795,7 @@ export default function FirstSectionProfileFreelancer() {
                     className="btn btn-default border rounded-border"
                     data-bs-dismiss="modal"
                   >
-                    Save{" "}
+                    {t("Save changes")}
                   </button>
                 </div>
               </div>
@@ -854,7 +847,6 @@ export default function FirstSectionProfileFreelancer() {
                       </label>
                       <input
                         onChange={updateProfile}
-                        onInput={getData}
                         name="imageItself"
                         type="file"
                         className="form-control"

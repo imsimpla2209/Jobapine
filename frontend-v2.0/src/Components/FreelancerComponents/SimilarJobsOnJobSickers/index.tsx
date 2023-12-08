@@ -9,7 +9,7 @@ import { getSimilarJobs } from 'src/api/job-apis'
 import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
 import useWindowSize from 'src/utils/useWindowSize'
 
-const SampleNextArrow = props => {
+export const SampleNextArrow = props => {
   const { className, style, onClick } = props
   return (
     <div
@@ -32,7 +32,7 @@ const SampleNextArrow = props => {
   )
 }
 
-const SamplePrevArrow = props => {
+export const SamplePrevArrow = props => {
   const { className, style, onClick } = props
   return (
     <div
@@ -55,7 +55,7 @@ const SamplePrevArrow = props => {
   )
 }
 
-const settings = {
+export const settings = {
   nextArrow: <SampleNextArrow />,
   prevArrow: <SamplePrevArrow />,
 }
@@ -99,7 +99,7 @@ export default function SimilarJobsOnJobSickers({ id }: any) {
   useEffect(() => {
     getSimilarJobs(id, { limit: 8 })
       .then(res => {
-        setSimilarJobs(res.data?.results)
+        setSimilarJobs(res.data)
       })
       .catch(err => {
         console.log(err)
@@ -117,7 +117,7 @@ export default function SimilarJobsOnJobSickers({ id }: any) {
         <Row justify="center" className="mt-3">
           <Col span={23}>
             <Carousel arrows autoplay autoplaySpeed={2000} slidesToShow={3} {...settings} style={{ width: '100%' }}>
-              {similarJobs.map((s, ix) => (
+              {similarJobs?.map((s, ix) => (
                 <div key={s._id}>
                   <JobItem data={s} t={t} />
                 </div>
@@ -127,7 +127,7 @@ export default function SimilarJobsOnJobSickers({ id }: any) {
         </Row>
       ) : (
         <div className="mt-4">
-          {similarJobs.map(s => (
+          {similarJobs?.map(s => (
             <div key={s._id}>
               <JobItem data={s} t={t} />
             </div>

@@ -42,7 +42,10 @@ export default function Header() {
 			{/* Header in large screen */}
 			<div id="nav-lg-id" className="ms-5 me-5 d-flex justify-content-between align-items-center">
 				<div className="d-flex justify-content-between">
-					<Logo />
+					<Link to={'/'} style={{ textAlign: 'end'}}>
+						<Logo />
+						<p style={{ color: "grey", fontWeight: 600, marginBottom: 0 }}>{t("For Freelancers")}</p>
+					</Link>
 					<SearchBox />
 				</div>
 				<nav className="navbar navbar-expand-lg navbar-dark bg-transparent py-0">

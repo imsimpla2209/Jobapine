@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 import { union } from 'lodash'
 import keywordExtractor from 'keyword-extractor'
 
@@ -28,6 +29,7 @@ export function extractKeywords(keyword: string) {
     remove_digits: true,
     return_changed_case: true,
     remove_duplicates: true,
+    return_chained_words: false,
   })
 
   const keyWords = keywordExtractor.extract(`${keyword}`, {
@@ -35,7 +37,19 @@ export function extractKeywords(keyword: string) {
     remove_digits: true,
     return_changed_case: true,
     remove_duplicates: true,
+    return_chained_words: false,
   })
   const words = union(vnKeyWords, keyWords)
   return words
+}
+
+export function createArrayAroundNumber(number) {
+  const range = 2
+  const result = []
+
+  for (let i = number - range; i <= number + range; i++) {
+    result.push(i)
+  }
+
+  return result
 }

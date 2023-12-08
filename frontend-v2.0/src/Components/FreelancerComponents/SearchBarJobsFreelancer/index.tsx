@@ -74,6 +74,7 @@ export default function SearchBarJobsFreelancer({
           style={{ width: '100%' }}
           status="warning"
           popupMatchSelectWidth={true}
+          size="large"
           notFoundContent={`${t('Nothing matches the search')}😏🥱`}
           options={searchResults?.map(s => {
             return {
@@ -95,19 +96,19 @@ export default function SearchBarJobsFreelancer({
           })}
           onSelect={onSelect}
           onSearch={handleSearch}
-          size="large"
         >
           {useIndexSearch ? (
             <Input.Search
               id="input"
               size="large"
+              enterButton
               type="search"
               // style={{ height: "44px", borderTopLeftRadius: 20, borderBottomLeftRadius: 20, border: '2px solid #ccc', padding: '0 12' }}
               // className={`form-control text-dark bg-white`}
               placeholder={t('Search For Jobs')}
             />
           ) : (
-            <Input onChange={handle} size="large" placeholder={t('Search For Jobs')} value={textSearch}></Input>
+            <Input.Search  onChange={handle} size="large" placeholder={t('Search For Jobs')} enterButton  value={textSearch}></Input.Search>
           )}
         </AutoComplete>
       </ConfigProvider>

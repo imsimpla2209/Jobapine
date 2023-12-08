@@ -11,11 +11,11 @@ router
   .post(auth(), validate(proposalValidation.createProposal), proposalController.createProposal)
 
 router
-  .route('/status/:id')
-  .patch(auth(), validate(proposalValidation.updateProposalStatus), proposalController.updateProposalStatus)
-router
   .route('/withdraw/:id')
   .patch(auth(), validate(proposalValidation.getProposal), proposalController.withdrawProposal)
+router
+  .route('/status/:id')
+  .patch(auth(), validate(proposalValidation.updateProposalStatus), proposalController.updateProposalStatus)
 
 router
   .route('/:id')

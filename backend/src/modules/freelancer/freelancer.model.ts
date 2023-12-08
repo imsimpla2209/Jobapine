@@ -102,6 +102,8 @@ const similarFreelancerSchema = new mongoose.Schema<ISimilarFreelancer, ISimilar
   similarJobCats: [{ type: String, required: 'false', default: [] }],
   similarLocations: [{ type: String, required: 'false', default: [] }],
   similarSkills: [{ type: String, required: 'false', default: [] }],
+  potentialJobCats: [{ type: String, required: 'false', default: [] }],
+  potentialSkills: [{ type: String, required: 'false', default: [] }],
   similarTags: [{ type: String, required: 'false', default: [] }],
   similarClients: [{ type: String, required: 'false', default: [] }],
 })

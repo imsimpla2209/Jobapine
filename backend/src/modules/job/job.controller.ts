@@ -1,3 +1,4 @@
+import { Freelancer } from '@modules/freelancer'
 import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
 import { Request, Response } from 'express'
 import httpStatus from 'http-status'
@@ -73,12 +74,54 @@ export const getRcmdJobs = catchAsync(async (req: Request, res: Response) => {
   res.send(result)
 })
 
+export const getJobByFreelancerFav = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const freelancer = await Freelancer.findOne({ user: new mongoose.Types.ObjectId(req?.user?._id as string) })
+    .populate('favoriteJobs')
+    .lean()
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  const result = await jobService.getJobByFreelancerFav(freelancer, options)
+  res.send(result)
+})
+
 export const getFavJobsByUser = catchAsync(async (req: Request, res: Response) => {
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await jobService.getFavJobByFreelancer(
     new mongoose.Types.ObjectId(req.query.freelancerId as string),
     options
   )
+  res.send(result)
+})
+
+export const getCurrentInterestedJobs = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const freelancer = await Freelancer.findOne({ user: new mongoose.Types.ObjectId(req?.user?._id as string) }).lean()
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  const result = await jobService.getCurrentInterestedJobs(freelancer, options)
+  res.send(result)
+})
+
+export const getCurrentInterestedJobsByType = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const freelancer = await Freelancer.findOne({ user: new mongoose.Types.ObjectId(req?.user?._id as string) }).lean()
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  const result = await jobService.getCurrentInterestedJobsByType(freelancer, options)
+  res.send(result)
+})
+
+export const getCurrentInterestedJobsByJobs = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const freelancer = await Freelancer.findOne({ user: new mongoose.Types.ObjectId(req?.user?._id as string) }).lean()
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  const result = await jobService.getCurrentInterestedJobsByJobs(freelancer, options)
   res.send(result)
 })
 

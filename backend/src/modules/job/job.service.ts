@@ -3,13 +3,21 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/dot-notation */
 
+import { redisInsance } from '@core/databases/Redis'
 import queryGen from '@core/libs/queryGennerator'
 import { getClientById, getClientByOptions } from '@modules/client/client.service'
+import { Freelancer } from '@modules/freelancer'
 import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
-import { getFreelancerById, getSimilarByFreelancerId, updateSimilarById } from '@modules/freelancer/freelancer.service'
+import {
+  getFreelancerById,
+  getLastestTopCurrentTypeTracking,
+  getLastestTopJobs,
+  getSimilarByFreelancerId,
+  updateSimilarById,
+} from '@modules/freelancer/freelancer.service'
 import { bulkCreateNotify } from '@modules/notify/notify.service'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
-import { deleteProposalByOptions, updateProposalStatusBulk } from '@modules/proposal/proposal.service'
+import { updateProposalStatusBulk } from '@modules/proposal/proposal.service'
 import { Skill } from '@modules/skill'
 import { User } from '@modules/user'
 import { EJobStatus, EStatus } from 'common/enums'
@@ -17,13 +25,26 @@ import { FEMessage, FERoutes } from 'common/enums/constant'
 import { logger } from 'common/logger'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
-import { createFuzzyRegex, extractKeywords } from 'utils/helperFunc'
-import { Freelancer } from '@modules/freelancer'
-import { updateUserById } from '@modules/user/user.service'
+import { createArrayAroundNumber, createFuzzyRegex, extractKeywords } from 'utils/helperFunc'
 import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IJobDoc, NewCreatedJob, UpdateJobBody } from './job.interfaces'
 import Job, { JobCategory, JobTag } from './job.model'
+
+export const excludingFilter = (freelancer?: IFreelancerDoc) => {
+  const filterByFreelancer = []
+  if (freelancer) {
+    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id?.toString()] } })
+    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id?.toString()] } })
+    if (freelancer?.jobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs || [] } })
+    }
+    if (freelancer?.favoriteJobs?.length) {
+      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs || [] } })
+    }
+  }
+  return filterByFreelancer
+}
 
 /**
  * Create a job
@@ -85,18 +106,7 @@ export const queryJobs = async (
 
   const clientFilter = filter['client'] ? { client: filter['client'] || '' } : {}
 
-  let filterByFreelancer = []
-
-  if (freelancer) {
-    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
-    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
-    if (freelancer?.jobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
-    }
-    if (freelancer?.favoriteJobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
-    }
-  }
+  let filterByFreelancer = excludingFilter(freelancer)
 
   filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
 
@@ -171,18 +181,7 @@ export const queryAdvancedJobs = async (
       'preferences.nOEmployee': queryGen.numRanges(filter['nOEmployee'] === 1 ? 0 : 2, filter['nOEmployee']),
     })
 
-  let filterByFreelancer = []
-
-  if (freelancer) {
-    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
-    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
-    if (freelancer?.jobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
-    }
-    if (freelancer?.favoriteJobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
-    }
-  }
+  let filterByFreelancer = excludingFilter(freelancer)
 
   filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
 
@@ -228,18 +227,7 @@ export const searchJobsByText = async (
   const foundSkills = await Skill.find({ name: { $regex: searchText, $options: 'i' } })
   const foundTags = await JobTag.find({ name: { $regex: searchText, $options: 'i' } })
 
-  let filterByFreelancer = []
-
-  if (freelancer) {
-    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
-    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
-    if (freelancer?.jobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
-    }
-    if (freelancer?.favoriteJobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
-    }
-  }
+  let filterByFreelancer = excludingFilter(freelancer)
 
   filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
 
@@ -286,6 +274,15 @@ export const getRcmdJob = async (
   options: IOptions,
   freelancer?: IFreelancerDoc | null
 ): Promise<QueryResult> => {
+  const cacheKey = `getRcmdJob:${freelancerId}`
+
+  // Check if data is in cache
+  const cachedData = await redisInsance.getValue(cacheKey)
+  if (cachedData) {
+    logger.info(`getRcmdJob from cache for freelancerId: ${cacheKey}`)
+    return JSON.parse(cachedData)
+  }
+
   let similarDocs = await getSimilarByFreelancerId(freelancerId)
   if (!similarDocs) {
     similarDocs = await updateSimilarById(freelancerId)
@@ -293,8 +290,8 @@ export const getRcmdJob = async (
 
   if (!options?.projectBy) {
     options.projectBy = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
-      nOEmployee, preferences, totalScore, 
-      score_title, score_description, score_skills, score_locations, score_categories, score_expertise, score_paymentAmount, score_paymentType`
+      nOEmployee, preferences, totalScore, scope, jobDuration
+      score_title, score_description, score_my_skills, score_similar_skills, score_my_categories, score_locations, score_categories, score_expertise, score_paymentAmount, score_paymentType`
   }
 
   if (!options?.populate) {
@@ -337,10 +334,10 @@ export const getRcmdJob = async (
     {
       $match: {
         $and: [
-          { appliedFreelancers: { $nin: [freelancer?._id] } },
-          { blockFreelancers: { $nin: [freelancer?._id] } },
-          { _id: { $nin: freelancer?.jobs || [] } },
-          { _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) || [] } },
+          { appliedFreelancers: { $nin: [freelancer?._id?.toString()] } },
+          { blockFreelancers: { $nin: [freelancer?._id?.toString()] } },
+          freelancer?.jobs ? { _id: { $nin: freelancer?.jobs || [] } } : {},
+          freelancer?.favoriteJobs ? { _id: { $nin: freelancer?.favoriteJobs || [] } } : {},
         ],
       },
     },
@@ -357,21 +354,69 @@ export const getRcmdJob = async (
 
     {
       $addFields: {
-        score_title: {
-          $cond: [{ $regexMatch: { input: '$title', regex: similarDocs?.similarKeys } }, 1, 0],
-        },
-        score_description: {
-          $cond: [{ $regexMatch: { input: '$description', regex: similarDocs?.similarKeys } }, 1, 0],
-        },
+        score_title: { $cond: [{ $eq: ['$title', similarDocs?.similarKeys || ''] }, 1, 0] },
+        score_description: { $cond: [{ $eq: ['$description', similarDocs?.similarKeys || ''] }, 1, 0] },
+        // score_title: {
+        //   $cond: [{ $regexMatch: { input: '$title', regex: similarDocs?.similarKeys } }, 1, 0],
+        // },
+        // score_description: {
+        //   $cond: [{ $regexMatch: { input: '$description', regex: similarDocs?.similarKeys } }, 1, 0],
+        // },
         score_categories: {
           $multiply: [
             { $size: { $setIntersection: [similarDocs?.similarJobCats || [], { $ifNull: ['$categories', []] }] } },
-            1.6,
+            0.8,
           ],
         },
-        score_skills: {
+        score_my_categories: {
+          $multiply: [
+            {
+              $size: {
+                $setIntersection: [
+                  freelancer?.preferJobType?.map(c => c?._id?.toString() || c?.id?.toString()) || [],
+                  { $ifNull: ['$categories', []] },
+                ],
+              },
+            },
+            1.9,
+          ],
+        },
+        score_potential_categories: {
+          $multiply: [
+            {
+              $size: {
+                $setIntersection: [similarDocs?.potentialJobCats || [], { $ifNull: ['$categories', []] }],
+              },
+            },
+            1.4,
+          ],
+        },
+        score_similar_skills: {
           $multiply: [
             { $size: { $setIntersection: [similarDocs?.similarSkills || [], { $ifNull: ['$reqSkills.skill', []] }] } },
+            1.1,
+          ],
+        },
+        score_my_skills: {
+          $multiply: [
+            {
+              $size: {
+                $setIntersection: [
+                  freelancer?.skills?.map(s => s?.skill?._id?.toString() || s?.skill?.id?.toString()) || [],
+                  { $ifNull: ['$reqSkills.skill', []] },
+                ],
+              },
+            },
+            2.3,
+          ],
+        },
+        score_potential_skills: {
+          $multiply: [
+            {
+              $size: {
+                $setIntersection: [similarDocs?.potentialSkills || [], { $ifNull: ['$reqSkills.skill', []] }],
+              },
+            },
             1.5,
           ],
         },
@@ -383,10 +428,20 @@ export const getRcmdJob = async (
                 $setIntersection: [similarDocs?.similarLocations || [], { $ifNull: ['$preferences.locations', []] }],
               },
             },
-            1.7,
+            1.2,
           ],
         },
-        score_paymentType: { $cond: [{ $eq: ['$payment.type', freelancer?.expectedPaymentType] }, 1, 0] },
+        score_my_locations: {
+          $multiply: [
+            {
+              $size: {
+                $setIntersection: [freelancer?.currentLocations || [], { $ifNull: ['$preferences.locations', []] }],
+              },
+            },
+            1.8,
+          ],
+        },
+        score_paymentType: { $cond: [{ $eq: ['$payment.type', freelancer?.expectedPaymentType || ''] }, 1, 0] },
         score_paymentAmount: {
           $cond: [
             {
@@ -434,14 +489,19 @@ export const getRcmdJob = async (
             '$score_title',
             '$score_description',
             '$score_categories',
-            '$score_skills',
+            '$score_similar_skills',
             '$score_locations',
             '$score_paymentType',
             '$score_paymentAmount',
-            // '$score_suit_skills',
+            '$score_my_skills',
+            '$score_potential_skills',
+            '$score_potential_categories',
+            '$score_my_locations',
             '$score_paymentType',
             '$score_paymentAmount',
             '$score_expertise',
+            '$score_tags',
+            '$score_my_categories',
           ],
         },
       },
@@ -474,6 +534,8 @@ export const getRcmdJob = async (
     limit: options?.limit || 10,
     page: options?.page || 1,
   }
+
+  await redisInsance.setWithExpiration(cacheKey, JSON.stringify(queryReSults), 60 * 60 * 16) // 16 hours expiration
 
   return queryReSults
 }
@@ -517,6 +579,730 @@ export const getFavJobByFreelancer = async (
 
   const jobs = await Job.paginate(filter, options)
   return jobs
+}
+
+export const getSimilarByJobFields = async (
+  categories?: any[],
+  reqSkills?: any[],
+  locations?: any[],
+  complexities?: any[],
+  durations?: any[],
+  excludeJobIds?: any[],
+  regexPattern?: any,
+  freelancerId?: any,
+  budget?: any,
+  nOEmployees?: any,
+  payments?: any,
+  limit?: any
+) => {
+  try {
+    const options = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
+        nOEmployee, preferences, totalScore, scope, jobDuration, similarityScore`
+
+    const projectFields = options?.split(',').reduce((acc, field) => {
+      acc[field.trim()] = 1
+      return acc
+    }, {})
+
+    const relatedJobs = await Job.aggregate([
+      {
+        $match: {
+          _id: { $nin: excludeJobIds?.map(job => new mongoose.Types.ObjectId(job)) },
+          currentStatus: EJobStatus.OPEN,
+        },
+      },
+      {
+        $match: {
+          $and: [
+            { appliedFreelancers: { $nin: [freelancerId?.toString()] } },
+            { blockFreelancers: { $nin: [freelancerId?.toString()] } },
+          ],
+        },
+      },
+      {
+        $match: {
+          $and: [{ isDeleted: { $ne: true } }, { currentStatus: { $in: [EJobStatus.OPEN] } }],
+        },
+      },
+      {
+        $addFields: {
+          similarityScore: {
+            $sum: [
+              {
+                $cond: [{ $regexMatch: { input: '$title', regex: regexPattern } }, 1, 0],
+              },
+              {
+                $cond: [{ $regexMatch: { input: '$description', regex: regexPattern } }, 1, 0],
+              },
+              {
+                $multiply: [
+                  {
+                    $size: {
+                      $setIntersection: [categories || [], { $ifNull: ['$categories', []] }],
+                    },
+                  },
+                  2.7,
+                ],
+              },
+              {
+                $multiply: [
+                  {
+                    $size: {
+                      $setIntersection: [reqSkills || [], { $ifNull: ['$reqSkills.skill', []] }],
+                    },
+                  },
+                  2.9,
+                ],
+              },
+              {
+                $multiply: [
+                  {
+                    $size: {
+                      $setIntersection: [locations || [], { $ifNull: ['$preferences.locations', []] }],
+                    },
+                  },
+                  1.4,
+                ],
+              },
+              { $cond: [{ $in: ['$scope.complexity', complexities] }, 1, 0] },
+              { $cond: [{ $in: ['$scope.duration', durations] }, 1, 0] },
+              { $cond: [{ $in: ['$preferences.nOEmployee', nOEmployees] }, 1, 0] },
+              {
+                $cond: [
+                  {
+                    $and: [
+                      { $gte: ['$budget', (budget || 0) - (budget || 0) / 4.3] },
+                      { $lte: ['$budget', (budget || 0) + (budget || 0) / 4.3] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+              {
+                $sum: {
+                  $map: {
+                    input: payments,
+                    as: 'payment',
+                    in: {
+                      $cond: [
+                        {
+                          $and: [
+                            { $eq: ['$payment.type', '$$payment.type'] },
+                            {
+                              $and: [
+                                {
+                                  $gte: [
+                                    '$payment.amount',
+                                    { $subtract: ['$$payment.amount', { $divide: ['$$payment.amount', 4.3] }] },
+                                  ],
+                                },
+                                {
+                                  $lte: [
+                                    '$payment.amount',
+                                    { $add: ['$$payment.amount', { $divide: ['$$payment.amount', 4.3] }] },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      { $project: projectFields },
+      {
+        $sort: { similarityScore: -1 as any },
+      },
+      {
+        $limit: limit || 20,
+      },
+    ])
+
+    const populate = 'client,categories,reqSkills.skill'
+    const populateFields = populate?.split(',').map(field => {
+      if (field.trim() === 'client') {
+        return {
+          path: field.trim(),
+          match: { isDeleted: { $ne: true } },
+          select: 'rating spent paymentVerified name user preferLocations',
+        }
+      }
+      return { path: field.trim() }
+    })
+
+    const fullfillJobs = await Job.populate(relatedJobs, populateFields)
+
+    return fullfillJobs
+  } catch (error: any) {
+    logger.error(`Error finding related jobs:${error.message}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong')
+  }
+}
+
+export const getCurrentInterestedJobsByType = async (
+  freelancer: IFreelancerDoc,
+  inputType?: any,
+  options?: IOptions
+): Promise<any | null> => {
+  try {
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+
+    // const cacheKey = `getJobByFav:${freelancer?._id?.toString()}`
+
+    // const cachedData = await redisInsance.getValue(cacheKey)
+    // if (cachedData) {
+    //   logger.info(`getJobByFav from cache for freelancerId: ${cacheKey}`)
+    //   return JSON.parse(cachedData)
+    // }
+
+    const type = inputType || (await getLastestTopCurrentTypeTracking(freelancer))
+
+    const matchingJobs = await Job.aggregate([
+      {
+        $match: {
+          currentStatus: 'open',
+        },
+      },
+      {
+        $addFields: {
+          totalMatchingPoints: {
+            $sum: [
+              {
+                $reduce: {
+                  input: '$reqSkills',
+                  initialValue: 0,
+                  in: {
+                    $add: [
+                      '$$value',
+                      {
+                        $let: {
+                          vars: {
+                            matchedSkill: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: type?.skillRankings,
+                                    as: 'sr',
+                                    cond: { $eq: ['$$sr.skill', '$$this.skill'] },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                          in: '$$matchedSkill.withTimePoints',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                $reduce: {
+                  input: '$categories',
+                  initialValue: 0,
+                  in: {
+                    $add: [
+                      '$$value',
+                      {
+                        $let: {
+                          vars: {
+                            matchedCategory: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: type?.categoryRankings,
+                                    as: 'cr',
+                                    cond: { $eq: ['$$cr.category', '$$this'] },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                          in: '$$matchedCategory.withTimePoints',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: { totalMatchingPoints: -1 },
+      },
+      {
+        $limit: options?.limit || 15,
+      },
+    ])
+
+    return matchingJobs
+  } catch (error: any) {
+    logger.error(`Error finding related jobs:${error.message}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+  }
+}
+
+export const getTopInterestedJobsByType = async (
+  freelancer: IFreelancerDoc,
+  options?: IOptions
+): Promise<any | null> => {
+  try {
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+
+    // const cacheKey = `getJobByFav:${freelancer?._id?.toString()}`
+
+    // const cachedData = await redisInsance.getValue(cacheKey)
+    // if (cachedData) {
+    //   logger.info(`getJobByFav from cache for freelancerId: ${cacheKey}`)
+    //   return JSON.parse(cachedData)
+    // }
+
+    const type = await getLastestTopCurrentTypeTracking(freelancer)
+
+    const matchingJobs = await Job.aggregate([
+      {
+        $match: {
+          currentStatus: 'open',
+        },
+      },
+      {
+        $addFields: {
+          totalMatchingPoints: {
+            $sum: [
+              {
+                $reduce: {
+                  input: '$reqSkills',
+                  initialValue: 0,
+                  in: {
+                    $add: [
+                      '$$value',
+                      {
+                        $let: {
+                          vars: {
+                            matchedSkill: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: type?.skillRankings,
+                                    as: 'sr',
+                                    cond: { $eq: ['$$sr.skill', '$$this.skill'] },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                          in: '$$matchedSkill.totalPoints',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                $reduce: {
+                  input: '$categories',
+                  initialValue: 0,
+                  in: {
+                    $add: [
+                      '$$value',
+                      {
+                        $let: {
+                          vars: {
+                            matchedCategory: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: type?.categoryRankings,
+                                    as: 'cr',
+                                    cond: { $eq: ['$$cr.category', '$$this'] },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                          in: '$$matchedCategory.totalPoints',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: { totalMatchingPoints: -1 },
+      },
+      {
+        $limit: 20,
+      },
+    ])
+
+    return matchingJobs
+  } catch (error: any) {
+    logger.error(`Error finding related jobs:${error.message}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+  }
+}
+
+/**
+ * @returns {Promise<QueryResult | null>}
+ */
+export const getCurrentInterestedJobs = async (freelancer: IFreelancerDoc, options: IOptions): Promise<any | null> => {
+  try {
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+
+    // const cacheKey = `getJobByFav:${freelancer?._id?.toString()}`
+
+    // const cachedData = await redisInsance.getValue(cacheKey)
+    // if (cachedData) {
+    //   logger.info(`getJobByFav from cache for freelancerId: ${cacheKey}`)
+    //   return JSON.parse(cachedData)
+    // }
+
+    const jobs = await getLastestTopJobs(freelancer)
+
+    const categories = []
+    const reqSkills = []
+    const complexities = new Set()
+    const durations = new Set()
+    const locations = []
+    const nOEmployees = []
+    const payments = []
+    const text = ''
+    let avgBudget = 0
+
+    jobs?.forEach((j: any) => {
+      const job = j?.job
+      job?.categories?.length && categories.push(...job.categories)
+      job?.reqSkills?.length && reqSkills.push(...job.reqSkills.map(skill => skill.skill))
+      complexities.add(job?.scope?.complexity)
+      durations.add(job?.scope?.duration)
+      job?.preferences?.locations && locations.push(...job.preferences.locations)
+      text.concat(job?.title, job?.description)
+      avgBudget += job?.budget || 0
+      job?.payment && payments.push(job?.payment)
+      nOEmployees.push(job?.preferences?.nOEmployee)
+    })
+
+    const keyWords = extractKeywords(`${text}`)
+
+    logger.info('Extracted Keywords', keyWords)
+
+    const similarRegex = createFuzzyRegex(keyWords)
+
+    const favoriteJobs = freelancer?.favoriteJobs?.map(job => new mongoose.Types.ObjectId(job._id)) || []
+    const freelancerJobs = freelancer?.jobs?.map(job => new mongoose.Types.ObjectId(job)) || []
+
+    const uniqueCategories = Array.from(new Set(categories))
+    const uniqueReqSkills = Array.from(new Set(reqSkills))
+    const uniqueLocations = Array.from(new Set(locations))
+
+    const excludeJobIds = [...new Set([...favoriteJobs, ...freelancerJobs])]
+
+    const relatedJobs = await getSimilarByJobFields(
+      uniqueCategories,
+      uniqueReqSkills,
+      uniqueLocations,
+      Array.from(complexities),
+      Array.from(durations),
+      excludeJobIds,
+      similarRegex,
+      freelancer?._id?.toString(),
+      avgBudget / (freelancer?.favoriteJobs?.length || 1),
+      nOEmployees,
+      payments
+    )
+    // await redisInsance.setWithExpiration(cacheKey, JSON.stringify(relatedJobs), 60 * 60 * 16) // 16 hours expiration
+
+    return relatedJobs
+  } catch (error: any) {
+    logger.error(`Error finding related jobs:${error.message}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+  }
+}
+
+export const findRelatedJobsWithPoints = async (jobsWithPoints: any[], limit?: number) => {
+  try {
+    const jobIds = jobsWithPoints.map(job => new mongoose.Types.ObjectId(job.job.id))
+
+    const relatedJobs = await Job.aggregate([
+      {
+        $match: {
+          _id: { $nin: jobIds },
+          currentStatus: 'open',
+        },
+      },
+      {
+        $addFields: {
+          similarityScore: {
+            $sum: [
+              {
+                $cond: [
+                  { $in: ['$scope.complexity', jobsWithPoints.map(job => job.job.scope.complexity)] },
+                  '$adjustedPoints',
+                  0,
+                ],
+              },
+              {
+                $cond: [
+                  { $in: ['$scope.duration', jobsWithPoints.map(job => job.job.scope.duration)] },
+                  '$adjustedPoints',
+                  0,
+                ],
+              },
+              {
+                $cond: [
+                  {
+                    $gt: [
+                      {
+                        $size: {
+                          $setIntersection: ['$categories', jobsWithPoints.map(job => job.job.categories)].flat(),
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                  '$adjustedPoints',
+                  0,
+                ],
+              },
+              {
+                $cond: [
+                  {
+                    $gt: [
+                      {
+                        $size: {
+                          $setIntersection: [
+                            '$reqSkills.skill',
+                            jobsWithPoints.map(job => job.job.reqSkills.map(skill => skill.skill)).flat(),
+                          ],
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                  '$adjustedPoints',
+                  0,
+                ],
+              },
+              {
+                $cond: [
+                  { $in: ['$preferences.nOEmployee', jobsWithPoints.map(job => job.job.preferences.nOEmployee)] },
+                  '$adjustedPoints',
+                  0,
+                ],
+              },
+              // {
+              //   $cond: [
+              //     {
+              //       $and: [
+              //         {
+              //           $gte: [
+              //             '$budget',
+              //             {
+              //               $subtract: [
+              //                 jobsWithPoints.map(job => job.job.budget),
+              //                 { $divide: [jobsWithPoints.map(job => job.job.budget), 4.3] },
+              //               ],
+              //             },
+              //           ],
+              //         },
+              //         {
+              //           $lte: [
+              //             '$budget',
+              //             {
+              //               $add: [
+              //                 jobsWithPoints.map(job => job.job.budget),
+              //                 { $divide: [jobsWithPoints.map(job => job.job.budget), 4.3] },
+              //               ],
+              //             },
+              //           ],
+              //         },
+              //       ],
+              //     },
+              //     '$adjustedPoints',
+              //     0,
+              //   ],
+              // },
+              {
+                $sum: {
+                  $map: {
+                    input: jobsWithPoints.map(job => job.job.reqSkills.map(skill => skill.payment)).flat(),
+                    as: 'payment',
+                    in: {
+                      $cond: [
+                        {
+                          $and: [
+                            { $eq: ['$payment.type', '$$payment.type'] },
+                            {
+                              $and: [
+                                {
+                                  $gte: [
+                                    '$payment.amount',
+                                    { $subtract: ['$$payment.amount', { $divide: ['$$payment.amount', 4.3] }] },
+                                  ],
+                                },
+                                {
+                                  $lte: [
+                                    '$payment.amount',
+                                    { $add: ['$$payment.amount', { $divide: ['$$payment.amount', 4.3] }] },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                        '$adjustedPoints',
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: { similarityScore: -1 },
+      },
+      {
+        $limit: limit || 12,
+      },
+    ])
+
+    return relatedJobs
+  } catch (error: any) {
+    logger.error('Error finding related jobs with points:', error.message)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error.message}`)
+  }
+}
+
+export const getCurrentInterestedJobsByJobs = async (
+  freelancer: IFreelancerDoc,
+  options: IOptions
+): Promise<any | null> => {
+  try {
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+
+    // const cacheKey = `getJobByFav:${freelancer?._id?.toString()}`
+
+    // const cachedData = await redisInsance.getValue(cacheKey)
+    // if (cachedData) {
+    //   logger.info(`getJobByFav from cache for freelancerId: ${cacheKey}`)
+    //   return JSON.parse(cachedData)
+    // }
+
+    const jobs = await getLastestTopJobs(freelancer)
+
+    const matchJobs = await findRelatedJobsWithPoints(jobs, options?.limit)
+
+    return matchJobs
+  } catch (error: any) {
+    logger.error('Error finding related jobs with points:', error.message)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error.message}`)
+  }
+}
+
+/**
+ * @returns {Promise<QueryResult | null>}
+ */
+export const getJobByFreelancerFav = async (freelancer: IFreelancerDoc, options: IOptions): Promise<any | null> => {
+  try {
+    if (!freelancer || !freelancer?.favoriteJobs?.length) {
+      return { message: 'no Fav Jobs' }
+    }
+
+    const cacheKey = `getJobByFav:${freelancer?._id?.toString()}`
+
+    const cachedData = await redisInsance.getValue(cacheKey)
+    if (cachedData) {
+      logger.info(`getJobByFav from cache for freelancerId: ${cacheKey}`)
+      return JSON.parse(cachedData)
+    }
+
+    const categories = []
+    const reqSkills = []
+    const complexities = new Set()
+    const durations = new Set()
+    const locations = []
+    const nOEmployees = []
+    const payments = []
+    const text = ''
+    let avgBudget = 0
+
+    freelancer?.favoriteJobs?.forEach(job => {
+      job?.categories?.length && categories.push(...job.categories)
+      job?.reqSkills?.length && reqSkills.push(...job.reqSkills.map(skill => skill.skill))
+      complexities.add(job?.scope?.complexity)
+      durations.add(job?.scope?.duration)
+      job?.preferences?.locations && locations.push(...job.preferences.locations)
+      text.concat(job?.title, job?.description)
+      avgBudget += job?.budget || 0
+      job?.payment && payments.push(job?.payment)
+      nOEmployees.push(job?.preferences?.nOEmployee)
+    })
+
+    const keyWords = extractKeywords(`${text}`)
+
+    logger.info('Extracted Keywords', keyWords)
+
+    const similarRegex = createFuzzyRegex(keyWords)
+
+    const favoriteJobs = freelancer?.favoriteJobs?.map(job => new mongoose.Types.ObjectId(job._id)) || []
+    const freelancerJobs = freelancer?.jobs?.map(job => new mongoose.Types.ObjectId(job)) || []
+
+    const uniqueCategories = Array.from(new Set(categories))
+    const uniqueReqSkills = Array.from(new Set(reqSkills))
+    const uniqueLocations = Array.from(new Set(locations))
+
+    const excludeJobIds = [...new Set([...favoriteJobs, ...freelancerJobs])]
+
+    const relatedJobs = await getSimilarByJobFields(
+      uniqueCategories,
+      uniqueReqSkills,
+      uniqueLocations,
+      Array.from(complexities),
+      Array.from(durations),
+      excludeJobIds,
+      similarRegex,
+      freelancer?._id?.toString(),
+      avgBudget / (freelancer?.favoriteJobs?.length || 1),
+      nOEmployees,
+      payments
+    )
+    await redisInsance.setWithExpiration(cacheKey, JSON.stringify(relatedJobs), 60 * 60 * 16) // 16 hours expiration
+
+    return relatedJobs
+  } catch (error: any) {
+    logger.error(`Error finding related jobs:${error.message}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+  }
 }
 
 /**
@@ -572,25 +1358,22 @@ export const getSimilarJobs = async (
   jobId: mongoose.Types.ObjectId,
   options: IOptions,
   freelancer?: IFreelancerDoc | null
-): Promise<QueryResult> => {
+): Promise<any> => {
   const job = await Job.findById(jobId).lean()
+
+  const cacheKey = `similarJobs:${jobId?.toString()}`
+
+  const cachedData = await redisInsance.getValue(cacheKey)
+  if (cachedData) {
+    logger.info(`getSimilarJobs from cache for freelancerId: ${cacheKey}`)
+    return JSON.parse(cachedData)
+  }
 
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not found job')
   }
 
-  let filterByFreelancer = []
-
-  if (freelancer) {
-    filterByFreelancer.push({ appliedFreelancers: { $nin: [freelancer?._id] } })
-    filterByFreelancer.push({ blockFreelancers: { $nin: [freelancer?._id] } })
-    if (freelancer?.jobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.jobs } })
-    }
-    if (freelancer?.favoriteJobs?.length) {
-      filterByFreelancer.push({ _id: { $nin: freelancer?.favoriteJobs?.map(j => j?.toString()) } })
-    }
-  }
+  let filterByFreelancer = excludingFilter(freelancer)
 
   filterByFreelancer = filterByFreelancer?.length ? filterByFreelancer : []
 
@@ -608,41 +1391,27 @@ export const getSimilarJobs = async (
 
   const similarRegex = new RegExp(regexPattern, 'gi')
 
-  const filter = {
-    $and: [
-      {
-        $or: [
-          { title: { $regex: similarRegex } },
-          { description: { $regex: similarRegex } },
-          { categories: { $in: job?.categories || [] } },
-          { 'reqSkills.skill': { $in: job?.reqSkills?.map(s => s.skill) || [] } },
-          { tags: { $in: job?.tags || [] } },
-          { 'preferences.locations': { $in: job?.preferences?.locations || [] } },
-          { 'preferences.nOEmployee': { $eq: job?.preferences?.nOEmployee || 1 } },
-          { budget: queryGen.numRanges((job?.budget || 0) - 250, (job?.budget || 0) + 350) },
-          { 'scope.complexity': job?.scope?.complexity },
-          { 'payment.type': job?.payment?.type },
-          {
-            'scope.duration': queryGen.numRanges((job?.scope?.duration || 0) - 5, (job?.scope?.duration || 0) + 10),
-          },
-          {
-            'payment.amount': queryGen.numRanges((job?.payment?.amount || 0) - 10, (job?.payment?.amount || 0) + 15),
-          },
-        ],
-      },
-      ...filterByFreelancer,
-      { isDeleted: { $ne: true } },
-      { currentStatus: { $in: [EJobStatus.OPEN] } },
-    ],
-  }
+  const fSavedJobs = freelancer?.favoriteJobs || []
+  const fJobs = freelancer?.jobs || []
 
-  options.populate = 'client,categories'
-  if (!options.projectBy) {
-    options.projectBy = 'client, categories, title, description, locations, complexity, payment, budget, preferences'
-  }
+  const relatedJobs = await getSimilarByJobFields(
+    job?.categories || [],
+    job?.reqSkills?.map(s => s?.skill?.toString()) || [],
+    job?.preferences?.locations || [],
+    [job?.scope?.complexity],
+    createArrayAroundNumber(job?.scope?.duration || 0),
+    [...fSavedJobs, ...fJobs],
+    similarRegex,
+    freelancer?._id?.toString(),
+    job?.budget || 0,
+    createArrayAroundNumber(job?.preferences?.nOEmployee || 1),
+    [job?.payment || { type: 'perHour', amount: 0 }],
+    options?.limit
+  )
 
-  const jobs = await Job.paginate(filter, options)
-  return jobs
+  await redisInsance.setWithExpiration(cacheKey, JSON.stringify(relatedJobs), 60 * 60 * 16) // 16 hours expiration
+
+  return relatedJobs
 }
 
 /**

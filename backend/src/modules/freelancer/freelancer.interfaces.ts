@@ -49,6 +49,8 @@ export interface ISimilarFreelancer extends Document {
   similarJobCats?: string[]
   similarLocations?: string[]
   similarSkills?: string[]
+  potentialJobCats?: string[]
+  potentialSkills?: string[]
   similarTags?: string[]
   similarClients?: string[]
 }

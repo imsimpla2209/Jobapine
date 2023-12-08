@@ -15,11 +15,15 @@ import OtherOpenJobsByThisClient from "src/Components/FreelancerComponents/Other
 import SimilarJobsOnJobSickers from "src/Components/FreelancerComponents/SimilarJobsOnJobSickers";
 import 'src/assets/style/style.css'
 import NotFound from "src/Components/CommonComponents/results/NotFound";
+import { useInView } from 'react-intersection-observer';
 
 export default function JobDetailsFreelancer() {
   const { id } = useParams();
   const [jobData, setJobData] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  const [ref, inView] = useInView({ threshold: 0.5 });
+
   const freelancer = useSubscription(freelancerStore).state;
   const user = useSubscription(userStore).state;
   useEffect(() => {
@@ -48,7 +52,7 @@ export default function JobDetailsFreelancer() {
                   }
                   <h3 className="mt-4">{t("Job details")}</h3>
                 </div>
-                <div className="row">
+                <div ref={ref} className="row">
                   <JobDescriptionJobDetails job={jobData} />
                   <RightSidebarJobDetails job={jobData} freelancer={freelancer} />
                 </div>
