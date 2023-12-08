@@ -36,12 +36,14 @@ export default function JobDetailsBeforeProposals() {
       )
       setNotAllowEdit(isnotAllowEdit)
     })
-    getContracts({
-      client: client._id || client.id,
-      job: id,
-      currentStatus: EStatus.ACCEPTED,
-    }).then(res => setContracts(res.data.results))
-  }, [id])
+    if (client._id || client.id) {
+      getContracts({
+        client: client._id || client.id,
+        job: id,
+        currentStatus: EStatus.ACCEPTED,
+      }).then(res => setContracts(res.data.results))
+    }
+  }, [id, client])
 
   const { t } = useTranslation(['main'])
 
@@ -131,7 +133,7 @@ export default function JobDetailsBeforeProposals() {
                 {contracts?.length && isCurrentClientJob ? (
                   <Card className="mt-3">
                     <h5 className="fw-bold " style={{ margin: 0 }}>
-                      {t('Contracts in this job')}
+                      {t('Freelancers joined this job')}
                     </h5>
 
                     <ContractsInJob contracts={contracts} />

@@ -1,19 +1,23 @@
 import { Avatar, List } from 'antd'
+import { Link } from 'react-router-dom'
 
 export default function ContractsInJob({ contracts }) {
   return (
     <List
       itemLayout="horizontal"
       dataSource={contracts}
-      renderItem={(item, index) => (
-        <List.Item>
-          <List.Item.Meta
-            avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`} />}
-            title={<a href="https://ant.design">{123}</a>}
-            description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-          />
-        </List.Item>
-      )}
+      renderItem={(item, index) => {
+        const { freelancer } = item as any
+        return (
+          <List.Item>
+            <List.Item.Meta
+              avatar={<Avatar src={freelancer.images?.[0]} />}
+              title={<Link to={`/freelancer-profile/${freelancer._id}`}>{freelancer.name}</Link>}
+              description={freelancer.intro?.substring(0, 50) + '...'}
+            />
+          </List.Item>
+        )
+      }}
     />
   )
 }
