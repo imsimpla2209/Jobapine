@@ -34,6 +34,15 @@ export default class RedisHandler {
     }
   }
 
+  public async setWithExpiration(key: string, value: string, seconds: number): Promise<void> {
+    try {
+      await this.client.setex(key, seconds, value)
+    } catch (error) {
+      logger.error('Error setting value with expiration in Redis:', error)
+      throw error
+    }
+  }
+
   public async getValue(key: string): Promise<string | null> {
     try {
       const value = await this.client.get(key)
@@ -59,3 +68,6 @@ export default class RedisHandler {
     logger.warn('Disconnected from Redis')
   }
 }
+
+const redisInsance = new RedisHandler()
+export { redisInsance }

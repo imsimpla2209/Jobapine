@@ -2,7 +2,7 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
 import { fakeJobsState } from "Store/fake-state";
-import { Checkbox, ConfigProvider, Radio, Space } from "antd";
+import { Checkbox, Col, ConfigProvider, Radio, Space } from "antd";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
@@ -46,7 +46,7 @@ export default function LeftSidebarFreelancerHome({ freelancer }) {
   }
 
   return (
-    <div className="col d-none d-lg-block">
+    <div className="d-none d-lg-block">
       <ul id="list-homepage" className="list-group sidebar-homebage-ul mb-lg-4" style={{
         background: 'white',
         border: '1.4px solid #ccc',

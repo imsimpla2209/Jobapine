@@ -41,7 +41,7 @@ export default function MesssagesContent({ selectedMessageRoom, userID, member, 
   const [other, setOther] = useState('Nothing')
 
   useEffect(() => {
-    if (!isEmpty(selectedMessageRoom)) {
+    if (selectedMessageRoom) {
       updateMessageRoom({ seen: true }, selectedMessageRoom?._id)
       setLoading(true)
       setPage(1)
@@ -113,7 +113,6 @@ export default function MesssagesContent({ selectedMessageRoom, userID, member, 
       type: messageType,
       other: other,
     }
-    console.log('first')
     setMsgAttachments([])
     setMessages([...messages, { ...newMsg, createdAt: new Date(), seen: false }])
     await createMessage(newMsg)
@@ -358,7 +357,7 @@ export default function MesssagesContent({ selectedMessageRoom, userID, member, 
         <Skeleton loading={loading} active avatar />
         <Skeleton loading={loading} active avatar />
       </div>
-      <div className='w-50 d-md-block d-none pe-3 pt-3'>
+      <div className='w-50 d-md-block d-none pe-3 pt-3 overflow-auto' style={{ maxHeight: '800px' }}>
         <ProposalCard
           proposal={selectedMessageRoom?.proposal}
           isInMSG={true}

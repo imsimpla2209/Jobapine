@@ -17,7 +17,15 @@ router.route('/search').post(validate(freelancerValidation.searchFreelancers), f
 router
   .route('/update-profile')
   .patch(auth(), validate(freelancerValidation.createProfileFreelancer), freelancerController.createProfile)
-
+router.route('/tracking').get(auth(), freelancerController.getFreelancerTracking)
+router.route('/tracking/top-type').get(auth(), freelancerController.getTopCurrentTypeTracking)
+router.route('/tracking/current-jobs').get(auth(), freelancerController.getLastestTopJobs)
+router.route('/tracking/current-type').get(auth(), freelancerController.getLastestTopType)
+router.route('/tracking').patch(auth(), freelancerController.updateFreelancerTracking)
+router.route('/tracking/all').delete(auth(), freelancerController.deleteAllFreelancerTracking)
+router
+  .route('/tracking/:id')
+  .delete(auth(), validate(freelancerValidation.deleteFreelancer), freelancerController.deleteFreelancerTracking)
 router.route('/get-by-options').post(auth(), freelancerController.getFreelancerByOption)
 router.route('/update-similar-doc').patch(auth(), freelancerController.updateSimilarById)
 router

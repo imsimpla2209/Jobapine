@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default */
 /* eslint-disable prefer-const */
 /* eslint-disable security/detect-non-literal-regexp */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -7,7 +8,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import queryGen from '@core/libs/queryGennerator'
 import { IJobDoc } from '@modules/job/job.interfaces'
-import { JobCategory, JobTag } from '@modules/job/job.model'
+import Job, { JobCategory, JobTag } from '@modules/job/job.model'
 import { addApplytoJobById, getJobById, getJobsByOptions } from '@modules/job/job.service'
 import { Skill } from '@modules/skill'
 import { IReview } from 'common/interfaces/subInterfaces'
@@ -28,6 +29,7 @@ import {
   UpdateFreelancerBody,
 } from './freelancer.interfaces'
 import Freelancer, { SimilarFreelancer } from './freelancer.model'
+import FreelancerTracking from './freelancer.tracking.model'
 
 /**
  * Register a freelancer
@@ -425,20 +427,22 @@ export const updateSimilarData = (
     if (job?.categories?.length) {
       updatedData.foundCats = union(
         updatedData.foundCats,
-        job.categories.map(c => c?._id)
+        job.categories.map(c => c?._id?.toString() || c)
       )
     }
     if (job?.reqSkills?.length) {
       updatedData.foundSkills = union(
         updatedData.foundSkills,
-        job.reqSkills.map(c => c?.skill?._id || c?.skill)
+        job.reqSkills.map(c => c?.skill?._id?.toString() || c?.skill?.toString())
       )
     }
     // if (job?.preferences?.locations?.length) {
     //   updatedData.foundLocations = union(updatedData.foundLocations, job.preferences.locations)
     // }
     updatedData.newDescription += `${job?.description} ${job?.title}`
-    updatedData.foundClients = union(updatedData.foundClients, [job?.client?._id || job?.client])
+    updatedData.foundClients = union(updatedData.foundClients, [
+      job?.client?._id?.toString() || job?.client?.toString(),
+    ])
   })
 
   return updatedData
@@ -477,31 +481,65 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
       newDescription: '',
     }
 
+    let potentialJobs = []
+    let potentialCats = []
+    let potentialSkills = []
+
     initialSimilarDocs.foundLocations = freelancer?.currentLocations
 
     initialSimilarDocs.foundClients = union(
-      freelancer?.relevantClients?.map(c => c?._id) || [],
-      freelancer?.favoriteClients || []
+      freelancer?.relevantClients?.map(c => c?._id?.toString()) || [],
+      freelancer?.favoriteClients?.map(c => c?._id?.toString()) || []
     )
 
-    initialSimilarDocs.foundCats = union(initialSimilarDocs.foundCats, freelancer?.preferJobType)
-    initialSimilarDocs.foundSkills = union(
-      initialSimilarDocs.foundSkills,
-      freelancer?.skills.map(sk => sk.skill)
+    potentialCats = union(potentialCats, freelancer?.preferJobType)
+    potentialSkills = union(
+      potentialSkills,
+      freelancer?.skills.map(sk => sk.skill?.toString())
     )
 
     let similarJobs: any[] = []
 
     if (freelancer?.jobs?.length) {
-      similarJobs = union(similarJobs, [...freelancer.jobs])
+      potentialJobs = union(potentialJobs, [...freelancer.jobs])
     }
     if (freelancer?.proposals?.length) {
       const appliedJobs = freelancer.proposals.map(p => p.job)
-      similarJobs = union(similarJobs, [...appliedJobs])
+      potentialJobs = union(potentialJobs, [...appliedJobs])
     }
     if (freelancer?.favoriteJobs) {
-      similarJobs = union(similarJobs, [...freelancer.favoriteJobs])
+      potentialJobs = union(potentialJobs, [...freelancer.favoriteJobs])
     }
+
+    potentialJobs
+      ?.filter(
+        j =>
+          j?.preferences?.locations?.includes(initialSimilarDocs.similarLocations) ||
+          j?.reqSkills?.map(s => potentialSkills?.includes(s?.skill?.toString())) ||
+          j?.categories?.includes(potentialCats)
+      )
+      ?.forEach(job => {
+        if (job?.categories?.length) {
+          potentialCats = union(
+            potentialCats,
+            job.categories.map(c => c?._id?.toString() || c)
+          )
+        }
+        if (job?.reqSkills?.length) {
+          potentialSkills = union(
+            potentialSkills,
+            job.reqSkills.map(c => c?.skill?._id?.toString() || c?.skill?.toString())
+          )
+        }
+        if (job?.preferences?.locations?.length) {
+          initialSimilarDocs.similarLocations = union(initialSimilarDocs.similarLocations, job.preferences.locations)
+        }
+        initialSimilarDocs.newDescription += `${job?.description} ${job?.title}`
+        initialSimilarDocs.foundClients = union(initialSimilarDocs.foundClients, [
+          job?.client?._id?.toString() || job?.client?.toString(),
+        ])
+      })
+
     if (freelancer?.relevantClients) {
       // const freelancerJobs = await getJobsByOptions({ client: { $in: freelancer?.relevantClients?.map(c => c?._id) } })
       // similarJobs = union(similarJobs, [...freelancerJobs])
@@ -515,8 +553,27 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
       })
     }
 
+    if (freelancer?.favoriteClients) {
+      freelancer?.favoriteClients?.forEach(e => {
+        initialSimilarDocs.foundCats = union(initialSimilarDocs.foundCats, e?.preferJobType || [])
+
+        similarJobs = union(similarJobs, e?.jobs)
+
+        initialSimilarDocs.foundLocations = union(initialSimilarDocs.foundLocations, e?.preferLocations)
+        initialSimilarDocs.newDescription += `${e?.intro}`
+      })
+    }
+
     initialSimilarDocs = updateSimilarData(
-      similarJobs,
+      similarJobs?.filter(
+        j =>
+          (j?.preferences?.locations?.includes(initialSimilarDocs.similarLocations) &&
+            j?.reqSkills?.map(s => initialSimilarDocs?.similarSkills?.includes(s?.skill?.toString()))) ||
+          j?.reqSkills?.map(s => initialSimilarDocs?.similarSkills?.includes(s?.skill?.toString())) ||
+          j?.categories?.includes(initialSimilarDocs.similarJobCats) ||
+          (j?.categories?.includes(initialSimilarDocs.similarJobCats) &&
+            j?.preferences?.locations?.includes(initialSimilarDocs.similarLocations))
+      ),
       initialSimilarDocs.foundCats,
       initialSimilarDocs.foundSkills,
       initialSimilarDocs.foundLocations,
@@ -528,19 +585,10 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
 
     logger.info('Extracted Keywords', keyWords)
 
-    // const regexPattern = keyWords
-    //   ?.map(keyword => {
-    //     const escapedKeyword = keyword.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
-    //     return `(${escapedKeyword})`
-    //   })
-    //   .join('|')
-
-    // const similarRegex = new RegExp(regexPattern, 'gi')
-
     const similarRegex = createFuzzyRegex(keyWords)
 
-    const foundExtraCats: any[] = await JobCategory.find({ name: { $regex: `${similarRegex}`, $options: 'si' } })
-    const foundExtraSkills: any[] = (await Skill.find({ name: { $regex: `${similarRegex}`, $options: 'si' } })) || []
+    // const foundExtraCats: any[] = await JobCategory.find({ name: { $regex: `${similarRegex}`, $options: 'si' } })
+    // const foundExtraSkills: any[] = (await Skill.find({ name: { $regex: `${similarRegex}`, $options: 'si' } })) || []
 
     const extraSimilarSkills = await Promise.all(
       initialSimilarDocs.foundSkills?.filter(sk => sk?.category)?.map(sk => Skill.find({ category: sk?.category }))
@@ -548,12 +596,15 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
 
     const foundTags = await JobTag.find({ name: { $regex: `${similarRegex}`, $options: 'si' } })
 
-    initialSimilarDocs.foundCats = union(initialSimilarDocs.foundCats, foundExtraCats?.map(c => c?._id) || [])
+    // initialSimilarDocs.foundCats = union(
+    //   initialSimilarDocs.foundCats,
+    //   foundExtraCats?.map(c => c?._id?.toString()) || []
+    // )
 
     initialSimilarDocs.foundSkills = union(
       initialSimilarDocs.foundSkills || [],
-      foundExtraSkills?.map(sk => sk?._id) || [],
-      [].concat(...extraSimilarSkills)?.map(sk => sk?._id)
+      // foundExtraSkills?.map(sk => sk?._id?.toString()) || [],
+      [].concat(...extraSimilarSkills)?.map(sk => sk?._id?.toString())
     )
 
     logger.info('Similar Doc', initialSimilarDocs)
@@ -562,24 +613,51 @@ export const updateSimilarById = async (freelancerId: mongoose.Types.ObjectId): 
       freelancer: freelancer._id,
     })
     if (similarDoc) {
-      similarDoc.similarJobCats = union(
-        initialSimilarDocs.foundCats?.filter(c => !!c),
-        similarDoc?.similarJobCats || []
-      )
-      similarDoc.similarSkills = union(
-        initialSimilarDocs.foundSkills?.filter(s => !!s),
-        similarDoc?.similarSkills || []
-      )
+      similarDoc.similarJobCats = [
+        ...new Set(
+          union(
+            initialSimilarDocs?.foundCats?.filter(c => !!c),
+            similarDoc?.similarJobCats || []
+          )
+        ),
+      ]
+      similarDoc.similarSkills = [
+        ...new Set(
+          union(
+            initialSimilarDocs?.foundSkills?.filter(s => !!s),
+            similarDoc?.similarSkills || []
+          )
+        ),
+      ]
       similarDoc.similarLocations = union(similarDoc.similarLocations, initialSimilarDocs?.foundLocations || [])
+      similarDoc.potentialJobCats = [
+        ...new Set(
+          union(
+            potentialCats?.filter(c => !!c),
+            similarDoc?.potentialJobCats || []
+          )
+        ),
+      ]
+      similarDoc.potentialSkills = [
+        ...new Set(
+          union(
+            potentialSkills?.filter(s => !!s),
+            similarDoc?.potentialSkills || []
+          )
+        ),
+      ]
+
       similarDoc.similarKeys = similarRegex?.toString()
       similarDoc.similarClients = union(initialSimilarDocs.foundClients, similarDoc?.similarClients || [])
     } else if (!similarDoc) {
       similarDoc = new SimilarFreelancer({
         freelancer: freelancer._id,
         similarKeys: similarRegex?.toString(),
-        similarJobCats: initialSimilarDocs.foundCats?.filter(c => !!c),
+        similarJobCats: [...new Set(initialSimilarDocs?.foundCats?.filter(c => !!c))],
         similarLocations: initialSimilarDocs?.foundLocations,
-        similarSkills: initialSimilarDocs.foundSkills?.filter(s => !!s),
+        similarSkills: [...new Set(initialSimilarDocs?.foundSkills?.filter(s => !!s))],
+        potentialJobCats: [...new Set(potentialCats)],
+        potentialSkills: [...new Set(potentialSkills)],
         similarTags: foundTags || [],
         similarClients: initialSimilarDocs.foundClients,
       })
@@ -656,4 +734,283 @@ export const softDeleteFreelancerById = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
   }
   return freelancer
+}
+
+export const getTopCurrentTypeTracking = async (freelancer: IFreelancerDoc, limit?: number) => {
+  const freelancerId = freelancer?._id?.toString()
+
+  try {
+    const categoryRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$categories' },
+      {
+        $project: {
+          _id: 0,
+          category: '$categories.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$categories.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$categories.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$categories.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$categories.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$categories.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$categories.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$categories.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$categories.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalPoints: -1 } },
+      { $limit: limit || 5 },
+    ]).exec()
+
+    const skillRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$skills' },
+      {
+        $project: {
+          _id: 0,
+          skill: '$skills.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$skills.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$skills.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$skills.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$skills.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$skills.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$skills.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$skills.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$skills.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalPoints: -1 } },
+      { $limit: limit || 5 },
+    ]).exec()
+
+    return { categoryRankings, skillRankings }
+  } catch (err: any) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Cannot fetch top current tracking: ${err.message}`)
+  }
+}
+
+export const getLastestTopJobs = async (freelancer: IFreelancerDoc, limit?: number) => {
+  const freelancerId = freelancer?._id?.toString()
+
+  try {
+    const currentViewJobRanking = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$jobs' },
+      {
+        $project: {
+          _id: 0,
+          job: '$jobs.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$jobs.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$jobs.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$jobs.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$jobs.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$jobs.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$jobs.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$jobs.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$jobs.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+          timeDifference: {
+            $divide: [{ $subtract: [new Date(), { $toDate: '$jobs.lastTimeView' }] }, 3600000],
+          },
+        },
+      },
+      {
+        $project: {
+          job: 1,
+          totalPoints: 1,
+          adjustedPoints: {
+            $add: [
+              '$totalPoints',
+              {
+                $multiply: [
+                  '$totalPoints',
+                  {
+                    $min: [
+                      1,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $sum: [1, '$timeDifference'],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      { $sort: { adjustedPoints: -1 } },
+      { $limit: limit || 5 },
+      // { $sort: { totalPoints: -1 } },
+    ]).exec()
+
+    const fullfillJobs = await Job.populate(
+      currentViewJobRanking?.map(item => ({ ...item, job: new mongoose.Types.ObjectId(item.job) })),
+      [{ path: 'job' }]
+    )
+
+    return fullfillJobs
+  } catch (error) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Cannot fetch top current tracking: ${error}`)
+  }
+}
+
+export const getLastestTopCurrentTypeTracking = async (freelancer: IFreelancerDoc, limit?: number) => {
+  const freelancerId = freelancer?._id?.toString()
+
+  try {
+    const categoryRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$categories' },
+      {
+        $project: {
+          _id: 0,
+          category: '$categories.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$categories.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$categories.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$categories.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$categories.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$categories.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$categories.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$categories.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$categories.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+          timeDifference: {
+            $divide: [{ $subtract: [new Date(), { $toDate: '$categories.lastTimeView' }] }, 3600000],
+          },
+        },
+      },
+      {
+        $project: {
+          category: 1,
+          totalPoints: 1,
+          withTimePoints: {
+            $add: [
+              '$totalPoints',
+              {
+                $multiply: [
+                  '$totalPoints',
+                  {
+                    $min: [
+                      1,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $sum: [1, '$timeDifference'],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      { $sort: { withTimePoints: -1 } },
+      { $limit: limit || 5 },
+      // { $sort: { totalPoints: -1 } },
+    ]).exec()
+
+    const skillRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$skills' },
+      {
+        $project: {
+          _id: 0,
+          skill: '$skills.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$skills.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$skills.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$skills.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$skills.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$skills.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$skills.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$skills.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$skills.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+          timeDifference: {
+            $divide: [{ $subtract: [new Date(), { $toDate: '$skills.lastTimeView' }] }, 3600000],
+          },
+        },
+      },
+      {
+        $project: {
+          skill: 1,
+          totalPoints: 1,
+          withTimePoints: {
+            $add: [
+              '$totalPoints',
+              {
+                $multiply: [
+                  '$totalPoints',
+                  {
+                    $min: [
+                      1,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $sum: [1, '$timeDifference'],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      { $sort: { withTimePoints: -1 } },
+      { $limit: limit || 5 },
+      // { $sort: { totalPoints: -1 } },
+    ]).exec()
+
+    return { categoryRankings, skillRankings }
+  } catch (err: any) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Cannot fetch top current tracking: ${err.message}`)
+  }
 }

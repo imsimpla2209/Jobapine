@@ -189,12 +189,13 @@ export default function ReviewProposalsCard() {
                   <span className="fw-bold">{proposal.description}</span>
                 </div>
 
-                {proposal?.job?.questions?.length ? (
+                {proposal?.job?.questions?.length && proposal?.answers?.length ? (
                   <div>
                     <span className="text-muted fw-bold">{t("Fast Client's Questions:")}</span>
                     {proposal?.job?.questions?.map((question, index) => (
                       <div style={{ paddingLeft: 12, marginTop: 8 }}>
                         <span className="text-muted">{question}</span>
+
                         <p className="text-muted fw-bold">{proposal?.answers?.[index]}</p>
                       </div>
                     ))}

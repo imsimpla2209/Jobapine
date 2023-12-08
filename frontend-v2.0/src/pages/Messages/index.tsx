@@ -113,6 +113,9 @@ export default function Messages() {
               setSelectedMessageRoom={setSelectedMessageRoom}
               setMessageRooms={setMessageRooms}
               messageRooms={selectedUserMessages?.rooms}
+              setMessageRoomsByUser={setMessageRoomsByUser}
+              messageRoomsByUser={messageRoomsByUser}
+              selectedUserMessages={selectedUserMessages?.memberId}
             />
           </div>
         </aside>

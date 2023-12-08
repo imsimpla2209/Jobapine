@@ -55,7 +55,7 @@ export const jobLoad = createSubscription<{
   page: 1,
   categories: [],
   skills: [],
-  pageSize: 20,
+  pageSize: 36,
 })
 
 export const refreshStore = createSubscription<{ isRefresh: boolean }>({ isRefresh: false })

@@ -48,7 +48,7 @@ export default function NavLargScreen() {
   }
 
   useEffect(() => {
-    getNotifies(user?.id || user?._id).then(res => {
+    getNotifies(user?.id).then(res => {
       setNotifies(res.data.results)
       setUnSeen(res.data.results?.filter(n => !n?.seen) || [])
     })
@@ -58,7 +58,7 @@ export default function NavLargScreen() {
     // App socket
     appSocket.on(ESocketEvent.SENDNOTIFY, data => {
       console.log('Get Notify:', data)
-      if (data?.to === (user?.id || user?._id)) {
+      if (data?.to === (user?.id)) {
         setNotifies(prev => [{ ...data, createdAt: new Date() }, ...prev])
         setUnSeen(prev => [...prev, data])
       }
@@ -69,6 +69,21 @@ export default function NavLargScreen() {
       appSocket.off(ESocketEvent.SENDNOTIFY)
     }
   }, [notifies, unSeen])
+
+  useEffect(() => {
+    appSocket.on(ESocketEvent.SENDMSG, (data) => {
+      console.log(data.to, data?.to === user?.id)
+      if (data?.to === user?.id) {
+        console.log('Get MSG:', data)
+        setUnSeenMSG(prev => prev + 1)
+      }
+    })
+
+    return () => {
+      appSocket.off(ESocketEvent.SENDMSG)
+
+    }
+  }, [unSeenMSG])
 
   const items = useMemo(() => {
     return notifies?.slice(0, 5)?.map((s, ix) => {

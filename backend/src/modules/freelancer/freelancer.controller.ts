@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { updateUserById } from '@modules/user/user.service'
 import { EUserType } from 'common/enums'
@@ -9,6 +10,7 @@ import { IOptions } from '../../providers/paginate/paginate'
 import catchAsync from '../../utils/catchAsync'
 import pick from '../../utils/pick'
 import * as freelancerService from './freelancer.service'
+import FreelancerTracking from './freelancer.tracking.model'
 
 export const registerFreelancer = catchAsync(async (req: Request, res: Response) => {
   try {
@@ -143,4 +145,81 @@ export const reviewFreelancer = catchAsync(async (req: Request, res: Response) =
     await freelancerService.reviewFreelancerById(new mongoose.Types.ObjectId(req.params.id), req.body)
     res.status(httpStatus.NO_CONTENT).send()
   }
+})
+
+export const getFreelancerTracking = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  const freelancerTracking = await FreelancerTracking.findOne({ freelancer: freelancer?._id?.toString() })
+  if (!freelancerTracking) {
+    const newFreelancerTracking = await FreelancerTracking.create({
+      freelancer: freelancer?._id?.toString(),
+    })
+    res.send({ freelancerTracking: newFreelancerTracking, isFirstTime: true })
+  }
+  res.send({ freelancerTracking, isFirstTime: false })
+})
+
+export const updateFreelancerTracking = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  const updatedFreelancerTracking = await FreelancerTracking.updateOne(
+    { freelancer: freelancer?._id?.toString() },
+    req.body
+  )
+  res.send(updatedFreelancerTracking)
+})
+
+export const deleteFreelancerTracking = catchAsync(async (req: Request, res: Response) => {
+  const updatedFreelancerTracking = await FreelancerTracking.deleteOne({ freelancer: req.params.id?.toString() })
+  res.send(updatedFreelancerTracking)
+})
+
+export const deleteAllFreelancerTracking = catchAsync(async (req: Request, res: Response) => {
+  await FreelancerTracking.deleteMany()
+  res.send(true)
+})
+
+export const createFreelancerTracking = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const updatedFreelancer = await freelancerService.createFreelancerProfileById(
+    new mongoose.Types.ObjectId(freelancer?._id),
+    req.body
+  )
+  freelancerService.updateSimilarById(updatedFreelancer?._id)
+  res.send(updatedFreelancer)
+})
+
+export const getTopCurrentTypeTracking = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const topTypes = await freelancerService.getTopCurrentTypeTracking(freelancer)
+  res.send(topTypes)
+})
+
+export const getLastestTopJobs = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const lastestTopJobs = await freelancerService.getLastestTopJobs(freelancer)
+  res.send(lastestTopJobs)
+})
+
+export const getLastestTopType = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const lastestTopJobs = await freelancerService.getLastestTopCurrentTypeTracking(freelancer)
+  res.send(lastestTopJobs)
 })

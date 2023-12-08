@@ -69,9 +69,6 @@ export default function FreelancerRoutes() {
 
   return (
     <div className="background_general">
-      <SearchContextProvider
-        value={{ arr, setarr, itemSearchList, setitemSearchList, searchList, setsearchList, switchJobs, setswitchJobs }}
-      >
         <Header />
         <div>
           <Routes>
@@ -116,7 +113,6 @@ export default function FreelancerRoutes() {
             {/* <ForumRoutes /> */}
           </Routes>
         </div>
-      </SearchContextProvider>
       <Footer />
     </div>
   )
