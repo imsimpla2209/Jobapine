@@ -16,7 +16,10 @@ export enum EMSGTags {
   CONTACT = 'contact',
 }
 
-export default function MessagesLeftSide({ freelancerID, userID, selectedMessageRoom, setSelectedMessageRoom, messageRooms, setMessageRooms }: any) {
+export default function MessagesLeftSide({ 
+  freelancerID, userID, selectedMessageRoom, 
+  setSelectedMessageRoom, messageRooms, selectedUserMessages,
+  setMessageRooms, setMessageRoomsByUser, messageRoomsByUser }: any) {
   const { t } = useTranslation(['main'])
   const [tab, setTab] = useState(EMSGTags.CHAT)
   const [search, setSearch] = useState('')
@@ -66,6 +69,20 @@ export default function MessagesLeftSide({ freelancerID, userID, selectedMessage
         return m
       })
     )
+    console.log(selectedUserMessages)
+    setMessageRoomsByUser(messageRoomsByUser.map((mByUser) => {
+      let msgByUser = mByUser
+      if (mByUser?.memberId?.id === selectedUserMessages?.id) {
+        msgByUser = { ...mByUser, rooms: mByUser?.rooms?.map((r) => {
+          if (r?._id === _id) {
+            return { ...r, seen: true }
+          }
+          return r
+        })}
+        console.log(msgByUser)
+      }
+      return msgByUser
+    }))
     updateMessageRoom({ seen: true }, _id)
   }
 

@@ -11,20 +11,35 @@ export default function RightSidebarJobDetails({ job, freelancer }) {
   return (
     <div className="col-lg-3 col-xs-3 d-flex flex-column">
       {
-        job?.appliedFreelancers?.includes(freelancer?._id) ? <div>
+        !!freelancer?.jobs?.includes(job?._id) ? (
+          <div className="bg-white">
             <Result
-              title={t("You already applied for this Job")}
+              title={t("You got this job")}
               extra={
                 <Link to={`/proposals`} type="primary" key="console">
-                  {t("Review proposal")}
+                  {t("Go to my job")}
                 </Link>
               }
             />
-          </div> :
-          <ConnectsAndSubmit />
+          </div>
+        ) : <>
+          {
+            job?.appliedFreelancers?.includes(freelancer?._id) ? <div className="bg-white">
+              <Result
+                title={t("You already applied for this Job")}
+                extra={
+                  <Link to={`/proposals`} type="primary" key="console">
+                    {t("Review proposal")}
+                  </Link>
+                }
+              />
+            </div> :
+              <ConnectsAndSubmit />
+          }
+        </>
       }
       <ClientInfo client={job?.client} />
       <JobLink id={job?._id} />
-    </div>
+    </div >
   );
 }

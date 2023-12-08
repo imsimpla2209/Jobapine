@@ -144,37 +144,38 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
                       }
                     </>
                   }
-                  <div>
-                    {
-                      !isEmpty(proposal?.answers) && <>
-                        <strong className="me-2">{t("answers")}: </strong>
-                        <Collapse
-                          items={Object.keys(proposal?.answers)?.map((a, ix) => {
-                            return {
-                              key: ix,
-                              label: jobData?.questions[a],
-                              children: <p>{proposal?.answers[a]}</p>,
-                            }
-                          })} defaultActiveKey={[0]} />
-                      </>
-                    }
-                  </div>
                 </div>
-              
+
+              </div>
+
+              <div className="col-md-5 col-12 d-flex flex-column">
+                <strong className=" me-2">{t('Applied Job')}:</strong>
+                <Link to={`/job/${jobId || job?._id}`} className="fw-bold " style={{ color: '#6600cc' }}>
+                  {jobData?.title}
+                </Link>
+                <div className="text muted">{jobData?.description}</div>
+              </div>
             </div>
-            <div className="col-md-5 col-12 d-flex flex-column">
-              <strong className=" me-2">{t('Applied Job')}:</strong>
-              <Link to={`/job/${jobId || job?._id}`} className="fw-bold " style={{ color: '#6600cc' }}>
-                {jobData?.title}
-              </Link>
-              <div className="text muted">{jobData?.description}</div>
+            <div>
+              {
+                !isEmpty(proposal?.answers) && <>
+                  <strong className="me-2">{t("answers")}: </strong>
+                  <Collapse
+                    items={Object.keys(proposal?.answers)?.map((a, ix) => {
+                      return {
+                        key: ix,
+                        label: jobData?.questions[a],
+                        children: <p>{proposal?.answers[a]}</p>,
+                      }
+                    })} defaultActiveKey={[0]} />
+                </>
+              }
             </div>
+            <hr />
           </div>
-          <hr />
-        </div>
-      ) : (
-        ind === 0 && <Loader />
-      )}
+        ) : (
+          ind === 0 && <Loader />
+        )}
       <Drawer width={1020} placement="right" closable={false} onClose={onClose} open={openDrawer}>
         <ProposalDetail proposal={proposal} user={user} onRefresh={onRefresh}></ProposalDetail>
       </Drawer>

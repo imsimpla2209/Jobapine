@@ -9,6 +9,8 @@ import { freelancerStore, userStore } from "src/Store/user.store";
 import { useSubscription } from "src/libs/global-state-hook";
 import Loader from "../../../Components/SharedComponents/Loader/Loader";
 import "./HomeFreelancer.css";
+import { Col, Row } from "antd";
+import HeadOfCenterSection from "src/Components/FreelancerComponents/HeadOfCenterSection";
 
 export default function HomeFreelancer() {
 
@@ -19,7 +21,7 @@ export default function HomeFreelancer() {
 
   return (
     <div >
-      <div className="container-xxl container-fluid-sm my-lg-4 px-1 pt-1">
+      {/* <div className="mx-md-5 container-fluid-sm my-lg-4 px-1 pt-1">
         {
           user?.name
             ? <div className="mx-3">
@@ -27,12 +29,42 @@ export default function HomeFreelancer() {
                 freelancer?.isProfileVerified === false &&
                 <AcceptedAlert widthh="66%" />
               }
-              <FindWorkFreelancerHome />
-              <div className="row gx-2">
+              <div className="mx-md-5"><FindWorkFreelancerHome /></div>
+              <Row gutter={24} className="mx-md-4">
                 <LeftSidebarFreelancerHome freelancer={freelancer} />
                 <SectionCenterFreelancerHome user={freelancer} />
                 <RightSidebarFreelancerHome lang={lang} user={user} freelancer={freelancer} />
-              </div>
+              </Row>
+            </div>
+            : <div className="d-flex justify-content-center align-items-center" style={{ height: "90vh" }}>
+              <Loader />
+            </div>
+        }
+      </div> */}
+      <div className="mx-md-5 container-fluid-sm my-lg-4 px-1 pt-1">
+        {
+          user?.name
+            ? <div className="mx-md-4">
+              {
+                freelancer?.isProfileVerified === false &&
+                <AcceptedAlert widthh="66%" />
+              }
+              
+              <Row gutter={24} className="mx-md-5">
+                
+                <Col xs={0} lg={4} xl={17}>
+                  <HeadOfCenterSection />
+                  <div className="mx-md-5"><FindWorkFreelancerHome /></div>
+                  {/* <LeftSidebarFreelancerHome freelancer={freelancer} /> */}
+                </Col>
+                <Col xs={0} lg={4} xl={7}>
+                  <RightSidebarFreelancerHome lang={lang} user={user} freelancer={freelancer} />
+                </Col>
+              </Row>
+              <Row gutter={24} className="mx-md-5">
+
+                <SectionCenterFreelancerHome user={freelancer} />
+              </Row>
             </div>
             : <div className="d-flex justify-content-center align-items-center" style={{ height: "90vh" }}>
               <Loader />

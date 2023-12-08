@@ -6,7 +6,7 @@ export default function SearchBox() {
   const { t } = useTranslation(['main'])
 
   return (
-    <form id="search-form-id" className="d-flex">
+    <form id="search-form-id" className="d-flex mt-2">
       <button className="btn position-relative search-btnn-cn ">
         <i className="fa fa-search search-icon-cn"></i>
       </button>

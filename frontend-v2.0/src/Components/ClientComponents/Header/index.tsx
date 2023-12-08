@@ -6,11 +6,13 @@ import NavSmallScreen from "../NavSmallScreen";
 import HeaderSearchSm from "./../../SharedComponents/HeaderSearchSm/HeaderSearchSm";
 import Logo from "./../../SharedComponents/Logo/Logo";
 import "./Header.css";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Header() {
 	const [showSearch, setShowSearch] = useState(false);
 	const [showSearchIcon, setShowSearchIcon] = useState(true);
-
+	const { t } = useTranslation(['main'])
 	useEffect(() => { }, [showSearch, showSearchIcon]);
 
 	const toggleSearchForm = () => {
@@ -28,7 +30,10 @@ export default function Header() {
 				className="ms-5 me-5 d-flex justify-content-between align-items-center"
 			>
 				<div className="d-flex justify-content-between">
-					<Logo />
+					<Link to={'/'} style={{ textAlign: 'end'}}>
+						<Logo />
+						<p style={{ color: "grey", fontWeight: 600, marginBottom: 0 }}>{t("For Clients")}</p>
+					</Link>
 					<SearchBox />
 				</div>
 				<nav className="navbar navbar-expand-lg navbar-dark bg-transparent py-0 mx-4">

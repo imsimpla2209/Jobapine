@@ -14,7 +14,7 @@ import { useState } from 'react'
 import { updateFreelancer } from 'src/api/freelancer-apis'
 import { freelancerStore } from 'src/Store/user.store'
 
-export default function JobCard({ item, freelancer, lang }) {
+export default function JobCard({ item, freelancer, lang, style }: any) {
   const { t } = useTranslation(['main'])
   const locations = useSubscription(locationStore).state;
   const setState = useSubscription(freelancerStore).setState;
