@@ -26,6 +26,8 @@ export default function JobDetailsBeforeProposals() {
   const client = useSubscription(clientStore).state
   const [contracts, setContracts] = useState([])
   const [notAllowEdit, setNotAllowEdit] = useState(true)
+  const [forceUpdate, setForceUpdate] = useState(0)
+  const [loadingContract, setloadingContract] = useState(false)
 
   console.log('😘contracts', contracts)
   useEffect(() => {
@@ -44,6 +46,19 @@ export default function JobDetailsBeforeProposals() {
       }).then(res => setContracts(res.data.results))
     }
   }, [id, client])
+
+  useEffect(() => {
+    if (forceUpdate) {
+      setloadingContract(true)
+      getContracts({
+        client: client._id || client.id,
+        job: id,
+        currentStatus: EStatus.ACCEPTED,
+      })
+        .then(res => setContracts(res.data.results))
+        .finally(() => setloadingContract(false))
+    }
+  }, [forceUpdate])
 
   const { t } = useTranslation(['main'])
 
@@ -131,12 +146,12 @@ export default function JobDetailsBeforeProposals() {
                 </Card>
 
                 {contracts?.length && isCurrentClientJob ? (
-                  <Card className="mt-3">
-                    <h5 className="fw-bold " style={{ margin: 0 }}>
-                      {t('Freelancers joined this job')}
-                    </h5>
-
-                    <ContractsInJob contracts={contracts} />
+                  <Card className="mt-3" title={t('Freelancers joined this job')} bodyStyle={{ padding: '0px 16px' }}>
+                    <ContractsInJob
+                      contracts={contracts}
+                      setForceUpdate={setForceUpdate}
+                      loadingContract={loadingContract}
+                    />
                   </Card>
                 ) : null}
               </Col>
