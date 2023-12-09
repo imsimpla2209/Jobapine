@@ -16,8 +16,8 @@ export default function AllContracts() {
   } = useSubscription(clientStore, ['id'])
 
   useEffect(() => {
-    getContracts({ client: clientId }).then(res => setContracts(res.data.results))
-  }, [])
+    clientId && getContracts({ client: clientId }).then(res => setContracts(res.data.results))
+  }, [clientId])
 
   return (
     <div style={{ padding: '40px 100px' }}>
