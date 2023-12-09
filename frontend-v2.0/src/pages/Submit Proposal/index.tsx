@@ -3,52 +3,70 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
 // import { auth, db, storage } from "../../firebase";
 // import firebase from 'firebase/app';
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { freelancerStore, userStore } from "src/Store/user.store";
-import { getJob } from "src/api/job-apis";
-import { useSubscription } from "src/libs/global-state-hook";
-import SubmitProposalFixed from "../../Components/FreelancerComponents/SubmitProposalFixed";
-import SubmitProposalHourly from "../../Components/FreelancerComponents/SubmitProposalHourly";
-import { Button, Form, Input, Modal, Popconfirm, Result, Space, Tag } from "antd";
-import { currencyFormatter, fetchAllToCL, pickName, randomDate } from "src/utils/helperFuncs";
-import { EComplexityGet, EPaymenType } from "src/utils/enum";
-import { DefaultUpload } from "src/Components/CommonComponents/upload/upload";
-import { createProposal, withdrawProposal } from "src/api/proposal-apis";
-import toast from "react-hot-toast";
-import FileDisplay from "../ForumPages/ideas/idea-detail/file-display";
+import { useTranslation } from 'react-i18next'
+import { Link, useSearchParams } from 'react-router-dom'
+import { freelancerStore, userStore } from 'src/Store/user.store'
+import { getJob } from 'src/api/job-apis'
+import { useSubscription } from 'src/libs/global-state-hook'
+import SubmitProposalFixed from '../../Components/FreelancerComponents/SubmitProposalFixed'
+import SubmitProposalHourly from '../../Components/FreelancerComponents/SubmitProposalHourly'
+import { Button, Form, Input, Modal, Popconfirm, Result, Space, Tag } from 'antd'
+import { currencyFormatter, fetchAllToCL, pickName, randomDate } from 'src/utils/helperFuncs'
+import { EComplexityGet, EPaymenType } from 'src/utils/enum'
+import { DefaultUpload } from 'src/Components/CommonComponents/upload/upload'
+import { createProposal, withdrawProposal } from 'src/api/proposal-apis'
+import toast from 'react-hot-toast'
+import FileDisplay from '../ForumPages/ideas/idea-detail/file-display'
+import { useFreelancerTracking } from 'src/hooks/freelancer-tracking-hook'
+import { ETrackingEvent } from 'src/Store/tracking.store'
 
 export default function SubmitProposal() {
-  const { i18n, t } = useTranslation(['main']);
-  let lang = i18n.language;
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { i18n, t } = useTranslation(['main'])
+  let lang = i18n.language
+  const { id } = useParams()
+  const navigate = useNavigate()
   const [jobData, setJobData] = useState(null)
   const [files, setFiles] = useState([])
-  const [open, setOpen] = useState(false);
-  const freelancer = useSubscription(freelancerStore).state;
-  const user = useSubscription(userStore).state;
-  const [isValid, setValid] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [answer, setAnswer] = useState<Record<number, string>>({});
+  const [open, setOpen] = useState(false)
+  const freelancer = useSubscription(freelancerStore).state
+  const user = useSubscription(userStore).state
+  const [isValid, setValid] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [answer, setAnswer] = useState<Record<number, string>>({})
   const [proposalData, setproposalData] = useState({
-    _id: "",
-    coverLetter: "",
+    _id: '',
+    coverLetter: '',
     proposalImages: [],
-  });
-  const [rate, setrate] = useState(0);
+  })
+  const [rate, setrate] = useState(0)
+
+  const [start, setStart] = useState(0)
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const isRcmd = searchParams.get('isRcmd')
+  const { updateTrackingforJob } = useFreelancerTracking()
+
+  useEffect(() => {
+    setStart(performance.now())
+    return () => {
+      console.log('out', (performance.now() - start) / 1000)
+      const mls = isRcmd === 'true' ? start - 500 * 1000 : start
+      if (jobData) {
+        updateTrackingforJob(jobData, ETrackingEvent.APPLY, mls)
+      }
+    }
+  }, [id])
 
   useEffect(() => {
     getJob(id).then(res => {
-      console.log("load job, ", id);
+      console.log('load job, ', id)
       setJobData(res.data)
-
     })
-  }, []);
+  }, [])
 
   useEffect(() => {
     if (jobData?.appliedFreelancers?.includes(freelancer?._id)) {
@@ -66,34 +84,31 @@ export default function SubmitProposal() {
   }
 
   const handlewithdrawProposal = async () => {
-    withdrawProposal(proposalData?._id).then((res) => {
-      
-    })
-  };
+    withdrawProposal(proposalData?._id).then(res => {})
+  }
 
-
-  const handlVal = (e) => {
-    const val = e.target.value;
-    const name = e.target.name;
-    const files = e.target.files;
+  const handlVal = e => {
+    const val = e.target.value
+    const name = e.target.name
+    const files = e.target.files
 
     switch (name) {
-      case "coverLetter":
+      case 'coverLetter':
         proposalData.coverLetter = val
-        setproposalData({ ...proposalData, coverLetter: proposalData.coverLetter });
-        break;
-      case "images":
+        setproposalData({ ...proposalData, coverLetter: proposalData.coverLetter })
+        break
+      case 'images':
         if (files[0]) {
-          proposalData.proposalImages.push('');
+          proposalData.proposalImages.push('')
           setproposalData({ ...proposalData, proposalImages: proposalData.proposalImages })
         }
-        break;
+        break
       default:
-        break;
+        break
     }
-  };
+  }
   const handleRout = () => {
-    navigate("/proposals", { state: { id } })
+    navigate('/proposals', { state: { id } })
   }
 
   const handleProposal = async () => {
@@ -105,10 +120,10 @@ export default function SubmitProposal() {
     }
     if (!proposalData?.coverLetter || proposalData?.coverLetter?.length < 8) {
       setLoading(false)
-      return toast.error(t("You need to put some description of your Proposals"))
+      return toast.error(t('You need to put some description of your Proposals'))
     }
 
-    let files;
+    let files
 
     if (proposalData?.proposalImages) {
       setLoading(false)
@@ -123,21 +138,23 @@ export default function SubmitProposal() {
         expectedAmount: rate ? rate : jobData?.payment?.amount,
         job: jobData?._id,
         freelancer: freelancer?._id,
-        answers: answer
-      }).then(res => {
-        setOpen(true)
-        setValid(false)
-        setproposalData({ ...proposalData, _id: res.data?._id, proposalImages: files || [] })
-      }).finally(() => {
-        setLoading(false)
-      }),
+        answers: answer,
+      })
+        .then(res => {
+          setOpen(true)
+          setValid(false)
+          setproposalData({ ...proposalData, _id: res.data?._id, proposalImages: files || [] })
+        })
+        .finally(() => {
+          setLoading(false)
+        }),
       {
         loading: 'Submiting...',
         success: <b>Submited!</b>,
         error: <b>Fail to Submit.</b>,
       }
-    );
-  };
+    )
+  }
 
   return (
     <main>
@@ -145,27 +162,29 @@ export default function SubmitProposal() {
         <p className="h3 py-md-2 mt-4">{t('Submit a proposal')}</p>
         <div className="row">
           <div className="bg-white border" style={{ borderRadius: 16 }}>
-            <h2 className="h4 border-bottom p-4">{t("Proposal settings")}</h2>
+            <h2 className="h4 border-bottom p-4">{t('Proposal settings')}</h2>
             <div className="ps-4 pt-2">
               <p className="fw-bold">Propose with a Specialized profile</p>
             </div>
 
             <div className="ps-4 py-2">
-              {user.sickPoints > 2 ? <>
-                <p>
-                  {t('This proposal requires')} <strong>2 Sick Points </strong>
-                  <span className="upw-c-cn">
-                    <i className="fas fa-question-circle" />
-                  </span>
-                </p>
-                <p>
-                  {t("When you submit this proposal, you'll have")}
-                  <strong> {user.sickPoints - 2} Sick Points </strong>{t("remaining")}
-                </p>
-              </>
-                : <p className="fw-bold text-alert">{t("You Don't Have Enough")} Sick Points</p>
-              }
-
+              {user.sickPoints > 2 ? (
+                <>
+                  <p>
+                    {t('This proposal requires')} <strong>2 Sick Points </strong>
+                    <span className="upw-c-cn">
+                      <i className="fas fa-question-circle" />
+                    </span>
+                  </p>
+                  <p>
+                    {t("When you submit this proposal, you'll have")}
+                    <strong> {user.sickPoints - 2} Sick Points </strong>
+                    {t('remaining')}
+                  </p>
+                </>
+              ) : (
+                <p className="fw-bold text-alert">{t("You Don't Have Enough")} Sick Points</p>
+              )}
             </div>
           </div>
         </div>
@@ -176,28 +195,30 @@ export default function SubmitProposal() {
               <div className="w-75">
                 <p className="fw-bold">{jobData?.title}</p>
                 <span>
-                  {
-                    jobData?.createdAt ? new Date(`${jobData?.createdAt}`).toLocaleString()
-                      : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()
-                  }
+                  {jobData?.createdAt
+                    ? new Date(`${jobData?.createdAt}`).toLocaleString()
+                    : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}
                 </span>
                 <div className="mb-3">
                   <span className="bg-cat-cn py-1 px-2 me-3 rounded-pill">
                     <Space size={'middle'}>
-                      {
-                        jobData?.categories.map(c => (
-                          <Link to="#" key={c?.name} className="advanced-search-link" style={{ fontWeight: 600, fontSize: 16 }}>
-                            {c?.name}
-                          </Link>
-                        ))
-                      }
+                      {jobData?.categories.map(c => (
+                        <Link
+                          to="#"
+                          key={c?.name}
+                          className="advanced-search-link"
+                          style={{ fontWeight: 600, fontSize: 16 }}
+                        >
+                          {c?.name}
+                        </Link>
+                      ))}
                     </Space>
                   </span>
                 </div>
                 <div className="mb-3">
                   <p>{jobData?.description}</p>
                   <Link to={`/job/${id}`} className="upw-c-cn">
-                    {t("View job posting")}
+                    {t('View job posting')}
                   </Link>
                 </div>
               </div>
@@ -216,7 +237,7 @@ export default function SubmitProposal() {
                     <i className="far fa-clock" />
                   </span>
                   <span className="ps-2">
-                    <strong>{t("Hours to be determined")}</strong>
+                    <strong>{t('Hours to be determined')}</strong>
                   </span>
                   <p className="ps-4">{t(`${jobData?.payment?.type}`)}</p>
                 </div>
@@ -225,21 +246,20 @@ export default function SubmitProposal() {
                     <i className="far fa-calendar-alt" />
                   </span>
                   <span className="ps-2">
-                    <strong>{jobData?.scope?.duration} {t('days')}</strong>
+                    <strong>
+                      {jobData?.scope?.duration} {t('days')}
+                    </strong>
                   </span>
-                  <p className="ps-4">{t("Job Duration")}</p>
+                  <p className="ps-4">{t('Job Duration')}</p>
                 </div>
               </div>
             </div>
             <div className="mx-4 py-2 border-top pb-4">
-              <p className="fw-bold">{t("Skills and experties")}</p>
+              <p className="fw-bold">{t('Skills and experties')}</p>
               <div className="col">
                 {jobData?.reqSkills?.map((skill, index) => (
                   <Space key={index} size={0} className="me-sm-5 " wrap={true}>
-                    <Button
-                      key={index}
-                      className="btn text-light btn-sm rounded-pill cats mx-1 my-1"
-                    >
+                    <Button key={index} className="btn text-light btn-sm rounded-pill cats mx-1 my-1">
                       {pickName(skill?.skill, lang)}
                     </Button>
                     {/* <Progress done={skill?.level} /> */}
@@ -252,22 +272,16 @@ export default function SubmitProposal() {
         <div className="row mt-5">
           {/* <div className="col"> */}
           <div className="bg-white border" style={{ borderRadius: 16 }}>
-            <h2 className="h4 border-bottom p-4">{t("Terms")}</h2>
+            <h2 className="h4 border-bottom p-4">{t('Terms')}</h2>
             <div className="ps-4 pt-2 d-flex flex-md-row flex-column">
-              {
-                jobData?.payment?.type === EPaymenType.WHENDONE
-                  ? <SubmitProposalFixed rate={rate} setrate={setrate} />
-                  : <SubmitProposalHourly rate={rate} setrate={setrate} currentValue={jobData?.payment?.amount} />
-              }
-
+              {jobData?.payment?.type === EPaymenType.WHENDONE ? (
+                <SubmitProposalFixed rate={rate} setrate={setrate} />
+              ) : (
+                <SubmitProposalHourly rate={rate} setrate={setrate} currentValue={jobData?.payment?.amount} />
+              )}
 
               <div className="w-25 m-3 ps-3 d-flex flex-column justify-content-center align-items-center">
-                <svg
-                  width="120px"
-                  role="img"
-                  viewBox="0 0 145 130"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <svg width="120px" role="img" viewBox="0 0 145 130" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M72.5.5L16.8 17.6v61c0 5.6 1.4 11.2 4.2 16.1 6.1 10.8 20.3 27.5 51.5 34.8 31.2-7.2 45.4-24 51.5-34.8 2.8-4.9 4.2-10.5 4.2-16.1v-61L72.5.5z"
                     fill="#6600cc"
@@ -294,58 +308,58 @@ export default function SubmitProposal() {
         </div>
         <div className="row mt-5 pb-5">
           <div className="bg-white border" style={{ borderRadius: 16 }}>
-            <h2 className="h4 border-bottom p-4">{t("Additional details")}</h2>
+            <h2 className="h4 border-bottom p-4">{t('Additional details')}</h2>
             <div className="ps-4 pt-2 pe-4">
               <p className="fw-bold">{t('Cover Letter')}</p>
-              <textarea
-                name="coverLetter"
-                className="form-control"
-                rows={8}
-                defaultValue={""}
-                onChange={handlVal}
-              />
+              <textarea name="coverLetter" className="form-control" rows={8} defaultValue={''} onChange={handlVal} />
             </div>
 
             <div className="ps-4 pt-2 pe-4 mt-3">
-              {jobData?.questions?.length && <>
-                <p className="fw-bold">{t("Fast Client's Questions")}</p>
-                {jobData?.questions?.map((question, ix) => (
-                  <Form.Item label={question + "?"} key={question} required tooltip={t('You need to answer this question')}>
-                    <Input placeholder={t('You need to answer this question')}
-                      onChange={(e: any) => {
-                        setAnswer({ ...answer, [ix]: e.target.value })
-                      }} />
-                  </Form.Item>
-                ))}
-              </>}
+              {jobData?.questions?.length && (
+                <>
+                  <p className="fw-bold">{t("Fast Client's Questions")}</p>
+                  {jobData?.questions?.map((question, ix) => (
+                    <Form.Item
+                      label={question + '?'}
+                      key={question}
+                      required
+                      tooltip={t('You need to answer this question')}
+                    >
+                      <Input
+                        placeholder={t('You need to answer this question')}
+                        onChange={(e: any) => {
+                          setAnswer({ ...answer, [ix]: e.target.value })
+                        }}
+                      />
+                    </Form.Item>
+                  ))}
+                </>
+              )}
             </div>
 
             <div className="mx-4 mt-3 py-2 pb-4">
-              <p className="fw-bold">{t("Attachments")}</p>
+              <p className="fw-bold">{t('Attachments')}</p>
 
               <div className="attachments-cn">
                 <p className="pt-2 px-5 text-center">
-                  drag or{" "}
-                  <label
-                    htmlFor="file"
-                    className="upw-c-cn me-1"
-                    style={{ cursor: "pointer" }}
-                  >
-                    {t("upload")}
+                  drag or{' '}
+                  <label htmlFor="file" className="upw-c-cn me-1" style={{ cursor: 'pointer' }}>
+                    {t('upload')}
                   </label>
-                  {t("Additional project files (optional)")}
+                  {t('Additional project files (optional)')}
                   <DefaultUpload normFile={normFile} files={files}></DefaultUpload>
-
                 </p>
               </div>
               <p className="my-3">
-                {t("You may attach up to 10 files under the size of")}{" "}
-                <strong>25MB</strong> {t(`each. Include work samples or other documents to support your application. Do not attach your résumé — your JobSickers profile is automatically forwarded tothe client with your proposal.`)}
+                {t('You may attach up to 10 files under the size of')} <strong>25MB</strong>{' '}
+                {t(
+                  `each. Include work samples or other documents to support your application. Do not attach your résumé — your JobSickers profile is automatically forwarded tothe client with your proposal.`
+                )}
               </p>
             </div>
             <div className="border-top ps-4 py-4">
-              {
-                isValid ? <>
+              {isValid ? (
+                <>
                   <Button
                     loading={loading}
                     className="btn shadow-none text-white"
@@ -353,31 +367,27 @@ export default function SubmitProposal() {
                       setLoading(true)
                       handleProposal()
                     }}
-                    style={{ backgroundColor: "#5b14b8" }}
+                    style={{ backgroundColor: '#5b14b8' }}
                   >
-                    {t("Submit Proposal")}
+                    {t('Submit Proposal')}
                   </Button>
-                  <button className="btn shadow-none upw-c-cn">{t("Cancel")}</button>
-                </> : <Result
-                  title={`${t("You already applied for this Job")} ${t("OR")} ${t("You are Blocked from this one")}`}
+                  <button className="btn shadow-none upw-c-cn">{t('Cancel')}</button>
+                </>
+              ) : (
+                <Result
+                  title={`${t('You already applied for this Job')} ${t('OR')} ${t('You are Blocked from this one')}`}
                   extra={
                     <Link to={`/proposals`} type="primary" key="console">
-                      {t("Review proposal")}
+                      {t('Review proposal')}
                     </Link>
                   }
                 />
-              }
+              )}
 
-              <Modal
-                open={open}
-                footer={null}
-                className="w-100 w-md-75"
-              >
-                <div >
+              <Modal open={open} footer={null} className="w-100 w-md-75">
+                <div>
                   <div className="">
-                    <h5 className="">
-                      {t("Review proposal")}
-                    </h5>
+                    <h5 className="">{t('Review proposal')}</h5>
                     <button
                       type="button"
                       className="btn-close"
@@ -389,17 +399,22 @@ export default function SubmitProposal() {
                   <div className="">
                     <div className="pt-2">
                       <div className="w-75">
-                        <p className="fw-bold" style={{ fontSize: 19 }}>{jobData?.title}</p>
+                        <p className="fw-bold" style={{ fontSize: 19 }}>
+                          {jobData?.title}
+                        </p>
                         <div className="mb-3">
                           <span className="bg-cat-cn py-1 px-2 rounded-pill">
                             <Space size={'middle'}>
-                              {
-                                jobData?.categories.map(c => (
-                                  <Link to="#" key={c?.name} className="advanced-search-link" style={{ fontWeight: 600, fontSize: 16 }}>
-                                    {c?.name}
-                                  </Link>
-                                ))
-                              }
+                              {jobData?.categories.map(c => (
+                                <Link
+                                  to="#"
+                                  key={c?.name}
+                                  className="advanced-search-link"
+                                  style={{ fontWeight: 600, fontSize: 16 }}
+                                >
+                                  {c?.name}
+                                </Link>
+                              ))}
                             </Space>
                           </span>
                         </div>
@@ -415,16 +430,14 @@ export default function SubmitProposal() {
                           <span className="ps-2">
                             <strong>Expert</strong>
                           </span>
-                          <p className="ps-4">
-                            {t(EComplexityGet[Number(jobData?.scope?.complexity)])}
-                          </p>
+                          <p className="ps-4">{t(EComplexityGet[Number(jobData?.scope?.complexity)])}</p>
                         </div>
                         <div>
                           <span>
                             <i className="far fa-clock" />
                           </span>
                           <span className="ps-2">
-                            <strong>{t("Hours to be determined")}</strong>
+                            <strong>{t('Hours to be determined')}</strong>
                           </span>
                           <p className="ps-4">{t(`${jobData?.payment?.type}`)}</p>
                         </div>
@@ -433,43 +446,47 @@ export default function SubmitProposal() {
                             <i className="far fa-calendar-alt" />
                           </span>
                           <span className="ps-2">
-                            <strong>{jobData?.scope?.duration} {t('days')}</strong>
+                            <strong>
+                              {jobData?.scope?.duration} {t('days')}
+                            </strong>
                           </span>
-                          <p className="ps-4">{t("Job Duration")}</p>
+                          <p className="ps-4">{t('Job Duration')}</p>
                         </div>
                       </div>
                     </div>
                     <div>
-                      <p className="fw-bold">{t("Cover Letter")}</p>
+                      <p className="fw-bold">{t('Cover Letter')}</p>
                       <div className="mb-3">
                         <p>{proposalData.coverLetter}</p>
                       </div>
                     </div>
-                    {
-                      rate && <div>
-                        <p className="fw-bold">{t("Hourly Rate")}</p>
+                    {rate && (
+                      <div>
+                        <p className="fw-bold">{t('Hourly Rate')}</p>
                         <div className="mb-3">
                           <p>{currencyFormatter(rate)}</p>
                         </div>
                       </div>
-                    }
+                    )}
                   </div>
                   <div className="d-flex mb-3">
-                    {
-                      proposalData?.proposalImages?.length > 0 &&
+                    {proposalData?.proposalImages?.length > 0 && (
                       <div className="bg-white py-lg-4 px-4 border border-1 pb-sm-3 py-xs-5">
                         <h5 className="fw-bold my-4">Attachments</h5>
                         <div className="col">
                           <FileDisplay files={proposalData?.proposalImages}></FileDisplay>
                         </div>
-                      </div>}
+                      </div>
+                    )}
                   </div>
                   <div className="modal-footer">
                     <Popconfirm
-                      title={t("WithDraw proposal")}
-                      description={t("When you withdraw this proposal, you will be re-charged 1 sickpoint. But in next time re-submit this proposals, maybe your oppotunity is gone")}
+                      title={t('WithDraw proposal')}
+                      description={t(
+                        'When you withdraw this proposal, you will be re-charged 1 sickpoint. But in next time re-submit this proposals, maybe your oppotunity is gone'
+                      )}
                       onConfirm={handlewithdrawProposal}
-                      okText={t("Accept")}
+                      okText={t('Accept')}
                       cancelText="No"
                     >
                       <button
@@ -478,15 +495,11 @@ export default function SubmitProposal() {
                         className="btn rounded text-white"
                         data-bs-dismiss="modal"
                       >
-                        {t("WithDraw proposal")}
+                        {t('WithDraw proposal')}
                       </button>
                     </Popconfirm>
-                    <button
-                      onClick={handleRout}
-                      className="btn bg-jobsicker"
-                      type="button"
-                    >
-                      {t("Save changes")}
+                    <button onClick={handleRout} className="btn bg-jobsicker" type="button">
+                      {t('Save changes')}
                     </button>
                   </div>
                 </div>
@@ -495,6 +508,6 @@ export default function SubmitProposal() {
           </div>
         </div>
       </div>
-    </main >
-  );
+    </main>
+  )
 }

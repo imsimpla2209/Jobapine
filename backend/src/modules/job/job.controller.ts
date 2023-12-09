@@ -1,5 +1,5 @@
 import { Freelancer } from '@modules/freelancer'
-import { getFreelancerByOptions } from '@modules/freelancer/freelancer.service'
+import { getFreelancerByOptions, getTopCurrentTypeTracking } from '@modules/freelancer/freelancer.service'
 import { Request, Response } from 'express'
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
@@ -7,8 +7,10 @@ import ApiError from '../../common/errors/ApiError'
 import { IOptions } from '../../providers/paginate/paginate'
 import catchAsync from '../../utils/catchAsync'
 import pick from '../../utils/pick'
+import Job, { JobCategory } from './job.model'
 import * as jobService from './job.service'
 import categoryService from './sub_services/jobCategory.service'
+import { Skill } from '@modules/skill'
 
 export const createJob = catchAsync(async (req: Request, res: Response) => {
   const job = await jobService.createJob(req.body)
@@ -46,6 +48,9 @@ export const getAdvancedJobs = catchAsync(async (req: Request, res: Response) =>
     'categories',
     'tags',
     'currentStatus',
+    'duration',
+    'jobDuration',
+    'type'
   ])
   const freelancer = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req?.user?._id as string) })
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
@@ -112,6 +117,16 @@ export const getCurrentInterestedJobsByType = catchAsync(async (req: Request, re
     throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
   }
   const result = await jobService.getCurrentInterestedJobsByType(freelancer, options)
+  res.send(result)
+})
+
+export const getTopInterestedJobsByType = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const freelancer = await Freelancer.findOne({ user: new mongoose.Types.ObjectId(req?.user?._id as string) }).lean()
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  const result = await jobService.getTopInterestedJobsByType(freelancer, options)
   res.send(result)
 })
 
@@ -223,3 +238,67 @@ export const deleteCategory = catchAsync(async (req: Request, res: Response) => 
     res.status(httpStatus.NO_CONTENT).send()
   }
 })
+
+// ================================GroupBy Controller================================= //
+export const sumBySkills = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+
+  const skillGroup = await Job.aggregate([
+    {
+      $match: {
+        isDeleted: { $exists: false },
+        reqSkills: { $exists: true, $ne: [] }
+      }
+    },
+    // Unwind reqSkills array
+    { $unwind: "$reqSkills" },
+    {
+      $group: {
+        _id: "$reqSkills.skill",
+        count: { $sum: 1 }, // Count occurrences of each skill
+        // data: { $push: "$$ROOT" } // Store entire documents for each skill
+      }
+    },
+    {
+      $sort: { count: -1 }
+    }, {
+      $limit: options?.limit || 12
+    }
+  ])
+
+  const sumBySkill = await Skill.populate(skillGroup, [{ path: '_id' }])
+
+  res.status(httpStatus.OK).send(sumBySkill)
+})
+
+export const sumByCats = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+
+  const catsGroup = await Job.aggregate([
+    {
+      $match: {
+        isDeleted: { $exists: false },
+        categories: { $exists: true, $ne: [] }
+      }
+    },
+    // Unwind reqSkills array
+    { $unwind: "$categories" },
+    {
+      $group: {
+        _id: "$categories",
+        count: { $sum: 1 }, // Count occurrences of each skill
+        // data: { $push: "$$ROOT" } // Store entire documents for each skill
+      }
+    },
+    {
+      $sort: { count: -1 }
+    }, {
+      $limit: options?.limit || 11
+    }
+  ])
+
+  const sumByCats = await JobCategory.populate(catsGroup, [{ path: '_id' }])
+
+  res.status(httpStatus.OK).send(sumByCats)
+})
+

@@ -82,6 +82,8 @@ export const advancedGetJobs = {
     tags: Joi.array().items(Joi.string()),
     currentStatus: Joi.array().items(Joi.string().valid(...Object.values(EJobStatus))),
     searchText: Joi.string(),
+    jobDuration: Joi.string(),
+    type: Joi.string(),
   }),
   query: Joi.object().keys({
     sortBy: Joi.string(),

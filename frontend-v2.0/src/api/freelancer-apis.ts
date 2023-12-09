@@ -29,6 +29,38 @@ export const getFreelancer = (id: string ) => {
   return instance.get(`freelancers/${id}`);
 }
 
+export const getFreelancerTracking = () => {
+  return instance.get(`freelancers/tracking`);
+}
+
+export const getFreelancerTrackingTopType = () => {
+  return instance.get(`freelancers/tracking/top-type`);
+}
+
+export const getFreelancerTrackingCurrentJobs = () => {
+  return instance.get(`freelancers/tracking/current-jobs`);
+}
+
+export const getFreelancerTrackingCurrentType = () => {
+  return instance.get(`freelancers/tracking/current-type`);
+}
+
+export const getFreelancerTrackingIntend = () => {
+  return instance.get(`freelancers/tracking/intend`);
+}
+
+export const deleteFreelancerTracking = (id: string) => {
+  return instance.delete(`freelancers/tracking/${id}`);
+}
+
+export const deleteAllFreelancerTracking = () => {
+  return instance.get(`freelancers/tracking/all`);
+}
+
+export const updateFreelancerTracking = (data) => {
+  return instance.patch(`freelancers/tracking`, data);
+}
+
 export const verifyFreelancer = (id: string ) => {
   return instance.patch(`freelancers/verify-profile/${id}`);
 }

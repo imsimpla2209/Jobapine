@@ -13,6 +13,7 @@ import {
   getLastestTopCurrentTypeTracking,
   getLastestTopJobs,
   getSimilarByFreelancerId,
+  getTopCurrentTypeTracking,
   updateSimilarById,
 } from '@modules/freelancer/freelancer.service'
 import { bulkCreateNotify } from '@modules/notify/notify.service'
@@ -130,7 +131,7 @@ export const queryJobs = async (
     options.sortBy = 'updatedAt:desc'
     options.populate = 'client,categories,reqSkills.skill'
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, proposals, nOEmployee, preferences'
+      'client, categories, title, description, type, locations, complexity, payment, budget, createdAt, proposals, nOEmployee, preferences'
   }
   const jobs = await Job.paginate(queryFilter, options)
   return jobs
@@ -152,6 +153,8 @@ export const queryAdvancedJobs = async (
   filter['description'] && (filter['description'] = { $regex: `${filter['description']}`, $options: 'i' })
 
   filter['locations'] && (filter['locations'] = { 'preferences.locations': { $in: filter['locations'] } })
+  filter['jobDuration'] && (filter['jobDuration'] = { 'jobDuration': filter['jobDuration'] } )
+  filter['type'] && (filter['type'] = { 'type': filter['type'] })
   filter['complexity'] && (filter['complexity'] = { 'scope.complexity': { $in: filter['complexity'] } })
   filter['paymentType'] && (filter['paymentType'] = { 'payment.type': { $in: filter['paymentType'] } })
   filter['skills'] && (filter['skills'] = { 'reqSkills.skill': { $in: filter['skills'] } })
@@ -205,7 +208,7 @@ export const queryAdvancedJobs = async (
   options.sortBy = 'updatedAt:desc'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, scope, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, type, locations, scope, payment, budget, createdAt, nOProposals, nOEmployee, preferences, type'
   }
 
   const jobs = await Job.paginate(queryFilter, options)
@@ -252,7 +255,7 @@ export const searchJobsByText = async (
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, type, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences, type'
   }
 
   const jobs = await Job.paginate(filter, options)
@@ -289,7 +292,7 @@ export const getRcmdJob = async (
   }
 
   if (!options?.projectBy) {
-    options.projectBy = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
+    options.projectBy = `client, categories, title, description, type, locations, complexity, payment, budget, createdAt, nOProposals, 
       nOEmployee, preferences, totalScore, scope, jobDuration
       score_title, score_description, score_my_skills, score_similar_skills, score_my_categories, score_locations, score_categories, score_expertise, score_paymentAmount, score_paymentType`
   }
@@ -546,7 +549,7 @@ export const getRcmdJob = async (
 export const getAllJob = async (): Promise<IJobDoc[] | null> => {
   const jobs = await Job.find()
     .select(
-      'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences reqSkills'
+      'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences reqSkills type jobDuration'
     )
     .populate([{ path: 'client', select: 'rating spent paymentVerified' }, { path: 'categories' }])
     .sort({ updatedAt: 1 })
@@ -574,7 +577,7 @@ export const getFavJobByFreelancer = async (
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, type, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences, type'
   }
 
   const jobs = await Job.paginate(filter, options)
@@ -596,7 +599,7 @@ export const getSimilarByJobFields = async (
   limit?: any
 ) => {
   try {
-    const options = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
+    const options = `client, categories, title, description, type, locations, complexity, payment, budget, createdAt, nOProposals, 
         nOEmployee, preferences, totalScore, scope, jobDuration, similarityScore`
 
     const projectFields = options?.split(',').reduce((acc, field) => {
@@ -743,15 +746,15 @@ export const getSimilarByJobFields = async (
 
     return fullfillJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong')
   }
 }
 
 export const getCurrentInterestedJobsByType = async (
   freelancer: IFreelancerDoc,
+  options?: IOptions,
   inputType?: any,
-  options?: IOptions
 ): Promise<any | null> => {
   try {
     if (!freelancer) {
@@ -852,8 +855,8 @@ export const getCurrentInterestedJobsByType = async (
 
     return matchingJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
   }
 }
 
@@ -874,7 +877,7 @@ export const getTopInterestedJobsByType = async (
     //   return JSON.parse(cachedData)
     // }
 
-    const type = await getLastestTopCurrentTypeTracking(freelancer)
+    const type = await getTopCurrentTypeTracking(freelancer)
 
     const matchingJobs = await Job.aggregate([
       {
@@ -960,8 +963,8 @@ export const getTopInterestedJobsByType = async (
 
     return matchingJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
   }
 }
 
@@ -1039,8 +1042,8 @@ export const getCurrentInterestedJobs = async (freelancer: IFreelancerDoc, optio
 
     return relatedJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
   }
 }
 
@@ -1196,8 +1199,8 @@ export const findRelatedJobsWithPoints = async (jobsWithPoints: any[], limit?: n
 
     return relatedJobs
   } catch (error: any) {
-    logger.error('Error finding related jobs with points:', error.message)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error.message}`)
+    logger.error('Error finding related jobs with points:', error)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error}`)
   }
 }
 
@@ -1224,8 +1227,8 @@ export const getCurrentInterestedJobsByJobs = async (
 
     return matchJobs
   } catch (error: any) {
-    logger.error('Error finding related jobs with points:', error.message)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error.message}`)
+    logger.error('Error finding related jobs with points:', error)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error}`)
   }
 }
 
@@ -1300,8 +1303,8 @@ export const getJobByFreelancerFav = async (freelancer: IFreelancerDoc, options:
 
     return relatedJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
   }
 }
 

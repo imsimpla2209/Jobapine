@@ -1,7 +1,6 @@
 import Footer from 'Components/BeforeLoginComponents/Footer'
 import ReviewProposalsCard from 'Components/ClientComponents/ReviewProposalsCard'
 import Header from 'Components/FreelancerComponents/Header'
-import { SearchContextProvider } from 'Context/SearchContext'
 import Reports from 'pages/ClientPages/Reports'
 import EmailVerified from 'pages/EmailVerification/EmailVerified'
 import PleaseVerifiy from 'pages/EmailVerification/PleaseVerifiy'
@@ -27,21 +26,24 @@ import PageNotFound from 'pages/PageNotFound'
 import SubmitProposal from 'pages/Submit Proposal'
 import { useEffect, useState } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { trackingLogStore } from 'src/Store/tracking.store'
+import { getFreelancerTracking, getFreelancerTrackingIntend } from 'src/api/freelancer-apis'
 import { getAllJobs } from 'src/api/job-apis'
+import { useFreelancerTracking } from 'src/hooks/freelancer-tracking-hook'
+import { useSubscription } from 'src/libs/global-state-hook'
+import AllJobPosts from 'src/pages/ClientPages/AllJobPost'
 import JobDetails from 'src/pages/ForumPages/hire/job-details'
 import JobList from 'src/pages/ForumPages/hire/job-list'
-import AllJobPosts from 'src/pages/ClientPages/AllJobPost'
-import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
-import './styles.css'
 import AllContracts from 'src/pages/FreelancerPages/AllContracts'
-import ForumRoutes from './ForumRoutes'
 import ClientProfile from 'src/pages/FreelancerPages/ClientProfile'
+import { handleCacheData, handleGetCacheData, miniSearch, syncTrackingDataToBackend } from 'src/utils/handleData'
+import './styles.css'
 
 export default function FreelancerRoutes() {
-  const [arr, setarr] = useState([])
-  const [itemSearchList, setitemSearchList] = useState('')
-  const [searchList, setsearchList] = useState([])
-  const [switchJobs, setswitchJobs] = useState('')
+  const { state: trackingLogs, setState: setTrackingLogs } = useSubscription(trackingLogStore)
+  const { loadTrackingData, determineRenderType } = useFreelancerTracking()
+  const [isSync, setSync] =useState(false)
+
   const { pathname } = useLocation()
   const navigate = useNavigate()
   pathname === '/' && navigate('/find-work')
@@ -67,52 +69,85 @@ export default function FreelancerRoutes() {
     }
   }, [])
 
+  useEffect(() => {
+    getFreelancerTracking().then(res => {
+      setTrackingLogs({
+        ...trackingLogs,
+        isFirstTime: res.data?.isFirstTime,
+      })
+
+      loadTrackingData(res.data?.freelancerTracking)
+    })
+
+    getFreelancerTrackingIntend().then(res => {
+      determineRenderType(res.data)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!isSync) {
+      window.addEventListener('beforeunload', event => {
+        console.log('object called');
+        setSync(true)
+        syncTrackingDataToBackend(true)
+        console.log('sync tracking to backend')
+      })
+    }
+  
+    window.addEventListener('unload', event => {
+      event.preventDefault()
+      event.stopPropagation()
+      syncTrackingDataToBackend(true)
+      console.log('sync tracking to backend')
+    })
+  }, [isSync])
+
   return (
     <div className="background_general">
-        <Header />
-        <div>
-          <Routes>
-            <Route path="/create-profile" element={<CreateProfile />} />
-            <Route path="/find-work" element={<HomeFreelancer />} />
-            <Route path="/" element={<HomeFreelancer />} />
-            <Route path="/Search/:searchValue" element={<Search />} />
-            <Route path="/Search" element={<Search />} />
-            <Route path="/job/" element={<AllJobPosts />} />
-            <Route path="/job/:id" element={<JobDetailsFreelancer />} />
-            <Route path="/job-details/:id" element={<JobDetailsFreelancer />} />
-            <Route path="/fake-job" element={<JobDetails />} />
-            <Route path="/fake-job-list" element={<JobList />} />
-            <Route path="/job/apply/:id" element={<SubmitProposal />} />
-            <Route path="/job/review-proposal/:id" element={<ReviewProposalsCard />} />
-            <Route path="/job/applied/:id" element={<JobAppliedDetails />} />
-            <Route path="/saved-jobs" element={<SavedJobs />} />
-            <Route path="/proposals/:id" element={<Proposals />} />
-            <Route path="/proposals" element={<Proposals />} />
-            <Route path="/profile/:id" element={<Profile />} />
-            <Route path="/email-verification" element={<EmailVerified />} />
-            <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
-            <Route path="/my-stats" element={<MyStats />} />
-            <Route path="/my-jobs" element={<MyJobs />} />
-            <Route path="/all-contract" element={<AllContracts />} />
-            <Route path="/invitations" element={<Offers />} />
-            <Route path="/overview" element={<OverviewReports />} />
-            <Route path="/my-reports" element={<Reports />} />
-            <Route path="/life-time-billing" element={<BillingByClients />} />
-            <Route path="/connects-history" element={<ConnectsHistory />} />
-            <Route path="/buyconnects" element={<BuyConnects />} />
-            <Route path="/client-info/:clientId" element={<ClientProfile />} />
-            {/* <Route
+      <Header />
+      <div>
+        <Routes>
+          <Route path="/create-profile" element={<CreateProfile />} />
+          <Route path="/find-work" element={<HomeFreelancer />} />
+          <Route path="/" element={<HomeFreelancer />} />
+          <Route path="/Search/:searchValue" element={<Search />} />
+          <Route path="/Search" element={<Search />} />
+          <Route path="/job/" element={<AllJobPosts />} />
+          <Route path="/job/:id" element={<JobDetailsFreelancer />} />
+          <Route path="/job-details/:id" element={<JobDetailsFreelancer />} />
+          <Route path="/fake-job" element={<JobDetails />} />
+          <Route path="/fake-job-list" element={<JobList />} />
+          <Route path="/job/apply/:id" element={<SubmitProposal />} />
+          <Route path="/job/review-proposal/:id" element={<ReviewProposalsCard />} />
+          <Route path="/job/applied/:id" element={<JobAppliedDetails />} />
+          <Route path="/saved-jobs" element={<SavedJobs />} />
+          <Route path="/proposals/:id" element={<Proposals />} />
+          <Route path="/proposals" element={<Proposals />} />
+          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/email-verification" element={<EmailVerified />} />
+          <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
+          <Route path="/my-stats" element={<MyStats />} />
+          <Route path="/my-jobs" element={<MyJobs />} />
+          <Route path="/all-contract" element={<AllContracts />} />
+          <Route path="/invitations" element={<Offers />} />
+          <Route path="/overview" element={<OverviewReports />} />
+          <Route path="/my-reports" element={<Reports />} />
+          <Route path="/life-time-billing" element={<BillingByClients />} />
+          <Route path="/connects-history" element={<ConnectsHistory />} />
+          <Route path="/buyconnects" element={<BuyConnects />} />
+          <Route path="/client-info/:clientId" element={<ClientProfile />} />
+          {/* <Route
               path="/transaction-history"
             
               element={<TransactionHistory />}
             /> */}
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/contract/:id" element={<Contract />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="*" element={<PageNotFound />} />
-            {/* <ForumRoutes /> */}
-          </Routes>
-        </div>
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/contract/:id" element={<Contract />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="*" element={<PageNotFound />} />
+          {/* <ForumRoutes /> */}
+        </Routes>
+      </div>
       <Footer />
     </div>
   )

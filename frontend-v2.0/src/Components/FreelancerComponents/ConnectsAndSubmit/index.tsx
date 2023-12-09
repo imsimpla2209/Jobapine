@@ -4,7 +4,7 @@
 import { HeartFilled, HeartOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { freelancerStore, userStore } from "src/Store/user.store";
 import { updateFreelancer } from "src/api/freelancer-apis";
 import { useSubscription } from "src/libs/global-state-hook";
@@ -19,6 +19,10 @@ export default function ConnectsAndSubmit() {
   const navigate = useNavigate();
   const [isliked, setisliked] = useState(false)
   const setState = useSubscription(freelancerStore).setState;
+
+
+  const [searchParams, setSearchParams] = useSearchParams()
+	const isRcmd = searchParams.get('isRcmd')
 
   useEffect(() => {
     // db.collection("freelancer")
@@ -113,7 +117,7 @@ export default function ConnectsAndSubmit() {
         {!jobProposal ? (
           <button
             className="btn bg-jobsicker"
-            onClick={(handleRout) => navigate(`/job/apply/${id}`)}
+            onClick={(handleRout) => navigate(`/job/apply/${id}?isRcmd=${isRcmd || false}`)}
             disabled={freelancer?.isProfileVerified === false || user.sickPoints < 2}
           >
             {t("Submit a proposal")}

@@ -1,6 +1,8 @@
 import MiniSearch from 'minisearch'
 import { stopWords } from 'src/api/constants'
 import PouchDB from 'pouchdb'
+import { updateFreelancerTracking } from 'src/api/freelancer-apis'
+import { freelancerTrackingCategoriesStore, freelancerTrackingJobsStore, freelancerTrackingLocationsStore, freelancerTrackingSkillsStore } from 'src/Store/tracking.store'
 
 
 export const handleFilter = (sortType: any, key?: any) => {
@@ -53,6 +55,38 @@ const handleGetCacheData = async () => {
   return await db.allDocs({ include_docs: true })
 }
 
+export const syncTrackingDataToBackend = (isSync = false, ) => {
+  console.log('Sync Tracking Data')
+  const formatData = {
+    jobs: Object.values(freelancerTrackingJobsStore.state || {})?.map(job => ({
+      id: job?.id,
+      text: job?.text,
+      event: job?.event,
+      lastTimeView: job?.lastTimeView,
+    })),
+    skills: Object.values(freelancerTrackingSkillsStore.state || {})?.map(skill => ({
+      id: skill?.id,
+      text: skill?.text,
+      event: skill?.event,
+      lastTimeView: skill?.lastTimeView,
+    })),
+    categories: Object.values(freelancerTrackingCategoriesStore.state || {})?.map(category => ({
+      id: category?.id,
+      text: category?.text,
+      event: category?.event,
+      lastTimeView: category?.lastTimeView,
+    })),
+    locations: Object.values(freelancerTrackingLocationsStore.state || {})?.map(location => ({
+      id: location?.id,
+      text: location?.text,
+      event: location?.event,
+      lastTimeView: location?.lastTimeView,
+    })),
+  }
 
+  if (isSync) {
+    updateFreelancerTracking(formatData)
+  }
+}
 
 export { miniSearch, handleCacheData, db, handleGetCacheData }
