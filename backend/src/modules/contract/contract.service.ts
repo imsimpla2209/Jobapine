@@ -218,7 +218,7 @@ export const acceptContract = async (
 
   if ((job?.preferences?.nOEmployee ?? 1) - 1 === acceptedContracts) {
     closeAllContract(contractId, job._id)
-    changeStatusJobById(job._id, EJobStatus.INPROGRESS, 'Enough Workers for this job')
+    changeStatusJobById(job._id, EJobStatus.COMPLETED, 'Enough Workers for this job')
   }
 
   const acceptedContract = await changeStatusContractById(contract?._id, EStatus.ACCEPTED, 'Accepted from Both side')
