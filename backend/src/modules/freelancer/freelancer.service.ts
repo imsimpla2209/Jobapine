@@ -381,7 +381,7 @@ export const reviewFreelancerById = async (
   if (!freelancer) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
   }
-  Object.assign(freelancer, { review: freelancer?.reviews?.push(review) })
+  freelancer['reviews'] = [...freelancer?.reviews, review]
   await freelancer.save()
   return freelancer
 }

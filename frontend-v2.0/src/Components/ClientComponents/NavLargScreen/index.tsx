@@ -1,24 +1,23 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { fakeClientState } from 'Store/fake-state'
-import { useEffect, useMemo, useState } from 'react'
+import { BellFilled, MailFilled } from '@ant-design/icons'
+import { Avatar, Badge, Divider, Dropdown, MenuProps, Space } from 'antd'
+import React, { useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import img from '../../../assets/img/icon-user.svg'
-import LanguageList from '../../SharedComponents/LanguageBtn/LanguageList'
-import { logout } from 'src/api/auth-apis'
-import toast from 'react-hot-toast'
-import { useSubscription } from 'src/libs/global-state-hook'
 import { userStore } from 'src/Store/user.store'
-import { useSocket } from 'src/socket.io'
+import { logout } from 'src/api/auth-apis'
 import { getNotifies } from 'src/api/message-api'
+import { useSubscription } from 'src/libs/global-state-hook'
+import { Title } from 'src/pages/ClientPages/JobDetailsBeforeProposols'
+import { useSocket } from 'src/socket.io'
 import { ESocketEvent } from 'src/utils/enum'
-import { MailFilled, BellFilled } from '@ant-design/icons'
-import { Badge, Dropdown, Divider, Space, MenuProps } from 'antd'
-import React from 'react'
 import { pickName, timeAgo } from 'src/utils/helperFuncs'
+import img from '../../../assets/img/icon-user.svg'
 import notiIcon from '../../../assets/img/notifyicon.png'
+import LanguageList from '../../SharedComponents/LanguageBtn/LanguageList'
 
 export default function NavLargScreen() {
   const { t, i18n } = useTranslation(['main'])
@@ -33,7 +32,6 @@ export default function NavLargScreen() {
   const handleLogout = () => {
     logout()
       .then(res => {
-        console.log(res)
         navigate('/login')
         window.location.reload()
         localStorage.removeItem('userType')
@@ -58,7 +56,7 @@ export default function NavLargScreen() {
     // App socket
     appSocket.on(ESocketEvent.SENDNOTIFY, data => {
       console.log('Get Notify:', data)
-      if (data?.to === (user?.id)) {
+      if (data?.to === user?.id) {
         setNotifies(prev => [{ ...data, createdAt: new Date() }, ...prev])
         setUnSeen(prev => [...prev, data])
       }
@@ -71,7 +69,7 @@ export default function NavLargScreen() {
   }, [notifies, unSeen])
 
   useEffect(() => {
-    appSocket.on(ESocketEvent.SENDMSG, (data) => {
+    appSocket.on(ESocketEvent.SENDMSG, data => {
       console.log(data.to, data?.to === user?.id)
       if (data?.to === user?.id) {
         console.log('Get MSG:', data)
@@ -81,7 +79,6 @@ export default function NavLargScreen() {
 
     return () => {
       appSocket.off(ESocketEvent.SENDMSG)
-
     }
   }, [unSeenMSG])
 
@@ -113,7 +110,7 @@ export default function NavLargScreen() {
   }
 
   return (
-    <div className="navbar-expand" id="navbarNav-id">
+    <div className="navbar-expand" id="navbarNav-id" style={{ padding: '10px 0px' }}>
       <ul className="navbar-nav align-items-center">
         <li className="nav-item hov-cn">
           <NavLink className="nav-link" to="/home">
@@ -169,11 +166,6 @@ export default function NavLargScreen() {
                 {t('My Hires')}
               </Link>
             </li>
-            {/* <li>
-              <Link className="dropdown-item" to="/freelancer/saved-freelancer">
-                {t('Saved Freelancer')}
-              </Link>
-            </li> */}
           </ul>
         </li>
         <li className="nav-item hov-cn">
@@ -233,22 +225,19 @@ export default function NavLargScreen() {
           </ul>
         </li>
         <li className="nav-item ms-5 me-3">
-          <Badge
-            count={unSeenMSG || 0}
-            color={"purple"}
-            status="processing">
-            <NavLink className=""
+          <Badge count={unSeenMSG || 0} color={'purple'} status="processing">
+            <NavLink
+              className=""
               onClick={() => setUnSeenMSG(0)}
-              style={{ padding: '10px 10px', borderRadius: 100, background: "#f5f0fa" }} to="/messages">
-              <MailFilled style={{ fontSize: 18, }} />
+              style={{ padding: '10px 10px', borderRadius: 100, background: '#f5f0fa' }}
+              to="/messages"
+            >
+              <MailFilled style={{ fontSize: 18 }} />
             </NavLink>
           </Badge>
         </li>
-        <li className="nav-item pe-2">
-          <Badge
-            count={unSeen?.length || 0}
-            color={"purple"}
-            status="processing">
+        <li className="nav-item me-3">
+          <Badge count={unSeen?.length || 0} color={'purple'} status="processing">
             <Dropdown
               menu={{ items }}
               trigger={['click']}
@@ -258,40 +247,74 @@ export default function NavLargScreen() {
               }}
               onOpenChange={e => onSeenNotify(e)}
               arrow={{ pointAtCenter: true }}
-              dropdownRender={(menu) => (
-                <div style={{
-                  
-                  padding: 18,
-                  height: '70%',
-                  borderRadius: 10,
-                  background: "white",
-                  marginLeft: 24,
-                  boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px'
-                }}>
-                  <h3>{t("Notification")}</h3>
+              dropdownRender={menu => (
+                <div
+                  style={{
+                    padding: 18,
+                    height: '70%',
+                    borderRadius: 10,
+                    background: 'white',
+                    marginLeft: 24,
+                    boxShadow:
+                      'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px',
+                  }}
+                >
+                  <h3>{t('Notification')}</h3>
                   {React.cloneElement(menu as React.ReactElement, { style: { boxShadow: 'none' } })}
                   <Divider style={{ margin: 0 }} />
                   <Space style={{ padding: 8 }}>
-                    <Link to="/notifications" className="nav-link" type="primary">{t("View all")}</Link>
+                    <Link to="/notifications" className="nav-link" type="primary">
+                      {t('View all')}
+                    </Link>
                   </Space>
                 </div>
               )}
             >
-              <NavLink to="/notifications" style={{ padding: 10, borderRadius: 100, background: "#f5f0fa" }} onClick={e => { e.preventDefault(); e.stopPropagation() }} className="">
+              <NavLink
+                to="/notifications"
+                style={{ padding: 10, borderRadius: 100, background: '#f5f0fa' }}
+                onClick={e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+                className=""
+              >
                 <BellFilled style={{ fontSize: 18 }} />
               </NavLink>
             </Dropdown>
           </Badge>
         </li>
-        <li className="nav-item border-start border-secondary ps-2">
-          <a className="nav-link" href="#">
-            <i className="fas fa-user-plus fs-5"></i>
-          </a>
-        </li>
-        <li className="me-3">
+        <li className="nav-item me-3">
           <LanguageList />
         </li>
-        <li className="dropdown">
+
+        <Dropdown
+          placement="bottomRight"
+          menu={{
+            items: [
+              {
+                label: (
+                  <Title level={5} style={{ margin: 0 }}>
+                    <i className="fa fa-cog" style={{ marginRight: 8 }}></i>
+                    {t('Settings')}
+                  </Title>
+                ),
+                key: '0',
+              },
+              {
+                label: (
+                  <Title level={5} style={{ margin: 0 }}>
+                    <i className="fas fa-sign-out-alt" style={{ marginRight: 8 }}></i>
+                    {t('Log Out')}
+                  </Title>
+                ),
+                onClick: handleLogout,
+                key: '1',
+              },
+            ],
+          }}
+          trigger={['click']}
+        >
           <a
             className="nav-link dropdown-toggle"
             href="#"
@@ -300,80 +323,9 @@ export default function NavLargScreen() {
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            <img
-              style={{ height: '50px', width: '50px' }}
-              className="rounded-circle bg-white"
-              src={user.avatar ? user.avatar : img}
-              alt=""
-            />
+            <Avatar size="large" className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
           </a>
-          <ul id="acc-id" className="dropdown-menu p-2" aria-labelledby="navbarDropdownMenuLink">
-            <div className="nav-dd-acc-cn"></div>
-            <li className="px-4 py-3">
-              <div id="acc-btns-id" className="btn-group w-100" role="group" aria-label="Basic example">
-                <button type="button" className="btn">
-                  {t('Online')}
-                </button>
-                <span style={{ padding: '0 1px' }}></span>
-                <button type="button" className="btn">
-                  {t('Invisible')}
-                </button>
-              </div>
-            </li>
-            <li>
-              <NavLink className="dropdown-item px-4" to="/find-work">
-                <div className="d-flex align-items-center">
-                  <span style={{ marginLeft: '-5px' }}>
-                    <img
-                      style={{ height: '30px', width: '30px' }}
-                      className="rounded-circle bg-white"
-                      src={user.avatar ? user.avatar : img}
-                      alt=""
-                    />
-                  </span>
-                  <div className="acc-cn ms-2">
-                    <p>{user?.name}</p>
-                    <p>{t('Client')}</p>
-                  </div>
-                </div>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink className="dropdown-item px-4 mb-1" to="/home">
-                <div className="d-flex align-items-center">
-                  <span style={{ marginLeft: '-5px' }}>
-                    <i className="fa fa-user-circle fs-3"></i>
-                  </span>
-                  <div className="acc-cn ms-2">
-                    <p>{t('Name')}</p>
-                    <p>{t('Freelancer')}</p>
-                  </div>
-                </div>
-              </NavLink>
-            </li>
-            <li>
-              <a className="dropdown-item px-4" href="#">
-                <span>
-                  <i className="fa fa-cog"></i>
-                </span>
-                <span className="ps-2">{t('Settings')}</span>
-              </a>
-            </li>
-            <li
-              style={{
-                cursor: 'pointer',
-              }}
-              onClick={handleLogout}
-            >
-              {/* <a className="dropdown-item px-4" href="#"> */}
-              <span>
-                <i className="fas fa-sign-out-alt"></i>
-              </span>
-              <span className="ps-2">{t('Log Out')}</span>
-              {/* </a> */}
-            </li>
-          </ul>
-        </li>
+        </Dropdown>
       </ul>
     </div>
   )

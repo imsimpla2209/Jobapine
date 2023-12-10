@@ -1,10 +1,10 @@
 import { AlertFilled, DollarTwoTone, EditOutlined, HomeOutlined } from '@ant-design/icons'
 import PostJobAside from 'Components/ClientComponents/PostJobAside'
-import PostJobGetStarted from 'Components/ClientComponents/PostJobGetStarted'
-import { Breadcrumb, Card, Modal, Row } from 'antd'
+import PostJobGetStarted, { postJobSubscribtion } from 'Components/ClientComponents/PostJobGetStarted'
+import { Breadcrumb, Card, Modal, Row, message } from 'antd'
 import { createContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import PostJobBudget from 'src/Components/ClientComponents/PostJobBudget'
 import PostJobDescription from 'src/Components/ClientComponents/PostJobDescription'
 import PostJobDetails from 'src/Components/ClientComponents/PostJobDetails'
@@ -13,14 +13,17 @@ import PostJobReview from 'src/Components/ClientComponents/PostJobReview'
 import PostJobTitle from 'src/Components/ClientComponents/PostJobTitle'
 import PostJobVisibility from 'src/Components/ClientComponents/PostJobVisibility'
 import { Title } from '../JobDetailsBeforeProposols'
-import { SICKPOINTS_PER_POST } from 'src/utils/enum'
+import { EComplexity, EJobStatus, EJobType, ELevel, EPaymenType, SICKPOINTS_PER_POST } from 'src/utils/enum'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { clientStore, userStore } from 'src/Store/user.store'
 import VerifyPaymentModal from 'src/Components/ClientComponents/HomeLayout/VerifyPaymentModal'
+import { getJob } from 'src/api/job-apis'
+import Loader from 'src/Components/SharedComponents/Loader/Loader'
 
-export const StepContext = createContext({ step: 'started', setStep: val => {} })
+export const StepContext = createContext({ step: 'started', setStep: val => {}, isEdit: false })
 
-export default function PostJob() {
+export default function PostJob({ isEdit = false }) {
+  const { id } = useParams()
   const navigate = useNavigate()
   const { t } = useTranslation(['main'])
   const [step, setStep] = useState('started')
@@ -38,8 +41,70 @@ export default function PostJob() {
   })
   const { state: client } = useSubscription(clientStore)
   const [openVerifyModal, setOpenVerifyModal] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    if (isEdit) {
+      setLoading(true)
+      getJob(id)
+        .then(res => {
+          const job = res.data
+
+          const notAllowEdit = job.status.find(({ status }) =>
+            [EJobStatus.CANCELLED, EJobStatus.CLOSED, EJobStatus.COMPLETED, EJobStatus.INPROGRESS].includes(status)
+          )
+
+          if (notAllowEdit) {
+            return navigate(`/job-details/${id}`)
+          }
+          if (job?.categories?.length) {
+            job['categories'] = job.categories.map(cat => cat?._id)
+          }
+          if (job?.reqSkills?.length) {
+            job['reqSkills'] = job.reqSkills.map(s => ({ level: s.level, skill: s.skill._id }))
+          }
+
+          postJobSubscribtion.updateState({
+            title: job?.title || '',
+            description: job.description || '',
+            categories: job.categories || [],
+            type: job.type || EJobType.ONE_TIME_PROJECT,
+            payment: { amount: job.payment.amount || 100, type: job.payment.type || EPaymenType.PERHOURS },
+            scope: { complexity: job.scope.complexity || EComplexity.EASY, duration: job.scope.duration || 1 },
+            budget: job.budget || 1,
+            experienceLevel: job.experienceLevel || [ELevel.BEGINNER],
+            reqSkills: job.reqSkills || [],
+            checkLists: job.checkLists || [],
+            attachments: job.attachments || [],
+            tags: job.tags || [],
+            questions: job.questions || [],
+            preferences: {
+              nOEmployee: job.preferences.nOEmployee || 1,
+              locations: job.preferences.locations || [],
+            },
+            visibility: job.visibility || true,
+            jobDuration: job.jobDuration || 'short-term',
+          })
+          setBtns({
+            started: false,
+            title: false,
+            description: false,
+            details: false,
+            expertise: false,
+            visibility: false,
+            budget: false,
+            review: false,
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          message.error('Failed to load this job!')
+          navigate('/')
+        })
+        .finally(() => setLoading(false))
+
+      return
+    }
     if (!client?.paymentVerified) {
       setOpenVerifyModal(true)
     } else {
@@ -54,11 +119,18 @@ export default function PostJob() {
     }
   }, [])
 
+  if (loading)
+    return (
+      <div className="d-flex" style={{ minHeight: '100vh', justifyContent: 'center', alignItems: 'center' }}>
+        <Loader />
+      </div>
+    )
+
   return (
-    <StepContext.Provider value={{ step, setStep }}>
+    <StepContext.Provider value={{ step, setStep, isEdit }}>
       <VerifyPaymentModal open={openVerifyModal} handleClose={() => setOpenVerifyModal(false)} />
 
-      {showWarning && !openVerifyModal ? (
+      {showWarning && !openVerifyModal && !isEdit ? (
         <Modal
           open={true}
           title={
@@ -86,11 +158,11 @@ export default function PostJob() {
               <Breadcrumb
                 items={[
                   {
-                    path: '/',
+                    path: isEdit ? `/job-details/${id}` : '/',
                     title: (
                       <>
                         <HomeOutlined />
-                        <span className="fw-bold">{t('Home')}</span>
+                        <span className="fw-bold">{isEdit ? t('Job details') : t('Home')}</span>
                       </>
                     ),
                   },
@@ -98,7 +170,7 @@ export default function PostJob() {
                     title: (
                       <>
                         <EditOutlined />
-                        <span className="fw-bold">{t('Post Job')}</span>
+                        <span className="fw-bold">{isEdit ? t('Edit job') : t('Post Job')}</span>
                       </>
                     ),
                   },
@@ -111,7 +183,7 @@ export default function PostJob() {
               <PostJobAside btns={btns} />
             </div>
             <div className="col-lg-9">
-              {step === 'started' && <PostJobGetStarted setBtns={setBtns} btns={btns} />}
+              {step === 'started' && <PostJobGetStarted setBtns={setBtns} btns={btns} isEdit={isEdit} />}
               {step === 'title' && <PostJobTitle setBtns={setBtns} btns={btns} />}
               {step === 'description' && <PostJobDescription setBtns={setBtns} btns={btns} />}
               {step === 'details' && <PostJobDetails setBtns={setBtns} btns={btns} />}

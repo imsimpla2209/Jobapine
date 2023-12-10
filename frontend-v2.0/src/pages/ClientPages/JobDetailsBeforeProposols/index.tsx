@@ -10,8 +10,9 @@ import { clientStore } from 'src/Store/user.store'
 import { getContracts } from 'src/api/contract-apis'
 import { deleteJob, getJob } from 'src/api/job-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
+import { EJobStatus, EStatus } from 'src/utils/enum'
 import Loader from '../../../Components/SharedComponents/Loader/Loader'
-import { EStatus } from 'src/utils/enum'
+import ContractsInJob from './ContractsInJob'
 
 const { confirm } = Modal
 
@@ -24,17 +25,40 @@ export default function JobDetailsBeforeProposals() {
   const [deleting, setDeleting] = useState(null)
   const client = useSubscription(clientStore).state
   const [contracts, setContracts] = useState([])
+  const [notAllowEdit, setNotAllowEdit] = useState(true)
+  const [forceUpdate, setForceUpdate] = useState(0)
+  const [loadingContract, setloadingContract] = useState(false)
+
   console.log('😘contracts', contracts)
   useEffect(() => {
     getJob(id).then(res => {
       setJobData(res.data)
+      const isnotAllowEdit = res.data.status.find(({ status }) =>
+        [EJobStatus.CANCELLED, EJobStatus.CLOSED, EJobStatus.COMPLETED, EJobStatus.INPROGRESS].includes(status)
+      )
+      setNotAllowEdit(isnotAllowEdit)
     })
-    getContracts({
-      client: client._id || client.id,
-      job: id,
-      currentStatus: EStatus.ACCEPTED,
-    }).then(res => setContracts(res.data.results))
-  }, [id])
+    if (client._id || client.id) {
+      getContracts({
+        client: client._id || client.id,
+        job: id,
+        currentStatus: EStatus.ACCEPTED,
+      }).then(res => setContracts(res.data.results))
+    }
+  }, [id, client])
+
+  useEffect(() => {
+    if (forceUpdate) {
+      setloadingContract(true)
+      getContracts({
+        client: client._id || client.id,
+        job: id,
+        currentStatus: EStatus.ACCEPTED,
+      })
+        .then(res => setContracts(res.data.results))
+        .finally(() => setloadingContract(false))
+    }
+  }, [forceUpdate])
 
   const { t } = useTranslation(['main'])
 
@@ -69,9 +93,12 @@ export default function JobDetailsBeforeProposals() {
           <div className="d-lg-block">
             <Row align={'middle'} style={{ padding: '20px 0px', justifyContent: 'space-between' }}>
               <Title style={{ margin: 0 }}>{t('Job details')}</Title>
-              {isCurrentClientJob ? (
+              {isCurrentClientJob && !notAllowEdit ? (
                 <Space>
-                  <Button type="primary">Edit</Button>
+                  <Button type="primary">
+                    <Link to={`/job-details/edit/${jobData._id}`}>Edit</Link>
+                  </Button>
+
                   <Button type="primary" danger onClick={showDeleteConfirm} loading={deleting}>
                     Delete
                   </Button>
@@ -85,7 +112,7 @@ export default function JobDetailsBeforeProposals() {
               <Col span={6}>
                 <Card>
                   <h5 className="fw-bold " style={{ margin: 0 }}>
-                    {t('Activity on this job')}
+                    {t('Activities in this job')}
                   </h5>
 
                   <Paragraph className="mt-3" style={{ color: 'black' }}>
@@ -117,6 +144,16 @@ export default function JobDetailsBeforeProposals() {
                     ) : null}
                   </Row>
                 </Card>
+
+                {contracts?.length && isCurrentClientJob ? (
+                  <Card className="mt-3" title={t('Freelancers joined this job')} bodyStyle={{ padding: '0px 16px' }}>
+                    <ContractsInJob
+                      contracts={contracts}
+                      setForceUpdate={setForceUpdate}
+                      loadingContract={loadingContract}
+                    />
+                  </Card>
+                ) : null}
               </Col>
             </Row>
           </div>

@@ -13,7 +13,7 @@ export default function PostJobExpertise({ setBtns, btns }) {
   const {
     state: { reqSkills, experienceLevel },
   } = useSubscription(postJobSubscribtion, ['reqSkills', 'experienceLevel'])
-  console.log(213, experienceLevel)
+
   const [job, setJob] = useState<{ jobExperienceLevel: ELevel[]; skills: any }>({
     jobExperienceLevel: experienceLevel || [],
     skills: reqSkills || [],

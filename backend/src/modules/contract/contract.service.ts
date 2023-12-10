@@ -276,7 +276,7 @@ export const rejectContract = async (
  * @returns {Promise<QueryResult>}
  */
 export const queryContracts = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
-  options.populate = 'job,client'
+  options.populate = 'job,client,freelancer'
   const contracts = await Contract.paginate(filter, options)
   return contracts
 }

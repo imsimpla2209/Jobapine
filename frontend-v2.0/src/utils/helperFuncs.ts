@@ -105,6 +105,7 @@ export const fetchPresignedUrl = async (url: any, file: any) => {
 export const fetchAllToCL = async (files: any, useOriginFile = true) => {
   const url = 'data/preSignCLUrl'
   const requests = files.map(async (file: any) => {
+    if (typeof file === 'string') return file
     let fileBase64 = null
     if (!useOriginFile) {
       fileBase64 = await getBase64(file.originFileObj as RcFile)
@@ -170,19 +171,31 @@ export const getBase64 = (file: RcFile): Promise<string> =>
     reader.onerror = error => reject(error)
   })
 
-export const getStatusColor = (status) => {
+export const getStatusColor = status => {
   switch (status) {
-    case "pending": return 'grey'
-    case "open": return "#52c41a"
-    case "inProgress": return 'blue'
-    case "completed": return 'darkgreen'
-    case "rejected": return '#c94043'
-    case "accepted": return '#09de57'
-    case "closed": return 'darkseagreen'
-    case "cancelled": return 'brown'
-    case "late": return '#751b13'
-    case "paid": return 'green'
-    case "archive": return '#8f6e27'
-    default: return 'black'
+    case 'pending':
+      return 'grey'
+    case 'open':
+      return '#52c41a'
+    case 'inProgress':
+      return 'blue'
+    case 'completed':
+      return 'darkgreen'
+    case 'rejected':
+      return '#c94043'
+    case 'accepted':
+      return '#09de57'
+    case 'closed':
+      return 'darkseagreen'
+    case 'cancelled':
+      return 'brown'
+    case 'late':
+      return '#751b13'
+    case 'paid':
+      return 'green'
+    case 'archive':
+      return '#8f6e27'
+    default:
+      return 'black'
   }
 }

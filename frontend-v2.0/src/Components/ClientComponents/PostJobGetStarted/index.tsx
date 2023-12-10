@@ -53,7 +53,7 @@ const complexityOptions = [
   },
 ]
 
-export default function PostJobGetStarted({ setBtns, btns }) {
+export default function PostJobGetStarted({ setBtns, btns, isEdit }) {
   const {
     state: {
       jobDuration,
@@ -98,7 +98,7 @@ export default function PostJobGetStarted({ setBtns, btns }) {
       <div className="border-bottom ps-4 pb-3">
         <h4>{t('Getting started')}</h4>
       </div>
-      {!start ? (
+      {!start && !isEdit ? (
         <div className="ps-4 my-3">
           <span className="fw-bold mb-3" style={{ display: 'block' }}>
             {t('When you post a job, your SickPoints will be decreased by')}

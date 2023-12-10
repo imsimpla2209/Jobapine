@@ -1318,6 +1318,9 @@ export const getJobById = async (id: mongoose.Types.ObjectId): Promise<IJobDoc |
     .populate(['client', 'categories', 'reqSkills.skill', 'proposals'])
     .lean()
 
+export const getJobByIdNotLean = async (id: mongoose.Types.ObjectId): Promise<IJobDoc | null> =>
+  Job.findOne({ _id: id, isDeleted: { $ne: true } })
+
 /**
  * Get job by title
  * @param {string} title
@@ -1424,9 +1427,16 @@ export const updateJobById = async (
   jobId: mongoose.Types.ObjectId,
   updateBody: UpdateJobBody
 ): Promise<IJobDoc | null> => {
-  const job = await getJobById(jobId)
+  const job = await getJobByIdNotLean(jobId)
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
+  }
+  if (
+    job.status.find(({ status }) =>
+      [EJobStatus.CANCELLED, EJobStatus.CLOSED, EJobStatus.COMPLETED, EJobStatus.INPROGRESS].includes(status)
+    )
+  ) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Can not update job')
   }
   Object.assign(job, updateBody)
   await job.save()

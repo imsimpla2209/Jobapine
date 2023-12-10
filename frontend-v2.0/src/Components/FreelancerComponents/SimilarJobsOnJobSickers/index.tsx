@@ -99,7 +99,7 @@ export default function SimilarJobsOnJobSickers({ id }: any) {
   useEffect(() => {
     getSimilarJobs(id, { limit: 8 })
       .then(res => {
-        setSimilarJobs(res.data)
+        setSimilarJobs(res.data.results)
       })
       .catch(err => {
         console.log(err)
