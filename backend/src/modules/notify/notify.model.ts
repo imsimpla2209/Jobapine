@@ -6,7 +6,7 @@ import { IInvitationDoc, IInvitationModel, INotifyDoc, INotifyModel } from './no
 
 const notifySchema = new mongoose.Schema<INotifyDoc, INotifyModel>(
   {
-    to: { type: mongoose.Types.ObjectId, ref: 'User' },
+    to: { type: mongoose.Types.ObjectId, ref: 'User', required: false },
     path: { type: String, default: '' },
     attachedId: { type: String, default: '' },
     seen: { type: Boolean, default: false },

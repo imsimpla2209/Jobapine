@@ -21,7 +21,7 @@ export const acceptContract = (id: string, invitationId) => {
 }
 
 export const rejectContract = (id: string, invitationId) => {
-  return Http.get(`contracts/accept/${id}`, { invitationId });
+  return Http.get(`contracts/reject/${id}`, { invitationId });
 }
 
 export const getContracts = (data: IContractQuery) => {

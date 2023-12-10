@@ -77,6 +77,17 @@ export const withdrawProposal = catchAsync(async (req: Request, res: Response) =
   }
 })
 
+export const reSubmitProposal = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params?.id === 'string') {
+    const freelancer = await getFreelancerByOptions({ user: req?.user?._id })
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+    await proposalService.reSubmitProposal(new mongoose.Types.ObjectId(req.params.id), freelancer._id)
+    res.status(httpStatus.NO_CONTENT).send()
+  }
+})
+
 export const deleteProposal = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params?.id === 'string') {
     await proposalService.deleteProposalById(new mongoose.Types.ObjectId(req.params.id))

@@ -4,15 +4,6 @@ import React, { useEffect, useState } from 'react'
 
 export default function JobProposalsNumber({ jobID }) {
 	const [num, setNum] = useState(0)
-	useEffect(() => {
-		console.log(jobID);
-		// db.collection("job")
-		//     .doc(jobID)
-		//     .collection("proposals")
-		//     .get().then(res => {
-		//         setNum(res.docs.length);
-		//     })
-	}, [])
 
 	return (
 		<span>

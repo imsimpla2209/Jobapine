@@ -48,7 +48,7 @@ export function randomDate(start: Date, end: Date) {
 
 export function currencyFormatter(money: any, currency: string = 'VND') {
   const currenor = new Intl.NumberFormat('it-IT', { style: 'currency', currency: currency })
-  const validMoney = currency === 'VND' && money < 10000 ? money * 1000 : money
+  const validMoney = currency === 'VND' && money < 5000 ? money * 1000 : money
   return `${currenor.format(validMoney)}`
 }
 

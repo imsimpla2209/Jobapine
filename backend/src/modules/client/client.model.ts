@@ -51,13 +51,13 @@ clientSchema.static('isUserSigned', async function (user_id: mongoose.Types.Obje
 })
 
 clientSchema.pre('save', async function (done) {
-  if (this.isModified('review')) {
-    const review = await this.get('review')
-    const currRating = await this.get('rating')
-    const newRating =
-      !!currRating && !!review?.length
-        ? (currRating + Number(review.pop()?.rating)) / (review?.length || 1)
-        : Number(review.pop()?.rating)
+  if (this.isModified('reviews')) {
+    const reviews = await this.get('reviews')
+    let newRating = 0
+    if (reviews?.length) {
+      const totalRating = reviews.reduce((accumulator, currentValue) => accumulator + currentValue?.rating || 0, 0)
+      newRating = totalRating / reviews?.length
+    }
     this.set('rating', newRating)
   }
   done()

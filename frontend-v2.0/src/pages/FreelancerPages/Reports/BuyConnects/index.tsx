@@ -12,10 +12,13 @@ import { PayPalButton } from 'react-paypal-button-v2'
 import { buySickPoints } from 'src/api/payment-api'
 import { BlueColorButton } from 'src/Components/CommonComponents/custom-style-elements/button'
 import toast from 'react-hot-toast'
+import { appInfoStore } from 'src/Store/commom.store'
 
 export default function BuyConnects() {
   const { t } = useTranslation(['main'])
   const { state, setState } = useSubscription(userStore)
+
+  const { state: appInfo } = useSubscription(appInfoStore)
 
   const amountRef = useRef(null)
 
@@ -40,7 +43,7 @@ export default function BuyConnects() {
         from: state?._id || state?.id,
         isToAdmin: true,
         purpose: EPaymentPurpose.BUYSICK,
-        amount: buy * 5000,
+        amount: buy * appInfo?.sickCost,
         paymentMethod: paymentType,
         note: `User {${state.name}} ${t('Buy SickPoints Payment', { amount: buy })}`,
       },
@@ -50,7 +53,7 @@ export default function BuyConnects() {
   }
 
   const handleBuyViaBalance = () => {
-    const amount = buy * 5000
+    const amount = buy * appInfo?.sickCost
     if (amount > (state?.balance || 0)) {
       return toast.error(`${t("You Don't Have Enough")} ${t('Balance')}`)
     }
@@ -69,7 +72,7 @@ export default function BuyConnects() {
   }
 
   const handleBuyViaPaypal = () => {
-    const amount = buy * 5000
+    const amount = buy * appInfo?.sickCost
     handleBuySick()
       .then(res => {
         console.log('after buy', res.data)
@@ -91,7 +94,7 @@ export default function BuyConnects() {
           description: t('Buy SickPoints Payment', { amount: buy }),
           amount: {
             currency_code: 'USD',
-            value: (((buy || 1) * 5000) / 24000).toFixed(2).toString(),
+            value: (((buy || 1) * appInfo?.sickCost) / 24000).toFixed(2).toString(),
           },
         },
       ],
@@ -115,7 +118,7 @@ export default function BuyConnects() {
           </h2>
         }
       >
-        <div className="row d-flex">
+        <div className="d-flex">
           <h4 className="mb-0 pt-3 para ">{t('AvalableSicks')}: </h4>
           <h4 className="mb-0 pt-3 para" style={{ color: '#6058c4', paddingLeft: 4 }}>
             {state?.sickPoints}
@@ -156,7 +159,7 @@ export default function BuyConnects() {
                 </>
               )}
               options={items.map(item => ({
-                label: `${item} SickPoints ~ ${currencyFormatter(item * 5000)}`,
+                label: `${item} SickPoints ~ ${currencyFormatter(item * appInfo?.sickCost)}`,
                 value: item,
               }))}
             />
@@ -165,7 +168,7 @@ export default function BuyConnects() {
 
         <Space align="baseline" className="mb-0 pt-3" style={{ width: '100%' }}>
           <h4 className="para">{t('Your account will be charged')}:</h4>
-          <span style={{ fontSize: 18, fontWeight: 600 }}>{currencyFormatter(buy * 5000)}</span>
+          <span style={{ fontSize: 18, fontWeight: 600 }}>{currencyFormatter(buy * appInfo?.sickCost)}</span>
         </Space>
 
         <Space align="baseline" className="mb-0 pt-3" style={{ width: '100%' }}>
@@ -178,7 +181,7 @@ export default function BuyConnects() {
           <div style={{ fontSize: 16, fontWeight: 600 }}>03/17/2026</div>
         </Space>
 
-        <h4 className="mt-3 mb-2 para">
+        {/* <h4 className="mt-3 mb-2 para">
           <label htmlFor="promoCodeInput" className="up-label mb-0">
             Promo code
           </label>
@@ -202,9 +205,9 @@ export default function BuyConnects() {
             </div>
           </div>
           <div></div>
-        </form>
+        </form> */}
         <div className="mt-3 pt-10 mb-3 text-muted">
-          <span className="d-none-mobile-app">This bundle of Connects will expire 1 year from today.</span>
+          {/* <span className="d-none-mobile-app">This bundle of Connects will expire 1 year from today.</span>
           Unused Connects rollover to the next month (maximum of 200).
           <a
             aria-label="Learn more about Connects"
@@ -215,7 +218,7 @@ export default function BuyConnects() {
             style={{ color: '#6058c4', textDecoration: 'none' }}
           >
             Learn more
-          </a>
+          </a> */}
         </div>
         <div className="mt-20 mb-3 text-muted d-none-mobile-app">
           You're authorizing JobSickers to charge your account. If you have sufficient funds, we will withdraw from your
@@ -237,7 +240,7 @@ export default function BuyConnects() {
               top: 0,
               bottom: 0,
               height: '100%',
-              width: '98%',
+              width: '97%',
               background: 'rgba(89, 47, 214, .4)',
               zIndex: 1000,
               textAlign: 'center',
@@ -248,8 +251,9 @@ export default function BuyConnects() {
           >
             <h2
               style={{
-                fontWeight: 800,
+                fontWeight: 600,
                 marginBottom: 28,
+                color:"white"
               }}
             >
               {t('Select the amount to buy')}
@@ -269,10 +273,10 @@ export default function BuyConnects() {
                   <Radio style={{ fontSize: 18 }} value={EPaymentMethod.PAYPAL}>
                     {t('Pay via PayPal(recommened)')}
                   </Radio>
-                  <Radio style={{ fontSize: 18 }} value={EPaymentMethod.BALANCE}>
+                  {/* <Radio style={{ fontSize: 18 }} value={EPaymentMethod.BALANCE}>
                     {t('Pay by your JobSickers Balance, your balance:')}
                     {` (${currencyFormatter(state?.balance)})`}
-                  </Radio>
+                  </Radio> */}
                   <Radio style={{ fontSize: 18 }} value={3} disabled>
                     {t('Pay via VNPay(maintain😓)')}
                   </Radio>

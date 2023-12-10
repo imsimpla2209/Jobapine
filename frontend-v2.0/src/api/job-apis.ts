@@ -69,3 +69,31 @@ export const getCategories = (data?: IGetJobsQuery) => {
 export const getSkills = (data?: IGetJobsQuery) => {
   return Http.get(`jobs/skills`, data);
 }
+
+export const getSkillsWithCount = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/skill-sum-by-jobs`, data);
+}
+
+export const getCategoriesByCount = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/cats-sum-by-jobs`, data);
+}
+
+export const getJobsByFav = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/byFreelancerfav`, data);
+}
+
+export const getCurrentInterestJobs = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/cur-interest`, data);
+}
+
+export const getCurrentInterestJobsByJobs = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/cur-interest-jobs`, data);
+}
+
+export const getCurrentInterestJobsByTypes = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/cur-interest-type`, data);
+}
+
+export const getTopInterestJobsByTypes = (data?: IGetJobsQuery) => {
+  return Http.get(`jobs/top-interest-type`, data);
+}

@@ -9,7 +9,7 @@ const contractSchema = new mongoose.Schema<IContractDoc, IContractModel>(
     job: { type: mongoose.Types.ObjectId, ref: 'Job' },
     proposal: { type: mongoose.Types.ObjectId, ref: 'Proposal' },
     freelancer: { type: mongoose.Types.ObjectId, ref: 'Freelancer' },
-    client: { type: mongoose.Types.ObjectId, ref: 'Freelancer' },
+    client: { type: mongoose.Types.ObjectId, ref: 'Client' },
     overview: {
       type: String,
       default: 'Nothing :))',

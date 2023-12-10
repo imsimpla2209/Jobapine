@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from 'src/Components/Providers/AuthProvider'
 import AdminRoutesWithSeparateCss from 'src/Routes/AdminRoutesWithoutCss'
-import { categoryStore, locationStore, skillStore } from 'src/Store/commom.store'
+import { appInfoStore, categoryStore, locationStore, skillStore } from 'src/Store/commom.store'
 import { userStore } from 'src/Store/user.store'
 import { logout } from 'src/api/auth-apis'
 import { getAllCategories } from 'src/api/category-apis'
@@ -16,12 +16,14 @@ import BeforeLoginRoutes from '../Routes/BeforeLoginRoutes'
 import ClientRoutes from '../Routes/ClientRoutes'
 import Loader from './../Components/SharedComponents/Loader/Loader'
 import FreelancerRoutes from './../Routes/FreelancerRoutes'
+import { getAppInfo } from 'src/api/admin-apis'
 
 export default function LayOut() {
   const { authenticated, loading, id } = useAuth()
   const [usrType, setUsrType] = useState('')
   const { setState } = useSubscription(locationStore)
   const { state: user } = useSubscription(userStore)
+  const { state: appInfo, setState: setAppInfo } = useSubscription(appInfoStore)
   const { appSocket } = useSocket()
   const navigate = useNavigate()
 
@@ -63,9 +65,20 @@ export default function LayOut() {
   }, [authenticated])
 
   useEffect(() => {
+    if (authenticated) {
+      appSocket.on(ESocketEvent.SICKSETTING, data => {
+        getAppInfo().then(res => setAppInfo(res.data))
+      })
+    }
+    return () => {
+      appSocket.off(ESocketEvent.SICKSETTING)
+    }
+  }, [authenticated])
+
+  useEffect(() => {
     getSkills().then(res => skillStore.updateState(res.data))
     getAllCategories().then(res => categoryStore.updateState(res.data))
-
+    getAppInfo().then(res => setAppInfo(res.data))
     fetch('https://raw.githubusercontent.com/sunrise1002/hanhchinhVN/master/dist/tinh_tp.json') //eslint-disable-line
       .then(response => response.json())
       .then(responseJson => {

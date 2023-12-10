@@ -1,13 +1,14 @@
-import React from "react";
-import ConnectsAndSubmit from "./../ConnectsAndSubmit";
-import ClientInfo from "./../ClientInfo";
-import JobLink from "./../JobLink";
-import { useTranslation } from "react-i18next";
 import { Result } from "antd";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import ClientInfo from "./../ClientInfo";
+import ConnectsAndSubmit from "./../ConnectsAndSubmit";
+import JobLink from "./../JobLink";
 
 export default function RightSidebarJobDetails({ job, freelancer }) {
   const { t } = useTranslation(['main'])
+
+
   return (
     <div className="col-lg-3 col-xs-3 d-flex flex-column">
       {

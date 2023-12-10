@@ -9,6 +9,10 @@ import { freelancerStore } from "src/Store/user.store";
 import { EStatus } from "src/utils/enum";
 import { Pagination, Tabs } from "antd";
 import Loader from "src/Components/SharedComponents/Loader/Loader";
+import archiveimg from '../../../assets/img/archive.png'
+import pendingimg from '../../../assets/img/pending.png'
+import rejectimg from '../../../assets/img/reject.png'
+import cancelimg from '../../../assets/img/cancel.png'
 
 const tabLists = {
   "Pending": EStatus.PENDING,
@@ -16,6 +20,13 @@ const tabLists = {
   "Archive": EStatus.ARCHIVE,
   "Cancel": EStatus.CANCELLED,
 }
+
+const tabIcons = [
+  pendingimg,
+  rejectimg,
+  archiveimg,
+  cancelimg
+]
 
 export default function Proposals() {
 
@@ -99,11 +110,12 @@ export default function Proposals() {
           <Tabs
             onChange={(t) => setTab(t as EStatus)}
             type="card"
-            tabBarStyle={{ color: "black", fontWeight: 600}}
+            tabBarStyle={{ color: "black", fontWeight: 600, }}
             items={Object.keys(tabLists).map((k, i) => {
               return {
                 label: `${t(`${k}`)}`,
                 key: tabLists[k],
+                icon: <img src={tabIcons[i]} alt="s" height={24}></img>
               };
             })}
           />

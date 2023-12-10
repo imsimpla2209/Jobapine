@@ -13,9 +13,10 @@ import {
   getLastestTopCurrentTypeTracking,
   getLastestTopJobs,
   getSimilarByFreelancerId,
+  getTopCurrentTypeTracking,
   updateSimilarById,
 } from '@modules/freelancer/freelancer.service'
-import { bulkCreateNotify } from '@modules/notify/notify.service'
+import { bulkCreateNotify, createNotify } from '@modules/notify/notify.service'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
 import { updateProposalStatusBulk } from '@modules/proposal/proposal.service'
 import { Skill } from '@modules/skill'
@@ -30,6 +31,7 @@ import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IJobDoc, NewCreatedJob, UpdateJobBody } from './job.interfaces'
 import Job, { JobCategory, JobTag } from './job.model'
+import App from '@modules/admin/models/app.model'
 
 export const excludingFilter = (freelancer?: IFreelancerDoc) => {
   const filterByFreelancer = []
@@ -57,28 +59,34 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
     if (!client) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
     }
-    if (!client?.paymentVerified) {
-      jobBody['status'] = [
-        {
-          status: EJobStatus.PENDING,
-          comment: 'Client profile is not verified',
-          date: new Date(),
-        },
-      ]
-      jobBody['currentStatus'] = EJobStatus.PENDING
-    }
+    // if (!client?.paymentVerified) {
+    jobBody['status'] = [
+      {
+        status: EJobStatus.PENDING,
+        comment: 'Client submit but job is not verified',
+        date: new Date(),
+      },
+    ]
+    jobBody['currentStatus'] = EJobStatus.PENDING
+    // }
     const createdJob = await Job.create(jobBody)
-    await User.updateOne({ _id: new mongoose.Types.ObjectId(client?.user) }, { $inc: { sickPoints: -2 } })
-    if (client?.paymentVerified) {
-      const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
-      const notifyBodies = followedFreelancer?.map(f => ({
-        to: f.user._id,
-        path: FERoutes.jobDetail + (createdJob._id || ''),
-        attachedId: createdJob._id,
-        content: FEMessage(createdJob.title).newJobCreated,
-      }))
-      bulkCreateNotify(notifyBodies)
-    }
+
+    const appInfo = await App.findOne({})
+
+    await User.updateOne(
+      { _id: new mongoose.Types.ObjectId(client?.user) },
+      { $inc: { sickPoints: -appInfo?.clientSicks.postJob } }
+    )
+    // if (client?.paymentVerified) {
+    //   const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
+    //   const notifyBodies = followedFreelancer?.map(f => ({
+    //     to: f.user._id,
+    //     path: FERoutes.jobDetail + (createdJob._id || ''),
+    //     attachedId: createdJob._id,
+    //     content: FEMessage(createdJob.title).newJobCreated,
+    //   }))
+    //   bulkCreateNotify(notifyBodies)
+    // }
     client.jobs = client.jobs.concat(createdJob._id)
     client.save()
     return createdJob
@@ -130,7 +138,7 @@ export const queryJobs = async (
     options.sortBy = 'updatedAt:desc'
     options.populate = 'client,categories,reqSkills.skill'
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, proposals, nOEmployee, preferences'
+      'client, categories, title, description, type, locations, complexity, payment, budget, createdAt, proposals, nOEmployee, preferences'
   }
   const jobs = await Job.paginate(queryFilter, options)
   return jobs
@@ -152,6 +160,8 @@ export const queryAdvancedJobs = async (
   filter['description'] && (filter['description'] = { $regex: `${filter['description']}`, $options: 'i' })
 
   filter['locations'] && (filter['locations'] = { 'preferences.locations': { $in: filter['locations'] } })
+  filter['jobDuration'] && (filter['jobDuration'] = { jobDuration: filter['jobDuration'] })
+  filter['type'] && (filter['type'] = { type: filter['type'] })
   filter['complexity'] && (filter['complexity'] = { 'scope.complexity': { $in: filter['complexity'] } })
   filter['paymentType'] && (filter['paymentType'] = { 'payment.type': { $in: filter['paymentType'] } })
   filter['skills'] && (filter['skills'] = { 'reqSkills.skill': { $in: filter['skills'] } })
@@ -205,7 +215,7 @@ export const queryAdvancedJobs = async (
   options.sortBy = 'updatedAt:desc'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, scope, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, type, locations, scope, payment, budget, createdAt, nOProposals, nOEmployee, preferences, type'
   }
 
   const jobs = await Job.paginate(queryFilter, options)
@@ -252,7 +262,7 @@ export const searchJobsByText = async (
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, type, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences, type'
   }
 
   const jobs = await Job.paginate(filter, options)
@@ -289,7 +299,7 @@ export const getRcmdJob = async (
   }
 
   if (!options?.projectBy) {
-    options.projectBy = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
+    options.projectBy = `client, categories, title, description, type, locations, complexity, payment, budget, createdAt, nOProposals, 
       nOEmployee, preferences, totalScore, scope, jobDuration
       score_title, score_description, score_my_skills, score_similar_skills, score_my_categories, score_locations, score_categories, score_expertise, score_paymentAmount, score_paymentType`
   }
@@ -546,7 +556,7 @@ export const getRcmdJob = async (
 export const getAllJob = async (): Promise<IJobDoc[] | null> => {
   const jobs = await Job.find()
     .select(
-      'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences reqSkills'
+      'client categories title description locations complexity payment budget createdAt nOProposals nOEmployee preferences reqSkills type jobDuration'
     )
     .populate([{ path: 'client', select: 'rating spent paymentVerified' }, { path: 'categories' }])
     .sort({ updatedAt: 1 })
@@ -574,7 +584,7 @@ export const getFavJobByFreelancer = async (
   options.populate = 'client,categories,reqSkills.skill'
   if (!options.projectBy) {
     options.projectBy =
-      'client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences'
+      'client, categories, title, description, type, locations, complexity, payment, budget, createdAt, nOProposals, nOEmployee, preferences, type'
   }
 
   const jobs = await Job.paginate(filter, options)
@@ -596,7 +606,7 @@ export const getSimilarByJobFields = async (
   limit?: any
 ) => {
   try {
-    const options = `client, categories, title, description, locations, complexity, payment, budget, createdAt, nOProposals, 
+    const options = `client, categories, title, description, type, locations, complexity, payment, budget, createdAt, nOProposals, 
         nOEmployee, preferences, totalScore, scope, jobDuration, similarityScore`
 
     const projectFields = options?.split(',').reduce((acc, field) => {
@@ -743,15 +753,15 @@ export const getSimilarByJobFields = async (
 
     return fullfillJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong')
   }
 }
 
 export const getCurrentInterestedJobsByType = async (
   freelancer: IFreelancerDoc,
-  inputType?: any,
-  options?: IOptions
+  options?: IOptions,
+  inputType?: any
 ): Promise<any | null> => {
   try {
     if (!freelancer) {
@@ -852,8 +862,8 @@ export const getCurrentInterestedJobsByType = async (
 
     return matchingJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
   }
 }
 
@@ -874,7 +884,7 @@ export const getTopInterestedJobsByType = async (
     //   return JSON.parse(cachedData)
     // }
 
-    const type = await getLastestTopCurrentTypeTracking(freelancer)
+    const type = await getTopCurrentTypeTracking(freelancer)
 
     const matchingJobs = await Job.aggregate([
       {
@@ -960,8 +970,8 @@ export const getTopInterestedJobsByType = async (
 
     return matchingJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
   }
 }
 
@@ -1039,8 +1049,8 @@ export const getCurrentInterestedJobs = async (freelancer: IFreelancerDoc, optio
 
     return relatedJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
   }
 }
 
@@ -1196,8 +1206,8 @@ export const findRelatedJobsWithPoints = async (jobsWithPoints: any[], limit?: n
 
     return relatedJobs
   } catch (error: any) {
-    logger.error('Error finding related jobs with points:', error.message)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error.message}`)
+    logger.error('Error finding related jobs with points:', error)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error}`)
   }
 }
 
@@ -1224,8 +1234,8 @@ export const getCurrentInterestedJobsByJobs = async (
 
     return matchJobs
   } catch (error: any) {
-    logger.error('Error finding related jobs with points:', error.message)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error.message}`)
+    logger.error('Error finding related jobs with points:', error)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs with points: ${error}`)
   }
 }
 
@@ -1300,8 +1310,8 @@ export const getJobByFreelancerFav = async (freelancer: IFreelancerDoc, options:
 
     return relatedJobs
   } catch (error: any) {
-    logger.error(`Error finding related jobs:${error.message}`)
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error.message}`)
+    logger.error(`Error finding related jobs:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
   }
 }
 
@@ -1476,7 +1486,7 @@ export const addApplytoJobById = async (
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
     }
-    return job
+    return await job.populate({ path: 'client', populate: { path: 'user' } })
   } catch (err) {
     throw new Error('cannot add apply to job')
   }
@@ -1609,13 +1619,15 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
 
   const clientUserId = job.client?.user?._id
 
+  const appInfo = await App.findOne({})
+
   if (job.proposals?.length) {
     const bulkOperations = [
-      { updateOne: { filter: { _id: clientUserId }, update: { $inc: { sickPoints: 2 } } } },
+      // { updateOne: { filter: { _id: clientUserId }, update: { $inc: { sickPoints: 2 } } } },
       ...job.proposals.map(proposal => ({
         updateOne: {
           filter: { _id: proposal.freelancer.user._id },
-          update: { $inc: { sickPoints: proposal.sickUsed || 2 } },
+          update: { $inc: { sickPoints: proposal.sickUsed || appInfo?.freelancerSicks?.proposalCost } },
         },
       })),
     ]
@@ -1628,7 +1640,7 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
     }))
 
     await Promise.all([
-      User.updateOne({ _id: clientUserId }, { $inc: { sickPoints: -2 } }),
+      User.updateOne({ _id: clientUserId }, { $inc: { sickPoints: -appInfo?.clientSicks?.deleteJob } }),
       User.bulkWrite(bulkOperations),
       bulkCreateNotify(notifyBodies),
       updateProposalStatusBulk(
@@ -1697,11 +1709,13 @@ export const changeStatusJobById = async (
     ]
   }
 
-  job.status?.push({
-    status,
-    comment,
-    date: new Date(),
-  })
+  else {
+    job.status?.push({
+      status,
+      comment,
+      date: new Date(),
+    })
+  }
   await job.save()
   return job
 }
@@ -1730,26 +1744,36 @@ export const getAllJobs = async (filter: Record<string, any>, options: IOptions)
  * @param {IProposalDoc} proposal
  * @returns {Promise<boolean | null>}
  */
-export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IProposalDoc): Promise<boolean | null> => {
+export const isJobOpened = async (
+  jobId: mongoose.Types.ObjectId,
+  proposal: IProposalDoc,
+  isCreatedJob: boolean = true
+): Promise<boolean | null> => {
   const job = await Job.findById(jobId)
   let check = true
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
-  if (job?.questions?.length > 0) {
-    if (!proposal?.answers) {
-      check = false
-    } else if (job?.questions?.length !== Object.keys(proposal?.answers || {}).length) {
+
+  if (isCreatedJob) {
+    if (job?.questions?.length > 0) {
+      if (!proposal?.answers) {
+        check = false
+      } else if (job?.questions?.length !== Object.keys(proposal?.answers || {}).length) {
+        check = false
+      }
+    }
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    if (job?.proposals?.length * job?.preferences?.nOEmployee >= 15 * job?.preferences?.nOEmployee) {
       check = false
     }
-  }
-  // eslint-disable-next-line no-unsafe-optional-chaining
-  if (job?.proposals?.length * job?.preferences?.nOEmployee >= 15 * job?.preferences?.nOEmployee) {
-    check = false
-  }
 
-  if (job?.appliedFreelancers?.includes(proposal.freelancer) || job?.blockFreelancers?.includes(proposal.freelancer)) {
-    throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'This user already applied or is not allowed to apply this job')
+    if (
+      job?.appliedFreelancers?.includes(proposal.freelancer) ||
+      job?.blockFreelancers?.includes(proposal.freelancer)
+    ) {
+      throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'This user already applied or is not allowed to apply this job')
+    }
   }
 
   if (!(job?.currentStatus === EJobStatus.PENDING || job?.currentStatus === EJobStatus.OPEN)) {
@@ -1758,3 +1782,47 @@ export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IPro
 
   return check
 }
+
+export const verifyJob = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc> => {
+  try {
+    const job = await Job.findById(jobId);
+    if (!job) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
+    }
+
+    const client = await getClientById(job.client)
+    if (!client) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
+    }
+    // if (!client?.paymentVerified) {
+    const verifiedJob =  await changeStatusJobById(job.id, EJobStatus.OPEN, 'Accepted by Admin')
+    // }
+    // const createdJob = await Job.create(job)
+
+    createNotify({
+      to: client.user._id,
+      path: FERoutes.jobDetail + (verifiedJob._id || ''),
+      attachedId: verifiedJob._id,
+      content: FEMessage(verifiedJob.title).jobVerified,
+    })
+
+    if (client?.paymentVerified) {
+      const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
+      const notifyBodies = followedFreelancer?.map(f => ({
+        to: f.user._id,
+        path: '/job-details/' + (verifiedJob._id || ''),
+        attachedId: verifiedJob._id,
+        content: FEMessage(verifiedJob.title).newJobCreated,
+      }))
+      bulkCreateNotify(notifyBodies)
+    }
+    // client.jobs = client.jobs.concat(createdJob._id)
+    // client.save()
+    // return createdJob
+
+    return verifiedJob
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `cannot create job ${error}`)
+  }
+}
+

@@ -29,13 +29,24 @@ export interface ITrackingEvent {
 export interface ITrackingData {
   id: string
   text: string
-  lastTimeView: number
+  event: ITrackingEvent
+  lastTimeView: string
 }
 
 export interface IFreelancerTracking {
+  freelancer: string
   jobs: ITrackingData[]
   skills: ITrackingData[]
   categories: ITrackingData[]
   locations: ITrackingData[]
 }
-export const locationStore = createSubscription<IFreelancerTracking>({} as IFreelancerTracking)
+
+export const trackingLogStore = createSubscription<{
+  isFirstTime?: boolean,
+  timeRemaining?: number,
+
+}>({})
+export const freelancerTrackingJobsStore = createSubscription<Record<string, ITrackingData>>({})
+export const freelancerTrackingSkillsStore = createSubscription<Record<string, ITrackingData>>({})
+export const freelancerTrackingCategoriesStore = createSubscription<Record<string, ITrackingData>>({})
+export const freelancerTrackingLocationsStore = createSubscription<Record<string, ITrackingData>>({})

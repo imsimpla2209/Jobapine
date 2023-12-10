@@ -1,22 +1,21 @@
 /* eslint-disable */
-import { Carousel } from "antd";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import getsomemoney from 'src/assets/img/getsomemoney.gif';
-import conversation from 'src/assets/img/conversation.png';
-import carousel1 from 'src/assets/videos/carousel1.gif';
-
+import { Carousel } from 'antd'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import getsomemoney from 'src/assets/img/getsomemoney.gif'
+import conversation from 'src/assets/img/confidence.gif'
+import carousel1 from 'src/assets/videos/carousel1.gif'
 
 const contentStyle: React.CSSProperties = {
-  height: '200px',
+  height: '300px',
   lineHeight: '160px',
   textAlign: 'center',
   borderRadius: 14,
   display: 'flex',
-};
+}
 
 export default function HeadOfCenterSection() {
-  const { t } = useTranslation(['main']);
+  const { t } = useTranslation(['main'])
   return (
     <div className="">
       {/* <div className="list-group-item my-lg-2 pt-3 rounded text-center ">
@@ -28,72 +27,99 @@ export default function HeadOfCenterSection() {
         </h6>
       </div> */}
       <div className="mb-3 d-none d-lg-block">
-        <Carousel autoplaySpeed={4000} effect="fade" autoplay style={{
-          borderRadius: 20
-        }}>
+        <Carousel
+          autoplaySpeed={4000}
+          effect="fade"
+          autoplay
+          style={{
+            borderRadius: 20,
+          }}
+        >
           <div>
-            <div style={{
-              ...contentStyle,
-              background: 'linear-gradient(92.88deg, #fff0c2, #ffb8fd)',
-              justifyContent: 'space-around',
-              padding: 4,
-              alignItems: 'center'
-            }}>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'start',
-                alignContent: 'start',
-                marginLeft: 14,
-              }}>
-                <h3 style={{ fontSize: 23, fontWeight: 600, color: "#fc2683" }}>
-                  {t("HOT!!! This December")}
-                </h3>
-                <p style={{ fontSize: 20, fontWeight: 600, color: "#6e6247", lineHeight: 2 }}>
-                  {t("Start launching a money-making contest at home for girls")}
+            <div
+              style={{
+                ...contentStyle,
+                background: 'linear-gradient(92.88deg, #fff0c2, #ffb8fd)',
+                justifyContent: 'space-around',
+                padding: 4,
+                alignItems: 'center',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'start',
+                  alignContent: 'start',
+                  marginLeft: 14,
+                }}
+              >
+                <h3 style={{ fontSize: 23, fontWeight: 600, color: '#fc2683' }}>{t('HOT!!! This December')}</h3>
+                <p style={{ fontSize: 20, fontWeight: 600, color: '#6e6247', lineHeight: 2 }}>
+                  {t('Start launching a money-making contest at home for girls')}
                 </p>
               </div>
               <img src={carousel1} alt="this slowpoke moves" width="250" />
             </div>
           </div>
           <div>
-            <h3 style={{
-              ...contentStyle, background: `url(${conversation})`,
-              backgroundRepeat: 'no-repeat',
-              backgroundSize: 'cover',
-              padding: 28,
-              color: "#cccccc"
-            }}>
-              {t("Engage with confidence")}
+            <h3
+              style={{
+                ...contentStyle,
+                background: 'linear-gradient(92.88deg, #245b88, #3e74e0)',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: 'cover',
+                padding: 28,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignContent: 'start',  
+                alignItems: 'center',
+                color: '#cccccc',
+              }}
+            >
+              <img src={conversation} alt="this slowpokess moves" width="280" />
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'start',
+                  alignContent: 'start',
+                  marginLeft: 14,
+                }}
+              >
+                <h3 style={{ fontSize: 23, fontWeight: 600, color: '#ccc' }}>{t('Engage with confidence')}</h3>
+              </div>
             </h3>
           </div>
           <div>
-            <div style={{
-              ...contentStyle,
-              background: 'linear-gradient(92.88deg, #23cf79, #38d6c9)',
-              justifyContent: 'space-around',
-              padding: 4,
-              alignItems: 'center'
-            }}>
+            <div
+              style={{
+                ...contentStyle,
+                background: 'linear-gradient(92.88deg, #23cf79, #38d6c9)',
+                justifyContent: 'space-around',
+                padding: 4,
+                alignItems: 'center',
+              }}
+            >
               <img src={getsomemoney} alt="this slowpokess moves" width="200" />
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'start',
-                alignContent: 'start',
-                marginLeft: 14,
-              }}>
-                <h3 style={{ fontSize: 23, fontWeight: 600, color: "#295b99" }}>
-                  {t("Why so serious")}
-                </h3>
-                <p style={{ fontSize: 20, fontWeight: 600, color: "#11403d", lineHeight: 2 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'start',
+                  alignContent: 'start',
+                  marginLeft: 14,
+                }}
+              >
+                <h3 style={{ fontSize: 23, fontWeight: 600, color: '#295b99' }}>{t('Why so serious')}</h3>
+                <p style={{ fontSize: 20, fontWeight: 600, color: '#11403d', lineHeight: 2 }}>
                   {t("If you're good at something, never do it for free.")}
                 </p>
               </div>
             </div>
           </div>
         </Carousel>
-      </div >
-    </div >
-  );
+      </div>
+    </div>
+  )
 }
