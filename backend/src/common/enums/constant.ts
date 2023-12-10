@@ -1,6 +1,6 @@
 export const FERoutes = {
   allProposals: '/proposals/',
-  allContract: '/all-contract',
+  allContract: '/all-contracts',
   myJobs: '/my-jobs',
   allInvitation: '/invitations',
   allMessages: '/messages',

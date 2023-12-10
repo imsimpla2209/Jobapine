@@ -1,19 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/alt-text */
 
-import { fakeFreelancerState } from "Store/fake-state";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import MyJobsActiveContractFixed from '../../../Components/FreelancerComponents/MyJobsActiveContractFixed';
-import MyJobsActiveContractHourly from '../../../Components/FreelancerComponents/MyJobsActiveContractHourly';
-import { useSubscription } from "src/libs/global-state-hook";
-import { freelancerStore, userStore } from "src/Store/user.store";
-import { currencyFormatter } from "src/utils/helperFuncs";
-import { getContracts } from "src/api/contract-apis";
-import { EStatus } from "src/utils/enum";
 import { BlueColorButton } from "src/Components/CommonComponents/custom-style-elements/button";
 import Loader from "src/Components/SharedComponents/Loader/Loader";
+import { freelancerStore, userStore } from "src/Store/user.store";
+import { getContracts } from "src/api/contract-apis";
+import { useSubscription } from "src/libs/global-state-hook";
+import { EStatus } from "src/utils/enum";
+import { currencyFormatter } from "src/utils/helperFuncs";
+import MyJobsActiveContractFixed from '../../../Components/FreelancerComponents/MyJobsActiveContractFixed';
 
 export default function MyJobs() {
   const freelancer = useSubscription(freelancerStore).state;

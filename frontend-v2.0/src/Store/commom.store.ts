@@ -1,3 +1,4 @@
+import { appInfo } from './commom.store';
 import { createSubscription } from 'libs/global-state-hook'
 export interface ISkill {
   name: string
@@ -5,7 +6,35 @@ export interface ISkill {
   category: string
   isDeleted: boolean
 }
+
+export enum EAppStatus {
+  Normal = 'Normal',
+  Maintenance = 'Maintenance',
+  Limited = 'Limited',
+}
+
+export interface IApp {
+  status: EAppStatus,
+  freelancerSicks: {
+      proposalCost: number,
+      withdrawReturn: number,
+      updateProposalCost: number,
+      assistantCost: number,
+      inviteMsg: number,
+  },
+  clientSicks: {
+      postJob: number,
+      updateJob: number,
+      createContract: number,
+      deleteJob: number,
+      inviteMsg: number,
+  },
+  sickCost: number,
+  
+}
+
 export const locationStore = createSubscription<{ name: string; code: string }[]>([])
 
 export const skillStore = createSubscription([])
 export const categoryStore = createSubscription([])
+export const appInfoStore = createSubscription<IApp>({} as IApp)

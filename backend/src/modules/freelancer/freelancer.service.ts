@@ -401,7 +401,7 @@ export const addProposaltoFreelancerById = async (
     if (!freelancer) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
     }
-    return freelancer
+    return await freelancer.populate('user')
   } catch (err) {
     throw new Error(`cannot add proposals to freelancer ${err}`)
   }

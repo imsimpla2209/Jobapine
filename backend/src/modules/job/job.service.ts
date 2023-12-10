@@ -31,6 +31,7 @@ import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IJobDoc, NewCreatedJob, UpdateJobBody } from './job.interfaces'
 import Job, { JobCategory, JobTag } from './job.model'
+import App from '@modules/admin/models/app.model'
 
 export const excludingFilter = (freelancer?: IFreelancerDoc) => {
   const filterByFreelancer = []
@@ -69,7 +70,10 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
       jobBody['currentStatus'] = EJobStatus.PENDING
     }
     const createdJob = await Job.create(jobBody)
-    await User.updateOne({ _id: new mongoose.Types.ObjectId(client?.user) }, { $inc: { sickPoints: -2 } })
+    
+    const appInfo = await App.findOne({})
+
+    await User.updateOne({ _id: new mongoose.Types.ObjectId(client?.user) }, { $inc: { sickPoints: -appInfo?.clientSicks.postJob } })
     if (client?.paymentVerified) {
       const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
       const notifyBodies = followedFreelancer?.map(f => ({
@@ -1479,7 +1483,7 @@ export const addApplytoJobById = async (
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
     }
-    return job
+    return await job.populate({ path: 'client', populate: { path: 'user' }})
   } catch (err) {
     throw new Error('cannot add apply to job')
   }
@@ -1612,13 +1616,15 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
 
   const clientUserId = job.client?.user?._id
 
+  const appInfo = await App.findOne({})
+
   if (job.proposals?.length) {
     const bulkOperations = [
-      { updateOne: { filter: { _id: clientUserId }, update: { $inc: { sickPoints: 2 } } } },
+      // { updateOne: { filter: { _id: clientUserId }, update: { $inc: { sickPoints: 2 } } } },
       ...job.proposals.map(proposal => ({
         updateOne: {
           filter: { _id: proposal.freelancer.user._id },
-          update: { $inc: { sickPoints: proposal.sickUsed || 2 } },
+          update: { $inc: { sickPoints: proposal.sickUsed || appInfo?.freelancerSicks?.proposalCost } },
         },
       })),
     ]
@@ -1631,7 +1637,7 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
     }))
 
     await Promise.all([
-      User.updateOne({ _id: clientUserId }, { $inc: { sickPoints: -2 } }),
+      User.updateOne({ _id: clientUserId }, { $inc: { sickPoints: -appInfo?.clientSicks?.deleteJob } }),
       User.bulkWrite(bulkOperations),
       bulkCreateNotify(notifyBodies),
       updateProposalStatusBulk(
@@ -1733,26 +1739,29 @@ export const getAllJobs = async (filter: Record<string, any>, options: IOptions)
  * @param {IProposalDoc} proposal
  * @returns {Promise<boolean | null>}
  */
-export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IProposalDoc): Promise<boolean | null> => {
+export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IProposalDoc, isCreatedJob: boolean = true): Promise<boolean | null> => {
   const job = await Job.findById(jobId)
   let check = true
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
-  if (job?.questions?.length > 0) {
-    if (!proposal?.answers) {
-      check = false
-    } else if (job?.questions?.length !== Object.keys(proposal?.answers || {}).length) {
+  
+  if (isCreatedJob) {
+    if (job?.questions?.length > 0) {
+      if (!proposal?.answers) {
+        check = false
+      } else if (job?.questions?.length !== Object.keys(proposal?.answers || {}).length) {
+        check = false
+      }
+    }
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    if (job?.proposals?.length * job?.preferences?.nOEmployee >= 15 * job?.preferences?.nOEmployee) {
       check = false
     }
-  }
-  // eslint-disable-next-line no-unsafe-optional-chaining
-  if (job?.proposals?.length * job?.preferences?.nOEmployee >= 15 * job?.preferences?.nOEmployee) {
-    check = false
-  }
-
-  if (job?.appliedFreelancers?.includes(proposal.freelancer) || job?.blockFreelancers?.includes(proposal.freelancer)) {
-    throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'This user already applied or is not allowed to apply this job')
+  
+    if (job?.appliedFreelancers?.includes(proposal.freelancer) || job?.blockFreelancers?.includes(proposal.freelancer)) {
+      throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'This user already applied or is not allowed to apply this job')
+    }
   }
 
   if (!(job?.currentStatus === EJobStatus.PENDING || job?.currentStatus === EJobStatus.OPEN)) {

@@ -28,4 +28,10 @@ export const changeActiveUser = (id: string) => {
   return instance.patch('admin/changeActiveUser' + `/${id}`)
 }
 
+export const getAppInfo = () => {
+  return instance.get('admin/app-info')
+}
 
+export const updateAppInfo = () => {
+  return instance.patch('admin/app-info')
+}

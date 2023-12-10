@@ -30,6 +30,10 @@ export const withdrawProposal = (id: string) => {
   return instance.patch(`proposals/withdraw/${id}`)
 }
 
+export const reSubmitProposal = (id: string) => {
+  return instance.patch(`proposals/resumit/${id}`)
+}
+
 export const getAllProposalInJob = (id: string) => {
   return instance.get(`proposals?job=${id}`)
 }

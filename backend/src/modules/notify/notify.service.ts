@@ -329,31 +329,37 @@ export const updateInvitationStatusById = async (
       ]
     }
 
-    invitation?.status?.push({
-      status: EStatus.LATE,
-      comment: 'Invitation is expired',
-      date: new Date(),
-    })
+    else {
+      invitation?.status?.push({
+        status: EStatus.LATE,
+        comment: 'Invitation is expired',
+        date: new Date(),
+      })
+    }
 
     await invitation.save()
     throw new ApiError(httpStatus.NOT_FOUND, 'Invitation is Expired')
   }
-  if (!invitation?.status?.length) {
-    invitation.status = [
-      {
+  else {
+    if (!invitation?.status?.length) {
+      invitation.status = [
+        {
+          status,
+          comment,
+          date: new Date(),
+        },
+      ]
+    } else {
+      invitation?.status?.push({
         status,
         comment,
         date: new Date(),
-      },
-    ]
+      })
+    }
+  
+    await invitation.save()
   }
 
-  invitation?.status?.push({
-    status,
-    comment,
-    date: new Date(),
-  })
-  await invitation.save()
   return invitation
 }
 

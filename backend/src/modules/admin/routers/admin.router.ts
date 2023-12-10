@@ -18,6 +18,7 @@ import {
   getUserSignUpStats,
 } from '../controllers/dashboard.controller'
 import { getAllUsers } from '../controllers/data.controller'
+import App from '../models/app.model'
 
 export const adminRouter = express.Router()
 
@@ -141,3 +142,31 @@ adminRouter.get('/summarizeStats', auth('dashboard'), getDashboardSummarize)
 adminRouter.get('/yearPaymentStats', auth('dashboard'), getPaymentStats)
 adminRouter.get('/getUsers', auth('manageUsers'), getAllUsers)
 adminRouter.patch('/changeActiveUser/:userId', auth('manageUsers'), validate(userValidation.getUser), changeActiveUser)
+
+adminRouter.get('/app-info', async (req, res) => {
+  try {
+    const data = await App.findOne({})
+    if (!data) {
+      const newAppInfo = await App.create({})
+      res.status(200).send(newAppInfo)
+    }
+    else {
+      res.status(200).send(data)
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      message: err.message,
+    })
+  }
+})
+
+adminRouter.patch('/app-info', auth('dashboard'), express.json(), async (req, res) => {
+  try {
+    await App.updateMany({}, req.body, { upsert: true })
+    res.status(200).json({ success: 1 })
+  } catch (err: any) {
+    res.status(500).json({
+      message: err.message,
+    })
+  }
+})

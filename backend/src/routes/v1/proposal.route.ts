@@ -14,6 +14,9 @@ router
   .route('/withdraw/:id')
   .patch(auth(), validate(proposalValidation.getProposal), proposalController.withdrawProposal)
 router
+  .route('/resumit/:id')
+  .patch(auth(), validate(proposalValidation.getProposal), proposalController.reSubmitProposal)
+router
   .route('/status/:id')
   .patch(auth(), validate(proposalValidation.updateProposalStatus), proposalController.updateProposalStatus)
 

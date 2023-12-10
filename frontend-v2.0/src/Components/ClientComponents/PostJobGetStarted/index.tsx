@@ -4,6 +4,8 @@ import { InputNumber, Slider } from 'antd'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { appInfoStore } from 'src/Store/commom.store'
+import { userStore } from 'src/Store/user.store'
 import { createSubscription, useSubscription } from 'src/libs/global-state-hook'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { ICreateJobBody } from 'src/types/job'
@@ -61,6 +63,9 @@ export default function PostJobGetStarted({ setBtns, btns, isEdit }) {
     },
   } = useSubscription(postJobSubscribtion, ['jobDuration', 'scope'])
   const [value, setValue] = useState(complexity || 0)
+  
+  const { state: appInfo } = useSubscription(appInfoStore)
+  const { state: user } = useSubscription(userStore)
 
   const mid = Number((3 / 2).toFixed(5))
   const preColorCls = value >= mid ? '' : 'icon-wrapper-active'
@@ -102,11 +107,11 @@ export default function PostJobGetStarted({ setBtns, btns, isEdit }) {
         <div className="ps-4 my-3">
           <span className="fw-bold mb-3" style={{ display: 'block' }}>
             {t('When you post a job, your SickPoints will be decreased by')}
-            {` ${SICKPOINTS_PER_POST} `}
+            {` ${appInfo?.clientSicks?.postJob || SICKPOINTS_PER_POST} `}
             <DollarCircleTwoTone twoToneColor="#eb2f96" />
           </span>
 
-          <button className="btn bg-jobsicker" onClick={createJob}>
+          <button className="btn bg-jobsicker" disabled={user?.sickPoints < (appInfo?.clientSicks?.postJob || SICKPOINTS_PER_POST)} onClick={createJob}>
             {t('Get Start')}
           </button>
         </div>

@@ -3,26 +3,25 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 
+import { Button, Collapse, Form, Input, Modal, Result, Space } from 'antd'
+import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
-// import { auth, db, storage } from "../../firebase";
-// import firebase from 'firebase/app';
+import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
+import { useNavigate, useParams } from 'react-router'
 import { Link, useSearchParams } from 'react-router-dom'
+import { DefaultUpload } from 'src/Components/CommonComponents/upload/upload'
+import { ETrackingEvent } from 'src/Store/tracking.store'
 import { freelancerStore, userStore } from 'src/Store/user.store'
 import { getJob } from 'src/api/job-apis'
+import { createProposal } from 'src/api/proposal-apis'
+import { useFreelancerTracking } from 'src/hooks/freelancer-tracking-hook'
 import { useSubscription } from 'src/libs/global-state-hook'
+import { EComplexityGet, EPaymenType } from 'src/utils/enum'
+import { currencyFormatter, fetchAllToCL, pickName, randomDate } from 'src/utils/helperFuncs'
 import SubmitProposalFixed from '../../Components/FreelancerComponents/SubmitProposalFixed'
 import SubmitProposalHourly from '../../Components/FreelancerComponents/SubmitProposalHourly'
-import { Button, Form, Input, Modal, Popconfirm, Result, Space, Tag } from 'antd'
-import { currencyFormatter, fetchAllToCL, pickName, randomDate } from 'src/utils/helperFuncs'
-import { EComplexityGet, EPaymenType } from 'src/utils/enum'
-import { DefaultUpload } from 'src/Components/CommonComponents/upload/upload'
-import { createProposal, withdrawProposal } from 'src/api/proposal-apis'
-import toast from 'react-hot-toast'
 import FileDisplay from '../ForumPages/ideas/idea-detail/file-display'
-import { useFreelancerTracking } from 'src/hooks/freelancer-tracking-hook'
-import { ETrackingEvent } from 'src/Store/tracking.store'
 
 export default function SubmitProposal() {
   const { i18n, t } = useTranslation(['main'])
@@ -46,7 +45,7 @@ export default function SubmitProposal() {
 
   const [start, setStart] = useState(0)
 
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const isRcmd = searchParams.get('isRcmd')
   const { updateTrackingforJob } = useFreelancerTracking()
 
@@ -83,10 +82,6 @@ export default function SubmitProposal() {
     return e
   }
 
-  const handlewithdrawProposal = async () => {
-    withdrawProposal(proposalData?._id).then(res => {})
-  }
-
   const handlVal = e => {
     const val = e.target.value
     const name = e.target.name
@@ -108,7 +103,7 @@ export default function SubmitProposal() {
     }
   }
   const handleRout = () => {
-    navigate('/proposals', { state: { id } })
+    handleProposal()
   }
 
   const handleProposal = async () => {
@@ -122,32 +117,37 @@ export default function SubmitProposal() {
       setLoading(false)
       return toast.error(t('You need to put some description of your Proposals'))
     }
+    const uploadAttachment = async (): Promise<string[]> => {
+      let uploadedFiles: string[] = []
 
-    let files
+      if (proposalData?.proposalImages) {
+        setLoading(false)
+        const fileNameList: string[] = await fetchAllToCL(proposalData?.proposalImages?.map(f => f?.originFileObj))
+        uploadedFiles = fileNameList
+      }
 
-    if (proposalData?.proposalImages) {
-      setLoading(false)
-      const fileNameList = await fetchAllToCL(proposalData?.proposalImages?.map(f => f?.originFileObj))
-      files = fileNameList
+      return uploadedFiles
     }
-
+    setLoading(true)
     toast.promise(
-      createProposal({
-        description: proposalData?.coverLetter,
-        attachments: files || [],
-        expectedAmount: rate ? rate : jobData?.payment?.amount,
-        job: jobData?._id,
-        freelancer: freelancer?._id,
-        answers: answer,
-      })
-        .then(res => {
-          setOpen(true)
-          setValid(false)
-          setproposalData({ ...proposalData, _id: res.data?._id, proposalImages: files || [] })
+      uploadAttachment().then(uploadedFiles =>
+        createProposal({
+          description: proposalData?.coverLetter,
+          attachments: uploadedFiles,
+          expectedAmount: rate ? rate : jobData?.payment?.amount,
+          job: jobData?._id,
+          freelancer: freelancer?._id,
+          answers: answer,
         })
-        .finally(() => {
-          setLoading(false)
-        }),
+          .then(res => {
+            setValid(false)
+            setproposalData({ ...proposalData, _id: res.data?._id, proposalImages: files || [] })
+            setTimeout(() => navigate('/proposals', { state: { id } }), 2200)
+          })
+          .finally(() => {
+            setLoading(false)
+          })
+      ),
       {
         loading: 'Submiting...',
         success: <b>Submited!</b>,
@@ -364,8 +364,7 @@ export default function SubmitProposal() {
                     loading={loading}
                     className="btn shadow-none text-white"
                     onClick={() => {
-                      setLoading(true)
-                      handleProposal()
+                      setOpen(true)
                     }}
                     style={{ backgroundColor: '#5b14b8' }}
                   >
@@ -384,17 +383,18 @@ export default function SubmitProposal() {
                 />
               )}
 
-              <Modal open={open} footer={null} className="w-100 w-md-75">
+              <Modal
+                open={open}
+                footer={null}
+                onCancel={() => setOpen(false)}
+                style={{
+                  minWidth: '70%',
+                  maxWidth: '100%',
+                }}
+              >
                 <div>
                   <div className="">
                     <h5 className="">{t('Review proposal')}</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-                      onClick={() => setOpen(false)}
-                    ></button>
                   </div>
                   <div className="">
                     <div className="pt-2">
@@ -469,6 +469,23 @@ export default function SubmitProposal() {
                       </div>
                     )}
                   </div>
+                  <div>
+                    {!isEmpty(answer) && (
+                      <>
+                        <strong className="me-2">{t('answers')}: </strong>
+                        <Collapse
+                          items={Object.keys(answer)?.map((a, ix) => {
+                            return {
+                              key: ix,
+                              label: jobData?.questions[a],
+                              children: <p>{answer[a]}</p>,
+                            }
+                          })}
+                          defaultActiveKey={[0]}
+                        />
+                      </>
+                    )}
+                  </div>
                   <div className="d-flex mb-3">
                     {proposalData?.proposalImages?.length > 0 && (
                       <div className="bg-white py-lg-4 px-4 border border-1 pb-sm-3 py-xs-5">
@@ -480,7 +497,7 @@ export default function SubmitProposal() {
                     )}
                   </div>
                   <div className="modal-footer">
-                    <Popconfirm
+                    {/* <Popconfirm
                       title={t('WithDraw proposal')}
                       description={t(
                         'When you withdraw this proposal, you will be re-charged 1 sickpoint. But in next time re-submit this proposals, maybe your oppotunity is gone'
@@ -488,18 +505,19 @@ export default function SubmitProposal() {
                       onConfirm={handlewithdrawProposal}
                       okText={t('Accept')}
                       cancelText="No"
+                    > */}
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      style={{ background: '#56889c' }}
+                      className="btn rounded text-white"
+                      data-bs-dismiss="modal"
                     >
-                      <button
-                        type="button"
-                        style={{ background: '#56889c' }}
-                        className="btn rounded text-white"
-                        data-bs-dismiss="modal"
-                      >
-                        {t('WithDraw proposal')}
-                      </button>
-                    </Popconfirm>
+                      {t('Back')}
+                    </button>
+                    {/* </Popconfirm> */}
                     <button onClick={handleRout} className="btn bg-jobsicker" type="button">
-                      {t('Save changes')}
+                      {t('Ok')}
                     </button>
                   </div>
                 </div>
