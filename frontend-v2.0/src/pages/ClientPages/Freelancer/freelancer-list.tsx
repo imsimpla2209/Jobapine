@@ -1,4 +1,4 @@
-import { Card, Pagination, Result, Row, Spin } from 'antd'
+import { Card, ConfigProvider, Input, Pagination, Result, Row, Spin } from 'antd'
 import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 import Saved from 'src/Components/ClientComponents/SavedComponent'
@@ -7,7 +7,7 @@ import { filterFreelancers } from 'src/api/freelancer-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { IFreelancer } from 'src/types/freelancer'
 
-export default function FreelancerListCards({ filterOption, saved }) {
+export default function FreelancerListCards({ filterOption, saved, searchKey }) {
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [listFreelancers, setListFreelancers] = useState<IFreelancer[]>([])
@@ -26,7 +26,7 @@ export default function FreelancerListCards({ filterOption, saved }) {
     if (!filterOption?.preferJobType?.length) delete filterOption?.preferJobType
     if (!filterOption?.currentLocations?.length) delete filterOption?.currentLocations
 
-    await filterFreelancers(filterOption, { limit: 10, page: p || page })
+    await filterFreelancers({ ...filterOption, name: searchKey }, { limit: 10, page: p || page })
       .then(res => {
         setListFreelancers(res.data.results)
         setTotal(res.data.totalResults)
@@ -37,7 +37,7 @@ export default function FreelancerListCards({ filterOption, saved }) {
   useEffect(() => {
     setPage(1)
     getFilteredListFreelancers()
-  }, [filterOption, favoriteFreelancers])
+  }, [filterOption, favoriteFreelancers, searchKey])
 
   const handleChangePageJob = (p: number) => {
     if (p === page) return
@@ -46,7 +46,7 @@ export default function FreelancerListCards({ filterOption, saved }) {
   }
 
   return (
-    <div style={{ padding: 16 }}>
+    <>
       {loading ? (
         <Spin />
       ) : listFreelancers?.length ? (
@@ -89,6 +89,6 @@ export default function FreelancerListCards({ filterOption, saved }) {
           />
         </div>
       )}
-    </div>
+    </>
   )
 }

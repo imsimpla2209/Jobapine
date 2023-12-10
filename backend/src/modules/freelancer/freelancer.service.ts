@@ -76,10 +76,8 @@ export const queryAdvancedFreelancers = async (
   filter: Record<string, any>,
   options: IOptions
 ): Promise<QueryResult> => {
-  filter['name'] && (filter['name'] = { $search: `${filter['name']}`, $diacriticSensitive: true })
+  filter['name'] && (filter['name'] = { $regex: `${filter['name']}`, $options: 'i' })
   if (filter['id']?.length) {
-    console.log('😘', filter)
-
     filter['_id'] = { $in: filter['id'] }
     delete filter['id']
   }
@@ -104,7 +102,8 @@ export const queryAdvancedFreelancers = async (
 
   options.populate = 'user,preferJobType,skills.skill'
   if (!options.projectBy) {
-    options.projectBy = 'user, name, intro, members, skills, currentLocations, rating, jobsDone, available, earned'
+    options.projectBy =
+      'user, name, intro, members, skills, currentLocations, rating, jobsDone, available, earned, expectedAmount,expectedPaymentType'
   }
   const freelancers = await Freelancer.paginate(filter, options)
   return freelancers
