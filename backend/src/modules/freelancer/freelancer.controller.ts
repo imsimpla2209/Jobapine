@@ -47,6 +47,8 @@ export const getAdvancedFreelancers = catchAsync(async (req: Request, res: Respo
     'earned',
     'rating',
     'available',
+    'expectedAmount',
+    'expectedPaymentType',
   ])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await freelancerService.queryAdvancedFreelancers(filter, options)
