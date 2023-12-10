@@ -172,57 +172,6 @@ export default function NavLargScreen() {
           <NavLink className="nav-link" to="/transaction-history">
             {t('Reports')}
           </NavLink>
-          <ul
-            id="reports-dd-id"
-            className="dropdown-menu"
-            aria-labelledby="navbarDropdownMenuLink"
-            style={{ marginTop: '-8px' }}
-          >
-            <div className="nav-dd-cn"></div>
-            <li className="fw-bold py-1 ms-3">{t('FINANCIALS')}</li>
-            <li>
-              <a className="dropdown-item ps-3" href="#">
-                {t('Transactions')}
-              </a>
-            </li>
-            <li className="border-top-cn fw-bold py-1 ms-3">
-              {t('MORE REPORTS')}
-              <div>
-                <div className="text-center mt-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 145 130" width="80" height="80" role="img">
-                    <g fill="#e0e0e0">
-                      <path d="M103.5 96.6H90.9l4.4 28h12.6zM41.5 96.6h12.6l-4.4 28H37.1z"></path>
-                    </g>
-                    <path
-                      d="M140.8 91.1H4.2c-.6 0-1-.4-1-1V6.4c0-.6.4-1 1-1h136.6c.6 0 1 .4 1 1v83.7c0 .5-.4 1-1 1z"
-                      fill="#1d4354"
-                      className="report-board"
-                    ></path>
-                    <path
-                      d="M32 67.3c-.2 0-.5-.1-.6-.3-.4-.4-.4-.9 0-1.3l27.5-28.5c.3-.3.8-.4 1.1-.1l25.5 15.5 23.2-23.2c.4-.4.9-.4 1.3 0s.4.9 0 1.3L86.3 54.4c-.3.3-.8.4-1.1.1L59.6 39.1l-27 28c-.1.1-.4.2-.6.2z"
-                      fill="#fff"
-                    ></path>
-                    <circle cx="109.4" cy="30.1" fill="#6600cc" r="5.6"></circle>
-                    <circle cx="84.6" cy="52.6" fill="#6600cc" r="5.6"></circle>
-                    <circle cx="59.8" cy="38.6" fill="#6600cc" r="5.6"></circle>
-                    <circle cx="32" cy="66.4" fill="#6600cc" r="5.6"></circle>
-                    <path
-                      d="M143.5 98.4H1.5c-.6 0-1-.4-1-1V85.5c0-.6.4-11-1h142c.6 0 1 .4 1 1v11.9c0 .6-.4 1-1 1z"
-                      fill="#6600cc"
-                    ></path>
-                  </svg>
-                </div>
-                <p className="fw-normal p-3">
-                  {t(
-                    'Access premium reports such as hourly timesheets, team budgets, weekly summaries and more when you upgrade.'
-                  )}
-                </p>
-                <a href="#" style={{ color: '#6600cc' }} className="d-block text-center mb-3">
-                  {t('Learn More')}
-                </a>
-              </div>
-            </li>
-          </ul>
         </li>
         <li className="nav-item ms-5 me-3">
           <Badge count={unSeenMSG || 0} color={'purple'} status="processing">

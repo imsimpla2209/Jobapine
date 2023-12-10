@@ -22,7 +22,7 @@ export const buySickPoints = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const getPayments = catchAsync(async (req: Request, res: Response) => {
-  const filter = pick(req.query, ['name', 'role'])
+  const filter = pick(req.query, ['from', 'purpose'])
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
   const result = await paymentService.queryPayments(filter, options)
   res.send(result)
