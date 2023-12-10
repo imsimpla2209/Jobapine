@@ -1,5 +1,5 @@
 import { FrownOutlined, SmileOutlined } from '@ant-design/icons'
-import { Card, InputNumber, Radio, Row, Slider, Space } from 'antd'
+import { Card, ConfigProvider, Input, Radio, Row, Slider } from 'antd'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import CategoriesPicker from 'src/Components/SharedComponents/CategoriesPicker'
@@ -17,6 +17,7 @@ export default function FreelancerList({ saved = false }) {
   const mid = Number((5 / 2).toFixed(5))
   const preColorCls = value.from >= mid ? '' : 'icon-wrapper-active'
   const nextColorCls = value.to >= mid ? 'icon-wrapper-active' : ''
+  const [searchKey, setSearchKey] = useState('')
 
   const onSkillsChange = (c: any) => {
     const skills = c?.map((cc, ix) => cc.value)
@@ -78,50 +79,6 @@ export default function FreelancerList({ saved = false }) {
           </Card>
 
           <Card>
-            <h6 className="display-inline-block  fw-bold">
-              {t('Earned')} {`(${t('VND')})`}
-            </h6>
-            <Space wrap>
-              <InputNumber
-                prefix="From"
-                addonBefore=""
-                addonAfter={<> VND</>}
-                placeholder="Enter a number"
-                controls
-                onKeyPress={event => {
-                  if (!/[0-9]/.test(event.key)) {
-                    event.preventDefault()
-                  }
-                }}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-                min={0}
-                value={filterOption?.earned?.from >= 0 ? filterOption?.earned?.from : null}
-                onChange={(v: any) => handleEarnedAmountFrom(v)}
-                decimalSeparator=","
-                max={filterOption?.earned?.to || Number.MAX_SAFE_INTEGER}
-              />
-              <InputNumber
-                prefix="To"
-                addonBefore=""
-                addonAfter={<> VND</>}
-                placeholder="Enter a number"
-                value={filterOption?.earned?.to >= 0 ? filterOption?.earned?.to : null}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-                onKeyPress={event => {
-                  if (!/[0-9]/.test(event.key)) {
-                    event.preventDefault()
-                  }
-                }}
-                onChange={(v: any) => handleEarnedAmountTo(v)}
-                min={filterOption?.earned?.from || 1}
-                controls
-              />
-            </Space>
-          </Card>
-
-          <Card>
             <h6 className=" display-inline-block fw-bold">{t('Rating')}</h6>
             <div style={{ display: 'flex', gap: 8 }}>
               <FrownOutlined className={preColorCls} />
@@ -154,7 +111,29 @@ export default function FreelancerList({ saved = false }) {
           </Card>
         </div>
       </div>
-      <FreelancerListCards filterOption={filterOption} saved={saved} />
+      <div style={{ padding: 16 }}>
+        <div style={{ marginBottom: 20 }}>
+          <ConfigProvider
+            theme={{
+              components: {
+                Select: {
+                  optionFontSize: 16,
+                  optionSelectedBg: '#a2eaf2',
+                  optionLineHeight: 0.7,
+                },
+              },
+            }}
+          >
+            <Input
+              onInput={e => setSearchKey((e.target as any).value)}
+              size="large"
+              placeholder={t('Search freelancers by name')}
+              value={searchKey}
+            />
+          </ConfigProvider>
+        </div>
+        <FreelancerListCards filterOption={filterOption} saved={saved} searchKey={searchKey} />
+      </div>
     </Row>
   )
 }

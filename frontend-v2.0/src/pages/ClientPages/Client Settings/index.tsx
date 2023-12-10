@@ -1,120 +1,91 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  NavLink,
-} from "react-router-dom";
-import Billingpayments from "../Billingpayments";
-import AccountInfo from "../ContactInfo";
-import Password from "./../../ClientPages/Password";
+import { CheckCircleTwoTone, DollarTwoTone, FormOutlined } from '@ant-design/icons'
+import { Button, Card, Col, Flex, Row } from 'antd'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import VerifyPaymentModal from 'src/Components/ClientComponents/HomeLayout/VerifyPaymentModal'
+import { clientStore, userStore } from 'src/Store/user.store'
+import { useSubscription } from 'src/libs/global-state-hook'
+import img from '../../../assets/img/icon-user.svg'
+import { Title } from '../JobDetailsBeforeProposols'
+import EditProfileForm from './updateProfile'
 
 export default function Settings() {
+  const { t } = useTranslation(['main'])
+  const { state: user } = useSubscription(userStore)
+  const { state: client } = useSubscription(clientStore)
+  const [openVerifyModal, setOpenVerifyModal] = useState(false)
+
   return (
-    <>
-      <Router>
-        {/* <style
-          dangerouslySetInnerHTML={{
-            __html:
-              "\n        @import url(//db.onlinewebfonts.com/c/3def92f7b2ad644bd382798ecc8ca4c7?family=Canela);\n\n         {\n            .container {\n                 ;\n            }\n        }\n\n        * {\n            margin: 0;\n            padding: 0;\n        }\n    ",
-          }}
-        /> */}
-        <div className="container mt-3">
-          <div className="row">
-            <div className="col-md-2 mt-5">
-              <div className="row">
-                <NavLink
-                  to="/contactinfo"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-id-card-alt mt-3 me-2"></i>My Info
-                </NavLink>
-              </div>
+    <div style={{ padding: 20 }}>
+      <VerifyPaymentModal open={openVerifyModal} handleClose={() => setOpenVerifyModal(false)} />
 
-              <div className="row">
-                <NavLink
-                  to="/billingpayment"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-credit-card mt-3 me-2"></i>Billing
-                  Methods
-                </NavLink>
-              </div>
-              <div className="row">
-                <NavLink
-                  to="/password"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-lock mt-3 me-2"></i>Password & Security
-                </NavLink>
-              </div>
-              <div className="row">
-                <NavLink
-                  to="#"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-address-card mt-3 me-2"></i>Membership
-                </NavLink>
-              </div>
-              <div className="row">
-                <NavLink
-                  to="#"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-users mt-3 me-2"></i>Teams
-                </NavLink>
-              </div>
-              <div className="row">
-                <NavLink
-                  to="#"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-envelope mt-3 me-2"></i>Notification
-                  Setting
-                </NavLink>
-              </div>
-              <div className="row">
-                <NavLink
-                  to="#"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-users mt-3 me-2"></i>Members &
-                  Permissions
-                </NavLink>
-              </div>
-              <div className="row">
-                <NavLink
-                  to="#"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-money-bill mt-3 me-2"></i>Tax Information
-                </NavLink>
-              </div>
-              <div className="row">
-                <NavLink
-                  to="#"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  <i className="fas fa-link mt-3 me-2"></i>Connected Services
-                </NavLink>
-              </div>
-            </div>
+      <Row gutter={[16, 16]}>
+        <Col span={18}>
+          <Card title={t('My profile')} extra={<EditProfileForm />}>
+            <Flex vertical={false} gap={20}>
+              <img
+                alt=""
+                style={{ width: 150, height: 150 }}
+                className=" avatar vertical-align-middle m-0 avatar-sm avatar-responsive"
+                src={user?.avatar || img}
+              />
 
-            <div className="col-md-10">
-              <switch>
-                <Route path="/password" >
-                  <Password />
-                </Route>
-                <Route path="/billingpayment" >
-                  <Billingpayments />
-                </Route>
-                <Route path="/contactinfo" >
-                  <AccountInfo />
-                </Route>
-              </switch>
+              <Flex vertical gap={12}>
+                <span className="fw-bold">
+                  {t('Name')}: <span className="fw-bold text-muted">{user.name}</span>
+                </span>
+                <span className="fw-bold">
+                  {t('Email')}: <span className="fw-bold text-muted">{user.email}</span>
+                </span>
+
+                <span className="fw-bold">
+                  {t('Phone number')}: <span className="fw-bold text-muted">{user.phone}</span>
+                </span>
+
+                <span className="fw-bold">
+                  {t('Address')}: <span className="fw-bold text-muted">{user.address}</span>
+                </span>
+              </Flex>
+            </Flex>
+          </Card>
+        </Col>
+
+        <Col span={6}>
+          <Card bodyStyle={{ padding: 16 }}>
+            {client?.paymentVerified ? (
+              <>
+                <Button
+                  className="text-success"
+                  type="text"
+                  icon={<CheckCircleTwoTone className="me-2" twoToneColor="#52c41a" />}
+                >
+                  {t('Payment verified')}
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="text-success"
+                type="dashed"
+                icon={<FormOutlined />}
+                onClick={() => setOpenVerifyModal(true)}
+              >
+                {t('Verify payment')}
+              </Button>
+            )}
+
+            <div style={{ background: '#f9f9f9', borderRadius: 20, padding: 12, marginTop: 10 }}>
+              <Title level={5}>
+                <DollarTwoTone twoToneColor="#eb2f96" style={{ marginRight: 8 }} />
+                {t('Avalable SickPoints')}: {user.sickPoints}
+              </Title>
+              <Button type="default">
+                <Link to="/buyconnects">{t('Buy SickPoints')}</Link>
+              </Button>
             </div>
-          </div>
-        </div>
-      </Router>
-    </>
-  );
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  )
 }

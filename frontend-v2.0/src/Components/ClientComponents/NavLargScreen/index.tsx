@@ -300,6 +300,7 @@ export default function NavLargScreen() {
                   </Title>
                 ),
                 key: '0',
+                onClick: () => navigate('/settings'),
               },
               {
                 label: (

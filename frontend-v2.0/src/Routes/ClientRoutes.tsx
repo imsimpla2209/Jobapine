@@ -26,6 +26,8 @@ import Offers from 'src/pages/FreelancerPages/Offers'
 import BuyConnects from 'src/pages/FreelancerPages/Reports/BuyConnects'
 import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
 import './styles.css'
+import Profile from 'src/pages/FreelancerPages/Profile'
+import Settings from 'src/pages/ClientPages/Client Settings'
 
 export default function ClientRoutes() {
   const [freelancerArr, setfreelancerArr] = useState([])
@@ -74,7 +76,8 @@ export default function ClientRoutes() {
             <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
             <Route path="/freelancer" element={<FreelancerList saved={false} key={'all-freelancers'} />} />
             <Route path="/saved-freelancer" element={<FreelancerList saved={true} key={'saved-freelancers'} />} />
-            <Route path="/freelancer-profile/:id" element={<ProfileFreelancerInClientPage />} />
+            <Route path="/freelancer-profile/:id" element={<Profile noMargin={true} />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/all-proposals/:id" element={<ReviewProposals />} />
             <Route path="/billing-history" element={<Reports />} />
             <Route path="/transaction-history" element={<TransactionHistory />} />

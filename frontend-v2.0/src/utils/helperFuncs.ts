@@ -54,8 +54,6 @@ export function currencyFormatter(money: any, currency: string = 'VND') {
 
 export const fetchPresignedUrl = async (url: any, file: any) => {
   try {
-    const fileExtension = file.name.substring(file.name.lastIndexOf('.') + 1)
-    const type = file.type
     const uploadConfig = (await Http.get(url))?.data
     // const sigedUrl = `https://api.cloudinary.com/v1_1/${uploadConfig?.cloudName}/image/upload?api_key=${uploadConfig?.apiKey}&timestamp=${uploadConfig?.timestamp}&signature=${uploadConfig?.signature}`
     const sigedUrl = `https://api.cloudinary.com/v1_1/${uploadConfig?.cloudName}/upload`
@@ -108,7 +106,7 @@ export const fetchAllToCL = async (files: any, useOriginFile = true) => {
     if (typeof file === 'string') return file
     let fileBase64 = null
     if (!useOriginFile) {
-      fileBase64 = await getBase64(file.originFileObj as RcFile)
+      fileBase64 = await getBase64(file.originFileObj as RcFile).catch(err => console.error(err))
     }
 
     return await fetchPresignedUrl(url, useOriginFile ? file : fileBase64).then(result => result)
