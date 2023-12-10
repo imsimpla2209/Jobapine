@@ -9,6 +9,8 @@ import { useSubscription } from 'src/libs/global-state-hook'
 import img from '../../../assets/img/icon-user.svg'
 import { Title } from '../JobDetailsBeforeProposols'
 import EditProfileForm from './updateProfile'
+import TransactionHistory from 'src/pages/FreelancerPages/Reports/TransactionHistory'
+import PaymentsTable from 'src/pages/FreelancerPages/Reports/TransactionHistory/tablePayment'
 
 export default function Settings() {
   const { t } = useTranslation(['main'])
@@ -85,6 +87,11 @@ export default function Settings() {
             </div>
           </Card>
         </Col>
+      </Row>
+      <Row>
+        <Card title={t('Payments history')} className="mt-3" style={{ width: '100%' }}>
+          <PaymentsTable />
+        </Card>
       </Row>
     </div>
   )

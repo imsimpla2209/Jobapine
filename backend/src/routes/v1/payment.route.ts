@@ -11,5 +11,6 @@ const router: Router = express.Router()
 //   .get(validate(paymentValidation.getContracts), paymentController.getContracts)
 
 router.route('/buysick').post(auth(), validate(paymentValidation.buySickPoints), paymentController.buySickPoints)
+router.route('/getPayments').get(auth(), validate(paymentValidation.getPayments), paymentController.getPayments)
 
 export default router

@@ -6,7 +6,6 @@ import CreateContract from 'pages/ClientPages/CreateContract'
 import FreelancerList from 'pages/ClientPages/Freelancer'
 import JobDetailsBeforeProposals from 'pages/ClientPages/JobDetailsBeforeProposols'
 import PostJob from 'pages/ClientPages/PostJop'
-import Reports from 'pages/ClientPages/Reports'
 import ReviewProposals from 'pages/ClientPages/ReviewProposals'
 import EmailVerified from 'pages/EmailVerification/EmailVerified'
 import PleaseVerifiy from 'pages/EmailVerification/PleaseVerifiy'
@@ -21,13 +20,12 @@ import Header from 'src/Components/ClientComponents/Header'
 import HomeLayout from 'src/Components/ClientComponents/HomeLayout'
 import CreateProfilePhoneNumber from 'src/Components/FreelancerComponents/CreateProfilePhoneNumber'
 import { getAllJobs } from 'src/api/job-apis'
-import ProfileFreelancerInClientPage from 'src/pages/ClientPages/Freelancer/freelancer-profile'
+import Settings from 'src/pages/ClientPages/Client Settings'
 import Offers from 'src/pages/FreelancerPages/Offers'
+import Profile from 'src/pages/FreelancerPages/Profile'
 import BuyConnects from 'src/pages/FreelancerPages/Reports/BuyConnects'
 import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
 import './styles.css'
-import Profile from 'src/pages/FreelancerPages/Profile'
-import Settings from 'src/pages/ClientPages/Client Settings'
 
 export default function ClientRoutes() {
   const [freelancerArr, setfreelancerArr] = useState([])
@@ -79,7 +77,7 @@ export default function ClientRoutes() {
             <Route path="/freelancer-profile/:id" element={<Profile noMargin={true} />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/all-proposals/:id" element={<ReviewProposals />} />
-            <Route path="/billing-history" element={<Reports />} />
+            {/* <Route path="/billing-history" element={<Reports />} /> */}
             <Route path="/transaction-history" element={<TransactionHistory />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/buyconnects" element={<BuyConnects />} />

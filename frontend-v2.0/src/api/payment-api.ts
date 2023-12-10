@@ -1,5 +1,5 @@
-import { EPaymentMethod, EPaymentPurpose } from "src/utils/enum";
-import { Http, instance } from "./http";
+import { EPaymentMethod, EPaymentPurpose } from 'src/utils/enum'
+import { Http, instance } from './http'
 
 export interface IPayment {
   purpose: EPaymentPurpose
@@ -13,5 +13,9 @@ export interface IPayment {
 }
 
 export const buySickPoints = (data: IPayment, sickPoints: number, buyer: string) => {
-  return instance.post('payments/buysick', {...data, sickPoints, buyer});
+  return instance.post('payments/buysick', { ...data, sickPoints, buyer })
+}
+
+export const getpayments = (userId: string) => {
+  return Http.get('payments/getPayments', { from: userId })
 }

@@ -25,8 +25,10 @@ export default function FreelancerListCards({ filterOption, saved, searchKey }) 
     if (!filterOption?.skills?.length) delete filterOption?.skills
     if (!filterOption?.preferJobType?.length) delete filterOption?.preferJobType
     if (!filterOption?.currentLocations?.length) delete filterOption?.currentLocations
-
-    await filterFreelancers({ ...filterOption, name: searchKey }, { limit: 10, page: p || page })
+    if (searchKey.trim()) {
+      filterOption['name'] = searchKey.trim()
+    }
+    await filterFreelancers({ ...filterOption }, { limit: 10, page: p || page })
       .then(res => {
         setListFreelancers(res.data.results)
         setTotal(res.data.totalResults)

@@ -27,8 +27,8 @@ export const buySickPoints = {
 
 export const getPayments = {
   query: Joi.object().keys({
-    name: Joi.string(),
-    role: Joi.string(),
+    from: Joi.string(),
+    purpose: Joi.string(),
     sortBy: Joi.string(),
     projectBy: Joi.string(),
     limit: Joi.number().integer(),

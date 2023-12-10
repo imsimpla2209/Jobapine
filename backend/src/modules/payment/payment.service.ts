@@ -58,6 +58,8 @@ export const buySickPoints = async (
  * @returns {Promise<QueryResult>}
  */
 export const queryPayments = async (filter: Record<string, any>, options: IOptions): Promise<QueryResult> => {
+  options['limit'] = 1000
+  options['populate'] = 'from'
   const payments = await Payment.paginate(filter, options)
   return payments
 }

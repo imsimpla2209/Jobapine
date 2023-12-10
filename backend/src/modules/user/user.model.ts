@@ -15,6 +15,14 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       trim: true,
       index: true,
     },
+    phone: {
+      type: String,
+      trim: true,
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
     username: {
       type: String,
       required: true,
