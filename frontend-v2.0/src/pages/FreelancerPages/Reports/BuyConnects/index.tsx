@@ -12,10 +12,13 @@ import { PayPalButton } from 'react-paypal-button-v2'
 import { buySickPoints } from 'src/api/payment-api'
 import { BlueColorButton } from 'src/Components/CommonComponents/custom-style-elements/button'
 import toast from 'react-hot-toast'
+import { appInfoStore } from 'src/Store/commom.store'
 
 export default function BuyConnects() {
   const { t } = useTranslation(['main'])
   const { state, setState } = useSubscription(userStore)
+
+  const { state: appInfo } = useSubscription(appInfoStore)
 
   const amountRef = useRef(null)
 
@@ -40,7 +43,7 @@ export default function BuyConnects() {
         from: state?._id || state?.id,
         isToAdmin: true,
         purpose: EPaymentPurpose.BUYSICK,
-        amount: buy * 5000,
+        amount: buy * appInfo?.sickCost,
         paymentMethod: paymentType,
         note: `User {${state.name}} ${t('Buy SickPoints Payment', { amount: buy })}`,
       },
@@ -50,7 +53,7 @@ export default function BuyConnects() {
   }
 
   const handleBuyViaBalance = () => {
-    const amount = buy * 5000
+    const amount = buy * appInfo?.sickCost
     if (amount > (state?.balance || 0)) {
       return toast.error(`${t("You Don't Have Enough")} ${t('Balance')}`)
     }
@@ -69,7 +72,7 @@ export default function BuyConnects() {
   }
 
   const handleBuyViaPaypal = () => {
-    const amount = buy * 5000
+    const amount = buy * appInfo?.sickCost
     handleBuySick()
       .then(res => {
         console.log('after buy', res.data)
@@ -91,7 +94,7 @@ export default function BuyConnects() {
           description: t('Buy SickPoints Payment', { amount: buy }),
           amount: {
             currency_code: 'USD',
-            value: (((buy || 1) * 5000) / 24000).toFixed(2).toString(),
+            value: (((buy || 1) * appInfo?.sickCost) / 24000).toFixed(2).toString(),
           },
         },
       ],
@@ -156,7 +159,7 @@ export default function BuyConnects() {
                 </>
               )}
               options={items.map(item => ({
-                label: `${item} SickPoints ~ ${currencyFormatter(item * 5000)}`,
+                label: `${item} SickPoints ~ ${currencyFormatter(item * appInfo?.sickCost)}`,
                 value: item,
               }))}
             />
@@ -165,7 +168,7 @@ export default function BuyConnects() {
 
         <Space align="baseline" className="mb-0 pt-3" style={{ width: '100%' }}>
           <h4 className="para">{t('Your account will be charged')}:</h4>
-          <span style={{ fontSize: 18, fontWeight: 600 }}>{currencyFormatter(buy * 5000)}</span>
+          <span style={{ fontSize: 18, fontWeight: 600 }}>{currencyFormatter(buy * appInfo?.sickCost)}</span>
         </Space>
 
         <Space align="baseline" className="mb-0 pt-3" style={{ width: '100%' }}>

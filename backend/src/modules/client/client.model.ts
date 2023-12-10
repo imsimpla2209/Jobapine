@@ -51,7 +51,7 @@ clientSchema.static('isUserSigned', async function (user_id: mongoose.Types.Obje
 })
 
 clientSchema.pre('save', async function (done) {
-  f (this.isModified('reviews')) {
+  if (this.isModified('reviews')) {
     const reviews = await this.get('reviews')
     let newRating = 0
     if (reviews?.length) {

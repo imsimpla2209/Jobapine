@@ -159,7 +159,7 @@ export const reviewClientById = async (
   if (!client) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Client not found')
   }
-  Object.assign(client, { review: client?.reviews?.push(review) })
+  client['reviews'] = [...client?.reviews, review]
   await client.save()
   return client
 }

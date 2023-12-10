@@ -46,15 +46,18 @@ export default function MyJobs() {
   }
 
   return (
-    <div className=" bg-gray">
+    <div className="">
       <div className="container">
         <div className="row">
-          <div className="col-12 my-5 d-flex">
+          <div className="col-3 my-4 d-flex bg-white p-2 rounded" style={{
+            textAlign: "center",
+            color: "grey"
+          }}>
             <h3 style={{ fontWeight: "bold" }}>{t("My Jobs")}</h3>
-            <h3 className="ms-auto bold">
+            {/* <h3 className="ms-auto bold">
               {t("Earnings available now")}:
               <a href=""> {currencyFormatter(freelancer?.earned)}</a>
-            </h3>
+            </h3> */}
           </div>
           <div className="col-12 bg-white border border-gray rounded">
             {

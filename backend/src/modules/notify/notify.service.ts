@@ -54,8 +54,8 @@ export const bulkCreateNotify = async (notifyBodies: NewCreatedNotify[]): Promis
   }
 }
 
-export const createNotifyforAll = async (notifyBody: NewCreatedNotify): Promise<INotifyDoc> => {
-  await io.broadcastAll(ESocketEvent.SENDNOTIFY, notifyBody)
+export const createNotifyforAll = async (notifyBody: NewCreatedNotify, event?: ESocketEvent): Promise<INotifyDoc> => {
+  await io.broadcastAll(event || ESocketEvent.SENDNOTIFY, notifyBody)
   return Notify.create(notifyBody)
 }
 

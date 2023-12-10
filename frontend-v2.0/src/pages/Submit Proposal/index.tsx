@@ -22,6 +22,7 @@ import { currencyFormatter, fetchAllToCL, pickName, randomDate } from 'src/utils
 import SubmitProposalFixed from '../../Components/FreelancerComponents/SubmitProposalFixed'
 import SubmitProposalHourly from '../../Components/FreelancerComponents/SubmitProposalHourly'
 import FileDisplay from '../ForumPages/ideas/idea-detail/file-display'
+import { appInfoStore } from 'src/Store/commom.store'
 
 export default function SubmitProposal() {
   const { i18n, t } = useTranslation(['main'])
@@ -44,7 +45,7 @@ export default function SubmitProposal() {
   const [rate, setrate] = useState(0)
 
   const [start, setStart] = useState(0)
-
+  const { state: appInfo } = useSubscription(appInfoStore)
   const [searchParams] = useSearchParams()
   const isRcmd = searchParams.get('isRcmd')
   const { updateTrackingforJob } = useFreelancerTracking()
@@ -168,17 +169,17 @@ export default function SubmitProposal() {
             </div>
 
             <div className="ps-4 py-2">
-              {user.sickPoints > 2 ? (
+              {user.sickPoints > appInfo?.freelancerSicks?.proposalCost ? (
                 <>
                   <p>
-                    {t('This proposal requires')} <strong>2 Sick Points </strong>
+                    {t('This proposal requires')} <strong>{appInfo?.freelancerSicks?.proposalCost} Sick Points </strong>
                     <span className="upw-c-cn">
                       <i className="fas fa-question-circle" />
                     </span>
                   </p>
                   <p>
                     {t("When you submit this proposal, you'll have")}
-                    <strong> {user.sickPoints - 2} Sick Points </strong>
+                    <strong> {user.sickPoints - appInfo?.freelancerSicks?.proposalCost} Sick Points </strong>
                     {t('remaining')}
                   </p>
                 </>

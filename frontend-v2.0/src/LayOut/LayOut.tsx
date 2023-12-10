@@ -65,6 +65,17 @@ export default function LayOut() {
   }, [authenticated])
 
   useEffect(() => {
+    if (authenticated) {
+      appSocket.on(ESocketEvent.SICKSETTING, data => {
+        getAppInfo().then(res => setAppInfo(res.data))
+      })
+    }
+    return () => {
+      appSocket.off(ESocketEvent.SICKSETTING)
+    }
+  }, [authenticated])
+
+  useEffect(() => {
     getSkills().then(res => skillStore.updateState(res.data))
     getAllCategories().then(res => categoryStore.updateState(res.data))
     getAppInfo().then(res => setAppInfo(res.data))

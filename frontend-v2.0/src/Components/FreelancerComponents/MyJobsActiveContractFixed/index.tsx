@@ -122,14 +122,14 @@ export default function MyJobsActiveContractFixed({ myJob }: any) {
           <p className="card-text">IT Applications Developers III will lead the design, implmentation and support of internal application. They are also responsible for maintaining the application as well as verifying the accuracy ...</p>
         </div> */}
 
-        <Link to={`/job/${myJob?.job?._id || myJob?.job?.id}`} target="_blank" className="btn btn-primary" rel="noreferrer">
+        <Link to={`/job/applied/${myJob?.job?._id || myJob?.job?.id}`} target="_blank" className="me-4 btn btn-primary" rel="noreferrer">
           {/* <i className="fab fa-github"></i> */}
           {/* <i className="fab fa-linkedin-in"></i> --> */}
           {t("View job posting")}
         </Link>
 
         <Link to={`/messages?proposalId=${myJob?.proposal}`} className="btn btn-success" rel="noreferrer">
-          <i className="fas fa-door-open"></i>
+          <i className="fas fa-door-open me-2"></i>
           {/* <i className="fab fa-linkedin-in"></i> --> */}
           {t("Go to messaging")}
         </Link>

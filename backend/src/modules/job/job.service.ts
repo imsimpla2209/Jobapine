@@ -16,7 +16,7 @@ import {
   getTopCurrentTypeTracking,
   updateSimilarById,
 } from '@modules/freelancer/freelancer.service'
-import { bulkCreateNotify } from '@modules/notify/notify.service'
+import { bulkCreateNotify, createNotify } from '@modules/notify/notify.service'
 import { IProposalDoc } from '@modules/proposal/proposal.interfaces'
 import { updateProposalStatusBulk } from '@modules/proposal/proposal.service'
 import { Skill } from '@modules/skill'
@@ -59,31 +59,34 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
     if (!client) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
     }
-    if (!client?.paymentVerified) {
-      jobBody['status'] = [
-        {
-          status: EJobStatus.PENDING,
-          comment: 'Client profile is not verified',
-          date: new Date(),
-        },
-      ]
-      jobBody['currentStatus'] = EJobStatus.PENDING
-    }
+    // if (!client?.paymentVerified) {
+    jobBody['status'] = [
+      {
+        status: EJobStatus.PENDING,
+        comment: 'Client submit but job is not verified',
+        date: new Date(),
+      },
+    ]
+    jobBody['currentStatus'] = EJobStatus.PENDING
+    // }
     const createdJob = await Job.create(jobBody)
-    
+
     const appInfo = await App.findOne({})
 
-    await User.updateOne({ _id: new mongoose.Types.ObjectId(client?.user) }, { $inc: { sickPoints: -appInfo?.clientSicks.postJob } })
-    if (client?.paymentVerified) {
-      const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
-      const notifyBodies = followedFreelancer?.map(f => ({
-        to: f.user._id,
-        path: FERoutes.jobDetail + (createdJob._id || ''),
-        attachedId: createdJob._id,
-        content: FEMessage(createdJob.title).newJobCreated,
-      }))
-      bulkCreateNotify(notifyBodies)
-    }
+    await User.updateOne(
+      { _id: new mongoose.Types.ObjectId(client?.user) },
+      { $inc: { sickPoints: -appInfo?.clientSicks.postJob } }
+    )
+    // if (client?.paymentVerified) {
+    //   const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
+    //   const notifyBodies = followedFreelancer?.map(f => ({
+    //     to: f.user._id,
+    //     path: FERoutes.jobDetail + (createdJob._id || ''),
+    //     attachedId: createdJob._id,
+    //     content: FEMessage(createdJob.title).newJobCreated,
+    //   }))
+    //   bulkCreateNotify(notifyBodies)
+    // }
     client.jobs = client.jobs.concat(createdJob._id)
     client.save()
     return createdJob
@@ -157,8 +160,8 @@ export const queryAdvancedJobs = async (
   filter['description'] && (filter['description'] = { $regex: `${filter['description']}`, $options: 'i' })
 
   filter['locations'] && (filter['locations'] = { 'preferences.locations': { $in: filter['locations'] } })
-  filter['jobDuration'] && (filter['jobDuration'] = { 'jobDuration': filter['jobDuration'] } )
-  filter['type'] && (filter['type'] = { 'type': filter['type'] })
+  filter['jobDuration'] && (filter['jobDuration'] = { jobDuration: filter['jobDuration'] })
+  filter['type'] && (filter['type'] = { type: filter['type'] })
   filter['complexity'] && (filter['complexity'] = { 'scope.complexity': { $in: filter['complexity'] } })
   filter['paymentType'] && (filter['paymentType'] = { 'payment.type': { $in: filter['paymentType'] } })
   filter['skills'] && (filter['skills'] = { 'reqSkills.skill': { $in: filter['skills'] } })
@@ -758,7 +761,7 @@ export const getSimilarByJobFields = async (
 export const getCurrentInterestedJobsByType = async (
   freelancer: IFreelancerDoc,
   options?: IOptions,
-  inputType?: any,
+  inputType?: any
 ): Promise<any | null> => {
   try {
     if (!freelancer) {
@@ -1483,7 +1486,7 @@ export const addApplytoJobById = async (
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
     }
-    return await job.populate({ path: 'client', populate: { path: 'user' }})
+    return await job.populate({ path: 'client', populate: { path: 'user' } })
   } catch (err) {
     throw new Error('cannot add apply to job')
   }
@@ -1706,11 +1709,13 @@ export const changeStatusJobById = async (
     ]
   }
 
-  job.status?.push({
-    status,
-    comment,
-    date: new Date(),
-  })
+  else {
+    job.status?.push({
+      status,
+      comment,
+      date: new Date(),
+    })
+  }
   await job.save()
   return job
 }
@@ -1739,13 +1744,17 @@ export const getAllJobs = async (filter: Record<string, any>, options: IOptions)
  * @param {IProposalDoc} proposal
  * @returns {Promise<boolean | null>}
  */
-export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IProposalDoc, isCreatedJob: boolean = true): Promise<boolean | null> => {
+export const isJobOpened = async (
+  jobId: mongoose.Types.ObjectId,
+  proposal: IProposalDoc,
+  isCreatedJob: boolean = true
+): Promise<boolean | null> => {
   const job = await Job.findById(jobId)
   let check = true
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
-  
+
   if (isCreatedJob) {
     if (job?.questions?.length > 0) {
       if (!proposal?.answers) {
@@ -1758,8 +1767,11 @@ export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IPro
     if (job?.proposals?.length * job?.preferences?.nOEmployee >= 15 * job?.preferences?.nOEmployee) {
       check = false
     }
-  
-    if (job?.appliedFreelancers?.includes(proposal.freelancer) || job?.blockFreelancers?.includes(proposal.freelancer)) {
+
+    if (
+      job?.appliedFreelancers?.includes(proposal.freelancer) ||
+      job?.blockFreelancers?.includes(proposal.freelancer)
+    ) {
       throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'This user already applied or is not allowed to apply this job')
     }
   }
@@ -1770,3 +1782,47 @@ export const isJobOpened = async (jobId: mongoose.Types.ObjectId, proposal: IPro
 
   return check
 }
+
+export const verifyJob = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc> => {
+  try {
+    const job = await Job.findById(jobId);
+    if (!job) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
+    }
+
+    const client = await getClientById(job.client)
+    if (!client) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
+    }
+    // if (!client?.paymentVerified) {
+    const verifiedJob =  await changeStatusJobById(job.id, EJobStatus.OPEN, 'Accepted by Admin')
+    // }
+    // const createdJob = await Job.create(job)
+
+    createNotify({
+      to: client.user._id,
+      path: FERoutes.jobDetail + (verifiedJob._id || ''),
+      attachedId: verifiedJob._id,
+      content: FEMessage(verifiedJob.title).jobVerified,
+    })
+
+    if (client?.paymentVerified) {
+      const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
+      const notifyBodies = followedFreelancer?.map(f => ({
+        to: f.user._id,
+        path: '/job-details/' + (verifiedJob._id || ''),
+        attachedId: verifiedJob._id,
+        content: FEMessage(verifiedJob.title).newJobCreated,
+      }))
+      bulkCreateNotify(notifyBodies)
+    }
+    // client.jobs = client.jobs.concat(createdJob._id)
+    // client.save()
+    // return createdJob
+
+    return verifiedJob
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `cannot create job ${error}`)
+  }
+}
+
