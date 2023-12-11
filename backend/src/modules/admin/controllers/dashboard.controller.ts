@@ -14,6 +14,7 @@ import { EJobStatus } from 'common/enums'
 import { ApiError } from 'common/errors'
 import httpStatus from 'http-status'
 import moment from 'moment'
+import App from '../models/app.model'
 
 export const getUserSignUpStats = async (req, res, next) => {
   try {
@@ -174,6 +175,21 @@ export const getProjectStats = async (req, res, next) => {
     return res.status(200).json(statsByTimeline)
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, `Cannot get Jobs Stats ${error}`)
+  }
+}
+
+export const getAppInfo = async () => {
+  try {
+    const data = await App.findOne({}).lean()
+    if (!data) {
+      const newAppInfo = await App.create({})
+      return newAppInfo
+    } else {
+      return data
+    }
+  } catch (err: any) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Cannot get app Stats ${err}`)
+
   }
 }
 

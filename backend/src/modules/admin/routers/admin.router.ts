@@ -12,6 +12,7 @@ import { changeActiveUser } from '@modules/user/user.controller'
 import express from 'express'
 import { validate } from 'providers/validate'
 import {
+  getAppInfo,
   getDashboardSummarize,
   getPaymentStats,
   getProjectStats,
@@ -150,7 +151,7 @@ adminRouter.patch('/changeActiveUser/:userId', auth('manageUsers'), validate(use
 
 adminRouter.get('/app-info', async (req, res) => {
   try {
-    const data = await App.findOne({}).lean()
+    const data = await getAppInfo()
     delete data._id
     delete data.__v
     delete data['updatedAt']
