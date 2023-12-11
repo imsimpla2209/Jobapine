@@ -21,6 +21,10 @@ export const FEMessage = (extra?: any) => {
       name: `The job: ${extra} you applied is deleted by owner and you got a you will be refunded the sickPoints used to create the proposal`,
       name_vi: `Công việc: ${extra} bạn nộp đơn đã bị chủ sở hữu xóa và bạn nhận được công việc, bạn sẽ được hoàn lại số sickPoints đã dùng để tạo đề xuất`,
     },
+    updateJobFromClient: {
+      name: `The job: ${extra} you applied is updated by owner, let's check what changed`,
+      name_vi: `Công việc: ${extra} bạn nộp đơn vừa được cập nhất bởi sở hữu, hãy xem những gì đã thay đổi`,
+    },
     rejectProposal: {
       name: `The owner of job: ${extra} | rejects your proposal`,
       name_vi: `Chủ sở hữu công việc: ${extra} | từ chối đề xuất của bạn`,

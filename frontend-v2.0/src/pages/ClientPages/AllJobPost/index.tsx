@@ -2,20 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { SearchOutlined } from '@ant-design/icons'
-import {
-  Button,
-  Card,
-  Checkbox,
-  ConfigProvider,
-  Divider,
-  InputNumber,
-  Pagination,
-  Radio,
-  Result,
-  Slider,
-  Space,
-  Tag,
-} from 'antd'
+import { Button, Card, Checkbox, Divider, InputNumber, Pagination, Radio, Result, Slider, Space, Tag } from 'antd'
 import searching from 'assets/img/searching.jpg'
 import { isArray, isEmpty } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'

@@ -40,6 +40,7 @@ import { handleCacheData, handleGetCacheData, miniSearch, syncTrackingDataToBack
 import './styles.css'
 import Settings from 'src/pages/ClientPages/Client Settings'
 import TransactionHistory from 'src/pages/FreelancerPages/Reports/TransactionHistory'
+import AllJobs from 'src/pages/FreelancerPages/HomeFreelancer/AllJobs'
 
 export default function FreelancerRoutes() {
   const { state: trackingLogs, setState: setTrackingLogs } = useSubscription(trackingLogStore)
@@ -115,6 +116,7 @@ export default function FreelancerRoutes() {
           <Route path="/Search/:searchValue" element={<Search />} />
           <Route path="/Search" element={<Search />} />
           <Route path="/job/" element={<AllJobPosts />} />
+          <Route path="/all-jobs" element={<AllJobs />} />
           <Route path="/job/:id" element={<JobDetailsFreelancer />} />
           <Route path="/job-details/:id" element={<JobDetailsFreelancer />} />
           <Route path="/fake-job" element={<JobDetails />} />

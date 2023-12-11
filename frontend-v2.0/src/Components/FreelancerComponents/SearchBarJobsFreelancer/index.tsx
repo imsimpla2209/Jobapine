@@ -5,8 +5,8 @@
 import { AutoComplete, ConfigProvider, Input } from 'antd'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { jobLoad, jobsDataStore, refreshStore } from 'src/Store/job.store'
+import { Link, useNavigate } from 'react-router-dom'
+import { jobLoad, refreshStore } from 'src/Store/job.store'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { miniSearch } from 'src/utils/handleData'
 import './SearchBarJobsFreelancer.css'
@@ -16,11 +16,14 @@ export default function SearchBarJobsFreelancer({
   useIndexSearch = true,
   textSearch,
   setSearchText,
+  getSearchResults,
+  outSide = false,
 }: any) {
   const { i18n, t } = useTranslation(['main'])
-  const { setState } = useSubscription(jobsDataStore)
   const refreshPage = useSubscription(refreshStore).setState
   const jobLoader = useSubscription(jobLoad)
+
+  const navigate = useNavigate()
 
   const handle = e => {
     setSearchText && setSearchText(e.target.value)
@@ -40,15 +43,7 @@ export default function SearchBarJobsFreelancer({
     (text: string) => {
       if (useIndexSearch) {
         let results = miniSearch.search(text, { fuzzy: 0.2, prefix: true })
-        setState(results)
-        jobLoader.setState({
-          ...jobLoader.state,
-          pageSize: results?.length,
-          page: 1,
-          categories: [],
-          skills: [],
-          filter: '',
-        })
+        getSearchResults(results)
         refreshPage({ isRefresh: true })
       } else {
         setSearchText(text)
@@ -103,6 +98,9 @@ export default function SearchBarJobsFreelancer({
               size="large"
               enterButton
               type="search"
+              onClick={() => {
+                outSide && navigate('/all-jobs')
+              }}
               // style={{ height: "44px", borderTopLeftRadius: 20, borderBottomLeftRadius: 20, border: '2px solid #ccc', padding: '0 12' }}
               // className={`form-control text-dark bg-white`}
               placeholder={t('Search For Jobs')}

@@ -69,6 +69,21 @@ export default function Search({ noMargin = false }) {
       const filter = Object.fromEntries(
         Object.entries(advancedSearchData.state).filter(([_, v]) => v != null || (isArray(v) && v?.length === 0))
       )
+
+      if (advancedSearchData?.state?.skills) {
+        const extraStart = performance.now() - 5000
+        advancedSearchData?.state?.skills?.map(s =>
+          updateTrackingData(ETrackingType.SKILLS, s, ETrackingEvent.SEARCHING, '', extraStart)
+        )
+      }
+
+      if (advancedSearchData?.state?.categories) {
+        const extraStart = performance.now() - 5000
+        advancedSearchData?.state?.categories?.map(s =>
+          updateTrackingData(ETrackingType.CATEGORIES, s, ETrackingEvent.SEARCHING, '', extraStart)
+        )
+      }
+
       advancedSearchPageData.setState({ ...advancedSearchPageData.state, isFirstLoad: false, page: p, pageSize: ps })
       const searchText = text ? { searchText: text || '' } : null
       setLoading(true)
@@ -560,13 +575,13 @@ export default function Search({ noMargin = false }) {
                   setSearchText={searchFilterText}
                 />
               </div>
-              <Button
+              {/* <Button
                 onClick={() => handleSearh()}
                 className="col-1"
                 type="primary"
                 shape="circle"
                 icon={<SearchOutlined />}
-              />
+              /> */}
             </div>
             {!isEmpty(filterOption) ? (
               <div

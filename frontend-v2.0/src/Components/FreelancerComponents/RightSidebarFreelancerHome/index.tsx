@@ -53,12 +53,15 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
                 }}
               >{`@${user.name}.`}</h5>
             </div>
-            <Space
-              className=" w-100"
-              align="center"
-              style={{ justifyContent: 'center', alignItems: 'baseline' }}
-            >
-              <Button onClick={() => navigate(`/profile/me`)} type="primary" icon={<i className="fas fa-eye me-2" />}>
+            <Space className=" w-100" align="center" style={{ justifyContent: 'center', alignItems: 'baseline' }}>
+              <Button
+                onClick={() => navigate(`/profile/me`)}
+                type="primary"
+                style={{
+                  background: '#5200cc',
+                }}
+                icon={<i className="fas fa-eye me-2" />}
+              >
                 {t('View Profile')}
               </Button>
               <div>
@@ -95,17 +98,27 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
                 strokeColor={{ from: '#803ade', to: '#fc2389' }}
               />
             </div>
-            <Space size="small" 
-            style={{ background: '#f9f9f9', 
-            justifyContent: 'space-between',
-            borderRadius: 20, padding: 12, margin: '2px 4px', width: '100%'  }} 
-            wrap content='between'>
+            <Space
+              size="small"
+              style={{
+                background: '#f9f9f9',
+                justifyContent: 'space-between',
+                borderRadius: 20,
+                padding: 12,
+                margin: '2px 4px',
+                width: '100%',
+              }}
+              wrap
+              content="between"
+            >
               <Tooltip title={'Click to ' + t('Buy SickPoints')} placement="topRight">
-                <Button type="text" onClick={() => navigate('/buyConnects')} 
-                className=""
-                icon={<img alt="sick" src={logo} style={{ marginRight: 6 }} height={20} />}
-                >                  
-                    {user.sickPoints} Points
+                <Button
+                  type="text"
+                  onClick={() => navigate('/buyConnects')}
+                  className=""
+                  icon={<img alt="sick" src={logo} style={{ marginRight: 6 }} height={20} />}
+                >
+                  {user.sickPoints} Points
                 </Button>
               </Tooltip>
 

@@ -354,12 +354,6 @@ export const getRcmdJob = async (
           { blockFreelancers: { $nin: [freelancer?._id?.toString()] } },
           freelancer?.jobs ? { _id: { $nin: freelancer?.jobs || [] } } : {},
           freelancer?.favoriteJobs ? { _id: { $nin: freelancer?.favoriteJobs || [] } } : {},
-        ],
-      },
-    },
-    {
-      $match: {
-        $and: [
           { isDeleted: { $ne: true } },
           { currentStatus: { $in: [EJobStatus.OPEN] } },
           categories?.length ? { categories: { $in: categories || [] } } : {},
@@ -444,7 +438,7 @@ export const getRcmdJob = async (
                 $setIntersection: [similarDocs?.similarLocations || [], { $ifNull: ['$preferences.locations', []] }],
               },
             },
-            1.2,
+            1.4,
           ],
         },
         score_my_locations: {
@@ -551,7 +545,7 @@ export const getRcmdJob = async (
     page: options?.page || 1,
   }
 
-  await redisInsance.setWithExpiration(cacheKey, JSON.stringify(queryReSults), 60 * 60 * 16) // 16 hours expiration
+  await redisInsance.setWithExpiration(cacheKey, JSON.stringify(queryReSults), 60 * 60 * 8) // 16 hours expiration
 
   return queryReSults
 }
@@ -623,21 +617,13 @@ export const getSimilarByJobFields = async (
     const relatedJobs = await Job.aggregate([
       {
         $match: {
-          _id: { $nin: excludeJobIds?.map(job => new mongoose.Types.ObjectId(job)) },
-          currentStatus: EJobStatus.OPEN,
-        },
-      },
-      {
-        $match: {
           $and: [
+            { _id: { $nin: excludeJobIds?.map(job => new mongoose.Types.ObjectId(job)) } },
             { appliedFreelancers: { $nin: [freelancerId?.toString()] } },
             { blockFreelancers: { $nin: [freelancerId?.toString()] } },
+            { isDeleted: { $ne: true } },
+            { currentStatus: EJobStatus.OPEN },
           ],
-        },
-      },
-      {
-        $match: {
-          $and: [{ isDeleted: { $ne: true } }, { currentStatus: { $in: [EJobStatus.OPEN] } }],
         },
       },
       {
@@ -787,7 +773,13 @@ export const getCurrentInterestedJobsByType = async (
     const matchingJobs = await Job.aggregate([
       {
         $match: {
-          currentStatus: 'open',
+          $and: [
+            { _id: { $nin: freelancer?.favoriteJobs?.map(job => new mongoose.Types.ObjectId(job)) } },
+            { appliedFreelancers: { $nin: [freelancer?._id?.toString()] } },
+            { blockFreelancers: { $nin: [freelancer?._id?.toString()] } },
+            { isDeleted: { $ne: true } },
+            { currentStatus: EJobStatus.OPEN },
+          ],
         },
       },
       {
@@ -895,7 +887,13 @@ export const getTopInterestedJobsByType = async (
     const matchingJobs = await Job.aggregate([
       {
         $match: {
-          currentStatus: 'open',
+          $and: [
+            { _id: { $nin: freelancer?.favoriteJobs?.map(job => new mongoose.Types.ObjectId(job)) } },
+            { appliedFreelancers: { $nin: [freelancer?._id?.toString()] } },
+            { blockFreelancers: { $nin: [freelancer?._id?.toString()] } },
+            { isDeleted: { $ne: true } },
+            { currentStatus: EJobStatus.OPEN },
+          ],
         },
       },
       {
@@ -1060,15 +1058,21 @@ export const getCurrentInterestedJobs = async (freelancer: IFreelancerDoc, optio
   }
 }
 
-export const findRelatedJobsWithPoints = async (jobsWithPoints: any[], limit?: number) => {
+export const findRelatedJobsWithPoints = async (jobsWithPoints: any[], freelancer: IFreelancerDoc, limit?: number) => {
   try {
     const jobIds = jobsWithPoints.map(job => new mongoose.Types.ObjectId(job.job.id))
 
     const relatedJobs = await Job.aggregate([
       {
         $match: {
-          _id: { $nin: jobIds },
-          currentStatus: 'open',
+          $and: [
+            { _id: { $nin: freelancer?.favoriteJobs?.map(job => new mongoose.Types.ObjectId(job)) } },
+            { appliedFreelancers: { $nin: [freelancer?._id?.toString()] } },
+            { blockFreelancers: { $nin: [freelancer?._id?.toString()] } },
+            { isDeleted: { $ne: true } },
+            { currentStatus: EJobStatus.OPEN },
+            { _id: { $nin: jobIds } },
+          ],
         },
       },
       {
@@ -1236,7 +1240,7 @@ export const getCurrentInterestedJobsByJobs = async (
 
     const jobs = await getLastestTopJobs(freelancer)
 
-    const matchJobs = await findRelatedJobsWithPoints(jobs, options?.limit)
+    const matchJobs = await findRelatedJobsWithPoints(jobs, freelancer, options?.limit)
 
     return matchJobs
   } catch (error: any) {
@@ -1440,16 +1444,54 @@ export const updateJobById = async (
   jobId: mongoose.Types.ObjectId,
   updateBody: UpdateJobBody
 ): Promise<IJobDoc | null> => {
-  const job = await getJobByIdNotLean(jobId)
+  const job = await await Job.findById(jobId)
+    .populate({
+      path: 'proposals',
+      select: 'freelancer',
+      populate: {
+        path: 'freelancer',
+        populate: {
+          path: 'user',
+          select: '_id',
+        },
+      },
+    })
+    .populate({
+      path: 'client',
+      select: 'user',
+      populate: {
+        path: 'user',
+        select: '_id',
+      },
+    })
+
   if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Job not found')
   }
+
   if (
     job.status.find(({ status }) =>
       [EJobStatus.CANCELLED, EJobStatus.CLOSED, EJobStatus.COMPLETED, EJobStatus.INPROGRESS].includes(status)
     )
   ) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Can not update job')
+  }
+  const clientUserId = job.client?.user?._id
+
+  const appInfo = await getAppInfo()
+
+  if (job.proposals?.length) {
+    const notifyBodies = job.proposals.map(proposal => ({
+      to: proposal.freelancer.user._id,
+      path: FERoutes.allProposals + (proposal._id || ''),
+      attachedId: proposal._id,
+      content: FEMessage(job.title).updateJobFromClient,
+    }))
+
+    await Promise.all([
+      User.updateOne({ _id: clientUserId }, { $inc: { sickPoints: -appInfo?.clientSicks?.updateJob } }),
+      bulkCreateNotify(notifyBodies),
+    ])
   }
   Object.assign(job, updateBody)
   await job.save()
