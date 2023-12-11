@@ -14,10 +14,12 @@ import team2 from 'pages/AdminPages/assets/images/team-2.jpg'
 import team3 from 'pages/AdminPages/assets/images/team-3.jpg'
 import team4 from 'pages/AdminPages/assets/images/team-4.jpg'
 import card from 'pages/AdminPages/assets/images/info-card-1.jpg'
-import EChart from 'src/Components/AdminComponents/chart/EChart'
+import EChart from 'src/Components/AdminComponents/chart/PostJobsChart'
 import LineChart from 'src/Components/AdminComponents/chart/LineChart'
 import { getSummarizeStats } from 'src/api/admin-apis'
 import { currencyFormatter } from 'src/utils/helperFuncs'
+import PostJobsChart from 'src/Components/AdminComponents/chart/PostJobsChart'
+import RevenueChart from 'src/Components/AdminComponents/chart/RevenueChart'
 
 function Home() {
   const { Title, Text } = Typography
@@ -28,11 +30,10 @@ function Home() {
   const [summarize, setSummarize] = useState<any>({})
 
   useEffect(() => {
-    getSummarizeStats().then((res) => {
+    getSummarizeStats().then(res => {
       setSummarize(res.data)
     })
   }, [])
-  
 
   const dollor = [
     <svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" key={0}>
@@ -98,15 +99,17 @@ function Home() {
       bnb: 'bnb2',
     },
     {
-      today: 'Total Users',
+      today: 'Total Users (Freelancers / Clients)',
       title: summarize?.totalUsers || 'N/A',
+      subText: (summarize?.totalFreelancers || 'N/A') + ' / ' + (summarize?.totalClients || 'N/A'),
+
       // persent: '+20%',
       icon: profile,
       bnb: 'bnb2',
     },
     {
-      today: 'Total Freelancers/Clients',
-      title: (summarize?.totalFreelancers || 'N/A' + '/' + summarize?.totalClients || 'N/A'),
+      today: 'Total completed jobs',
+      title: summarize?.totalCompletedJobs,
       // persent: '-20%',
       icon: heart,
       bnb: 'redtext',
@@ -127,11 +130,12 @@ function Home() {
           <Col key={index} xs={24} sm={24} md={12} lg={6} xl={6} className="mb-24">
             <Card bordered={false} className="criclebox ">
               <div className="number">
-                <Row align="middle" gutter={[24, 0]}>
+                <Row align="top" gutter={[24, 0]}>
                   <Col xs={18}>
                     <span>{c.today}</span>
-                    <Title level={3}>
+                    <Title level={5} style={{ margin: 0 }}>
                       {c.title}
+                      <span>{c?.subText ? ` ( ${c?.subText} )` : ''}</span>
                       {/* <small className={c.bnb}>{c.persent}</small> */}
                     </Title>
                   </Col>
@@ -148,7 +152,7 @@ function Home() {
       <Row gutter={[24, 0]}>
         <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
           <Card bordered={false} className="criclebox h-full">
-            <EChart />
+            <RevenueChart />
           </Card>
         </Col>
         <Col xs={24} sm={24} md={12} lg={12} xl={14} className="mb-24">
@@ -158,6 +162,11 @@ function Home() {
         </Col>
       </Row>
 
+      <Row style={{ width: '100%' }}>
+        <Card bordered={false} className="criclebox h-full" style={{ width: '100%' }}>
+          <PostJobsChart />
+        </Card>
+      </Row>
       {/* <Row gutter={[24, 0]}>
         <Col xs={24} sm={24} md={12} lg={12} xl={16} className="mb-24">
           <Card bordered={false} className="criclebox cardbody h-full">

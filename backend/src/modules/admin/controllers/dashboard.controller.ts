@@ -10,7 +10,7 @@ import { Freelancer } from '@modules/freelancer'
 import { Job } from '@modules/job'
 import { Payment } from '@modules/payment'
 import { User } from '@modules/user'
-import { EJobStatus } from 'common/enums'
+import { EJobStatus, EStatus } from 'common/enums'
 import { ApiError } from 'common/errors'
 import httpStatus from 'http-status'
 import moment from 'moment'
@@ -157,8 +157,8 @@ export const getProjectStats = async (req, res, next) => {
               date: '$createdAt',
             },
           },
-          openJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.OPEN] }, 1, 0] } },
-          wipJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.INPROGRESS] }, 1, 0] } },
+          pendingJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.PENDING] }, 1, 0] } },
+          wipJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.OPEN] }, 1, 0] } },
           doneJobs: { $sum: { $cond: [{ $eq: ['$currentStatus', EJobStatus.COMPLETED] }, 1, 0] } },
         },
       },
@@ -167,7 +167,7 @@ export const getProjectStats = async (req, res, next) => {
       const foundStat = projectStats.find(stat => stat._id === date)
       return {
         date,
-        count: foundStat || { openJobs: 0, wipJobs: 0, doneJobs: 0 },
+        count: foundStat || { pendingJobs: 0, wipJobs: 0, doneJobs: 0 },
       }
     })
 
@@ -183,6 +183,7 @@ export const getDashboardSummarize = async (req, res, next) => {
     const totalJobs = await Job.countDocuments()
     const totalFreelancers = await Freelancer.countDocuments()
     const totalClients = await Client.countDocuments()
+    const totalCompletedJobs = await Job.find({ currentStatus: EStatus.COMPLETED }).countDocuments()
     const totalRevenue = await Payment.aggregate([
       { $match: {} },
       { $group: { _id: null, sum: { $sum: '$amount' } } },
@@ -193,6 +194,7 @@ export const getDashboardSummarize = async (req, res, next) => {
       totalJobs,
       totalFreelancers,
       totalClients,
+      totalCompletedJobs,
       totalRevenue: totalRevenue[0].sum,
     })
   } catch (error) {
