@@ -121,6 +121,7 @@ export const getProposalById = async (id: mongoose.Types.ObjectId): Promise<IPro
       'createdAt job freelancer expectedAmount description clientComment freelancerComment attachments messages currentStatus status updatedAt'
     )
     .populate('job')
+    .populate('freelancer')
 
 /**
  * Get proposals by Job id
@@ -316,8 +317,6 @@ export const withdrawProposalById = async (
   job.proposals = job.proposals.filter(p => p._id !== proposal._id)
   job.appliedFreelancers = job.appliedFreelancers.filter(p => p !== proposal?.freelancer?._id)
 
-
-
   updateProposalStatusById(proposal?.id, EStatus.ARCHIVE, 'Withdraw by Freelancer')
 
   // Object.assign(proposal, {
@@ -342,7 +341,7 @@ export const withdrawProposalById = async (
  */
 export const reSubmitProposal = async (
   proposalId: mongoose.Types.ObjectId,
-  userId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId
 ): Promise<IProposalDoc> => {
   const proposal = await Proposal.findById(proposalId).populate({
     path: 'freelancer',
