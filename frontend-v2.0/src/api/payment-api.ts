@@ -19,3 +19,7 @@ export const buySickPoints = (data: IPayment, sickPoints: number, buyer: string)
 export const getpayments = (userId: string) => {
   return Http.get('payments/getPayments', { from: userId })
 }
+
+export const getAllPayments = () => {
+  return Http.get('payments/getPayments')
+}

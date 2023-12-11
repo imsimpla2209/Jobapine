@@ -16,6 +16,7 @@ import {
   getPaymentStats,
   getProjectStats,
   getUserSignUpStats,
+  getUserSignUpStatsByMonth,
 } from '../controllers/dashboard.controller'
 import { getAllUsers } from '../controllers/data.controller'
 import App from '../models/app.model'
@@ -141,7 +142,8 @@ adminRouter.get('/all-backup', auth('backup'), async (req, res) => {
   }
 })
 
-adminRouter.get('/userStats', auth('manageUsers'), getUserSignUpStats)
+adminRouter.get('/userStatsByDay', auth('manageUsers'), getUserSignUpStats)
+adminRouter.post('/userStats', auth('manageUsers'), getUserSignUpStatsByMonth)
 adminRouter.post('/jobStats', auth('dashboard'), getProjectStats)
 adminRouter.get('/summarizeStats', auth('dashboard'), getDashboardSummarize)
 adminRouter.get('/yearPaymentStats', auth('dashboard'), getPaymentStats)
@@ -175,11 +177,14 @@ adminRouter.get('/app-info', async (req, res) => {
 adminRouter.patch('/app-info', auth('dashboard'), express.json(), async (req, res) => {
   try {
     await App.updateMany({}, req.body, { upsert: true })
-    createNotifyforAll({
-      path: '/buyconnects',
-      content: FEMessage().sickPointsChange,
-      to: undefined
-    }, ESocketEvent.SICKSETTING)
+    createNotifyforAll(
+      {
+        path: '/buyconnects',
+        content: FEMessage().sickPointsChange,
+        to: undefined,
+      },
+      ESocketEvent.SICKSETTING
+    )
     res.status(200).json({ success: 1 })
   } catch (err: any) {
     res.status(500).json({

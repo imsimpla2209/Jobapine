@@ -32,6 +32,7 @@ import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IJobDoc, NewCreatedJob, UpdateJobBody } from './job.interfaces'
 import Job, { JobCategory, JobTag } from './job.model'
 import App from '@modules/admin/models/app.model'
+import { updateSickPointsById } from '@modules/user/user.service'
 
 export const excludingFilter = (freelancer?: IFreelancerDoc) => {
   const filterByFreelancer = []
@@ -72,11 +73,13 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
     const createdJob = await Job.create(jobBody)
 
     const appInfo = await App.findOne({})
-
+    console.log(12)
     await User.updateOne(
       { _id: new mongoose.Types.ObjectId(client?.user) },
       { $inc: { sickPoints: -appInfo?.clientSicks.postJob } }
     )
+    updateSickPointsById(new mongoose.Types.ObjectId(client?.user), appInfo?.clientSicks.postJob, true)
+
     // if (client?.paymentVerified) {
     //   const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
     //   const notifyBodies = followedFreelancer?.map(f => ({
@@ -1707,9 +1710,7 @@ export const changeStatusJobById = async (
         date: new Date(),
       },
     ]
-  }
-
-  else {
+  } else {
     job.status?.push({
       status,
       comment,
@@ -1785,7 +1786,7 @@ export const isJobOpened = async (
 
 export const verifyJob = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc> => {
   try {
-    const job = await Job.findById(jobId);
+    const job = await Job.findById(jobId)
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
     }
@@ -1795,7 +1796,7 @@ export const verifyJob = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc
       throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
     }
     // if (!client?.paymentVerified) {
-    const verifiedJob =  await changeStatusJobById(job.id, EJobStatus.OPEN, 'Accepted by Admin')
+    const verifiedJob = await changeStatusJobById(job.id, EJobStatus.OPEN, 'Accepted by Admin')
     // }
     // const createdJob = await Job.create(job)
 
@@ -1825,4 +1826,3 @@ export const verifyJob = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc
     throw new ApiError(httpStatus.BAD_REQUEST, `cannot create job ${error}`)
   }
 }
-

@@ -31,7 +31,6 @@ export default function InviteFreelancerModal() {
     createNotify({
       content: `${client?.name} want to invite you into this job: ${inviteJobTitle}`,
       to: freelancer?.user,
-      image: 'https://cdni.iconscout.com/illustration/premium/thumb/forgot-login-password-5800309-4861087.png?f=webp',
       path: `/job/${inviteJob}`,
     })
       .then(res => {
