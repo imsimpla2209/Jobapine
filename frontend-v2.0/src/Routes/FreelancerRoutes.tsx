@@ -36,9 +36,10 @@ import JobDetails from 'src/pages/ForumPages/hire/job-details'
 import JobList from 'src/pages/ForumPages/hire/job-list'
 import AllContracts from 'src/pages/FreelancerPages/AllContracts'
 import ClientProfile from 'src/pages/FreelancerPages/ClientProfile'
-import TransactionHistory from 'src/pages/FreelancerPages/Reports/TransactionHistory'
 import { handleCacheData, handleGetCacheData, miniSearch, syncTrackingDataToBackend } from 'src/utils/handleData'
 import './styles.css'
+import Settings from 'src/pages/ClientPages/Client Settings'
+import TransactionHistory from 'src/pages/FreelancerPages/Reports/TransactionHistory'
 
 export default function FreelancerRoutes() {
   const { state: trackingLogs, setState: setTrackingLogs } = useSubscription(trackingLogStore)
@@ -127,19 +128,19 @@ export default function FreelancerRoutes() {
           <Route path="/profile/:id" element={<Profile noMargin={false} />} />
           <Route path="/email-verification" element={<EmailVerified />} />
           <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
-          <Route path="/my-stats" element={<MyStats />} />
           <Route path="/my-jobs" element={<MyJobs />} />
           <Route path="/all-contract" element={<AllContracts />} />
           <Route path="/invitations" element={<Offers />} />
           <Route path="/overview" element={<OverviewReports />} />
           <Route path="/my-reports" element={<Reports />} />
           <Route path="/life-time-billing" element={<BillingByClients />} />
-          <Route path="/connects-history" element={<ConnectsHistory />} />
+          {/* <Route path="/connects-history" element={<ConnectsHistory />} /> */}
           <Route path="/buyconnects" element={<BuyConnects />} />
           <Route path="/client-info/:clientId" element={<ClientProfile />} />
-          <Route path="/transaction-history" element={<TransactionHistory />} />
+          <Route path="/connects-history" element={<TransactionHistory />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/contract/:id" element={<Contract />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>

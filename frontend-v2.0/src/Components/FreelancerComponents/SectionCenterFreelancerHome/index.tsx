@@ -6,17 +6,12 @@ import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import Loader from 'src/Components/SharedComponents/Loader/Loader'
 import { EJobFilter, jobLoad, jobsDataStore } from 'src/Store/job.store'
-import {
-  getJobs,
-  getRcmdJobs
-} from 'src/api/job-apis'
+import { getJobs, getRcmdJobs } from 'src/api/job-apis'
 import { RenderTypes, renderTypesStore } from 'src/hooks/freelancer-tracking-hook'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { CarouselJobList } from './CarouselJobList'
 import JobItem, { ESize } from './JobItem'
 import './SectionCenterFreelancerHome.css'
-
-
 
 export default function SectionCenterFreelancerHome({ user }) {
   const { t } = useTranslation(['main'])
@@ -114,8 +109,7 @@ export default function SectionCenterFreelancerHome({ user }) {
         />
       )}
 
-      {
-        user?.favoriteJobs?.length > 0 && 
+      {user?.favoriteJobs?.length > 0 && (
         <CarouselJobList
           renderType={RenderTypes.FavoriteJobs}
           numberCardPerSlice={undefined}
@@ -123,7 +117,7 @@ export default function SectionCenterFreelancerHome({ user }) {
           size={undefined}
           user={user}
         />
-      }
+      )}
 
       <div
         className="mb-5 mt-5"
@@ -204,6 +198,16 @@ export default function SectionCenterFreelancerHome({ user }) {
         )}
       </div>
 
+      {renderTypes?.includes(RenderTypes.RecommendedClients) && (
+        <CarouselJobList
+          renderType={RenderTypes.RecommendedClients}
+          numberCardPerSlice={undefined}
+          extraStyle={undefined}
+          size={undefined}
+          user={user}
+        />
+      )}
+
       {renderTypes?.includes(RenderTypes.SkillsRecommendation) && (
         <CarouselJobList
           renderType={RenderTypes.SkillsRecommendation}
@@ -237,16 +241,6 @@ export default function SectionCenterFreelancerHome({ user }) {
       {renderTypes?.includes(RenderTypes.JobsRelatedToCurrentSkillsCategories) && (
         <CarouselJobList
           renderType={RenderTypes.JobsRelatedToCurrentSkillsCategories}
-          numberCardPerSlice={undefined}
-          extraStyle={undefined}
-          size={undefined}
-          user={user}
-        />
-      )}
-
-      {renderTypes?.includes(RenderTypes.RecommendedClients) && (
-        <CarouselJobList
-          renderType={RenderTypes.RecommendedClients}
           numberCardPerSlice={undefined}
           extraStyle={undefined}
           size={undefined}

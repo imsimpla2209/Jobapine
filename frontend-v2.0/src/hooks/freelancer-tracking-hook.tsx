@@ -45,68 +45,64 @@ export const useFreelancerTracking = () => {
   const [refresh, onRefresh] = useState(false)
   const { state: renderTypes, setState: setRenderTypes } = useSubscription(renderTypesStore)
 
+  const updateTrackingData = useCallback(
+    (type: ETrackingType, id: string, event: ETrackingEvent | number, text: any, start: number) => {
+      let store: Record<string, ITrackingData>, setter: any
+      console.log('updateTrackingData')
+      switch (type) {
+        case ETrackingType.JOBS:
+          store = trackingJobs
+          setter = setTrackingJobs
+          break
+        case ETrackingType.SKILLS:
+          store = trackingSkills
+          setter = setTrackingSkills
+          break
+        case ETrackingType.CATEGORIES:
+          store = trackingCategories
+          setter = setTrackingCategories
+          break
+        case ETrackingType.LOCATIONS:
+          store = trackingLocations
+          setter = setTrackingLocations
+          break
+        default:
+          break
+      }
 
-  const updateTrackingData = useCallback((
-    type: ETrackingType,
-    id: string,
-    event: ETrackingEvent | number,
-    text: any,
-    start: number
-  ) => {
-    let store: Record<string, ITrackingData>, setter: any
-    console.log('updateTrackingData')
-    switch (type) {
-      case ETrackingType.JOBS:
-        store = trackingJobs
-        setter = setTrackingJobs
-        break
-      case ETrackingType.SKILLS:
-        store = trackingSkills
-        setter = setTrackingSkills
-        break
-      case ETrackingType.CATEGORIES:
-        store = trackingCategories
-        setter = setTrackingCategories
-        break
-      case ETrackingType.LOCATIONS:
-        store = trackingLocations
-        setter = setTrackingLocations
-        break
-      default:
-        break
-    }
+      onRefresh(!refresh)
 
-    onRefresh(!refresh)
+      const updatedData = { ...store }
+      const target = updatedData[id]
 
-    const updatedData = { ...store }
-    const target = updatedData[id]
+      const viewCount = target?.event?.[event]?.viewCount || 0
+      const totalTimeView = target?.event?.[event]?.totalTimeView || 0
 
-    const viewCount = target?.event?.[event]?.viewCount || 0
-    const totalTimeView = target?.event?.[event]?.totalTimeView || 0
+      const newTrackingEvent = {
+        viewCount: viewCount + 1,
+        totalTimeView: totalTimeView + (performance.now() - start) / 1000,
+      }
 
-    const newTrackingEvent = {
-      viewCount: viewCount + 1,
-      totalTimeView: totalTimeView + (performance.now() - start) / 1000,
-    }
+      const updatedEvent = {
+        ...target?.event,
+        [event]: newTrackingEvent,
+      }
 
-    const updatedEvent = {
-      ...target?.event,
-      [event]: newTrackingEvent,
-    }
+      updatedData[id] = {
+        event: updatedEvent,
+        text,
+        lastTimeView: new Date().getTime().toString(),
+        id,
+      }
 
-    updatedData[id] = {
-      event: updatedEvent,
-      text,
-      lastTimeView: new Date().getTime().toString(),
-      id,
-    }
-
-    setter(updatedData)
-  }, [trackingCategories, trackingJobs, trackingLocations, trackingSkills])
+      setter(updatedData)
+    },
+    [trackingCategories, trackingJobs, trackingLocations, trackingSkills]
+  )
 
   const loadTrackingData = useCallback((data: any) => {
     if (!data) return
-    console.log('Load tracking data', data);
+    console.log('Load tracking data', data)
     const { jobs, skills, categories, locations } = data || {}
 
     const loadIntoGlobalState = (store, typeData) => {
@@ -130,26 +126,29 @@ export const useFreelancerTracking = () => {
     setTrackingSkills(loadIntoGlobalState(trackingSkills, skills || []))
     setTrackingCategories(loadIntoGlobalState(trackingCategories, categories || []))
     setTrackingLocations(loadIntoGlobalState(trackingLocations, locations || []))
-  }, []);
+  }, [])
 
-  const updateTrackingforJob = useCallback((job: any, event: ETrackingEvent, start) => {
-    updateTrackingData(ETrackingType.JOBS, job?._id || job?.id, ETrackingEvent.JOB_VIEW, job?.title, start)
-    job?.categories?.map(c =>
-      updateTrackingData(ETrackingType.CATEGORIES, c?._id, ETrackingEvent.JOB_VIEW, c?.name, start)
-    )
-    job?.reqSkills?.map(s =>
-      updateTrackingData(
-        ETrackingType.SKILLS,
-        s?.skill?._id,
-        ETrackingEvent.JOB_VIEW,
-        s?.skill?.name + '/' + s?.skill?.name_vi,
-        start
+  const updateTrackingforJob = useCallback(
+    (job: any, event: ETrackingEvent, start) => {
+      updateTrackingData(ETrackingType.JOBS, job?._id || job?.id, ETrackingEvent.JOB_VIEW, job?.title, start)
+      job?.categories?.map(c =>
+        updateTrackingData(ETrackingType.CATEGORIES, c?._id, ETrackingEvent.JOB_VIEW, c?.name, start)
       )
-    )
-  }, [trackingCategories, trackingJobs, trackingSkills])
+      job?.reqSkills?.map(s =>
+        updateTrackingData(
+          ETrackingType.SKILLS,
+          s?.skill?._id,
+          ETrackingEvent.JOB_VIEW,
+          s?.skill?.name + '/' + s?.skill?.name_vi,
+          start
+        )
+      )
+    },
+    [trackingCategories, trackingJobs, trackingSkills]
+  )
 
   useEffect(() => {
-    console.log('trackingData', trackingCategories, trackingJobs, trackingSkills);
+    console.log('trackingData', trackingCategories, trackingJobs, trackingSkills)
   }, [trackingCategories, trackingJobs, trackingSkills])
 
   // useEffect(() => {
@@ -162,62 +161,65 @@ export const useFreelancerTracking = () => {
   //   }
   // }, [refresh])
 
-  
-  
-  const determineRenderType = useCallback(data => {
-    if (!data || !data?.length || isEmpty(data)) {
-      return
-    }
-    const weights = {
-      Continue_browsing: { viewCount: 1.2, timeView: 1.7 },
-      Skills_Rcmd: { viewCount: 1.4, timeView: 1.4 },
-      Categories_Rcmd: { viewCount: 1.4, timeView: 1.3 },
-      Jobs_related_to_top_interest_jobs: { viewCount: 1.3, timeView: 1.5 },
-      Jobs_related_to_current_interest_jobs: { viewCount: 1, timeView: 1.4 },
-      job_related_to_most_categories_skills_interests: { viewCount: 1.5, timeView: 1.2 },
-      Job_related_to_current_interested_skills_cats: { viewCount: 1.4, timeView: 1 },
-      Clients_Rcmd: { viewCount: 1.6, timeView: 1.3 },
-    }
+  const determineRenderType = useCallback(
+    data => {
+      if (!data || !data?.length || isEmpty(data)) {
+        return
+      }
+      const weights = {
+        Continue_browsing: { viewCount: 1.2, timeView: 1.7 },
+        Skills_Rcmd: { viewCount: 1.4, timeView: 1.4 },
+        Categories_Rcmd: { viewCount: 1.4, timeView: 1.3 },
+        Jobs_related_to_top_interest_jobs: { viewCount: 1.3, timeView: 1.5 },
+        Jobs_related_to_current_interest_jobs: { viewCount: 1, timeView: 1.4 },
+        job_related_to_most_categories_skills_interests: { viewCount: 1.5, timeView: 1.2 },
+        Job_related_to_current_interested_skills_cats: { viewCount: 1.4, timeView: 1 },
+        Clients_Rcmd: { viewCount: 2, timeView: 2 },
+      }
 
-    const scores = {
-      Continue_browsing:
-        data[0]?.eventData[1]?.eventData?.totalViewCount * weights?.Continue_browsing?.viewCount +
-        data[0]?.eventData[1]?.eventData?.totalTotalTimeView * weights?.Continue_browsing?.timeView,
-      Skills_Rcmd:
-        data[2]?.eventData[1]?.eventData?.totalViewCount * weights?.Skills_Rcmd?.viewCount +
-        data[2]?.eventData[1]?.eventData?.totalTotalTimeView * weights?.Skills_Rcmd?.timeView,
-      Categories_Rcmd:
-        data[3]?.eventData[0]?.eventData?.totalViewCount * weights?.Categories_Rcmd?.viewCount +
-        data[3]?.eventData[0]?.eventData?.totalTotalTimeView * weights?.Categories_Rcmd?.timeView,
-      Jobs_related_to_top_interest_jobs:
-        data[1]?.eventData[1]?.eventData?.totalViewCount * weights?.Jobs_related_to_top_interest_jobs?.viewCount +
-        data[1]?.eventData[1]?.eventData?.totalTotalTimeView * weights?.Jobs_related_to_top_interest_jobs?.timeView,
-      Jobs_related_to_current_interest_jobs:
-        data[1]?.eventData[0]?.eventData?.totalViewCount * weights?.Jobs_related_to_current_interest_jobs?.viewCount +
-        data[1]?.eventData[0]?.eventData?.totalTotalTimeView * weights?.Jobs_related_to_current_interest_jobs?.timeView,
-      job_related_to_most_categories_skills_interests:
-        data[1]?.eventData[3]?.eventData?.totalViewCount *
-          weights?.job_related_to_most_categories_skills_interests?.viewCount +
-        data[1]?.eventData[3]?.eventData?.totalTotalTimeView *
-          weights?.job_related_to_most_categories_skills_interests?.timeView,
-      Job_related_to_current_interested_skills_cats:
-        data[2]?.eventData[2]?.eventData?.totalViewCount *
-          weights?.Job_related_to_current_interested_skills_cats?.viewCount +
-        data[2]?.eventData[2]?.eventData?.totalTotalTimeView *
-          weights?.Job_related_to_current_interested_skills_cats?.timeView,
-      Clients_Rcmd:
-        data[0]?.eventData[0]?.eventData?.totalViewCount * weights?.Clients_Rcmd?.viewCount +
-        data[0]?.eventData[0]?.eventData?.totalTotalTimeView * weights?.Clients_Rcmd.timeView,
-    }
+      const scores = {
+        Continue_browsing:
+          data[0]?.eventData[1]?.eventData?.totalViewCount * weights?.Continue_browsing?.viewCount +
+          data[0]?.eventData[1]?.eventData?.totalTotalTimeView * weights?.Continue_browsing?.timeView,
+        Skills_Rcmd:
+          data[2]?.eventData[1]?.eventData?.totalViewCount * weights?.Skills_Rcmd?.viewCount +
+          data[2]?.eventData[1]?.eventData?.totalTotalTimeView * weights?.Skills_Rcmd?.timeView,
+        Categories_Rcmd:
+          data[3]?.eventData[0]?.eventData?.totalViewCount * weights?.Categories_Rcmd?.viewCount +
+          data[3]?.eventData[0]?.eventData?.totalTotalTimeView * weights?.Categories_Rcmd?.timeView,
+        Jobs_related_to_top_interest_jobs:
+          data[1]?.eventData[1]?.eventData?.totalViewCount * weights?.Jobs_related_to_top_interest_jobs?.viewCount +
+          data[1]?.eventData[1]?.eventData?.totalTotalTimeView * weights?.Jobs_related_to_top_interest_jobs?.timeView,
+        Jobs_related_to_current_interest_jobs:
+          data[1]?.eventData[0]?.eventData?.totalViewCount * weights?.Jobs_related_to_current_interest_jobs?.viewCount +
+          data[1]?.eventData[0]?.eventData?.totalTotalTimeView *
+            weights?.Jobs_related_to_current_interest_jobs?.timeView,
+        job_related_to_most_categories_skills_interests:
+          data[1]?.eventData[3]?.eventData?.totalViewCount *
+            weights?.job_related_to_most_categories_skills_interests?.viewCount +
+          data[1]?.eventData[3]?.eventData?.totalTotalTimeView *
+            weights?.job_related_to_most_categories_skills_interests?.timeView,
+        Job_related_to_current_interested_skills_cats:
+          data[2]?.eventData[2]?.eventData?.totalViewCount *
+            weights?.Job_related_to_current_interested_skills_cats?.viewCount +
+          data[2]?.eventData[2]?.eventData?.totalTotalTimeView *
+            weights?.Job_related_to_current_interested_skills_cats?.timeView,
+        Clients_Rcmd:
+          100000000000000,
+        // data[0]?.eventData[0]?.eventData?.totalViewCount * weights?.Clients_Rcmd?.viewCount +
+        // data[0]?.eventData[0]?.eventData?.totalTotalTimeView * weights?.Clients_Rcmd.timeView,
+      }
 
-    const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1])
+      const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1])
 
-    const topRenderTypes = sortedScores.slice(0, 3).map(item => item[0])
+      const topRenderTypes = sortedScores.slice(0, 3).map(item => item[0])
 
-    console.log(topRenderTypes)
-    setRenderTypes(topRenderTypes)
-    return topRenderTypes
-  }, [trackingCategories, trackingJobs, trackingLocations, trackingSkills])
+      console.log(sortedScores)
+      setRenderTypes(topRenderTypes)
+      return topRenderTypes
+    },
+    [trackingCategories, trackingJobs, trackingLocations, trackingSkills]
+  )
 
   return {
     trackingJobs,

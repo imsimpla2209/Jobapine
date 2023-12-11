@@ -33,6 +33,7 @@ import { IJobDoc, NewCreatedJob, UpdateJobBody } from './job.interfaces'
 import Job, { JobCategory, JobTag } from './job.model'
 import App from '@modules/admin/models/app.model'
 import { updateSickPointsById } from '@modules/user/user.service'
+import { getAppInfo } from '@modules/admin/controllers/dashboard.controller'
 
 export const excludingFilter = (freelancer?: IFreelancerDoc) => {
   const filterByFreelancer = []
@@ -72,14 +73,16 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
     // }
     const createdJob = await Job.create(jobBody)
 
-    const appInfo = await App.findOne({})
-    console.log(12)
-    await User.updateOne(
-      { _id: new mongoose.Types.ObjectId(client?.user) },
-      { $inc: { sickPoints: -appInfo?.clientSicks.postJob } }
-    )
-    updateSickPointsById(new mongoose.Types.ObjectId(client?.user), appInfo?.clientSicks.postJob, true)
+    const appInfo = await getAppInfo()
 
+    logger.info(`App info: ${appInfo}`)
+
+    await updateSickPointsById(new mongoose.Types.ObjectId(client?.user), appInfo?.clientSicks?.postJob, true)
+
+    // await User.updateOne(
+    //   { _id: new mongoose.Types.ObjectId(client?.user) },
+    //   { $inc: { sickPoints: -appInfo?.clientSicks.postJob } }
+    // )
     // if (client?.paymentVerified) {
     //   const followedFreelancer = await Freelancer.find({ favoriteClients: { $in: [client?._id] } }).populate('user')
     //   const notifyBodies = followedFreelancer?.map(f => ({
@@ -1622,7 +1625,7 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
 
   const clientUserId = job.client?.user?._id
 
-  const appInfo = await App.findOne({})
+  const appInfo = await getAppInfo()
 
   if (job.proposals?.length) {
     const bulkOperations = [
