@@ -72,7 +72,7 @@ export default function Settings() {
                 icon={<FormOutlined />}
                 onClick={() => setOpenVerifyModal(true)}
               >
-                {t('Verify payment')}
+                {t('Verify Account')}
               </Button>
             )}
 

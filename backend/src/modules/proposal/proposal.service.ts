@@ -18,6 +18,7 @@ import { IProposalDoc, NewCreatedProposal, UpdateProposalBody } from './proposal
 import Proposal from './proposal.model'
 import App from '@modules/admin/models/app.model'
 import { sendCreatedNotifyProposal } from '@modules/forum/utils/mailer'
+import { getAppInfo } from '@modules/admin/controllers/dashboard.controller'
 
 /**
  * Register a proposal
@@ -35,7 +36,7 @@ export const createProposal = async (
   }
   let newProposal: any
   try {
-    const appInfo = await App.findOne({})
+    const appInfo = await getAppInfo()
     updateSickPointsById(userId, appInfo?.freelancerSicks?.proposalCost + (proposalBody?.priority || 0) * 2, true)
 
     proposalBody['status'] = [
@@ -160,7 +161,7 @@ export const updateProposalById = async (
     if (!isJobOpen) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'The job is not open anymore')
     }
-    const appInfo = await App.findOne({})
+    const appInfo = await getAppInfo()
     updateSickPointsById(
       proposal?.freelancer?.user,
       appInfo?.freelancerSicks?.updateProposalCost + (proposal?.priority || 0) * 2,
@@ -354,7 +355,7 @@ export const reSubmitProposal = async (
     throw new ApiError(httpStatus.BAD_REQUEST, 'Either you or your proposal is incompatible with job!')
   }
   try {
-    const appInfo = await App.findOne({})
+    const appInfo = await getAppInfo()
     // updateSickPointsById(proposal?.freelancer?.user?._id, appInfo?.freelancerSicks?.proposalCost + (proposal?.priority || 0) * 2, true)
 
     updateProposalStatusById(proposalId, EStatus.PENDING, 'Re-Submit after withdrawn by freelancer')

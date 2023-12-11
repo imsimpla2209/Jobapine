@@ -37,7 +37,7 @@ export interface IClient {
   id?: string;
   _id?: string;
   user: string
-  name?: string
+  name?: any
   intro?: string
   rating?: number
   jobs?: string[]

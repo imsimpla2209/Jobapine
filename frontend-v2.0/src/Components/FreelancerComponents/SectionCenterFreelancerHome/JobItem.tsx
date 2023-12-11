@@ -158,7 +158,7 @@ export default function JobItem({ data, t, user, isRcmd = false, size = ESize.Me
                       padding: '6px 8px',
                       borderRadius: 16,
                       background: 'rgba(77, 255, 249, 0.4)',
-                      
+
                       color: 'black',
                     }}
                   >
@@ -290,7 +290,7 @@ export default function JobItem({ data, t, user, isRcmd = false, size = ESize.Me
                   className={`dropdown-toggle rounded-circle collapsed`}
                   style={{
                     background: user?.favoriteJobs?.includes(data._id || data?.id) ? '#ccc' : 'white',
-                    border: user?.favoriteJobs?.includes(data._id || data?.id) ? '1px solid #6600cc' : '1px solid #ccc',
+                    border: user?.favoriteJobs?.includes(data._id || data?.id) ? '1px solid #8206ff' : '1px solid #ccc',
                     padding: '6px 8px',
                   }}
                   data-toggle="collapse"
@@ -300,7 +300,7 @@ export default function JobItem({ data, t, user, isRcmd = false, size = ESize.Me
                   onClick={e => saveJob(data._id || data?.id)}
                 >
                   {user?.favoriteJobs?.includes(data._id || data?.id) ? (
-                    <HeartFilled style={{ color: '#6600cc' }} />
+                    <HeartFilled style={{ color: '#830afb' }} />
                   ) : (
                     <HeartOutlined />
                   )}

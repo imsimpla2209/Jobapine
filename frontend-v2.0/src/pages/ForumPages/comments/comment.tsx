@@ -6,25 +6,22 @@ import {
   LikeOutlined,
 } from '@ant-design/icons'
 import { Avatar, List, Skeleton, Space, Typography } from 'antd'
-import { imgDir } from 'constants/img-dir'
 import { useSubscription } from 'libs/global-state-hook'
-import useRoleNavigate from 'libs/use-role-navigate'
 import React from 'react'
-import { formatDayTime } from 'utils/helperFuncs'
 import { userStore } from '../auth/user-store'
-import { editComment, deleteComment } from './comment-services'
+import { useNavigate } from 'react-router-dom'
 
 const handleMenuClick = (text: unknown, id: unknown) => {
-  switch (text) {
-    case 'Edit':
-      editComment(id)
-      break
-    case 'Delete':
-      deleteComment(id)
-      break
-    default:
-      return
-  }
+  // switch (text) {
+  //   case 'Edit':
+  //     editComment(id)
+  //     break
+  //   case 'Delete':
+  //     deleteComment(id)
+  //     break
+  //   default:
+  //     return
+  // }
 }
 
 const IconText = ({ icon, text, id }: { icon: React.FC; text: string; id: string }) => (
@@ -35,7 +32,7 @@ const IconText = ({ icon, text, id }: { icon: React.FC; text: string; id: string
 )
 
 function Comment({ item, loading }) {
-  const navigate = useRoleNavigate()
+  const navigate = useNavigate()
   const { _id } = useSubscription(userStore).state
 
   const handleViewProfile = id => {
@@ -67,7 +64,7 @@ function Comment({ item, loading }) {
               avatar={
                 <Avatar
                   size={45}
-                  src={!item.isAnonymous ? item.userId?.avatar : imgDir + 'anonymous.jpg'}
+                  src={!item.isAnonymous ? item.userId?.avatar : ''}
                   style={{ background: '#ccc' }}
                 />
               }
@@ -90,7 +87,7 @@ function Comment({ item, loading }) {
                         'Roboto,-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol',
                     }}
                   >
-                    {formatDayTime(item.date)}
+                    {/* {formatDayTime(item.date)} */}
                   </Typography.Paragraph>
                 </>
               }

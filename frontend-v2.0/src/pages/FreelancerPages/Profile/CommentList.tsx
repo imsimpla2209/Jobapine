@@ -1,9 +1,7 @@
 import { SlidersFilled } from '@ant-design/icons'
 import { Button, Dropdown, List, MenuProps, Space, Typography } from 'antd'
-import { Http } from 'api/http'
-import { handleFilter } from 'src/utils/handleData'
-import { useEffect, useState } from 'react'
-import Comment from './comment'
+import { useState } from 'react'
+import Comment from './Comment'
 import { useSocket } from 'src/socket.io'
 interface DataType {
   gender?: string
@@ -22,41 +20,14 @@ interface DataType {
   loading: boolean
 }
 
-function CommentsList({ id, updateIdea }) {
-  const { appSocket } = useSocket()
-  const [initLoading, setInitLoading] = useState(true)
-  const [list, setList] = useState<DataType[]>([])
+function CommentsList({ reviews }: any) {
+  const [list, setList] = useState<any[]>(reviews || [])
   const [filter, setFilter] = useState('new')
-
-  const updateComments = info => {
-    return setList([info.comment, ...list])
-  }
-
-  useEffect(() => {
-    const query = handleFilter(filter)
-    Http.get(`/api/v1/comment?ideaId=${id}&${query}`).then(res => {
-      setInitLoading(false)
-      setList(res.data.data)
-    })
-  }, [updateIdea, filter])
 
   
   const onClickFilter = (val: any) => {
     setFilter(val)
   }
-
-  useEffect(() => {
-    appSocket.on('comments', data => {
-      if (data.ideaId === id) {
-        updateComments(data)
-      }
-    })
-
-    return () => {
-      appSocket.off('comments')
-    }
-  }, [updateComments])
-
 
   const moreItems: MenuProps['items'] = [
     {
@@ -95,7 +66,6 @@ function CommentsList({ id, updateIdea }) {
         </Dropdown>
       </Space>
       <List
-        loading={initLoading}
         itemLayout="vertical"
         pagination={{
           onChange: (page) => {
@@ -106,7 +76,7 @@ function CommentsList({ id, updateIdea }) {
         dataSource={list}
         style={{ width: '100%' }}
         renderItem={item => (
-          <Comment item={item} loading={item.loading} />
+          <Comment  item={item} loading={item.loading} />
         )}
       />
     </>

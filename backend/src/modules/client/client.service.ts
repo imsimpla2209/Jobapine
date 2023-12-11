@@ -12,7 +12,7 @@ import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IClientDoc, NewRegisteredClient, UpdateClientBody } from './client.interfaces'
 import Client from './client.model'
 import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
-import { getTopTrackingPoint } from '@modules/freelancer/freelancer.service'
+import { getSimilarByFreelancerId, getTopTrackingPoint } from '@modules/freelancer/freelancer.service'
 import { redisInsance } from '@core/databases/Redis'
 import logger from 'common/logger/logger'
 
@@ -188,6 +188,8 @@ export const getCurrentRelateClientsForFreelancer = async (
 
     const type = inputType || (await getTopTrackingPoint(freelancer))
 
+    const similarDocs = await getSimilarByFreelancerId(freelancer?._id || freelancer.id)
+
     const matchingClient = await Client.aggregate([
       // {
       //   $match: {
@@ -212,8 +214,10 @@ export const getCurrentRelateClientsForFreelancer = async (
                               $arrayElemAt: [
                                 {
                                   $filter: {
-                                    input: type?.skillRankings?.map(
-                                      s => ({skill: new mongoose.Types.ObjectId(s?.skill), totalPoints: s?.totalPoints})),
+                                    input: type?.skillRankings?.map(s => ({
+                                      skill: new mongoose.Types.ObjectId(s?.skill),
+                                      totalPoints: s?.totalPoints,
+                                    })),
                                     as: 'sr',
                                     cond: { $eq: ['$$sr.skill', '$$this'] },
                                   },
@@ -243,9 +247,10 @@ export const getCurrentRelateClientsForFreelancer = async (
                               $arrayElemAt: [
                                 {
                                   $filter: {
-                                    input: type?.categoryRankings?.map(
-                                      s => ({skill: new mongoose.Types.ObjectId(s?.category), totalPoints: s?.totalPoints})
-                                    ),
+                                    input: type?.categoryRankings?.map(s => ({
+                                      skill: new mongoose.Types.ObjectId(s?.category),
+                                      totalPoints: s?.totalPoints,
+                                    })),
                                     as: 'cr',
                                     cond: { $eq: ['$$cr.category', '$$this'] },
                                   },
@@ -261,6 +266,136 @@ export const getCurrentRelateClientsForFreelancer = async (
                   },
                 },
               },
+              // {
+              //   $cond: [{ $regexMatch: { input: '$title', regex: similarDocs?.similarKeys } }, 1, 0],
+              // },
+              {
+                $cond: [{ $regexMatch: { input: '$intro', regex: similarDocs?.similarKeys } }, 1, 0],
+              },
+              {
+                $multiply: [
+                  {
+                    $size: {
+                      $setIntersection: [
+                        similarDocs?.potentialJobCats?.map(c => new mongoose.Types.ObjectId(c)) || [],
+                        { $ifNull: ['$preferJobType', []] },
+                      ],
+                    },
+                  },
+                  2.7,
+                ],
+              },
+              {
+                $multiply: [
+                  {
+                    $size: {
+                      $setIntersection: [
+                        similarDocs?.potentialSkills?.map(c => new mongoose.Types.ObjectId(c)) || [],
+                        { $ifNull: ['$findingSkills', []] },
+                      ],
+                    },
+                  },
+                  2.9,
+                ],
+              },
+              {
+                $multiply: [
+                  {
+                    $size: {
+                      $setIntersection: [
+                        similarDocs?.similarJobCats?.map(c => new mongoose.Types.ObjectId(c)) || [],
+                        { $ifNull: ['$preferJobType', []] },
+                      ],
+                    },
+                  },
+                  2,
+                ],
+              },
+              {
+                $multiply: [
+                  {
+                    $cond: [
+                      { $in: ['$_id', similarDocs?.similarClients.map(c => new mongoose.Types.ObjectId(c))] },
+                      3.6,
+                      0,
+                    ],
+                  },
+                  2.5
+                ],
+              },
+              {
+                $multiply: [
+                  {
+                    $size: {
+                      $setIntersection: [
+                        similarDocs?.similarSkills?.map(c => new mongoose.Types.ObjectId(c)) || [],
+                        { $ifNull: ['$findingSkills', []] },
+                      ],
+                    },
+                  },
+                  2,
+                ],
+              },
+              {
+                $multiply: [
+                  {
+                    $size: {
+                      $setIntersection: [similarDocs.similarLocations || [], { $ifNull: ['$preferLocations', []] }],
+                    },
+                  },
+                  1.4,
+                ],
+              },
+              // { $cond: [{ $in: ['$scope.complexity', complexities] }, 1, 0] },
+              // { $cond: [{ $in: ['$scope.duration', durations] }, 1, 0] },
+              // { $cond: [{ $in: ['$preferences.nOEmployee', nOEmployees] }, 1, 0] },
+              // {
+              //   $cond: [
+              //     {
+              //       $and: [
+              //         { $gte: ['$budget', (budget || 0) - (budget || 0) / 4.3] },
+              //         { $lte: ['$budget', (budget || 0) + (budget || 0) / 4.3] },
+              //       ],
+              //     },
+              //     1,
+              //     0,
+              //   ],
+              // },
+              // {
+              //   $sum: {
+              //     $map: {
+              //       input: payments,
+              //       as: 'payment',
+              //       in: {
+              //         $cond: [
+              //           {
+              //             $and: [
+              //               { $eq: ['$payment.type', '$$payment.type'] },
+              //               {
+              //                 $and: [
+              //                   {
+              //                     $gte: [
+              //                       '$payment.amount',
+              //                       { $subtract: ['$$payment.amount', { $divide: ['$$payment.amount', 4.3] }] },
+              //                     ],
+              //                   },
+              //                   {
+              //                     $lte: [
+              //                       '$payment.amount',
+              //                       { $add: ['$$payment.amount', { $divide: ['$$payment.amount', 4.3] }] },
+              //                     ],
+              //                   },
+              //                 ],
+              //               },
+              //             ],
+              //           },
+              //           1,
+              //           0,
+              //         ],
+              //       },
+              //     },
+              //   },
+              // },
             ],
           },
         },
@@ -273,7 +408,9 @@ export const getCurrentRelateClientsForFreelancer = async (
       },
     ])
 
-    return matchingClient
+    const fullyClientsData = await Client.populate(matchingClient, [{ path: 'findingSkills'}, { path: 'preferJobType'}, { path: 'user'}])
+
+    return fullyClientsData
   } catch (error: any) {
     logger.error(`Error finding related clients:${error}`)
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)

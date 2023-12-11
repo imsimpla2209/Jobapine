@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { BellFilled, MailFilled } from '@ant-design/icons'
-import { Badge, Divider, Dropdown, MenuProps, Space } from 'antd'
+import { Avatar, Badge, Divider, Dropdown, MenuProps, Space } from 'antd'
 import React, { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +17,7 @@ import { pickName, timeAgo } from 'src/utils/helperFuncs'
 import img from '../../../assets/img/icon-user.svg'
 import LanguageList from '../../SharedComponents/LanguageBtn/LanguageList'
 import notiIcon from '../../../assets/img/notifyicon.png'
+import Title from 'antd/es/typography/Title'
 
 export const NotifyPopup = (s, data) => {
   const { t } = useTranslation(['main'])
@@ -178,11 +179,6 @@ export default function NavLargScreen() {
                 {t('Profile')}
               </Link>
             </li>
-            <li>
-              <Link className="dropdown-item" to="/my-stats">
-                My Stats
-              </Link>
-            </li>
           </ul>
         </li>
         <li className="nav-item hov-cn mx-3">
@@ -325,7 +321,35 @@ export default function NavLargScreen() {
         <li className="ms-1 me-3">
           <LanguageList />
         </li>
-        <li className="dropdown">
+      
+        <Dropdown
+          placement="bottomRight"
+          menu={{
+            items: [
+              {
+                label: (
+                  <Title level={5} style={{ margin: 0 }}>
+                    <i className="fa fa-cog" style={{ marginRight: 8 }}></i>
+                    {t('Settings')}
+                  </Title>
+                ),
+                key: '0',
+                onClick: () => navigate('/settings'),
+              },
+              {
+                label: (
+                  <Title level={5} style={{ margin: 0 }}>
+                    <i className="fas fa-sign-out-alt" style={{ marginRight: 8 }}></i>
+                    {t('Log Out')}
+                  </Title>
+                ),
+                onClick: handleLogout,
+                key: '1',
+              },
+            ],
+          }}
+          trigger={['click']}
+        >
           <a
             className="nav-link dropdown-toggle"
             href="#"
@@ -334,82 +358,9 @@ export default function NavLargScreen() {
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            <img
-              style={{ height: '40px', width: '40px', border: '1px solid #ccc' }}
-              className="rounded-circle bg-white"
-              src={user.avatar ? user.avatar : img}
-              alt=""
-            />
+            <Avatar size="large" className="rounded-circle bg-white" src={user.avatar ? user.avatar : img} alt="" />
           </a>
-          <ul
-            style={{
-              border: '1px solid #ccc',
-            }}
-            id="acc-id"
-            className="dropdown-menu shadow"
-            aria-labelledby="navbarDropdownMenuLink"
-          >
-            <div className="nav-dd-acc-cn"></div>
-            <li className="px-4 py-3">
-              <div id="acc-btns-id" className="btn-group w-100" role="group" aria-label="Basic example">
-                <button type="button" className={`btn`}>
-                  {t('Online')}
-                </button>
-                <span style={{ padding: '0 1px' }}></span>
-                <button type="button" className={`btn invisible-cn `}>
-                  {t('Invisible')}
-                </button>
-              </div>
-            </li>
-            <li>
-              <NavLink className={`dropdown-item px-4`} to="/find-work">
-                <div className="d-flex align-items-center">
-                  <span style={{ marginLeft: '-5px' }}>
-                    <img
-                      style={{ height: '30px', width: '30px' }}
-                      className="rounded-circle bg-white"
-                      src={user.avatar ? user.avatar : img}
-                      alt=""
-                    />
-                  </span>
-                  <div className="acc-cn ms-2">
-                    <p className={``}>{user?.name}</p>
-                    <p className={``}>{t('Freelancer')}</p>
-                  </div>
-                </div>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink className={`dropdown-item px-4 mb-1`} to="/home">
-                <div className="d-flex align-items-center">
-                  <span style={{ marginLeft: '-5px' }}>
-                    <i className={`fa fa-user-circle fs-3`}></i>
-                  </span>
-                  <div className="acc-cn ms-2">
-                    <p className={``}>{t('Name')}</p>
-                    <p className={``}>{t('Client')}</p>
-                  </div>
-                </div>
-              </NavLink>
-            </li>
-            <li>
-              <Link className={`dropdown-item px-4 `} to="settings">
-                <span>
-                  <i className={`fa fa-cog`}></i>
-                </span>
-                <span className="ps-2">{t('Settings')}</span>
-              </Link>
-            </li>
-            <li>
-              <button className={`dropdown-item px-4`} onClick={handleLogout}>
-                <span>
-                  <i className={`fas fa-sign-out-alt`}></i>
-                </span>
-                <span className="ps-2">{t('Log Out')}</span>
-              </button>
-            </li>
-          </ul>
-        </li>
+        </Dropdown>
       </ul>
     </div>
   )
