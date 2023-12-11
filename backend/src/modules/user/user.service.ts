@@ -89,6 +89,10 @@ export const updateUserById = async (
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken')
   }
+  if (!updateBody.avatar) {
+    delete updateBody.avatar
+  }
+
   Object.assign(user, updateBody)
   await user.save()
   return user

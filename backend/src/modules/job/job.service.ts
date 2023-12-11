@@ -1639,12 +1639,12 @@ export const softDeleteJobById = async (jobId: mongoose.Types.ObjectId): Promise
     ])
   }
 
-  job.isDeleted = true
   job.status?.push({
     status: EJobStatus.CANCELLED,
     comment: 'the job is deleted by its owner',
     date: new Date(),
   })
+  job.currentStatus = EJobStatus.CANCELLED
 
   await job.save()
 

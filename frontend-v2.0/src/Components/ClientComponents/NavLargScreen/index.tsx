@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { userStore } from 'src/Store/user.store'
 import { logout } from 'src/api/auth-apis'
-import { getNotifies } from 'src/api/message-api'
+import { getNotifies, updateNotifies, updateNotify } from 'src/api/message-api'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { Title } from 'src/pages/ClientPages/JobDetailsBeforeProposols'
 import { useSocket } from 'src/socket.io'
@@ -26,8 +26,15 @@ export default function NavLargScreen() {
   const [notifies, setNotifies] = useState([])
   const [unSeen, setUnSeen] = useState([])
   const [unSeenMSG, setUnSeenMSG] = useState(0)
+  const [forceUpdate, setForceUpdate] = useState({})
   const { appSocket } = useSocket()
   const lang = i18n.language
+
+  const handleSeenNoti = async id => {
+    await updateNotify(id, { seen: true }).then(() => {
+      setForceUpdate({})
+    })
+  }
 
   const handleLogout = () => {
     logout()
@@ -50,7 +57,7 @@ export default function NavLargScreen() {
       setNotifies(res.data.results)
       setUnSeen(res.data.results?.filter(n => !n?.seen) || [])
     })
-  }, [])
+  }, [forceUpdate])
 
   useEffect(() => {
     // App socket
@@ -92,6 +99,7 @@ export default function NavLargScreen() {
               className="col-7 text-wrap text-truncate"
               style={{ color: s?.seen ? 'black' : '#6600cc' }}
               to={s?.path || '#'}
+              onClick={() => handleSeenNoti(s._id)}
             >
               {pickName(s?.content, lang)}
             </Link>
@@ -129,7 +137,7 @@ export default function NavLargScreen() {
               </Link>
             </li>
             <li>
-              <Link className="dropdown-item" to="/all-contracts">
+              <Link className="dropdown-item" to="/all-contract">
                 {t('Contracts')}
               </Link>
             </li>
