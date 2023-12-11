@@ -115,7 +115,7 @@ export default function JobDescriptionJobDetails({ job }) {
       </ul>
       <div className="bg-white py-lg-4 px-4 border border-1 row py-sm-3 py-xs-5">
         <span className="fw-bold">
-          {t('Project type')}: <span className="fw-normal">{job?.jobType || t('Unknown')}</span>
+          {t('Project type')}: <span className="fw-normal">{job?.type || t('Unknown')}</span>
         </span>
       </div>
       <div className="bg-white py-lg-4 px-4 border border-1 row pb-sm-3 py-xs-5">
@@ -123,7 +123,11 @@ export default function JobDescriptionJobDetails({ job }) {
         <div className="col">
           {job?.reqSkills?.map((skill, index) => (
             <Space key={index} size={1} className="me-sm-5 " wrap={true}>
-              <Link to={`/search?skillId=${skill?.skill?._id}`} key={index} className="btn text-light btn-sm rounded-pill cats mx-1 my-1">
+              <Link
+                to={`/search?skillId=${skill?.skill?._id}`}
+                key={index}
+                className="btn text-light btn-sm rounded-pill cats mx-1 my-1"
+              >
                 {pickName(skill?.skill, lang)}:
               </Link>
               <Progress done={skill?.level} />

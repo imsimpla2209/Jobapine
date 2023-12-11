@@ -1,5 +1,5 @@
-import { TeamOutlined } from '@ant-design/icons'
-import { Badge, Button, Card, Collapse, Row, Space } from 'antd'
+import { CheckCircleTwoTone, ClockCircleOutlined, SyncOutlined, TeamOutlined } from '@ant-design/icons'
+import { Badge, Button, Card, Collapse, Row, Space, Tag } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import Progress from 'src/Components/SharedComponents/Progress'
@@ -13,17 +13,33 @@ export default function ClientJobDetails({ job }) {
   const { t, i18n } = useTranslation(['main'])
   const lang = i18n.language
   const locations = useSubscription(locationStore).state
-
+  console.log(job)
   return (
     <div style={{ display: 'grid', gap: 16 }}>
       <Card>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <h4 style={{ color: '#6f17bd', fontWeight: 500 }}>{job?.title}</h4>
-          <Badge
-            className="text-capitalize"
-            status={job?.currentStatus === 'open' || job?.currentStatus === 'pending' ? 'processing' : 'default'}
-            text={job?.currentStatus}
-          />
+
+          <Tag
+            icon={
+              job?.currentStatus === 'open' || job?.currentStatus === 'pending' ? (
+                <SyncOutlined spin />
+              ) : job?.currentStatus === 'completed' ? (
+                <CheckCircleTwoTone twoToneColor={'#15d535'} />
+              ) : (
+                <ClockCircleOutlined />
+              )
+            }
+            color={
+              job?.currentStatus === 'open' || job?.currentStatus === 'pending'
+                ? 'processing'
+                : job?.currentStatus === 'completed'
+                ? 'success'
+                : 'default'
+            }
+          >
+            {job?.currentStatus}
+          </Tag>
         </div>
         {job?.description ? (
           <>
@@ -55,7 +71,7 @@ export default function ClientJobDetails({ job }) {
             <Space size={'middle'} align="baseline" wrap>
               <Text> {t('Project type')}:</Text>
 
-              <strong>{job?.jobType || t('Unknown')}</strong>
+              <strong>{job?.type || t('Unknown')}</strong>
             </Space>
           </Row>
 
@@ -159,7 +175,7 @@ export default function ClientJobDetails({ job }) {
       </Card>
 
       <Card>
-        <h5 className="fw-bold my-4">{t('Skills and experties')}</h5>
+        <h5 className="fw-bold">{t('Skills and experties')}</h5>
         <div style={{ display: 'grid' }}>
           {job?.reqSkills?.map((skill, index) => (
             <Space key={index} size={1} className="me-sm-5 " wrap={true}>
@@ -174,7 +190,7 @@ export default function ClientJobDetails({ job }) {
 
       {job?.attachments?.length ? (
         <Card>
-          <h5 className="fw-bold my-4">{t('Attachments')}</h5>
+          <h5 className="fw-bold ">{t('Attachments')}</h5>
 
           <div className="bg-white py-lg-4 px-4 border border-1 row pb-sm-3 py-xs-5">
             <h5 className="fw-bold my-4">Images</h5>
@@ -200,7 +216,7 @@ export default function ClientJobDetails({ job }) {
 
       {job?.checkLists?.length ? (
         <Card>
-          <h5 className="fw-bold my-4">{t('Check Lists')}</h5>
+          <h5 className="fw-bold ">{t('Check Lists')}</h5>
 
           <Collapse
             style={{ background: '#d0bfff' }}
