@@ -116,6 +116,9 @@ export const queryMessageRooms = async (
         _id: 0,
       },
     },
+    { $sort: {
+      updatedAt: -1 as any
+    }}
   ]
 
   try {
