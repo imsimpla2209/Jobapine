@@ -145,13 +145,18 @@ export default function JobDetailsBeforeProposals() {
                 </Card>
 
                 {contracts?.length && isCurrentClientJob ? (
-                  <Card className="mt-3" title={t('Freelancers joined this job')} bodyStyle={{ padding: '0px 16px' }}>
-                    <ContractsInJob
-                      contracts={contracts}
-                      setForceUpdate={setForceUpdate}
-                      loadingContract={loadingContract}
-                    />
-                  </Card>
+                  <Badge.Ribbon
+                    color={contracts.length < jobData?.preferences?.nOEmployee ? 'cyan' : 'green'}
+                    text={contracts.length + ' / ' + jobData?.preferences?.nOEmployee}
+                  >
+                    <Card className="mt-3" title={t('Freelancers joined this job')} bodyStyle={{ padding: '0px 16px' }}>
+                      <ContractsInJob
+                        contracts={contracts}
+                        setForceUpdate={setForceUpdate}
+                        loadingContract={loadingContract}
+                      />
+                    </Card>
+                  </Badge.Ribbon>
                 ) : null}
               </Col>
             </Row>

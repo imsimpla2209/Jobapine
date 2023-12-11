@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Form, InputNumber, Select, Space, message } from 'antd'
+import { CheckCircleTwoTone, EditOutlined, FormOutlined, HomeOutlined } from '@ant-design/icons'
+import { Breadcrumb, Button, Card, Col, DatePicker, Form, InputNumber, Rate, Row, Select, Space, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -7,12 +8,21 @@ import { DefaultUpload } from 'src/Components/CommonComponents/upload/upload'
 import Loader from 'src/Components/SharedComponents/Loader/Loader'
 import Progress from 'src/Components/SharedComponents/Progress'
 import { createContract } from 'src/api/contract-apis'
+import { getFreelancerByIdWithPopulate } from 'src/api/freelancer-apis'
 import { getSkills } from 'src/api/job-apis'
 import { getProposal } from 'src/api/proposal-apis'
 import { defaultPaymenType } from 'src/utils/constants'
 import { EComplexityGet } from 'src/utils/enum'
-import { formatMoney } from 'src/utils/formatMoney'
 import { randomDate } from 'src/utils/helperFuncs'
+import img from '../../../assets/img/icon-user.svg'
+import dayjs from 'dayjs'
+
+const { RangePicker } = DatePicker
+
+const disabledDate = current => {
+  // Can not select days before today and today
+  return current && current < dayjs().endOf('day')
+}
 
 export default function CreateContract() {
   const { id: proposalID } = useParams()
@@ -20,9 +30,11 @@ export default function CreateContract() {
   const [jobData, setJobData] = useState(null)
   const [files, setFiles] = useState([])
   const [proposalData, setProposalData] = useState(null)
+  const [loading, setloading] = useState(false)
   const [searchParams] = useSearchParams()
   const freelancerID = searchParams.get('freelancerID')
-
+  const [freelancer, setFreelancer] = useState(null)
+  const user = freelancer?.user
   const [contract, setContract] = useState({
     overview: '',
     paymentType: '',
@@ -33,6 +45,7 @@ export default function CreateContract() {
 
   const [skills, setSkills] = useState([])
   const navigate = useNavigate()
+  const [dates, setDates] = useState(null)
   useEffect(() => {
     getSkills().then(res => setSkills(res.data))
     getProposal(proposalID).then(res => {
@@ -44,17 +57,20 @@ export default function CreateContract() {
         paymentType: res.data?.job?.payment?.type,
       })
     })
+    getFreelancerByIdWithPopulate(freelancerID).then(res => setFreelancer(res.data))
   }, [proposalID])
 
   const startContract = async () => {
+    setloading(true)
+
     await createContract({
       proposal: proposalID,
       job: jobData.id,
       freelancer: freelancerID,
       client: jobData.client,
       overview: contract.overview,
-      startDate: new Date(contract.startDate),
-      endDate: new Date(contract.endDate),
+      startDate: new Date(dates[0].$d),
+      endDate: new Date(dates[1].$d),
       paymentType: jobData.payment.type,
       agreeAmount: jobData.payment.amount,
     })
@@ -65,6 +81,7 @@ export default function CreateContract() {
         }
       })
       .catch(e => console.error(e))
+      .finally(() => setloading(false))
   }
   const handlVal = e => {
     setContract({ ...contract, overview: e.target.value })
@@ -77,15 +94,36 @@ export default function CreateContract() {
     return e
   }
 
-  if (!proposalData) return <Loader />
+  if (!proposalData || !freelancer) return <Loader />
 
   return (
     <div className="container" style={{ paddingTop: 20 }}>
-      <h3>Create Contract</h3>
-
       <main>
-        <div className="container px-md-5">
-          <div className="row mt-5">
+        <div className="container">
+          <Card style={{ width: '100%' }}>
+            <Breadcrumb
+              items={[
+                {
+                  path: '/',
+                  title: (
+                    <Space>
+                      <HomeOutlined />
+                      <span className="fw-bold">{t('Home')}</span>
+                    </Space>
+                  ),
+                },
+                {
+                  title: (
+                    <Space>
+                      <EditOutlined />
+                      <span className="fw-bold">{t('Create Contract')}</span>
+                    </Space>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+          <div className=" mt-3 w-100">
             <div className="bg-white border" style={{ borderRadius: 16 }}>
               <h2 className="h4 border-bottom p-4">{t('Job details')}</h2>
               <div className="ps-4 pt-2 d-flex flex-md-row flex-column">
@@ -164,52 +202,126 @@ export default function CreateContract() {
               </div>
             </div>
           </div>
-          <div className="row mt-5">
-            <div className="bg-white border" style={{ borderRadius: 16 }}>
-              <h2 className="h4 border-bottom p-4">{t('General details')}</h2>
-              <Form layout="horizontal" labelCol={{ span: 4 }} wrapperCol={{ span: 14 }} style={{ padding: 16 }}>
-                <Form.Item label="Start date:">
-                  <input
-                    className="form-control d-inline w-50 "
-                    type="date"
-                    name="startDate"
-                    value={contract.startDate}
-                    onInput={e => setContract({ ...contract, startDate: (e.target as any).value })}
-                  />
-                </Form.Item>
-                <Form.Item label="End date:">
-                  <input
-                    className="form-control d-inline w-50 "
-                    type="date"
-                    name="endDate"
-                    value={contract.endDate}
-                    onInput={e => setContract({ ...contract, endDate: (e.target as any).value })}
-                  />
-                </Form.Item>
+          <Row gutter={[16, 16]} className=" mt-3">
+            <Col span={16}>
+              <div className="bg-white border" style={{ borderRadius: 16 }}>
+                <h2 className="h4 border-bottom p-4">{t('General details')}</h2>
+                <Form layout="horizontal" labelCol={{ span: 5 }} style={{ padding: 16 }}>
+                  <Form.Item label="Date range:">
+                    <RangePicker
+                      disabledDate={disabledDate}
+                      onChange={val => {
+                        setDates(val)
+                      }}
+                    />
+                  </Form.Item>
 
-                <Form.Item label="Payment amount:">
-                  <InputNumber
-                    min={0}
-                    addonAfter={
-                      <Select
-                        defaultValue={contract?.paymentType || 'PerHour'}
-                        style={{ width: 120 }}
-                        onChange={val => {
-                          setContract({ ...contract, paymentType: val })
-                        }}
-                        options={defaultPaymenType}
-                      />
-                    }
-                    defaultValue={contract?.agreeAmount || 0}
-                    formatter={val => `VND ${formatMoney(val)}`}
-                    value={contract?.agreeAmount || 0}
-                    onChange={val => setContract({ ...contract, agreeAmount: val })}
-                  />
-                </Form.Item>
-              </Form>
-            </div>
-          </div>
-          <div className="row mt-5 pb-5">
+                  <Form.Item label="Payment amount:">
+                    <InputNumber
+                      min={0}
+                      addonAfter={
+                        <Select
+                          defaultValue={contract?.paymentType || 'PerHour'}
+                          style={{ width: 120 }}
+                          onChange={val => {
+                            setContract({ ...contract, paymentType: val })
+                          }}
+                          options={defaultPaymenType}
+                        />
+                      }
+                      defaultValue={contract?.agreeAmount || 0}
+                      prefix={'VND'}
+                      value={contract?.agreeAmount || 0}
+                      onChange={val => setContract({ ...contract, agreeAmount: val })}
+                    />
+                  </Form.Item>
+                </Form>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div className="col d-none d-lg-block" style={{ marginBottom: 16 }}>
+                <div
+                  style={{
+                    background: 'white',
+                    border: '1.4px solid #ccc',
+                    height: 'auto',
+                    borderRadius: '12px',
+                    padding: 8,
+                    width: '100%',
+                    gap: 12,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      flexDirection: 'column',
+                      paddingTop: 20,
+                    }}
+                  >
+                    <img
+                      src={user?.avatar ? user?.avatar : img}
+                      alt=""
+                      className="rounded-circle d-inline border"
+                      width="50px"
+                      height="50px"
+                    />
+                    <h5
+                      className="d-inline ps-1 text-wrap"
+                      style={{
+                        wordBreak: 'break-all',
+                      }}
+                    >{`@${user.name}.`}</h5>
+                    <Rate disabled defaultValue={freelancer?.rating || 0} />
+                  </div>
+                  <Space className=" w-100" align="center" style={{ justifyContent: 'center', alignItems: 'baseline' }}>
+                    <Button
+                      onClick={() => navigate(`/profile/me`)}
+                      type="primary"
+                      icon={<i className="fas fa-eye me-2" />}
+                    >
+                      {t('View Profile')}
+                    </Button>
+                    <div>
+                      {freelancer?.isProfileVerified ? (
+                        <p className="text-success text-center">
+                          <CheckCircleTwoTone className="me-2" />
+                          {t('Profile Verified')}
+                        </p>
+                      ) : (
+                        <>
+                          {!freelancer?.isSubmitProfile ? (
+                            <Link to={`/create-profile`} className="advanced-search-link">
+                              <FormOutlined />
+                              <span> {t('CompleteProfile')}</span>
+                            </Link>
+                          ) : (
+                            <Link
+                              to={`/create-profile?isReview=${freelancer?.isSubmitProfile}`}
+                              className="advanced-search-link"
+                            >
+                              <FormOutlined />
+                              <span> {t('Review profile')}</span>
+                            </Link>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </Space>
+
+                  <Space direction="vertical" style={{ padding: '0px 20px 20px' }} align="center">
+                    <span className="text-muted" style={{ marginRight: 10 }}>
+                      <strong>{t('Intro')}</strong>: {freelancer?.intro}
+                    </span>
+                  </Space>
+                </div>
+              </div>
+            </Col>
+          </Row>
+          <Row gutter={[16, 16]} className="mt-3" style={{ paddingBottom: 20 }}>
             <div className="bg-white border" style={{ borderRadius: 16 }}>
               <h2 className="h4 border-bottom p-4">{t('Additional details')}</h2>
               <div className="ps-4 pt-2 pe-4">
@@ -261,17 +373,13 @@ export default function CreateContract() {
                 </p>
               </div>
               <div className="border-top ps-4 py-4">
-                <button
-                  className="btn shadow-none text-white"
-                  style={{ backgroundColor: '#5b14b8' }}
-                  onClick={() => startContract()}
-                >
+                <Button loading={loading} disabled={loading} onClick={() => startContract()}>
                   {t('Create contract')}
-                </button>
+                </Button>
                 <button className="btn shadow-none upw-c-cn">{t('Cancel')}</button>
               </div>
             </div>
-          </div>
+          </Row>
         </div>
       </main>
     </div>

@@ -37,6 +37,7 @@ router
 router
   .route('/:id')
   .get(validate(freelancerValidation.getFreelancer), freelancerController.getFreelancer)
+  .post(validate(freelancerValidation.getFreelancer), freelancerController.getFreelancerByIdWithPopulate)
   .patch(auth(), validate(freelancerValidation.updateFreelancer), freelancerController.updateFreelancer)
   .delete(auth(), validate(freelancerValidation.deleteFreelancer), freelancerController.deleteFreelancer)
 

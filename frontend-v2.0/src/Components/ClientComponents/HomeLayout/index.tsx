@@ -251,7 +251,7 @@ const RightLayout = () => {
           </div>
           <Space className="my-lg-1 w-100" align="center" style={{ justifyContent: 'center' }}>
             <Button type="primary" icon={<i className="fas fa-eye me-2" />}>
-              <Link to={`/profile/me`}>{t('View Profile')}</Link>
+              <Link to={`/settings`}>{t('View Profile')}</Link>
             </Button>
             {client?.paymentVerified ? (
               <>

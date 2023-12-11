@@ -87,7 +87,6 @@ export default function ClientRoutes() {
             <Route path="/freelancer-profile/:id" element={<Profile noMargin={true} />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/all-proposals/:id" element={<ReviewProposals />} />
-            {/* <Route path="/billing-history" element={<Reports />} /> */}
             <Route path="/transaction-history" element={<TransactionHistory />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/buyconnects" element={<BuyConnects />} />
