@@ -7,7 +7,7 @@ import conversation from 'src/assets/img/confidence.gif'
 import carousel1 from 'src/assets/videos/carousel1.gif'
 
 const contentStyle: React.CSSProperties = {
-  height: '300px',
+  height: '100%',
   lineHeight: '160px',
   textAlign: 'center',
   borderRadius: 14,
@@ -59,11 +59,11 @@ export default function HeadOfCenterSection() {
                   {t('Start launching a money-making contest at home for girls')}
                 </p>
               </div>
-              <img src={carousel1} alt="this slowpoke moves" width="250" />
+              <img src={carousel1} alt="this slowpoke moves" width="227" />
             </div>
           </div>
           <div>
-            <h3
+            <div
               style={{
                 ...contentStyle,
                 background: 'linear-gradient(92.88deg, #245b88, #3e74e0)',
@@ -77,7 +77,7 @@ export default function HeadOfCenterSection() {
                 color: '#cccccc',
               }}
             >
-              <img src={conversation} alt="this slowpokess moves" width="280" />
+              <img src={conversation} alt="this slowpokess moves" width="180" />
               <div
                 style={{
                   display: 'flex',
@@ -87,9 +87,9 @@ export default function HeadOfCenterSection() {
                   marginLeft: 14,
                 }}
               >
-                <h3 style={{ fontSize: 23, fontWeight: 600, color: '#ccc' }}>{t('Engage with confidence')}</h3>
+                <h3 style={{ fontSize: 23, fontWeight: 600, color: '#e7e6e6' }}>{t('Engage with confidence')}</h3>
               </div>
-            </h3>
+            </div>
           </div>
           <div>
             <div
@@ -99,9 +99,10 @@ export default function HeadOfCenterSection() {
                 justifyContent: 'space-around',
                 padding: 4,
                 alignItems: 'center',
+                height: '100%',
               }}
             >
-              <img src={getsomemoney} alt="this slowpokess moves" width="200" />
+              <img src={getsomemoney} alt="this slowpokess moves" width="227" />
               <div
                 style={{
                   display: 'flex',

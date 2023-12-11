@@ -3,7 +3,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { Button, Collapse, Form, Input, Modal, Result, Space } from 'antd'
+import { Button, Collapse, Divider, Form, Input, Modal, Result, Select, Space } from 'antd'
 import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -23,6 +23,12 @@ import SubmitProposalFixed from '../../Components/FreelancerComponents/SubmitPro
 import SubmitProposalHourly from '../../Components/FreelancerComponents/SubmitProposalHourly'
 import FileDisplay from '../ForumPages/ideas/idea-detail/file-display'
 import { appInfoStore } from 'src/Store/commom.store'
+
+const prioritiesPackage = (sickCost: number) => ({
+  0: `Low Priority(${sickCost * 1} SickPoints), Nothing Special`,
+  1: `Medium Priority(${sickCost * 2} SickPoints), Give better insights to the client, always more prioritizer than Low Priority`,
+  2: `High Priority(${sickCost * 4} SickPoints), All features above, notify via mail and give your proposal nicer outlook`,
+})
 
 export default function SubmitProposal() {
   const { i18n, t } = useTranslation(['main'])
@@ -49,6 +55,8 @@ export default function SubmitProposal() {
   const [searchParams] = useSearchParams()
   const isRcmd = searchParams.get('isRcmd')
   const { updateTrackingforJob } = useFreelancerTracking()
+  const [items, setItems] = useState([0, 1, 2])
+  const [priority, setPriority] = useState(0)
 
   useEffect(() => {
     setStart(performance.now())
@@ -139,6 +147,7 @@ export default function SubmitProposal() {
           job: jobData?._id,
           freelancer: freelancer?._id,
           answers: answer,
+          priority
         })
           .then(res => {
             setValid(false)
@@ -358,6 +367,28 @@ export default function SubmitProposal() {
                 )}
               </p>
             </div>
+            <h4 className="mb-0 pt-3 d-flex" style={{ alignItems: 'center', gap: 8 }}>
+              {t("Select your proposal's priority package")}:{' '}
+              <Select
+                style={{ width: 269 }}
+                placeholder="Select SickPoints Pack"
+                onChange={v => setPriority(v)}
+                dropdownRender={menu => (
+                  <>
+                    {menu}
+                    <Divider style={{ margin: '8px 0' }} />
+                  </>
+                )}
+                options={items.map(item => ({
+                  label: `${prioritiesPackage(appInfo.freelancerSicks.proposalCost)[item]}`,
+                  value: item,
+                }))}
+              />
+            </h4>
+            <div className='mb-5'>
+              <strong>Selected Priority: </strong>
+              {prioritiesPackage(appInfo.freelancerSicks.proposalCost)[priority]}
+            </div>
             <div className="border-top ps-4 py-4">
               {isValid ? (
                 <>
@@ -367,7 +398,7 @@ export default function SubmitProposal() {
                     onClick={() => {
                       setOpen(true)
                     }}
-                    style={{ backgroundColor: '#5b14b8' }}
+                    style={{ backgroundColor: '#5b14b8', padding: 4 }}
                   >
                     {t('Submit Proposal')}
                   </Button>

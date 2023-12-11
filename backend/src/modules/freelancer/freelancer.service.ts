@@ -803,6 +803,103 @@ export const getTopCurrentTypeTracking = async (freelancer: IFreelancerDoc, limi
   }
 }
 
+export const getTopTrackingPoint = async (freelancer: IFreelancerDoc, limit?: number) => {
+  const freelancerId = freelancer?._id?.toString()
+
+  try {
+    const categoryRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$categories' },
+      {
+        $project: {
+          _id: 0,
+          category: '$categories.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$categories.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$categories.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$categories.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$categories.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$categories.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$categories.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$categories.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$categories.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalPoints: -1 } },
+      { $limit: limit || 3 },
+    ]).exec()
+
+    const jobRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$jobs' },
+      {
+        $project: {
+          _id: 0,
+          category: '$jobs.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$jobs.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$jobs.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$jobs.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$jobs.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$jobs.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$jobs.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$jobs.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$jobs.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalPoints: -1 } },
+      { $limit: limit || 3 },
+    ]).exec()
+
+    const skillRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$skills' },
+      {
+        $project: {
+          _id: 0,
+          skill: '$skills.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$skills.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$skills.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$skills.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$skills.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$skills.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$skills.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$skills.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$skills.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalPoints: -1 } },
+      { $limit: limit || 3 },
+    ]).exec()
+
+    return { categoryRankings, skillRankings, jobRankings }
+  } catch (err: any) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Cannot fetch top current tracking: ${err.message}`)
+  }
+}
+
 export const getLastestTopJobs = async (freelancer: IFreelancerDoc, limit?: number) => {
   const freelancerId = freelancer?._id?.toString()
 

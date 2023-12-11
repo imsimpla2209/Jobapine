@@ -189,9 +189,9 @@ export const CarouselJobList = ({ renderType, numberCardPerSlice, extraStyle, si
 
   return (
     <div
-      className="mb-5 mt-5"
+      className="mb-5"
       style={{
-        background: renderDetails.sizeCard !== ESize.Small ? 'rgba(255, 255, 255, 0.5)' : 'white',
+        background: renderDetails.sizeCard !== ESize.Small ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.5)',
         borderRadius: 8,
         position: 'relative',
         padding: renderDetails.padding,
