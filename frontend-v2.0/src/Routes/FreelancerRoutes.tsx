@@ -1,7 +1,6 @@
 import Footer from 'Components/BeforeLoginComponents/Footer'
 import ReviewProposalsCard from 'Components/ClientComponents/ReviewProposalsCard'
 import Header from 'Components/FreelancerComponents/Header'
-import { SearchContextProvider } from 'Context/SearchContext'
 import Reports from 'pages/ClientPages/Reports'
 import EmailVerified from 'pages/EmailVerification/EmailVerified'
 import PleaseVerifiy from 'pages/EmailVerification/PleaseVerifiy'
@@ -27,22 +26,25 @@ import PageNotFound from 'pages/PageNotFound'
 import SubmitProposal from 'pages/Submit Proposal'
 import { useEffect, useState } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { trackingLogStore } from 'src/Store/tracking.store'
+import { getFreelancerTracking, getFreelancerTrackingIntend } from 'src/api/freelancer-apis'
 import { getAllJobs } from 'src/api/job-apis'
+import { useFreelancerTracking } from 'src/hooks/freelancer-tracking-hook'
+import { useSubscription } from 'src/libs/global-state-hook'
+import AllJobPosts from 'src/pages/ClientPages/AllJobPost'
 import JobDetails from 'src/pages/ForumPages/hire/job-details'
 import JobList from 'src/pages/ForumPages/hire/job-list'
-import AllJobPosts from 'src/pages/ClientPages/AllJobPost'
-import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
-import './styles.css'
 import AllContracts from 'src/pages/FreelancerPages/AllContracts'
-import ForumRoutes from './ForumRoutes'
 import ClientProfile from 'src/pages/FreelancerPages/ClientProfile'
 import TransactionHistory from 'src/pages/FreelancerPages/Reports/TransactionHistory'
+import { handleCacheData, handleGetCacheData, miniSearch, syncTrackingDataToBackend } from 'src/utils/handleData'
+import './styles.css'
 
 export default function FreelancerRoutes() {
-  const [arr, setarr] = useState([])
-  const [itemSearchList, setitemSearchList] = useState('')
-  const [searchList, setsearchList] = useState([])
-  const [switchJobs, setswitchJobs] = useState('')
+  const { state: trackingLogs, setState: setTrackingLogs } = useSubscription(trackingLogStore)
+  const { loadTrackingData, determineRenderType } = useFreelancerTracking()
+  const [isSync, setSync] = useState(false)
+
   const { pathname } = useLocation()
   const navigate = useNavigate()
   pathname === '/' && navigate('/find-work')
@@ -67,6 +69,39 @@ export default function FreelancerRoutes() {
         .catch(err => console.log('get cache failed', err))
     }
   }, [])
+
+  useEffect(() => {
+    getFreelancerTracking().then(res => {
+      setTrackingLogs({
+        ...trackingLogs,
+        isFirstTime: res.data?.isFirstTime,
+      })
+
+      loadTrackingData(res.data?.freelancerTracking)
+    })
+
+    getFreelancerTrackingIntend().then(res => {
+      determineRenderType(res.data)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!isSync) {
+      window.addEventListener('beforeunload', event => {
+        console.log('object called')
+        setSync(true)
+        syncTrackingDataToBackend(true)
+        console.log('sync tracking to backend')
+      })
+    }
+
+    window.addEventListener('unload', event => {
+      event.preventDefault()
+      event.stopPropagation()
+      syncTrackingDataToBackend(true)
+      console.log('sync tracking to backend')
+    })
+  }, [isSync])
 
   return (
     <div className="background_general">
@@ -107,7 +142,6 @@ export default function FreelancerRoutes() {
           <Route path="/contract/:id" element={<Contract />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="*" element={<PageNotFound />} />
-          {/* <ForumRoutes /> */}
         </Routes>
       </div>
       <Footer />

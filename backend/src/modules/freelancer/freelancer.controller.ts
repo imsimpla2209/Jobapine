@@ -11,6 +11,7 @@ import catchAsync from '../../utils/catchAsync'
 import pick from '../../utils/pick'
 import * as freelancerService from './freelancer.service'
 import FreelancerTracking from './freelancer.tracking.model'
+import { logger } from 'common/logger'
 
 export const registerFreelancer = catchAsync(async (req: Request, res: Response) => {
   try {
@@ -191,6 +192,7 @@ export const createFreelancerTracking = catchAsync(async (req: Request, res: Res
   if (!freelancer) {
     throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
   }
+  logger.info('freelancer tracking body', req.body)
   const updatedFreelancer = await freelancerService.createFreelancerProfileById(
     new mongoose.Types.ObjectId(freelancer?._id),
     req.body
@@ -217,6 +219,15 @@ export const getLastestTopJobs = catchAsync(async (req: Request, res: Response) 
   res.send(lastestTopJobs)
 })
 
+export const getTopTrackingPoints = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const lastestTopJobs = await freelancerService.getTopTrackingPoint(freelancer)
+  res.send(lastestTopJobs)
+})
+
 export const getLastestTopType = catchAsync(async (req: Request, res: Response) => {
   const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
   if (!freelancer) {
@@ -224,4 +235,13 @@ export const getLastestTopType = catchAsync(async (req: Request, res: Response) 
   }
   const lastestTopJobs = await freelancerService.getLastestTopCurrentTypeTracking(freelancer)
   res.send(lastestTopJobs)
+})
+
+export const getFreelancerIntend = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const freelancerIntend = await freelancerService.getFreelancerIntend(freelancer)
+  res.send(freelancerIntend)
 })

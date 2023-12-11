@@ -55,7 +55,7 @@ export const jobLoad = createSubscription<{
   page: 1,
   categories: [],
   skills: [],
-  pageSize: 36,
+  pageSize: 28,
 })
 
 export const refreshStore = createSubscription<{ isRefresh: boolean }>({ isRefresh: false })
@@ -113,5 +113,5 @@ export const advancedSearchPage = createSubscription<{
 }>({
   isFirstLoad: true,
   page: 1,
-  pageSize: 20,
+  pageSize: 10,
 })

@@ -85,10 +85,10 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
                     showDrawer()
                   }}
                   className={`fw-bold `}
-                  style={{ color: "#6600cc" }}
+                  style={{ color: "#6600cc", textTransform: 'capitalize' }}
                 >
                   {
-                    isInMSG ? "Proposal Information" : `Proposals No.${ind + 1}`
+                    isInMSG ? "Proposal Information" : `Proposals No.${ind + 1} - (${t(proposal?.currentStatus)})`
                   }
                 </Link>
                 <div>
@@ -176,7 +176,7 @@ export default function ProposalCard({ proposal, jobId, job, ind, isInMSG = fals
         ) : (
           ind === 0 && <Loader />
         )}
-      <Drawer width={1020} placement="right" closable={false} onClose={onClose} open={openDrawer}>
+      <Drawer width={1020} placement="right" closable={true} onClose={onClose} open={openDrawer}>
         <ProposalDetail proposal={proposal} user={user} onRefresh={onRefresh}></ProposalDetail>
       </Drawer>
     </>

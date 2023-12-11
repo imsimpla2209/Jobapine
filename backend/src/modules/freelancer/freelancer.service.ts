@@ -400,7 +400,7 @@ export const addProposaltoFreelancerById = async (
     if (!freelancer) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
     }
-    return freelancer
+    return await freelancer.populate('user')
   } catch (err) {
     throw new Error(`cannot add proposals to freelancer ${err}`)
   }
@@ -803,6 +803,103 @@ export const getTopCurrentTypeTracking = async (freelancer: IFreelancerDoc, limi
   }
 }
 
+export const getTopTrackingPoint = async (freelancer: IFreelancerDoc, limit?: number) => {
+  const freelancerId = freelancer?._id?.toString()
+
+  try {
+    const categoryRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$categories' },
+      {
+        $project: {
+          _id: 0,
+          category: '$categories.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$categories.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$categories.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$categories.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$categories.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$categories.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$categories.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$categories.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$categories.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalPoints: -1 } },
+      { $limit: limit || 3 },
+    ]).exec()
+
+    const jobRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$jobs' },
+      {
+        $project: {
+          _id: 0,
+          category: '$jobs.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$jobs.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$jobs.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$jobs.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$jobs.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$jobs.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$jobs.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$jobs.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$jobs.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalPoints: -1 } },
+      { $limit: limit || 3 },
+    ]).exec()
+
+    const skillRankings = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      { $unwind: '$skills' },
+      {
+        $project: {
+          _id: 0,
+          skill: '$skills.id',
+          totalPoints: {
+            $add: [
+              // APPLY event (70%)
+              { $multiply: ['$skills.event.APPLY.viewCount', 0.7] },
+              { $multiply: ['$skills.event.APPLY.totalTimeView', 0.7] },
+              // JOB_VIEW event (55%)
+              { $multiply: ['$skills.event.JOB_VIEW.viewCount', 0.55] },
+              { $multiply: ['$skills.event.JOB_VIEW.totalTimeView', 0.55] },
+              // VIEWCLIENT event (45%)
+              { $multiply: ['$skills.event.VIEWCLIENT.viewCount', 0.45] },
+              { $multiply: ['$skills.event.VIEWCLIENT.totalTimeView', 0.45] },
+              // SEARCHING event (35%)
+              { $multiply: ['$skills.event.SEARCHING.viewCount', 0.35] },
+              { $multiply: ['$skills.event.SEARCHING.totalTimeView', 0.35] },
+            ],
+          },
+        },
+      },
+      { $sort: { totalPoints: -1 } },
+      { $limit: limit || 3 },
+    ]).exec()
+
+    return { categoryRankings, skillRankings, jobRankings }
+  } catch (err: any) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Cannot fetch top current tracking: ${err.message}`)
+  }
+}
+
 export const getLastestTopJobs = async (freelancer: IFreelancerDoc, limit?: number) => {
   const freelancerId = freelancer?._id?.toString()
 
@@ -831,7 +928,7 @@ export const getLastestTopJobs = async (freelancer: IFreelancerDoc, limit?: numb
             ],
           },
           timeDifference: {
-            $divide: [{ $subtract: [new Date(), { $toDate: '$jobs.lastTimeView' }] }, 3600000],
+            $divide: [{ $subtract: [new Date(), { $toDate: { "$toLong": '$jobs.lastTimeView' } }] }, 3600000],
           },
         },
       },
@@ -908,7 +1005,7 @@ export const getLastestTopCurrentTypeTracking = async (freelancer: IFreelancerDo
             ],
           },
           timeDifference: {
-            $divide: [{ $subtract: [new Date(), { $toDate: '$categories.lastTimeView' }] }, 3600000],
+            $divide: [{ $subtract: [new Date(), { $toDate: { "$toLong": '$categories.lastTimeView' } }] }, 3600000],
           },
         },
       },
@@ -970,7 +1067,7 @@ export const getLastestTopCurrentTypeTracking = async (freelancer: IFreelancerDo
             ],
           },
           timeDifference: {
-            $divide: [{ $subtract: [new Date(), { $toDate: '$skills.lastTimeView' }] }, 3600000],
+            $divide: [{ $subtract: [new Date(), { $toDate: { "$toLong": '$skills.lastTimeView' } }] }, 3600000],
           },
         },
       },
@@ -1009,6 +1106,139 @@ export const getLastestTopCurrentTypeTracking = async (freelancer: IFreelancerDo
     ]).exec()
 
     return { categoryRankings, skillRankings }
+  } catch (err: any) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Cannot fetch top current tracking: ${err.message}`)
+  }
+}
+
+export const getFreelancerIntend = async (freelancer: IFreelancerDoc, limit?: number) => {
+  const freelancerId = freelancer?._id?.toString()
+
+  try {
+    const freelancerIntend = await FreelancerTracking.aggregate([
+      { $match: { freelancer: freelancerId } },
+      {
+        $project: {
+          data: {
+            $objectToArray: "$$ROOT"
+          }
+        }
+      },
+      {
+        $unwind: "$data"
+      },
+      {
+        $match: {
+          "data.k": {
+            $in: ["categories", "skills", "jobs", "locations"]
+          }
+        }
+      },
+      {
+        $unwind: "$data.v"
+      },
+      {
+        $project: {
+          type: "$data.k",
+          events: {
+            $objectToArray: "$data.v.event"
+          }
+        }
+      },
+      {
+        $unwind: "$events"
+      },
+      {
+        $group: {
+          _id: {
+            type: "$type",
+            event: "$events.k"
+          },
+          totalViewCount: { $sum: "$events.v.viewCount" },
+          totalTotalTimeView: { $sum: "$events.v.totalTimeView" }
+        }
+      },
+      {
+        $group: {
+          _id: "$_id.type",
+          events: {
+            $push: {
+              eventType: "$_id.event",
+              eventData: {
+                totalViewCount: "$totalViewCount",
+                totalTotalTimeView: "$totalTotalTimeView"
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          type: "$_id",
+          events: {
+            $map: {
+              input: "$events",
+              as: "event",
+              in: {
+                eventType: "$$event.eventType",
+                eventData: {
+                  totalViewCount: "$$event.eventData.totalViewCount",
+                  totalTotalTimeView: "$$event.eventData.totalTotalTimeView",
+                  weightedScore: {
+                    $switch: {
+                      branches: [
+                        {
+                          case: { $eq: ["$$event.eventType", "APPLY"] },
+                          then: { $multiply: ["$$event.eventData.totalViewCount", 1.8] } // 80% more
+                        },
+                        {
+                          case: { $eq: ["$$event.eventType", "JOB_VIEW"] },
+                          then: { $multiply: ["$$event.eventData.totalViewCount", 1.65] } // 65% more
+                        },
+                        {
+                          case: { $eq: ["$$event.eventType", "VIEWCLIENT"] },
+                          then: { $multiply: ["$$event.eventData.totalViewCount", 1.5] } // 50% more
+                        },
+                        {
+                          case: { $eq: ["$$event.eventType", "SEARCHING"] },
+                          then: { $multiply: ["$$event.eventData.totalViewCount", 1.35] } // 35% more
+                        },
+                        {
+                          case: { $eq: ["$$event.eventType", "DEFAULT"] },
+                          then: "$$event.eventData.totalViewCount"
+                        }
+                      ],
+                      default: "$$event.eventData.totalViewCount"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          categories: {
+            $push: {
+              typeName: "$type",
+              eventData: "$events"
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          categories: 1
+        }
+      }
+    ])
+.exec()
+
+    return freelancerIntend[0]?.categories
   } catch (err: any) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Cannot fetch top current tracking: ${err.message}`)
   }

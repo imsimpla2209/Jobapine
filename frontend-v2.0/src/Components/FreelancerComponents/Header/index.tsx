@@ -1,17 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
+import { MenuUnfoldOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import { getSkillsWithCount } from 'src/api/job-apis'
+import { pickName } from 'src/utils/helperFuncs'
+import HeaderSearchSm from './../../SharedComponents/HeaderSearchSm/HeaderSearchSm'
 import Logo from './../../SharedComponents/Logo/Logo'
-import HeaderSearchLg from '../../SharedComponents/HeaderSearchLg'
 import NavLargScreen from './../NavLargScreen'
 import NavSmallScreen from './../NavSmallScreen'
-import HeaderSearchSm from './../../SharedComponents/HeaderSearchSm/HeaderSearchSm'
 import './Header.css'
-import SearchBox from 'src/Components/SharedComponents/SearchBox'
-import { useTranslation } from 'react-i18next'
-import { getSkills } from 'src/api/job-apis'
-import { pickName } from 'src/utils/helperFuncs'
-import { Link } from 'react-router-dom'
-import { MenuUnfoldOutlined } from '@ant-design/icons'
 
 export default function Header() {
   const { t, i18n } = useTranslation(['main'])
@@ -21,7 +19,7 @@ export default function Header() {
   const [skillShow, setSkillShow] = useState([])
 
   useEffect(() => {
-    getSkills({ limit: 10 }).then(res => {
+    getSkillsWithCount().then(res => {
       setSkillShow(res?.data)
       console.log(res.data)
     })
@@ -87,22 +85,28 @@ export default function Header() {
         <NavSmallScreen />
       </div>
       <div
-        className="second-nav-cn pt-2 pb-1 d-xl-block d-none"
+        className="second-nav-cn pt-2 d-xl-block d-none mt-1"
         style={{
-          background: '#8c56c7',
+          background: '#6a60c8',
           color: 'white',
+          paddingBottom: 1,
         }}
       >
         <ul
-          className="d-flex align-items-center container"
+          className="d-flex align-items-baseline justify-content-center"
           style={{
             color: 'white',
           }}
         >
           {skillShow.map(s => (
-            <li key={s?._id}>
-              <Link to={`/search?skillId=${s?._id}`} className="fs-7">
-                {pickName(s, i18n.language)}
+            <li
+              key={s?._id?.id}
+              style={{
+                width: 'auto',
+              }}
+            >
+              <Link to={`/search?skillId=${s?._id?.id}`}>
+                {pickName(s?._id, i18n.language)}({s?.count})
               </Link>
             </li>
           ))}

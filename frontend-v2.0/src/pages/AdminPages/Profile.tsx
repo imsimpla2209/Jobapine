@@ -1,167 +1,106 @@
-import { useState } from "react";
+import { useState } from 'react'
 
-import {
-  Row,
-  Col,
-  Card,
-  Button,
-  List,
-  Descriptions,
-  Avatar,
-  Radio,
-  Switch,
-  Upload,
-  message,
-} from "antd";
+import { Avatar, Button, Card, Col, Descriptions, InputNumber, Modal, Radio, Row, Switch, Upload, message } from 'antd'
 
-import {
-  FacebookOutlined,
-  TwitterOutlined,
-  InstagramOutlined,
-  VerticalAlignTopOutlined,
-} from "@ant-design/icons";
+import { VerticalAlignTopOutlined } from '@ant-design/icons'
 
-import BgProfile from "pages/AdminPages/assets/images/bg-profile.jpg";
-import profilavatar from "pages/AdminPages/assets/images/face-1.jpg";
-import convesionImg from "pages/AdminPages/assets/images/face-3.jpg";
-import convesionImg2 from "pages/AdminPages/assets/images/face-4.jpg";
-import convesionImg3 from "pages/AdminPages/assets/images/face-5.jpeg";
-import convesionImg4 from "pages/AdminPages/assets/images/face-6.jpeg";
-import convesionImg5 from "pages/AdminPages/assets/images/face-2.jpg";
-import project1 from "pages/AdminPages/assets/images/home-decor-1.jpeg";
-import project2 from "pages/AdminPages/assets/images/home-decor-2.jpeg";
-import project3 from "pages/AdminPages/assets/images/home-decor-3.jpeg";
-import { useTranslation } from "react-i18next";
-import { useSubscription } from "src/libs/global-state-hook";
-import { userStore } from "src/Store/user.store";
+import BgProfile from 'pages/AdminPages/assets/images/bg-profile.jpg'
+import profilavatar from 'pages/AdminPages/assets/images/face-1.jpg'
+import { useTranslation } from 'react-i18next'
+import { appInfoStore } from 'src/Store/commom.store'
+import { userStore } from 'src/Store/user.store'
+import { useSubscription } from 'src/libs/global-state-hook'
+import { currencyFormatter } from 'src/utils/helperFuncs'
+import { updateAppInfo } from 'src/api/admin-apis'
+import toast from 'react-hot-toast'
 
 function Profile() {
-  const [imageURL, setImageURL] = useState('');
-  const [, setLoading] = useState(false);
+  const [imageURL, setImageURL] = useState('')
+  const [, setLoading] = useState(false)
   const { t } = useTranslation(['main'])
-  const { state, setState } = useSubscription(userStore);
-
+  const { state, setState } = useSubscription(userStore)
+  const { state: appInfo, setState: setAppInfo } = useSubscription(appInfoStore)
+  const [editSickData, setEditSickData] = useState<any>(appInfo)
 
   const getBase64 = (img, callback) => {
-    const reader = new FileReader();
-    reader.addEventListener("load", () => callback(reader.result));
-    reader.readAsDataURL(img);
-  };
+    const reader = new FileReader()
+    reader.addEventListener('load', () => callback(reader.result))
+    reader.readAsDataURL(img)
+  }
 
-  const beforeUpload = (file) => {
-    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+  const beforeUpload = file => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
     if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG file!");
+      message.error('You can only upload JPG/PNG file!')
     }
-    const isLt2M = file.size / 1024 / 1024 < 2;
+    const isLt2M = file.size / 1024 / 1024 < 2
     if (!isLt2M) {
-      message.error("Image must smaller than 2MB!");
+      message.error('Image must smaller than 2MB!')
     }
-    return isJpgOrPng && isLt2M;
-  };
+    return isJpgOrPng && isLt2M
+  }
 
-  const handleChange = (info) => {
-    if (info.file.status === "uploading") {
-      setLoading(false);
-      return;
+  const handleChange = info => {
+    if (info.file.status === 'uploading') {
+      setLoading(false)
+      return
     }
-    if (info.file.status === "done") {
-      getBase64(info.file.originFileObj, (imageUrl) => {
-        setLoading(false);
-        setImageURL('');
-      });
+    if (info.file.status === 'done') {
+      getBase64(info.file.originFileObj, imageUrl => {
+        setLoading(false)
+        setImageURL('')
+      })
     }
-  };
+  }
 
   const pencil = [
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      key={0}
-    >
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" key={0}>
       <path
         d="M13.5858 3.58579C14.3668 2.80474 15.6332 2.80474 16.4142 3.58579C17.1953 4.36683 17.1953 5.63316 16.4142 6.41421L15.6213 7.20711L12.7929 4.37868L13.5858 3.58579Z"
         className="fill-gray-7"
       ></path>
-      <path
-        d="M11.3787 5.79289L3 14.1716V17H5.82842L14.2071 8.62132L11.3787 5.79289Z"
-        className="fill-gray-7"
-      ></path>
+      <path d="M11.3787 5.79289L3 14.1716V17H5.82842L14.2071 8.62132L11.3787 5.79289Z" className="fill-gray-7"></path>
     </svg>,
-  ];
+  ]
 
   const uploadButton = (
     <div className="ant-upload-text font-semibold text-dark">
-      {<VerticalAlignTopOutlined style={{ width: 20, color: "#000" }} />}
+      {<VerticalAlignTopOutlined style={{ width: 20, color: '#000' }} />}
       <div>Upload New Project</div>
     </div>
-  );
+  )
 
-  const data = [
-    {
-      title: "Sophie B.",
-      avatar: convesionImg,
-      description: "Hi! I need more information…",
-    },
-    {
-      title: "Anne Marie",
-      avatar: convesionImg2,
-      description: "Awesome work, can you…",
-    },
-    {
-      title: "Ivan",
-      avatar: convesionImg3,
-      description: "About files I can…",
-    },
-    {
-      title: "Peterson",
-      avatar: convesionImg4,
-      description: "Have a great afternoon…",
-    },
-    {
-      title: "Nick Daniel",
-      avatar: convesionImg5,
-      description: "Hi! I need more information…",
-    },
-  ];
+  const [openEditSick, setOpenEditSick] = useState(false)
+  const [confirmLoading, setConfirmLoading] = useState(false)
+  const [modalText, setModalText] = useState('Content of the modal')
 
-  const project = [
-    {
-      img: project1,
-      titlesub: "Project #1",
-      title: "Modern",
-      disciption:
-        "As Uber works through a huge amount of internal management turmoil.",
-    },
-    {
-      img: project2,
-      titlesub: "Project #2",
-      title: "Scandinavian",
-      disciption:
-        "Music is something that every person has his or her own specific opinion about.",
-    },
-    {
-      img: project3,
-      titlesub: "Project #3",
-      title: "Minimalist",
-      disciption:
-        "Different people have different taste, and various types of music, Zimbali Resort",
-    },
-  ];
+  const showModal = () => {
+    setOpenEditSick(true)
+  }
+
+  const handleOk = () => {
+    setModalText('Please wait...')
+    setConfirmLoading(true)
+    updateAppInfo(editSickData).then(() => {
+      toast.success('Updated successfully')
+    }).finally(() => {
+      setOpenEditSick(false)
+      setConfirmLoading(false)
+    })
+  }
+
+  const handleCancel = () => {
+    console.log('Clicked cancel button')
+    setOpenEditSick(false)
+  }
 
   return (
     <>
-      <div
-        className="profile-nav-bg"
-        style={{ backgroundImage: "url(" + BgProfile + ")" }}
-      ></div>
+      <div className="profile-nav-bg" style={{ backgroundImage: 'url(' + BgProfile + ')' }}></div>
 
       <Card
         className="card-profile-head"
-        bodyStyle={{ display: "none" }}
+        bodyStyle={{ display: 'none' }}
         title={
           <Row justify="space-between" align="middle" gutter={[24, 0]}>
             <Col span={24} md={12} className="col-info">
@@ -178,9 +117,9 @@ function Profile() {
               span={24}
               md={12}
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
               }}
             >
               <Radio.Group defaultValue="a">
@@ -198,7 +137,7 @@ function Profile() {
           <Card
             bordered={false}
             className="header-solid h-full"
-            title={<h6 className="font-semibold m-0">{t("Platform Setting")}</h6>}
+            title={<h6 className="font-semibold m-0">{t('Platform Setting')}</h6>}
           >
             <ul className="list settings-list">
               <li>
@@ -218,9 +157,7 @@ function Profile() {
                 <span>Email me when someone mentions me</span>
               </li>
               <li>
-                <h6 className="list-header text-sm text-muted m-0">
-                  APPLICATION
-                </h6>
+                <h6 className="list-header text-sm text-muted m-0">APPLICATION</h6>
               </li>
               <li>
                 <Switch defaultChecked />
@@ -240,70 +177,50 @@ function Profile() {
         <Col span={24} md={8} className="mb-24">
           <Card
             bordered={false}
-            title={<h6 className="font-semibold m-0">Profile Information</h6>}
+            title={<h6 className="font-semibold m-0">SickPoints</h6>}
             className="header-solid h-full card-profile-information"
-            extra={<Button type="link">{pencil}</Button>}
+            extra={
+              <Button type="link" onClick={showModal}>
+                {pencil}
+              </Button>
+            }
             bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
           >
-            <p className="text-dark">
-              {" "}
-              Hi, I’m Alec Thompson, Decisions: If you can’t decide, the answer
-              is no. If two equally difficult paths, choose the one more painful
-              in the short term (pain avoidance is creating an illusion of
-              equality).{" "}
+            <p className="text-dark"> Manage the Sick Points. </p>
+            <p>
+              <strong>Current Price/Per:</strong> {currencyFormatter(appInfo.sickCost)}
             </p>
             <hr className="my-25" />
-            <Descriptions title="Oliver Liam">
-              <Descriptions.Item label="Full Name" span={3}>
-                Sarah Emily Jacob
+            <Descriptions title="Current SickPoints Info for Freelancers" className="my-25">
+              <Descriptions.Item label="Submit Proposal Cost" span={3}>
+                {appInfo.freelancerSicks.proposalCost} Points
               </Descriptions.Item>
-              <Descriptions.Item label="Mobile" span={3}>
-                (44) 123 1234 123
+              <Descriptions.Item label="Withdraw Return" span={3}>
+                {appInfo.freelancerSicks.withdrawReturn} Points
               </Descriptions.Item>
-              <Descriptions.Item label="Email" span={3}>
-                sarahjacob@mail.com
+              <Descriptions.Item label="Invite Message Cost" span={3}>
+                {appInfo.freelancerSicks.inviteMsg} Points
               </Descriptions.Item>
-              <Descriptions.Item label="Location" span={3}>
-                USA
-              </Descriptions.Item>
-              <Descriptions.Item label="Social" span={3}>
-                <a href="#" className="mx-5 px-5">
-                  {<TwitterOutlined />}
-                </a>
-                <a href="#" className="mx-5 px-5">
-                  {<FacebookOutlined style={{ color: "#344e86" }} />}
-                </a>
-                <a href="#" className="mx-5 px-5">
-                  {<InstagramOutlined style={{ color: "#e1306c" }} />}
-                </a>
+              <Descriptions.Item label="Update Proposal Cost" span={3}>
+                {appInfo.freelancerSicks.updateProposalCost} Points
               </Descriptions.Item>
             </Descriptions>
-          </Card>
-        </Col>
-        <Col span={24} md={8} className="mb-24">
-          <Card
-            bordered={false}
-            title={<h6 className="font-semibold m-0">Conversations</h6>}
-            className="header-solid h-full"
-            bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
-          >
-            <List
-              itemLayout="horizontal"
-              dataSource={data}
-              split={false}
-              className="conversations-list"
-              renderItem={(item) => (
-                <List.Item actions={[<Button type="link">REPLY</Button>]}>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar shape="square" size={48} src={item.avatar} />
-                    }
-                    title={item.title}
-                    description={item.description}
-                  />
-                </List.Item>
-              )}
-            />
+            <hr className="my-25" />
+
+            <Descriptions title="Current SickPoints Info for Clients">
+              <Descriptions.Item label="Post Job Cost" span={3}>
+                {appInfo.clientSicks.postJob} Points
+              </Descriptions.Item>
+              <Descriptions.Item label="Update Job Cost" span={3}>
+                {appInfo.clientSicks.updateJob} Points
+              </Descriptions.Item>
+              <Descriptions.Item label="Create Contract Cost" span={3}>
+                {appInfo.clientSicks.createContract} Points
+              </Descriptions.Item>
+              <Descriptions.Item label="Delete Job Cost(only if the job already had proposals)" span={12}>
+                {appInfo.clientSicks.deleteJob} Points
+              </Descriptions.Item>
+            </Descriptions>
           </Card>
         </Col>
       </Row>
@@ -312,19 +229,14 @@ function Profile() {
         className="header-solid mb-24"
         title={
           <>
-            <h6 className="font-semibold">Projects</h6>
-            <p>Architects design houses</p>
+            <h6 className="font-semibold">Terms/Attachments</h6>
           </>
         }
       >
         <Row gutter={[24, 24]}>
-          {project.map((p, index) => (
+          {/* {project.map((p, index) => (
             <Col span={24} md={12} xl={6} key={index}>
-              <Card
-                bordered={false}
-                className="card-project"
-                cover={<img alt="example" src={p.img} />}
-              >
+              <Card bordered={false} className="card-project" cover={<img alt="example" src={p.img} />}>
                 <div className="card-tag">{p.titlesub}</div>
                 <h5>{p.title}</h5>
                 <p>{p.disciption}</p>
@@ -343,7 +255,7 @@ function Profile() {
                 </Row>
               </Card>
             </Col>
-          ))}
+          ))} */}
           <Col span={24} md={12} xl={6}>
             <Upload
               name="avatar"
@@ -354,17 +266,113 @@ function Profile() {
               beforeUpload={beforeUpload}
               onChange={handleChange}
             >
-              {imageURL ? (
-                <img src={imageURL} alt="avatar" style={{ width: "100%" }} />
-              ) : (
-                uploadButton
-              )}
+              {imageURL ? <img src={imageURL} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
             </Upload>
           </Col>
         </Row>
       </Card>
+      <Modal
+        title="Edit SickPoints data"
+        open={openEditSick}
+        onOk={handleOk}
+        confirmLoading={confirmLoading}
+        onCancel={handleCancel}
+      >
+        <Card
+          bordered={false}
+          title={<h6 className="font-semibold m-0">SickPoints</h6>}
+          className="header-solid h-full card-profile-information"
+          bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
+        >
+          <p className="text-dark"> Manage the Sick Points. </p>
+          <p>
+            <strong>Current Price/Per:</strong>{' '}
+            <InputNumber onChange={(v) => setEditSickData({...editSickData, sickCost: v })} defaultValue={appInfo.sickCost} prefix="VND" style={{ width: '100%' }} />{' '}
+          </p>
+          <hr className="my-25" />
+          <Descriptions title="Current SickPoints Info for Freelancers" className="my-25">
+            <Descriptions.Item label="Submit Proposal Cost" span={3}>
+              <InputNumber onChange={(v) => setEditSickData({
+                ...editSickData,
+                freelancerSicks: {
+                  ...editSickData.freelancerSicks,
+                  proposalCost: v
+                }
+              })} addonAfter="Points" defaultValue={appInfo.freelancerSicks.proposalCost} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Withdraw Return" span={3}>
+              <InputNumber onChange={(v) => setEditSickData({
+                ...editSickData,
+                freelancerSicks: {
+                  ...editSickData.freelancerSicks,
+                  withdrawReturn: v
+                }
+              })} addonAfter="Points" defaultValue={appInfo.freelancerSicks.withdrawReturn} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Invite Message Cost" span={3}>
+              <InputNumber onChange={(v) => setEditSickData({
+                ...editSickData,
+                freelancerSicks: {
+                  ...editSickData.freelancerSicks,
+                  inviteMsg: v
+                }
+              })} addonAfter="Points" defaultValue={appInfo.freelancerSicks.inviteMsg} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Update Proposal Cost" span={3}>
+              <InputNumber onChange={(v) => setEditSickData({
+                ...editSickData,
+                freelancerSicks: {
+                  ...editSickData.freelancerSicks,
+                  updateProposalCost: v
+                }
+              })} addonAfter="Points" defaultValue={appInfo.freelancerSicks.updateProposalCost} />
+            </Descriptions.Item>
+          </Descriptions>
+          <hr className="my-25" />
+
+          <Descriptions title="Current SickPoints Info for Clients">
+            <Descriptions.Item label="Post Job Cost" span={3}>
+              <InputNumber onChange={(v) => setEditSickData({
+                ...editSickData,
+                clientSicks: {
+                  ...editSickData.freelancerSicks,
+                  postJob: v
+                }
+              })} addonAfter="Points" defaultValue={appInfo.clientSicks.postJob} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Update Job Cost" span={3}>
+              <InputNumber onChange={(v) => setEditSickData({
+                ...editSickData,
+                clientSicks: {
+                  ...editSickData.freelancerSicks,
+                  updateJob: v
+                }
+              })} addonAfter="Points" defaultValue={appInfo.clientSicks.updateJob} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Create Contract Cost" span={3}>
+              <InputNumber onChange={(v) => setEditSickData({
+                ...editSickData,
+                clientSicks: {
+                  ...editSickData.freelancerSicks,
+                  createContract: v
+                }
+              })} addonAfter="Points" defaultValue={appInfo.clientSicks.createContract} />
+            </Descriptions.Item>
+            <Descriptions.Item label="Delete Job Cost(only if the job already had proposals)" span={12}>
+              <></>
+            </Descriptions.Item>
+          </Descriptions>
+          <InputNumber onChange={(v) => setEditSickData({
+                ...editSickData,
+                clientSicks: {
+                  ...editSickData.freelancerSicks,
+                  deleteJob: v
+                }
+              })} addonAfter="Points" defaultValue={appInfo.clientSicks.deleteJob} />
+        </Card>
+      </Modal>
     </>
-  );
+  )
 }
 
-export default Profile;
+export default Profile

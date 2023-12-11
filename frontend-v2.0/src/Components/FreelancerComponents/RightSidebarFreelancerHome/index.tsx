@@ -2,24 +2,21 @@
 
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
-import img from "../../../assets/img/icon-user.svg";
-import { Button, Col, Progress, Row, Space, Tooltip } from "antd";
-import { CheckCircleTwoTone, DollarTwoTone, FormOutlined } from "@ant-design/icons";
-import Title from "antd/es/typography/Title";
-import logo from "../../../assets/img/sickers.png";
-import proposal from "../../../assets/img/pending.png";
-import jobIC from "../../../assets/img/working.png";
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useNavigate } from 'react-router-dom'
+import img from '../../../assets/img/icon-user.svg'
+import { Button, Col, Progress, Row, Space, Tooltip } from 'antd'
+import { CheckCircleTwoTone, DollarTwoTone, FormOutlined } from '@ant-design/icons'
+import Title from 'antd/es/typography/Title'
+import logo from '../../../assets/img/sickers.png'
+import proposal from '../../../assets/img/pending.png'
+import jobIC from '../../../assets/img/working.png'
 
 export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
-
-  const { t } = useTranslation(['main']);
+  const { t } = useTranslation(['main'])
   const navigate = useNavigate()
-  useEffect(() => {
-
-  }, []);
+  useEffect(() => {}, [])
 
   return (
     <Row className="d-none d-lg-block mb-4" gutter={4}>
@@ -56,54 +53,81 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
                 }}
               >{`@${user.name}.`}</h5>
             </div>
-            <Space className="my-lg-1 w-100" align="center" style={{ justifyContent: 'center', alignItems: 'baseline' }}>
+            <Space
+              className=" w-100"
+              align="center"
+              style={{ justifyContent: 'center', alignItems: 'baseline' }}
+            >
               <Button onClick={() => navigate(`/profile/me`)} type="primary" icon={<i className="fas fa-eye me-2" />}>
                 {t('View Profile')}
               </Button>
               <div>
-                {
-                  freelancer?.isProfileVerified ? <p className="text-success text-center"><CheckCircleTwoTone className="me-2" />{t("Profile Verified")}</p> : <>
-                    {
-                      !freelancer?.isSubmitProfile ?
-                        <Link to={`/create-profile`} className="advanced-search-link">
-                          <FormOutlined /><span> {t("CompleteProfile")}</span>
-                        </Link> :
-                        <Link to={`/create-profile?isReview=${freelancer?.isSubmitProfile}`} className="advanced-search-link">
-                          <FormOutlined /><span> {t("Review profile")}</span>
-                        </Link>
-                    }
-
+                {freelancer?.isProfileVerified ? (
+                  <p className="text-success text-center">
+                    <CheckCircleTwoTone className="me-2" />
+                    {t('Profile Verified')}
+                  </p>
+                ) : (
+                  <>
+                    {!freelancer?.isSubmitProfile ? (
+                      <Link to={`/create-profile`} className="advanced-search-link">
+                        <FormOutlined />
+                        <span> {t('CompleteProfile')}</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        to={`/create-profile?isReview=${freelancer?.isSubmitProfile}`}
+                        className="advanced-search-link"
+                      >
+                        <FormOutlined />
+                        <span> {t('Review profile')}</span>
+                      </Link>
+                    )}
                   </>
-                }
-
+                )}
               </div>
             </Space>
-            <div style={{ width: 'auto', display: "flex", justifyContent: 'center' }}>
-              <Progress className="w-75" percent={freelancer?.profileCompletion || 0} status="active" strokeColor={{ from: '#803ade', to: '#fc2389' }} />
+            <div style={{ width: 'auto', display: 'flex', justifyContent: 'center' }}>
+              <Progress
+                className="w-75"
+                percent={freelancer?.profileCompletion || 0}
+                status="active"
+                strokeColor={{ from: '#803ade', to: '#fc2389' }}
+              />
             </div>
-            <Row style={{ background: '#f9f9f9', borderRadius: 20, padding: 16, margin: '2px 10px' }}>
-              <Col span={12} >
-                <Tooltip title={"Click to " + t("Buy SickPoints")} placement="topRight">
-                  <Button type="text" onClick={() => navigate('/proposals')} className="d-flex align-items-center">
-                    <img alt="sick" src={logo} style={{ marginRight: 6 }} height={20} />
-                    <span>{user.sickPoints} {t("Sick Points")}</span>
-                  </Button>
-                </Tooltip>
-              </Col>
-              <Col span={12} >
-                <Button className="mb-2" type="text" onClick={() => navigate('/proposals')}
-                  icon={<img alt="sick" src={proposal} style={{ marginRight: 8 }} height={24} />}>
-                  {freelancer?.proposals?.length} {t('Proposals')}
+            <Space size="small" 
+            style={{ background: '#f9f9f9', 
+            justifyContent: 'space-between',
+            borderRadius: 20, padding: 12, margin: '2px 4px', width: '100%'  }} 
+            wrap content='between'>
+              <Tooltip title={'Click to ' + t('Buy SickPoints')} placement="topRight">
+                <Button type="text" onClick={() => navigate('/buyConnects')} 
+                className=""
+                icon={<img alt="sick" src={logo} style={{ marginRight: 6 }} height={20} />}
+                >                  
+                    {user.sickPoints} Points
                 </Button>
-                <Button type="text" onClick={() => navigate('/my-jobs')}
-                  icon={<img alt="sick" src={jobIC} style={{ marginRight: 8 }} height={24} />}>
-                  {freelancer?.jobs?.length} {t('Jobs')}
-                </Button>
-              </Col>
-            </Row>
+              </Tooltip>
+
+              <Button
+                className=""
+                type="text"
+                onClick={() => navigate('/proposals')}
+                icon={<img alt="sick" src={proposal} style={{ marginRight: 0 }} height={22} />}
+              >
+                {freelancer?.proposals?.length} {t('Proposals')}
+              </Button>
+              <Button
+                type="text"
+                onClick={() => navigate('/my-jobs')}
+                icon={<img alt="sick" src={jobIC} style={{ marginRight: 0 }} height={22} />}
+              >
+                {freelancer?.jobs?.length} {t('Jobs')}
+              </Button>
+            </Space>
           </div>
         </div>
       </Col>
     </Row>
-  );
+  )
 }

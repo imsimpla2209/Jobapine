@@ -19,8 +19,10 @@ router
   .patch(auth(), validate(freelancerValidation.createProfileFreelancer), freelancerController.createProfile)
 router.route('/tracking').get(auth(), freelancerController.getFreelancerTracking)
 router.route('/tracking/top-type').get(auth(), freelancerController.getTopCurrentTypeTracking)
+router.route('/tracking/top').get(auth(), freelancerController.getTopTrackingPoints)
 router.route('/tracking/current-jobs').get(auth(), freelancerController.getLastestTopJobs)
 router.route('/tracking/current-type').get(auth(), freelancerController.getLastestTopType)
+router.route('/tracking/intend').get(auth(), freelancerController.getFreelancerIntend)
 router.route('/tracking').patch(auth(), freelancerController.updateFreelancerTracking)
 router.route('/tracking/all').delete(auth(), freelancerController.deleteAllFreelancerTracking)
 router

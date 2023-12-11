@@ -4,7 +4,8 @@
 import { HeartFilled, HeartOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { appInfoStore } from "src/Store/commom.store";
 import { freelancerStore, userStore } from "src/Store/user.store";
 import { updateFreelancer } from "src/api/freelancer-apis";
 import { useSubscription } from "src/libs/global-state-hook";
@@ -14,11 +15,17 @@ export default function ConnectsAndSubmit() {
   const { id } = useParams();
   const freelancer = useSubscription(freelancerStore).state;
   const user = useSubscription(userStore).state;
+  const appInfo = useSubscription(appInfoStore).state;
   // let [text, setText] = useState("");
   const [jobProposal, setjobProposal] = useState(false);
   const navigate = useNavigate();
   const [isliked, setisliked] = useState(false)
   const setState = useSubscription(freelancerStore).setState;
+
+
+  const [searchParams, setSearchParams] = useSearchParams()
+	const isRcmd = searchParams.get('isRcmd')
+
 
   useEffect(() => {
     // db.collection("freelancer")
@@ -113,8 +120,8 @@ export default function ConnectsAndSubmit() {
         {!jobProposal ? (
           <button
             className="btn bg-jobsicker"
-            onClick={(handleRout) => navigate(`/job/apply/${id}`)}
-            disabled={freelancer?.isProfileVerified === false || user.sickPoints < 2}
+            onClick={(handleRout) => navigate(`/job/apply/${id}?isRcmd=${isRcmd || false}`)}
+            disabled={freelancer?.isProfileVerified === false || user?.sickPoints < appInfo?.freelancerSicks?.proposalCost}
           >
             {t("Submit a proposal")}
           </button>
@@ -140,7 +147,7 @@ export default function ConnectsAndSubmit() {
 
       </div>
       <p>
-        {t("Required Connects to submit a proposal")}: 2
+        {t("Required Connects to submit a proposal")}: {appInfo?.freelancerSicks?.proposalCost}
       </p>
       <p>
         {t("Available Connects")}: {user.sickPoints}

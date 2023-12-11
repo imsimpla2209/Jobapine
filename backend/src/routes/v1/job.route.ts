@@ -19,6 +19,8 @@ router.route('/fav').get(validate(jobValidation.getRcmdJob), jobController.getFa
 router.route('/similar').get(validate(jobValidation.getSimilarJobs), jobController.getSimilarJobs)
 router.route('/categories').get(validate(jobValidation.getSimilarJobs), jobController.getCategories)
 router.route('/skills').get(validate(jobValidation.getSimilarJobs), getSkills)
+router.route('/skill-sum-by-jobs').get(validate(jobValidation.getJobs), jobController.sumBySkills)
+router.route('/cats-sum-by-jobs').get(validate(jobValidation.getJobs), jobController.sumByCats)
 router.route('/byFreelancerfav').get(auth(), validate(jobValidation.getJobs), jobController.getJobByFreelancerFav)
 router.route('/cur-interest').get(auth(), validate(jobValidation.getJobs), jobController.getCurrentInterestedJobs)
 router
@@ -27,6 +29,9 @@ router
 router
   .route('/cur-interest-type')
   .get(auth(), validate(jobValidation.getJobs), jobController.getCurrentInterestedJobsByType)
+router
+  .route('/top-interest-type')
+  .get(auth(), validate(jobValidation.getJobs), jobController.getTopInterestedJobsByType)
 router.route('/rcmd').get(auth(), validate(jobValidation.getRcmdJob), jobController.getRcmdJobs)
 
 router

@@ -54,8 +54,8 @@ export const bulkCreateNotify = async (notifyBodies: NewCreatedNotify[]): Promis
   }
 }
 
-export const createNotifyforAll = async (notifyBody: NewCreatedNotify): Promise<INotifyDoc> => {
-  await io.broadcastAll(ESocketEvent.SENDNOTIFY, notifyBody)
+export const createNotifyforAll = async (notifyBody: NewCreatedNotify, event?: ESocketEvent): Promise<INotifyDoc> => {
+  await io.broadcastAll(event || ESocketEvent.SENDNOTIFY, notifyBody)
   return Notify.create(notifyBody)
 }
 
@@ -329,31 +329,37 @@ export const updateInvitationStatusById = async (
       ]
     }
 
-    invitation?.status?.push({
-      status: EStatus.LATE,
-      comment: 'Invitation is expired',
-      date: new Date(),
-    })
+    else {
+      invitation?.status?.push({
+        status: EStatus.LATE,
+        comment: 'Invitation is expired',
+        date: new Date(),
+      })
+    }
 
     await invitation.save()
     throw new ApiError(httpStatus.NOT_FOUND, 'Invitation is Expired')
   }
-  if (!invitation?.status?.length) {
-    invitation.status = [
-      {
+  else {
+    if (!invitation?.status?.length) {
+      invitation.status = [
+        {
+          status,
+          comment,
+          date: new Date(),
+        },
+      ]
+    } else {
+      invitation?.status?.push({
         status,
         comment,
         date: new Date(),
-      },
-    ]
+      })
+    }
+  
+    await invitation.save()
   }
 
-  invitation?.status?.push({
-    status,
-    comment,
-    date: new Date(),
-  })
-  await invitation.save()
   return invitation
 }
 

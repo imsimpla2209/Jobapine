@@ -9,7 +9,6 @@ import { currencyFormatter, randomDate } from "src/utils/helperFuncs";
 
 export default function ClientInfo({ client }) {
 
-  console.log(client);
   const { t } = useTranslation(['main']);
   const locations = useSubscription(locationStore).state
 

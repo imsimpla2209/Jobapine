@@ -18,6 +18,12 @@ import {
   getUserSignUpStats,
 } from '../controllers/dashboard.controller'
 import { getAllUsers } from '../controllers/data.controller'
+import App from '../models/app.model'
+import { verifyJob } from '@modules/job/job.service'
+import mongoose from 'mongoose'
+import { createNotifyforAll } from '@modules/notify/notify.service'
+import { FEMessage } from 'common/enums/constant'
+import { ESocketEvent } from 'common/enums'
 
 export const adminRouter = express.Router()
 
@@ -141,3 +147,54 @@ adminRouter.get('/summarizeStats', auth('dashboard'), getDashboardSummarize)
 adminRouter.get('/yearPaymentStats', auth('dashboard'), getPaymentStats)
 adminRouter.get('/getUsers', auth('manageUsers'), getAllUsers)
 adminRouter.patch('/changeActiveUser/:userId', auth('manageUsers'), validate(userValidation.getUser), changeActiveUser)
+
+adminRouter.get('/app-info', async (req, res) => {
+  try {
+    const data = await App.findOne({}).lean()
+    delete data._id
+    delete data.__v
+    delete data['updatedAt']
+    delete data['createdAt']
+    if (!data) {
+      const newAppInfo = await App.create({})
+      delete newAppInfo._id
+      delete newAppInfo.__v
+      delete newAppInfo['updatedAt']
+      delete newAppInfo['createdAt']
+      res.status(200).send(newAppInfo)
+    } else {
+      res.status(200).send(data)
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      message: err.message,
+    })
+  }
+})
+
+adminRouter.patch('/app-info', auth('dashboard'), express.json(), async (req, res) => {
+  try {
+    await App.updateMany({}, req.body, { upsert: true })
+    createNotifyforAll({
+      path: '/buyconnects',
+      content: FEMessage().sickPointsChange,
+      to: undefined
+    }, ESocketEvent.SICKSETTING)
+    res.status(200).json({ success: 1 })
+  } catch (err: any) {
+    res.status(500).json({
+      message: err.message,
+    })
+  }
+})
+
+adminRouter.patch('/verify-job/:jobId', auth('manageContents'), express.json(), async (req, res) => {
+  try {
+    await verifyJob(new mongoose.Types.ObjectId(req.params.jobId))
+    res.status(200).json({ message: 'Successfully verified' })
+  } catch (err: any) {
+    res.status(500).json({
+      message: err.message,
+    })
+  }
+})

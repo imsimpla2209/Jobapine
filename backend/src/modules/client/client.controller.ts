@@ -9,6 +9,7 @@ import { IOptions } from '../../providers/paginate/paginate'
 import catchAsync from '../../utils/catchAsync'
 import pick from '../../utils/pick'
 import * as clientService from './client.service'
+import { Freelancer } from '@modules/freelancer'
 
 export const registerClient = catchAsync(async (req: Request, res: Response) => {
   const user = await clientService.registerClient(new mongoose.Types.ObjectId(req.body?.user), req.body)
@@ -79,4 +80,18 @@ export const reviewClient = catchAsync(async (req: Request, res: Response) => {
     await clientService.reviewClientById(new mongoose.Types.ObjectId(req.params.id), req.body)
     res.status(httpStatus.NO_CONTENT).send()
   }
+})
+
+export const getTopClients = (req: Request, res: Response) => {
+  
+}
+
+export const getCurrentRelateClientsForFreelancer = catchAsync(async (req: Request, res: Response) => {
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
+  const freelancer = await Freelancer.findOne({ user: new mongoose.Types.ObjectId(req?.user?._id as string) }).lean()
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+  }
+  const result = await clientService.getCurrentRelateClientsForFreelancer(freelancer, options)
+  res.send(result)
 })

@@ -13,7 +13,7 @@ router
 router.route('/review/:id').patch(auth(), validate(clientValidation.reviewClient), clientController.reviewClient)
 router.route('/get-by-options').patch(auth(), clientController.getClientByOption)
 router.route('/admin/:id').delete(auth(), validate(clientValidation.deleteClient), clientController.forcedDeleteClient)
-
+router.route('/rcmd/top').get(auth(), clientController.getCurrentRelateClientsForFreelancer)
 router
   .route('/verify-profile/:id')
   .patch(auth('manageUsers'), validate(clientValidation.getClient), clientController.verifyClientById)

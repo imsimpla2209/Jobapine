@@ -7,7 +7,7 @@ import { addApplytoJobById, addProposaltoJobById, isJobOpened } from '@modules/j
 import { Message } from '@modules/message'
 import { createNotify, deleteNotifyByOption } from '@modules/notify/notify.service'
 import { updateSickPointsById } from '@modules/user/user.service'
-import { EStatus } from 'common/enums'
+import { EPriority, EStatus } from 'common/enums'
 import { FEMessage, FERoutes } from 'common/enums/constant'
 import { logger } from 'common/logger'
 import httpStatus from 'http-status'
@@ -16,6 +16,8 @@ import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IProposalDoc, NewCreatedProposal, UpdateProposalBody } from './proposal.interfaces'
 import Proposal from './proposal.model'
+import App from '@modules/admin/models/app.model'
+import { sendCreatedNotifyProposal } from '@modules/forum/utils/mailer'
 
 /**
  * Register a proposal
@@ -33,7 +35,8 @@ export const createProposal = async (
   }
   let newProposal: any
   try {
-    updateSickPointsById(userId, 2 + (proposalBody?.priority || 0) * 2, true)
+    const appInfo = await App.findOne({})
+    updateSickPointsById(userId, appInfo?.freelancerSicks?.proposalCost + (proposalBody?.priority || 0) * 2, true)
 
     proposalBody['status'] = [
       {
@@ -43,12 +46,14 @@ export const createProposal = async (
       },
     ]
 
+    proposalBody['sickUsed'] = appInfo?.freelancerSicks?.proposalCost + (proposalBody?.priority || 0) * 2
+
     proposalBody['currentStatus'] = EStatus.PENDING
 
     newProposal = await Proposal.create(proposalBody)
     const jobInfo = await addProposaltoJobById(proposalBody.job, newProposal._id)
-    await addProposaltoFreelancerById(proposalBody.freelancer, newProposal._id)
-    await addApplytoJobById(proposalBody.job, proposalBody.freelancer)
+    const freelancer = await addProposaltoFreelancerById(proposalBody.freelancer, newProposal._id)
+    const job = await addApplytoJobById(proposalBody.job, proposalBody.freelancer)
 
     createNotify({
       to: jobInfo?.client?.user,
@@ -56,6 +61,18 @@ export const createProposal = async (
       attachedId: newProposal?._id,
       content: FEMessage(jobInfo?.title).createProposal,
     })
+
+    if (proposalBody?.priority > EPriority.MEDIUM) {
+      sendCreatedNotifyProposal(
+        job?.client?.user?.email,
+        job?.client?.user?.name,
+        FERoutes.jobDetail + (jobInfo?._id || ''),
+        freelancer?.user?.name,
+        job?.title,
+        proposalBody
+      )
+    }
+
     return newProposal
   } catch (err: any) {
     Proposal.findByIdAndDelete(newProposal?._id)
@@ -86,7 +103,7 @@ export const queryProposals = async (filter: Record<string, any>, options: IOpti
   options.populate = 'job.client'
 
   if (!options.sortBy) {
-    options.sortBy = 'updatedAt:desc'
+    options.sortBy = 'updatedAt:desc,priority:desc'
   }
   const proposals = await Proposal.paginate(queryFilter, options)
   return proposals
@@ -131,13 +148,24 @@ export const updateProposalById = async (
   force = false
 ): Promise<IProposalDoc | null> => {
   try {
-    const proposal = await getProposalById(proposalId)
+    const proposal = await Proposal.findById(proposalId).populate('freelancer')
     if (!proposal) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
     }
     if (proposal.currentStatus === EStatus.ACCEPTED && !force) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Proposal is already accepted')
     }
+    const isJobOpen = await isJobOpened(proposal?.job?._id || proposal?.job?.id, proposal as IProposalDoc, false)
+    if (!isJobOpen) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'The job is not open anymore')
+    }
+    const appInfo = await App.findOne({})
+    updateSickPointsById(
+      proposal?.freelancer?.user,
+      appInfo?.freelancerSicks?.updateProposalCost + (proposal?.priority || 0) * 2,
+      true
+    )
+
     Object.assign(proposal, updateBody)
     await proposal.save()
     return proposal
@@ -268,7 +296,11 @@ export const withdrawProposalById = async (
   proposalId: mongoose.Types.ObjectId,
   freelancerId: mongoose.Types.ObjectId
 ): Promise<IProposalDoc | null> => {
-  const proposal = await getProposalByOptions({ _id: proposalId, freelancer: freelancerId })
+  const proposal = await Proposal.findOne({ _id: proposalId, freelancer: freelancerId }).populate('freelancer')
+  const isJobOpen = await isJobOpened(proposal.job, proposal as IProposalDoc, false)
+  if (!isJobOpen) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'The job is not open anymore')
+  }
   if (!proposal) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Proposal not found')
   }
@@ -278,20 +310,85 @@ export const withdrawProposalById = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Proposal`s Job not found')
   }
 
+  updateSickPointsById(proposal?.freelancer?.user, proposal?.sickUsed || 2, false)
+
   job.proposals = job.proposals.filter(p => p._id !== proposal._id)
+  job.appliedFreelancers = job.appliedFreelancers.filter(p => p !== proposal?.freelancer?._id)
 
-  Object.assign(proposal, {
-    status: {
-      status: EStatus.ARCHIVE,
-      comment: 'Withdraw by Freelancer',
-      date: new Date(),
-    },
-  })
 
-  await proposal.save()
+
+  updateProposalStatusById(proposal?.id, EStatus.ARCHIVE, 'Withdraw by Freelancer')
+
+  // Object.assign(proposal, {
+  //   status: {
+  //     status: EStatus.ARCHIVE,
+  //     comment: 'Withdraw by Freelancer',
+  //     date: new Date(),
+  //   },
+  // })
+
+  // await proposal.save()
   deleteNotifyByOption({ attachedId: proposal?._id })
   await job.save()
   return proposal
+}
+
+/**
+ * Register a proposal
+ * @param {NewCreatedProposal} proposalBody
+ * @param {ObjectId} userId
+ * @returns {Promise<IProposalDoc>}
+ */
+export const reSubmitProposal = async (
+  proposalId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId,
+): Promise<IProposalDoc> => {
+  const proposal = await Proposal.findById(proposalId).populate({
+    path: 'freelancer',
+    populate: { path: 'user' },
+  })
+  if (!proposal) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Not found proposal!')
+  }
+  const isJobOpen = await isJobOpened(proposal.job, proposal as IProposalDoc)
+  if (!isJobOpen) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Either you or your proposal is incompatible with job!')
+  }
+  try {
+    const appInfo = await App.findOne({})
+    // updateSickPointsById(proposal?.freelancer?.user?._id, appInfo?.freelancerSicks?.proposalCost + (proposal?.priority || 0) * 2, true)
+
+    updateProposalStatusById(proposalId, EStatus.PENDING, 'Re-Submit after withdrawn by freelancer')
+
+    proposal['currentStatus'] = EStatus.PENDING
+
+    const jobInfo = await addProposaltoJobById(proposal.job, proposal._id)
+    const job = await addApplytoJobById(proposal.job, proposal.freelancer)
+
+    createNotify({
+      to: jobInfo?.client?.user,
+      path: FERoutes.jobDetail + (jobInfo?._id || ''),
+      attachedId: proposal?._id,
+      content: FEMessage(jobInfo?.title).createProposal,
+    })
+
+    if (proposal?.priority > EPriority.MEDIUM) {
+      sendCreatedNotifyProposal(
+        job?.client?.user?.email,
+        job?.client?.user?.name,
+        FERoutes.jobDetail + (jobInfo?._id || ''),
+        proposal?.freelancer?.user?.name,
+        job?.title,
+        proposal
+      )
+    }
+
+    return proposal
+  } catch (err: any) {
+    Proposal.findByIdAndDelete(proposal?._id)
+    logger.error('cannot create proposal', err)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'cannot create proposals')
+  }
 }
 
 /**

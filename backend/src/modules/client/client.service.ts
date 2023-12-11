@@ -11,6 +11,10 @@ import ApiError from '../../common/errors/ApiError'
 import { IOptions, QueryResult } from '../../providers/paginate/paginate'
 import { IClientDoc, NewRegisteredClient, UpdateClientBody } from './client.interfaces'
 import Client from './client.model'
+import { IFreelancerDoc } from '@modules/freelancer/freelancer.interfaces'
+import { getTopTrackingPoint } from '@modules/freelancer/freelancer.service'
+import { redisInsance } from '@core/databases/Redis'
+import logger from 'common/logger/logger'
 
 /**
  * Register a client
@@ -159,7 +163,119 @@ export const reviewClientById = async (
   if (!client) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Client not found')
   }
-  Object.assign(client, { review: client?.reviews?.push(review) })
+  client['reviews'] = [...client?.reviews, review]
   await client.save()
   return client
+}
+
+export const getCurrentRelateClientsForFreelancer = async (
+  freelancer: IFreelancerDoc,
+  options?: IOptions,
+  inputType?: any
+): Promise<any | null> => {
+  try {
+    if (!freelancer) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Freelancer not found')
+    }
+
+    const cacheKey = `similarClient:${freelancer?._id?.toString()}`
+
+    const cachedData = await redisInsance.getValue(cacheKey)
+    if (cachedData) {
+      logger.info(`get similar Clients from cache for freelancerId: ${cacheKey}`)
+      return JSON.parse(cachedData)
+    }
+
+    const type = inputType || (await getTopTrackingPoint(freelancer))
+
+    const matchingClient = await Client.aggregate([
+      // {
+      //   $match: {
+      //     is: 'open',
+      //   },
+      // },
+      {
+        $addFields: {
+          totalMatchingPoints: {
+            $sum: [
+              {
+                $reduce: {
+                  input: '$findingSkills',
+                  initialValue: 0,
+                  in: {
+                    $add: [
+                      '$$value',
+                      {
+                        $let: {
+                          vars: {
+                            matchedSkill: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: type?.skillRankings?.map(
+                                      s => ({skill: new mongoose.Types.ObjectId(s?.skill), totalPoints: s?.totalPoints})),
+                                    as: 'sr',
+                                    cond: { $eq: ['$$sr.skill', '$$this'] },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                          in: '$$matchedSkill.totalPoints',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                $reduce: {
+                  input: '$preferJobType',
+                  initialValue: 0,
+                  in: {
+                    $add: [
+                      '$$value',
+                      {
+                        $let: {
+                          vars: {
+                            matchedCategory: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: type?.categoryRankings?.map(
+                                      s => ({skill: new mongoose.Types.ObjectId(s?.category), totalPoints: s?.totalPoints})
+                                    ),
+                                    as: 'cr',
+                                    cond: { $eq: ['$$cr.category', '$$this'] },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                          in: '$$matchedCategory.totalPoints',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: { totalMatchingPoints: -1 },
+      },
+      {
+        $limit: options?.limit || 15,
+      },
+    ])
+
+    return matchingClient
+  } catch (error: any) {
+    logger.error(`Error finding related clients:${error}`)
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)
+  }
 }

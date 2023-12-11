@@ -41,7 +41,7 @@ const freelancerTrackingSchema = new mongoose.Schema<IFreelancerTrackingDoc, IFr
             required: 'false',
             default: [],
           },
-          lastTimeView: { type: SchemaTypes.Long, required: 'false', default: 0 },
+          lastTimeView: { type: String, required: 'false' },
         },
         required: 'false',
       },
@@ -73,7 +73,7 @@ const freelancerTrackingSchema = new mongoose.Schema<IFreelancerTrackingDoc, IFr
             required: 'false',
             default: [],
           },
-          lastTimeView: { type: SchemaTypes.Long, required: 'false', default: 0 },
+          lastTimeView: { type: String, required: 'false' },
         },
         required: 'false',
       },
@@ -105,7 +105,7 @@ const freelancerTrackingSchema = new mongoose.Schema<IFreelancerTrackingDoc, IFr
             required: 'false',
             default: [],
           },
-          lastTimeView: { type: SchemaTypes.Long, required: 'false', default: 0 },
+          lastTimeView: { type: String, required: 'false' },
         },
         required: 'false',
       },
@@ -137,7 +137,7 @@ const freelancerTrackingSchema = new mongoose.Schema<IFreelancerTrackingDoc, IFr
             required: 'false',
             default: [],
           },
-          lastTimeView: { type: SchemaTypes.Long, required: 'false', default: 0 },
+          lastTimeView: { type: String, required: 'false' },
         },
         required: 'false',
       },
@@ -147,14 +147,6 @@ const freelancerTrackingSchema = new mongoose.Schema<IFreelancerTrackingDoc, IFr
     timestamps: true,
   }
 )
-
-freelancerTrackingSchema.pre('save', function (done) {
-  if (this.isModified('status')) {
-    const status = this.get('status').at(-1)?.status
-    this.set('currentStatus', status)
-  }
-  done()
-})
 
 const FreelancerTracking = mongoose.model<IFreelancerTrackingDoc, IFreelancerTrackingModel>(
   'FreelancerTracking',

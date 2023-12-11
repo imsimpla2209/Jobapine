@@ -5,6 +5,7 @@
 import SibApiV3Sdk from 'sib-api-v3-sdk'
 import config from '@config/config'
 import ApiErrorResponse from './ApiErrorResponse'
+import { currencyFormatter } from 'utils/calculator'
 // const oauth_url = "https://developers.google.com/oauthplayground";
 
 const initStmp = async () => {
@@ -115,7 +116,6 @@ export const sendResetPassword = async (email: string, name: string, code: strin
  */
 export const sendResetPasswordEmail = async (to: string, token: string): Promise<void> => {
   const subject = 'Reset password'
-  // replace this url with the link to the reset password page of your front-end app
   const resetPasswordUrl = `${config.clientUrl}/#/reset-password?token=${token}`
   const text = `Hi,
   To reset your password, click on this link: ${resetPasswordUrl}
@@ -137,7 +137,6 @@ export const sendResetPasswordEmail = async (to: string, token: string): Promise
  */
 export const sendVerificationEmailFunc = async (to: string, token: string, name: string): Promise<void> => {
   const subject = 'Email Verification'
-  // replace this url with the link to the email verification page of your front-end app
   const verificationEmailUrl = `${config.clientUrl}/#/email-verification?token=${token}`
   const text = `Hi ${name},
   To verify your email, click on this link: ${verificationEmailUrl}
@@ -145,6 +144,26 @@ export const sendVerificationEmailFunc = async (to: string, token: string, name:
   const html = `<div style="margin:30px; padding:30px; border:1px solid black; border-radius: 20px 10px;"><h4><strong>Hi ${name},</strong></h4>
   <p>To verify your email, click on this link: ${verificationEmailUrl}</p>
   <p>If you did not create an account, then ignore this email.</p></div>
+  <p><strong>JobSickers Application - best Vietnamese Job Marketplace</strong></p></div>
+  `
+  await sendEmailFunc(to, html, subject, text)
+}
+
+export const sendCreatedNotifyProposal = async (to: string, name: string, url: string, nameFrom: string, jobName: string, proposal: any): Promise<void> => {
+  const subject = 'New Proposal has been submitted to your job'
+  const text = `Hi ${name},
+  A good Freelancer - ${nameFrom} just submit a proposal to your job - ${jobName}, check it now on this link:${config.clientUrl}/#${url}
+  If you did not create an account, then ignore this email.`
+  const html = `<div style="margin:30px; padding:30px; border:1px solid black; border-radius: 20px 10px;"><h4><strong>Hi ${name},</strong></h4>
+  <p>Check it now: ${config.clientUrl}/#${url}</p>
+  <p><strong>Cover Letter: </strong>${proposal?.description}</p>
+  <p><strong>Expected Amount: </strong>${currencyFormatter(proposal?.expectedAmount)}</p>
+  <strong>Attchments: </strong>
+  ${
+    proposal?.attachment?.map((a, ix) => (
+      `<a href={${a}}>Attachment - ${ix}</a>`
+    ))
+  }
   <p><strong>JobSickers Application - best Vietnamese Job Marketplace</strong></p></div>
   `
   await sendEmailFunc(to, html, subject, text)
@@ -159,7 +178,6 @@ export const sendVerificationEmailFunc = async (to: string, token: string, name:
  */
 export const sendSuccessfulRegistration = async (to: string, token: string, name: string): Promise<void> => {
   const subject = 'Email Verification'
-  // replace this url with the link to the email verification page of your front-end app
   const verificationEmailUrl = `${config.clientUrl}/#/email-verification?token=${token}`
   const text = `Hi ${name},
   Congratulations! Your account has been created. 
@@ -185,7 +203,6 @@ export const sendSuccessfulRegistration = async (to: string, token: string, name
  */
 export const sendAccountCreated = async (to: string, name: string): Promise<void> => {
   const subject = 'Account Created Successfully'
-  // replace this url with the link to the email verification page of your front-end app
   const loginUrl = `${config.clientUrl}/auth/login`
   const text = `Hi ${name},
   Congratulations! Your account has been created successfully. 

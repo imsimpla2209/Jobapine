@@ -3,7 +3,7 @@ import { Button, Flex, Input, List, Modal, Rate, Space, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { clientStore, userStore } from 'src/Store/user.store'
+import { clientStore, freelancerStore, userStore } from 'src/Store/user.store'
 import { updateClient } from 'src/api/client-apis'
 import { reviewFreelancer } from 'src/api/freelancer-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
@@ -17,7 +17,7 @@ const IconText = ({ icon, text }: { icon: React.ReactElement; text: string | num
   </Space>
 )
 
-export default function ContractsInJob({ contracts, setForceUpdate, loadingContract }) {
+export default function ContractsInJob({ contracts, setForceUpdate, loadingContract }: any) {
   const { t } = useTranslation(['main'])
   const {
     state: { favoriteFreelancers, id, name },
@@ -29,6 +29,8 @@ export default function ContractsInJob({ contracts, setForceUpdate, loadingContr
   const [rate, setRate] = useState(0)
   const [review, setReview] = useState('')
   const [reviewing, setReviewing] = useState(false)
+
+  const { state: loggedFreelancer } = useSubscription(freelancerStore)
 
   useEffect(() => {
     setFavFreelancers(favoriteFreelancers || [])
@@ -87,7 +89,7 @@ export default function ContractsInJob({ contracts, setForceUpdate, loadingContr
           return (
             <List.Item
               key={index}
-              actions={[
+              actions={loggedFreelancer?._id !== freelancer?._id ? [
                 <Button
                   type="link"
                   size="small"
@@ -155,7 +157,7 @@ export default function ContractsInJob({ contracts, setForceUpdate, loadingContr
                     key="list-vertical-like-o"
                   />
                 </Button>,
-              ]}
+              ] : []}
             >
               <List.Item.Meta
                 title={<Link to={`/freelancer-profile/${freelancer._id}`}>{freelancer.name}</Link>}
