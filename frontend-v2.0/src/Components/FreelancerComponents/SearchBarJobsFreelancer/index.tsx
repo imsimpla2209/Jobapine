@@ -108,7 +108,13 @@ export default function SearchBarJobsFreelancer({
               placeholder={t('Search For Jobs')}
             />
           ) : (
-            <Input.Search  onChange={handle} size="large" placeholder={t('Search For Jobs')} enterButton  value={textSearch}></Input.Search>
+            <Input.Search
+              onChange={handle}
+              size="large"
+              placeholder={t('Search For Jobs')}
+              enterButton
+              value={textSearch}
+            ></Input.Search>
           )}
         </AutoComplete>
       </ConfigProvider>
@@ -125,7 +131,7 @@ export default function SearchBarJobsFreelancer({
             </button>
           </Link>
         </div> */}
-      {showPath && (
+      {showPath ? (
         <span className="d-block pt-2">
           <Link
             to="/Search"
@@ -135,7 +141,7 @@ export default function SearchBarJobsFreelancer({
             {t('AdvancedSearch')}
           </Link>
         </span>
-      )}
+      ) : null}
     </div>
   )
 }

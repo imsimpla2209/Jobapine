@@ -38,7 +38,7 @@ export interface IFilterOptions {
   nOEmployee?: any
 }
 
-export default function Search() {
+export default function Search({ noMargin = false }) {
   const { i18n, t } = useTranslation(['main'])
   let lang = i18n.language
   const [searchData, setsearchData] = useState([])
@@ -137,8 +137,10 @@ export default function Search() {
   useEffect(() => {
     if (!advancedSearchPageData?.state?.isFirstLoad && !skillParam && !categoryParam && !duration && !type) {
       handleSearh()
+    } else if (advancedSearchPageData?.state?.isFirstLoad) {
+      handleSearh()
     }
-  }, [])
+  }, [filterOption])
 
   const handleChangeComp = (c: any[]) => {
     advancedSearchData.setState({ ...advancedSearchData.state, complexity: c })
@@ -242,7 +244,7 @@ export default function Search() {
   }, [advancedSearchData, filterOption])
 
   return (
-    <div className="container-md container-fluid-sm my-lg-4">
+    <div className={`container-md container-fluid-sm ${noMargin ? '' : 'my-lg-4'}`}>
       <div className="row">
         <ConfigProvider
           theme={{
@@ -271,8 +273,7 @@ export default function Search() {
                 paddingBottom: 10,
               }}
             >
-              <hr />
-              <h5 className="mb-lg-4 display-inline-block">{t('FilterBy')}</h5>
+              <h5 className="mb-lg-4 display-inline-block mt-3">{t('FilterBy')}</h5>
               <hr />
               <h6 className="mb-lg-2 display-inline-block mt-lg-2 fw-bold">{t('Category')}</h6>
               <ul className="list-group sidebar-homebage-ul mb-lg-3 " style={{ fontSize: '0.9em' }}>
@@ -518,36 +519,39 @@ export default function Search() {
         </ConfigProvider>
         <div className="col-lg-9 col-xs-12 p-4" style={{ background: 'white', borderRadius: 8 }}>
           <div>
-            <div>
-              <ul
-                id="list-homepage"
-                className="navbar navbar-expand list-group-horizontal bg-white boder border-1 my-0"
-              >
-                <li className="list-group-item sidebar-homebage-ul-li bg-white boder border-0" aria-current="true">
-                  <Link to="/Search">
-                    <a
-                      href="#"
-                      className=" list-group-item-action saved-homebage-ul-li-aa active activesidesaved bg-white"
-                      aria-current="true"
-                    >
-                      {t('SEARCH')}
-                    </a>
-                  </Link>
-                </li>
-                <li className="list-group-item sidebar-homebage-ul-li bg-white boder border-0" aria-current="true">
-                  <Link to="/saved-jobs">
-                    <a
-                      href="#"
-                      className=" list-group-item-action saved-homebage-ul-li-aa bg-white"
-                      aria-current="true"
-                    >
-                      {t('SAVEDJOBS')}({freelancer?.favoriteJobs?.length || 0})
-                    </a>
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="row" style={{ borderTop: '1px solid #ccc', paddingTop: 24 }}>
+            {noMargin ? null : (
+              <div>
+                <ul
+                  id="list-homepage"
+                  className="navbar navbar-expand list-group-horizontal bg-white boder border-1 my-0"
+                >
+                  <li className="list-group-item sidebar-homebage-ul-li bg-white boder border-0" aria-current="true">
+                    <Link to="/Search">
+                      <a
+                        href="#"
+                        className=" list-group-item-action saved-homebage-ul-li-aa active activesidesaved bg-white"
+                        aria-current="true"
+                      >
+                        {t('SEARCH')}
+                      </a>
+                    </Link>
+                  </li>
+
+                  <li className="list-group-item sidebar-homebage-ul-li bg-white boder border-0" aria-current="true">
+                    <Link to="/saved-jobs">
+                      <a
+                        href="#"
+                        className=" list-group-item-action saved-homebage-ul-li-aa bg-white"
+                        aria-current="true"
+                      >
+                        {t('SAVEDJOBS')}({freelancer?.favoriteJobs?.length || 0})
+                      </a>
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
+            <div className="row" style={noMargin ? null : { borderTop: '1px solid #ccc', paddingTop: 24 }}>
               <div className="col-11">
                 <SearchBarJobsFreelancer
                   showPath={false}
@@ -564,18 +568,18 @@ export default function Search() {
                 icon={<SearchOutlined />}
               />
             </div>
-            <div
-              style={{
-                borderBottom: '2px solid #ccc',
-                borderRadius: 8,
-                paddingLeft: 8,
-                paddingRight: 8,
-                paddingTop: 8,
-                paddingBottom: 8,
-                width: '100%',
-              }}
-            >
-              {!isEmpty(filterOption) && (
+            {!isEmpty(filterOption) ? (
+              <div
+                style={{
+                  borderBottom: '2px solid #ccc',
+                  borderRadius: 8,
+                  paddingLeft: 8,
+                  paddingRight: 8,
+                  paddingTop: 8,
+                  paddingBottom: 8,
+                  width: '100%',
+                }}
+              >
                 <Space wrap>
                   {filterOption?.amount && <FilterTag color="#ff8c00">{filterOption.amount}</FilterTag>}
                   {filterOption?.budget && <FilterTag color="#ff8c00">{filterOption.budget}</FilterTag>}
@@ -626,8 +630,8 @@ export default function Search() {
                     {t('Clear Filter')}
                   </Button>
                 </Space>
-              )}
-            </div>
+              </div>
+            ) : null}
           </div>
           {advancedSearchPageData?.state?.isFirstLoad ? (
             <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
@@ -644,7 +648,7 @@ export default function Search() {
                 </div>
               ) : (
                 <div className="mt-3">
-                  <div>
+                  <div className="mb-4">
                     {t('Found')} {total} {t('Relevant Results')}
                   </div>
                   {searchData.length === 0 ? (
@@ -677,8 +681,8 @@ export default function Search() {
                         <Pagination
                           className="mt-5"
                           total={total}
-                          pageSize={advancedSearchPageData.state?.pageSize}
-                          current={advancedSearchPageData.state?.page}
+                          pageSize={advancedSearchPageData.state?.pageSize || 20}
+                          current={advancedSearchPageData.state?.page || 1}
                           showSizeChanger
                           showQuickJumper
                           responsive

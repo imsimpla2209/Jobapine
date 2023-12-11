@@ -1,7 +1,6 @@
 import Footer from 'Components/BeforeLoginComponents/Footer'
 import { SearchContextProvider } from 'Context/SearchContext'
 import AllContract from 'pages/ClientPages/AllContract'
-import AllJobPosts from 'pages/ClientPages/AllJobPost'
 import CreateContract from 'pages/ClientPages/CreateContract'
 import FreelancerList from 'pages/ClientPages/Freelancer'
 import JobDetailsBeforeProposals from 'pages/ClientPages/JobDetailsBeforeProposols'
@@ -27,6 +26,8 @@ import BuyConnects from 'src/pages/FreelancerPages/Reports/BuyConnects'
 import { handleCacheData, handleGetCacheData, miniSearch } from 'src/utils/handleData'
 import './styles.css'
 import MyHires from 'src/pages/ClientPages/Freelancer/my-hires'
+import AllJobPosts from 'src/pages/ClientPages/AllJobPost'
+import Search from 'src/pages/FreelancerPages/Search'
 
 export default function ClientRoutes() {
   const [freelancerArr, setfreelancerArr] = useState([])
@@ -63,7 +64,14 @@ export default function ClientRoutes() {
             <Route path="/home" element={<HomeLayout />} />
             <Route path="/" element={<HomeLayout />} />
             <Route path="/messages" element={<Messages />} />
-            <Route path="/all-job-posts" element={<AllJobPosts />} />
+            <Route
+              path="/all-job-posts"
+              element={
+                <div style={{ padding: '20px 0px' }}>
+                  <Search noMargin={true} />
+                </div>
+              }
+            />
             <Route path="/all-contract" element={<AllContract />} />
             <Route path="/post-job" element={<PostJob key={'post-job'} />} />
             <Route path="/job-details/:id" element={<JobDetailsBeforeProposals />} />
