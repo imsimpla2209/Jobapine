@@ -114,7 +114,7 @@ export default function HomeLayout() {
                   <Radio.Button value={EJobStatus.OPEN}>OPEN</Radio.Button>
                   <Radio.Button value={EJobStatus.PENDING}>PENDING</Radio.Button>
                   <Radio.Button value={EJobStatus.INPROGRESS}>IN PROGRESS</Radio.Button>
-                  <Radio.Button value={EJobStatus.CLOSED}>ARCHIVE</Radio.Button>
+                  <Radio.Button value={EJobStatus.CANCELLED}>ARCHIVE</Radio.Button>
                   <Radio.Button value={EJobStatus.COMPLETED}>COMPLETED</Radio.Button>
                 </Radio.Group>
                 {jobs ? (

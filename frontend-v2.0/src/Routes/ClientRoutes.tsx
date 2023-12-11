@@ -63,7 +63,7 @@ export default function ClientRoutes() {
             <Route path="/" element={<HomeLayout />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/all-job-posts" element={<AllJobPosts />} />
-            <Route path="/all-contracts" element={<AllContract />} />
+            <Route path="/all-contract" element={<AllContract />} />
             <Route path="/post-job" element={<PostJob key={'post-job'} />} />
             <Route path="/job-details/:id" element={<JobDetailsBeforeProposals />} />
             <Route path="/job-details/edit/:id" element={<PostJob isEdit={true} key={'edit-job'} />} />

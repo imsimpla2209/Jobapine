@@ -128,7 +128,7 @@ export default function NavSmallScreen() {
                 </Link>
               </li>
               <li>
-                <Link className="dropdown-item" to="/all-contracts">
+                <Link className="dropdown-item" to="/all-contract">
                   {t('All Contracts')}
                 </Link>
               </li>

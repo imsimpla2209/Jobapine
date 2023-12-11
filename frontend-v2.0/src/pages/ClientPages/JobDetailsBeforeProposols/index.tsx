@@ -29,7 +29,6 @@ export default function JobDetailsBeforeProposals() {
   const [forceUpdate, setForceUpdate] = useState(0)
   const [loadingContract, setloadingContract] = useState(false)
 
-  console.log('😘contracts', contracts)
   useEffect(() => {
     getJob(id).then(res => {
       setJobData(res.data)

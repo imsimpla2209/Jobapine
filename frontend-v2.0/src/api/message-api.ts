@@ -142,6 +142,10 @@ export const updateNotifies = (id: string, options: any) => {
   return Http.patch(`notify?to=${id}`, options)
 }
 
+export const updateNotify = (id: string, options: any) => {
+  return Http.patch(`notify/${id}`, options)
+}
+
 export const deleteNotify = (id: string) => {
   return instance.delete(`notify/${id}`)
 }

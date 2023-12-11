@@ -53,7 +53,7 @@ export const updateUser = {
       email: Joi.string().email(),
       password: Joi.string().custom(password),
       name: Joi.string(),
-      avatar: Joi.string(),
+      avatar: Joi.string().allow('', null),
       images: Joi.array().items(Joi.string()),
       dob: Joi.string(),
       address: Joi.string(),
