@@ -2,6 +2,7 @@ import { Card, ConfigProvider, Input, Pagination, Result, Row, Spin } from 'antd
 import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 import Saved from 'src/Components/ClientComponents/SavedComponent'
+import Loader from 'src/Components/SharedComponents/Loader/Loader'
 import { clientStore } from 'src/Store/user.store'
 import { filterFreelancers } from 'src/api/freelancer-apis'
 import { useSubscription } from 'src/libs/global-state-hook'
@@ -50,7 +51,7 @@ export default function FreelancerListCards({ filterOption, saved, searchKey }) 
   return (
     <>
       {loading ? (
-        <Spin />
+        <Loader />
       ) : listFreelancers?.length ? (
         <>
           {listFreelancers.map(freelancer => (

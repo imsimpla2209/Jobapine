@@ -36,6 +36,7 @@ import './styles.css'
 import AllContracts from 'src/pages/FreelancerPages/AllContracts'
 import ForumRoutes from './ForumRoutes'
 import ClientProfile from 'src/pages/FreelancerPages/ClientProfile'
+import TransactionHistory from 'src/pages/FreelancerPages/Reports/TransactionHistory'
 
 export default function FreelancerRoutes() {
   const [arr, setarr] = useState([])
@@ -69,50 +70,46 @@ export default function FreelancerRoutes() {
 
   return (
     <div className="background_general">
-        <Header />
-        <div>
-          <Routes>
-            <Route path="/create-profile" element={<CreateProfile />} />
-            <Route path="/find-work" element={<HomeFreelancer />} />
-            <Route path="/" element={<HomeFreelancer />} />
-            <Route path="/Search/:searchValue" element={<Search />} />
-            <Route path="/Search" element={<Search />} />
-            <Route path="/job/" element={<AllJobPosts />} />
-            <Route path="/job/:id" element={<JobDetailsFreelancer />} />
-            <Route path="/job-details/:id" element={<JobDetailsFreelancer />} />
-            <Route path="/fake-job" element={<JobDetails />} />
-            <Route path="/fake-job-list" element={<JobList />} />
-            <Route path="/job/apply/:id" element={<SubmitProposal />} />
-            <Route path="/job/review-proposal/:id" element={<ReviewProposalsCard />} />
-            <Route path="/job/applied/:id" element={<JobAppliedDetails />} />
-            <Route path="/saved-jobs" element={<SavedJobs />} />
-            <Route path="/proposals/:id" element={<Proposals />} />
-            <Route path="/proposals" element={<Proposals />} />
-            <Route path="/profile/:id" element={<Profile />} />
-            <Route path="/email-verification" element={<EmailVerified />} />
-            <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
-            <Route path="/my-stats" element={<MyStats />} />
-            <Route path="/my-jobs" element={<MyJobs />} />
-            <Route path="/all-contract" element={<AllContracts />} />
-            <Route path="/invitations" element={<Offers />} />
-            <Route path="/overview" element={<OverviewReports />} />
-            <Route path="/my-reports" element={<Reports />} />
-            <Route path="/life-time-billing" element={<BillingByClients />} />
-            <Route path="/connects-history" element={<ConnectsHistory />} />
-            <Route path="/buyconnects" element={<BuyConnects />} />
-            <Route path="/client-info/:clientId" element={<ClientProfile />} />
-            {/* <Route
-              path="/transaction-history"
-            
-              element={<TransactionHistory />}
-            /> */}
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/contract/:id" element={<Contract />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="*" element={<PageNotFound />} />
-            {/* <ForumRoutes /> */}
-          </Routes>
-        </div>
+      <Header />
+      <div>
+        <Routes>
+          <Route path="/create-profile" element={<CreateProfile />} />
+          <Route path="/find-work" element={<HomeFreelancer />} />
+          <Route path="/" element={<HomeFreelancer />} />
+          <Route path="/Search/:searchValue" element={<Search />} />
+          <Route path="/Search" element={<Search />} />
+          <Route path="/job/" element={<AllJobPosts />} />
+          <Route path="/job/:id" element={<JobDetailsFreelancer />} />
+          <Route path="/job-details/:id" element={<JobDetailsFreelancer />} />
+          <Route path="/fake-job" element={<JobDetails />} />
+          <Route path="/fake-job-list" element={<JobList />} />
+          <Route path="/job/apply/:id" element={<SubmitProposal />} />
+          <Route path="/job/review-proposal/:id" element={<ReviewProposalsCard />} />
+          <Route path="/job/applied/:id" element={<JobAppliedDetails />} />
+          <Route path="/saved-jobs" element={<SavedJobs />} />
+          <Route path="/proposals/:id" element={<Proposals />} />
+          <Route path="/proposals" element={<Proposals />} />
+          <Route path="/profile/:id" element={<Profile noMargin={false} />} />
+          <Route path="/email-verification" element={<EmailVerified />} />
+          <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
+          <Route path="/my-stats" element={<MyStats />} />
+          <Route path="/my-jobs" element={<MyJobs />} />
+          <Route path="/all-contract" element={<AllContracts />} />
+          <Route path="/invitations" element={<Offers />} />
+          <Route path="/overview" element={<OverviewReports />} />
+          <Route path="/my-reports" element={<Reports />} />
+          <Route path="/life-time-billing" element={<BillingByClients />} />
+          <Route path="/connects-history" element={<ConnectsHistory />} />
+          <Route path="/buyconnects" element={<BuyConnects />} />
+          <Route path="/client-info/:clientId" element={<ClientProfile />} />
+          <Route path="/transaction-history" element={<TransactionHistory />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/contract/:id" element={<Contract />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="*" element={<PageNotFound />} />
+          {/* <ForumRoutes /> */}
+        </Routes>
+      </div>
       <Footer />
     </div>
   )
