@@ -14,7 +14,11 @@ function RevenueChart() {
     getYearPaymentStats().then(res => setData(res.data))
   }, [])
 
-  console.log(data)
+  const currentMonth = data?.[11]?.totalAmount || 0
+  const lastMonth = data?.[10]?.totalAmount || 0
+  // Calculate percent change
+  const percentChange = ((currentMonth - lastMonth) / Math.abs(lastMonth)) * 100
+
   return (
     <>
       <div id="chart">
@@ -36,9 +40,15 @@ function RevenueChart() {
       </div>
       <div className="chart-vistior">
         <Title level={5}>Revenue</Title>
-        <Paragraph className="lastweek">{/* than last week <span className="bnb2">+30%</span> */}</Paragraph>
-        <Paragraph className="lastweek"></Paragraph>
-        {/* <Row>
+        <Paragraph className="lastweek">
+          than last month{' '}
+          <span className="bnb2">
+            {currentMonth > lastMonth ? '+' : '-'}
+            {percentChange}%
+          </span>
+        </Paragraph>
+        {/* <Paragraph className="lastweek"></Paragraph>
+        <Row>
           {items.map((v, index) => (
             <Col xs={6} xl={6} sm={6} md={6} key={index}>
               <div className="chart-visitor-count">

@@ -97,8 +97,6 @@ function Sidenav({ color }) {
     </svg>,
   ]
 
-
-
   return (
     <>
       <div className="brand">
@@ -188,19 +186,6 @@ function Sidenav({ color }) {
             <span className="label">Billing</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="6">
-          <NavLink to="/rtl">
-            <span
-              className="icon"
-              style={{
-                background: page === 'rtl' ? color : '',
-              }}
-            >
-              {rtl}
-            </span>
-            <span className="label">RTL</span>
-          </NavLink>
-        </Menu.Item>
 
         <Menu.Item key="Backup">
           <NavLink to="/backup">
@@ -232,28 +217,7 @@ function Sidenav({ color }) {
             <span className="label">{t('Platform Setting')}</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="7">
-          <NavLink to="/">
-            <span className="icon">{signin}</span>
-            <span className="label">APIs</span>
-          </NavLink>
-        </Menu.Item>
       </Menu>
-      <div className="aside-footer">
-        <div
-          className="footer-box"
-          style={{
-            background: color,
-          }}
-        >
-          <span className="icon" style={{ color }}>
-            {dashboard}
-          </span>
-          <h6>Admin</h6>
-          <Button type="primary" className="ant-btn-sm ant-btn-block">
-          </Button>
-        </div>
-      </div>
     </>
   )
 }

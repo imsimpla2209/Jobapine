@@ -12,8 +12,12 @@ export const dropBackupData = data => {
   return instance.post('admin/drop', data)
 }
 
-export const getUserSignUpStats = () => {
-  return instance.get('admin/userStats')
+export const getUserSignUpStats = (data: {
+  startDate: Date
+  endDate: Date
+  timelineOption: 'weekly' | 'daily' | 'monthly'
+}) => {
+  return instance.post('admin/userStats', data)
 }
 
 export const getAllUsers = () => {

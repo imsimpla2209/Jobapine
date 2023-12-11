@@ -24,6 +24,8 @@ function PostJobsChart() {
   return (
     <>
       <div id="chart">
+        <Title level={5}>Post jobs chart</Title>
+
         <ReactApexChart
           className="jobs-chart"
           options={{

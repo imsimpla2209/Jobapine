@@ -10,7 +10,7 @@ import { Freelancer } from '@modules/freelancer'
 import { Job } from '@modules/job'
 import { Payment } from '@modules/payment'
 import { User } from '@modules/user'
-import { EJobStatus, EStatus } from 'common/enums'
+import { EJobStatus, EStatus, EUserType } from 'common/enums'
 import { ApiError } from 'common/errors'
 import httpStatus from 'http-status'
 import moment from 'moment'
@@ -26,10 +26,10 @@ export const getUserSignUpStats = async (req, res, next) => {
       dateArray.push({
         createdAt: {
           $gte: moment(currentDate).toDate(),
-          $lte: moment(currentDate).endOf('day').toDate(),
+          $lte: moment(currentDate).endOf('month').toDate(),
         },
       })
-      currentDate = moment(currentDate).add(1, 'days')
+      currentDate = moment(currentDate).add(1, 'month')
     }
 
     const userStats = await User.aggregate([
@@ -80,7 +80,7 @@ export const getUserSignUpStats = async (req, res, next) => {
     // Fill the result object with the data and fill missing dates with zero
     let currentDateToCheck = moment(twoMonthsAgo)
     while (currentDateToCheck <= today) {
-      const formattedDate = currentDateToCheck.format('YYYY-MM-DD')
+      const formattedDate = currentDateToCheck.format('YYYY-MM')
       const foundData = userStats.find(data => data.date === formattedDate)
       if (foundData) {
         result[formattedDate] = foundData
@@ -109,6 +109,78 @@ export const getUserSignUpStats = async (req, res, next) => {
     return res.status(200).json(finalResult)
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, `Cannot get user sign Stats ${error}`)
+  }
+}
+
+export const getUserSignUpStatsByMonth = async (req, res, next) => {
+  try {
+    const { startDate, endDate, timelineOption } = req.body
+    const realEndDate = endDate || new Date()
+
+    let timeline = []
+    let currentDate = moment(startDate)
+
+    if (timelineOption === 'daily') {
+      while (currentDate <= moment(realEndDate)) {
+        timeline.push(moment(currentDate).format('YYYY-MM-DD'))
+        currentDate = moment(currentDate).add(1, 'day')
+      }
+    } else if (timelineOption === 'weekly') {
+      // Use ISOWeek to specify date time
+      const startWeek = moment(startDate).isoWeek()
+      const endWeek = moment(realEndDate).isoWeek()
+      for (let week = startWeek; week <= endWeek; week++) {
+        timeline.push(`Week ${week}, ${moment(startDate).isoWeek(week).format('YYYY')}`)
+      }
+    } else if (timelineOption === 'monthly') {
+      // Use ISOMonth to specify date time
+      while (currentDate <= moment(realEndDate)) {
+        timeline.push(moment(currentDate).startOf('month').format('YYYY-MM'))
+        currentDate = moment(currentDate).add(1, 'month')
+      }
+    }
+
+    const projectStats = await User.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: moment(startDate).toDate(),
+            $lte: moment(realEndDate).toDate(),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: timelineOption === 'monthly' ? '%Y-%m' : timelineOption === 'weekly' ? 'Week %V, %Y' : '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
+          freelancer: { $sum: { $cond: [{ $eq: ['$lastLoginAs', EUserType.FREELANCER] }, 1, 0] } },
+          client: { $sum: { $cond: [{ $eq: ['$lastLoginAs', EUserType.CLIENT] }, 1, 0] } },
+        },
+      },
+    ])
+    const statsByTimeline = timeline.map(date => {
+      const foundStat = projectStats.find(stat => stat._id === date)
+      if (!foundStat) {
+        return {
+          date,
+          freelancer: 0,
+          client: 0,
+        }
+      }
+
+      return {
+        date,
+        ...foundStat,
+      }
+    })
+
+    return res.status(200).json(statsByTimeline)
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Cannot get Jobs Stats ${error}`)
   }
 }
 
