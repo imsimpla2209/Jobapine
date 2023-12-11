@@ -122,11 +122,13 @@ export default function SimilarJobsOnJobSickers({ id }: any) {
 
   return (
     <div className="mb-4 mt-4">
-      <Row style={{ display: 'flex', justifyContent: 'center' }}>
-        <h4 className="fw-bold py-3" style={{ margin: 0, color: 'white' }}>
-          {t('Similar Jobs on JobSickers')}
-        </h4>
-      </Row>
+      {similarJobs?.length ? (
+        <Row style={{ display: 'flex', justifyContent: 'center' }}>
+          <h4 className="fw-bold py-3" style={{ margin: 0, color: 'white' }}>
+            {t('Similar Jobs on JobSickers')}
+          </h4>
+        </Row>
+      ) : null}
       {size > 1000 ? (
         <Row justify="center" className="mt-3">
           <Col span={23}>

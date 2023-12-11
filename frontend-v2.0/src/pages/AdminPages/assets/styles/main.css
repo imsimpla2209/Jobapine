@@ -817,6 +817,9 @@ button.ant-btn.bell strong {
   border-radius: 0.5rem;
   margin-left: auto;
   line-height: 55px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .icon-box span {
@@ -829,6 +832,12 @@ button.ant-btn.bell strong {
 }
 .bar-chart {
   background: transparent linear-gradient(62deg, #00369e 0%, #005cfd 53%, #a18dff 100%) 0% 0% no-repeat padding-box;
+  box-shadow: 0px 4px 6px #0000001f;
+
+  border-radius: 8px;
+}
+.jobs-chart {
+  background: transparent linear-gradient(62deg, #9e4700 0%, #fd5400 53%, #d19107 100%) 0% 0% no-repeat padding-box;
   box-shadow: 0px 4px 6px #0000001f;
 
   border-radius: 8px;
@@ -1176,14 +1185,16 @@ span.ismobile {
   span.ismobile {
     display: inline-block;
   }
-  .bar-chart {
+  .bar-chart,
+  .jobs-chart {
     width: 100% !important;
     max-width: 100%;
   }
   .full-width {
     max-width: 100% !important;
   }
-  .bar-chart {
+  .bar-chart,
+  .jobs-chart {
     width: 100% !important;
   }
 
@@ -1553,7 +1564,8 @@ ul.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-light.left-nav li.ant-menu-it
   } */
 }
 @media (max-width: 1024px) {
-  .bar-chart {
+  .bar-chart,
+  .jobs-chart {
     max-width: 100%;
   }
   .full-width {
@@ -2013,7 +2025,8 @@ small.redtext {
   fill: transparent;
 }
 
-.bar-chart line.apexcharts-xaxis-tick {
+.bar-chart line.apexcharts-xaxis-tick,
+.jobs-chart line.apexcharts-xaxis-tick {
   stroke: transparent;
 }
 

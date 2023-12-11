@@ -164,7 +164,7 @@ export default function NavLargScreen() {
               </Link>
             </li>
             <li>
-              <Link className="dropdown-item" to="/freelancer/my-hires">
+              <Link className="dropdown-item" to="/my-hires">
                 {t('My Hires')}
               </Link>
             </li>

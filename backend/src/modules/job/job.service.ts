@@ -77,8 +77,7 @@ export const createJob = async (jobBody: NewCreatedJob): Promise<IJobDoc> => {
 
     logger.info(`App info: ${appInfo}`)
 
-    await updateSickPointsById(new mongoose.Types.ObjectId(client?.user), 
-    appInfo?.clientSicks?.postJob, true)
+    await updateSickPointsById(new mongoose.Types.ObjectId(client?.user), appInfo?.clientSicks?.postJob, true)
 
     // await User.updateOne(
     //   { _id: new mongoose.Types.ObjectId(client?.user) },
@@ -1714,9 +1713,7 @@ export const changeStatusJobById = async (
         date: new Date(),
       },
     ]
-  }
-
-  else {
+  } else {
     job.status?.push({
       status,
       comment,
@@ -1792,7 +1789,7 @@ export const isJobOpened = async (
 
 export const verifyJob = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc> => {
   try {
-    const job = await Job.findById(jobId);
+    const job = await Job.findById(jobId)
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
     }
@@ -1802,7 +1799,7 @@ export const verifyJob = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc
       throw new ApiError(httpStatus.NOT_FOUND, 'Not found client')
     }
     // if (!client?.paymentVerified) {
-    const verifiedJob =  await changeStatusJobById(job.id, EJobStatus.OPEN, 'Accepted by Admin')
+    const verifiedJob = await changeStatusJobById(job.id, EJobStatus.OPEN, 'Accepted by Admin')
     // }
     // const createdJob = await Job.create(job)
 
@@ -1832,4 +1829,3 @@ export const verifyJob = async (jobId: mongoose.Types.ObjectId): Promise<IJobDoc
     throw new ApiError(httpStatus.BAD_REQUEST, `cannot create job ${error}`)
   }
 }
-
