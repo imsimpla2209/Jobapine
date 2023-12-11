@@ -88,14 +88,15 @@ export default function Header() {
         <NavSmallScreen />
       </div>
       <div
-        className="second-nav-cn pt-2 pb-1 d-xl-block d-none"
+        className="second-nav-cn pt-2 d-xl-block d-none mt-1"
         style={{
-          background: '#8c56c7',
+          background: '#6a60c8',
           color: 'white',
+          paddingBottom: 1 
         }}
       >
         <ul
-          className="d-flex align-items-center"
+          className="d-flex align-items-baseline justify-content-center"
           style={{
             color: 'white',
           }}

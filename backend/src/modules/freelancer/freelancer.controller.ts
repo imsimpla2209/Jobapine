@@ -219,6 +219,15 @@ export const getLastestTopJobs = catchAsync(async (req: Request, res: Response) 
   res.send(lastestTopJobs)
 })
 
+export const getTopTrackingPoints = catchAsync(async (req: Request, res: Response) => {
+  const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
+  if (!freelancer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'You are not a freelancer yet')
+  }
+  const lastestTopJobs = await freelancerService.getTopTrackingPoint(freelancer)
+  res.send(lastestTopJobs)
+})
+
 export const getLastestTopType = catchAsync(async (req: Request, res: Response) => {
   const freelancer = await freelancerService.getFreelancerByOptions({ user: req?.user?._id })
   if (!freelancer) {

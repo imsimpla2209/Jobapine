@@ -54,7 +54,7 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
               >{`@${user.name}.`}</h5>
             </div>
             <Space
-              className="my-lg-1 w-100"
+              className=" w-100"
               align="center"
               style={{ justifyContent: 'center', alignItems: 'baseline' }}
             >
@@ -95,36 +95,36 @@ export default function RightSidebarFreelancerHome({ lang, user, freelancer }) {
                 strokeColor={{ from: '#803ade', to: '#fc2389' }}
               />
             </div>
-            <Row style={{ background: '#f9f9f9', borderRadius: 20, padding: 16, margin: '2px 10px' }}>
+            <Space size="small" 
+            style={{ background: '#f9f9f9', 
+            justifyContent: 'space-between',
+            borderRadius: 20, padding: 12, margin: '2px 4px', width: '100%'  }} 
+            wrap content='between'>
               <Tooltip title={'Click to ' + t('Buy SickPoints')} placement="topRight">
-                <Button type="text" onClick={() => navigate('/buyConnects')} className="d-flex align-items-center mb-2">
-                  <img alt="sick" src={logo} style={{ marginRight: 6 }} height={20} />
-                  <span>
-                    {user.sickPoints} {t('Sick Points')}
-                  </span>
+                <Button type="text" onClick={() => navigate('/buyConnects')} 
+                className=""
+                icon={<img alt="sick" src={logo} style={{ marginRight: 6 }} height={20} />}
+                >                  
+                    {user.sickPoints} Points
                 </Button>
               </Tooltip>
-              <Col span={24} style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-              }}>
-                <Button
-                  className="mb-2"
-                  type="text"
-                  onClick={() => navigate('/proposals')}
-                  icon={<img alt="sick" src={proposal} style={{ marginRight: 0 }} height={22} />}
-                >
-                  {freelancer?.proposals?.length} {t('Proposals')}
-                </Button>
-                <Button
-                  type="text"
-                  onClick={() => navigate('/my-jobs')}
-                  icon={<img alt="sick" src={jobIC} style={{ marginRight: 0 }} height={22} />}
-                >
-                  {freelancer?.jobs?.length} {t('Jobs')}
-                </Button>
-              </Col>
-            </Row>
+
+              <Button
+                className=""
+                type="text"
+                onClick={() => navigate('/proposals')}
+                icon={<img alt="sick" src={proposal} style={{ marginRight: 0 }} height={22} />}
+              >
+                {freelancer?.proposals?.length} {t('Proposals')}
+              </Button>
+              <Button
+                type="text"
+                onClick={() => navigate('/my-jobs')}
+                icon={<img alt="sick" src={jobIC} style={{ marginRight: 0 }} height={22} />}
+              >
+                {freelancer?.jobs?.length} {t('Jobs')}
+              </Button>
+            </Space>
           </div>
         </div>
       </Col>

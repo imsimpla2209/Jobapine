@@ -57,11 +57,11 @@ export default function HomeFreelancer() {
             {freelancer?.isProfileVerified === false && <AcceptedAlert widthh="66%" />}
 
             <Row gutter={24} className="mx-md-5">
-              <Col xs={0} lg={4} xl={16}>
+              <Col xs={24} lg={24} xl={14}>
                 <HeadOfCenterSection />
                 {/* <LeftSidebarFreelancerHome freelancer={freelancer} /> */}
               </Col>
-              <Col xs={0} lg={4} xl={8}>
+              <Col xs={0} lg={0} xl={10}>
                 <RightSidebarFreelancerHome lang={lang} user={user} freelancer={freelancer} />
               </Col>
               <div className="mx-md-5 w-100 ">
