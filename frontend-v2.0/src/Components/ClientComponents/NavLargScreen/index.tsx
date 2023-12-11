@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { userStore } from 'src/Store/user.store'
 import { logout } from 'src/api/auth-apis'
-import { getNotifies, updateNotifies, updateNotify } from 'src/api/message-api'
+import { getNotifies, updateNotify } from 'src/api/message-api'
 import { useSubscription } from 'src/libs/global-state-hook'
 import { Title } from 'src/pages/ClientPages/JobDetailsBeforeProposols'
 import { useSocket } from 'src/socket.io'
@@ -111,12 +111,6 @@ export default function NavLargScreen() {
     }) as MenuProps['items']
   }, [notifies])
 
-  const onSeenNotify = e => {
-    if (e) {
-      setUnSeen([])
-    }
-  }
-
   return (
     <div className="navbar-expand" id="navbarNav-id" style={{ padding: '10px 0px' }}>
       <ul className="navbar-nav align-items-center">
@@ -202,7 +196,6 @@ export default function NavLargScreen() {
                 overflowY: 'auto',
                 maxHeight: '100vh',
               }}
-              onOpenChange={e => onSeenNotify(e)}
               arrow={{ pointAtCenter: true }}
               dropdownRender={menu => (
                 <div

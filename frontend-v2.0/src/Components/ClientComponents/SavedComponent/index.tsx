@@ -84,13 +84,14 @@ export default function Saved({ freelancer }) {
               </Text>
             )}
 
-            <Text className="w-100 d-flex" style={{ gap: 8 }}>
-              <b>{t('Prefer job type')}: </b>
-              <span className="text-muted d-flex fw-bold" style={{ gap: 8, flexWrap: 'wrap' }}>
-                {freelancer?.preferJobType?.map((cat, index) => cat?.name).join(', ')}
-              </span>
-            </Text>
-
+            {freelancer?.preferJobType?.length ? (
+              <Text className="w-100 d-flex" style={{ gap: 8 }}>
+                <b>{t('Prefer job type')}: </b>
+                <span className="text-muted d-flex fw-bold" style={{ gap: 8, flexWrap: 'wrap' }}>
+                  {freelancer.preferJobType.map((cat, index) => cat?.name).join(', ')}
+                </span>
+              </Text>
+            ) : null}
             {freelancer?.skills?.filter(skill => skill?.skill)?.length ? (
               <>
                 <Text strong>{t('Skills and experties')}:</Text>

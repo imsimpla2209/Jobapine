@@ -1,17 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
+import { MenuUnfoldOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import { getSkillsWithCount } from 'src/api/job-apis'
+import { pickName } from 'src/utils/helperFuncs'
+import HeaderSearchSm from './../../SharedComponents/HeaderSearchSm/HeaderSearchSm'
 import Logo from './../../SharedComponents/Logo/Logo'
-import HeaderSearchLg from '../../SharedComponents/HeaderSearchLg'
 import NavLargScreen from './../NavLargScreen'
 import NavSmallScreen from './../NavSmallScreen'
-import HeaderSearchSm from './../../SharedComponents/HeaderSearchSm/HeaderSearchSm'
 import './Header.css'
-import SearchBox from 'src/Components/SharedComponents/SearchBox'
-import { useTranslation } from 'react-i18next'
-import { getSkills, getSkillsWithCount } from 'src/api/job-apis'
-import { pickName } from 'src/utils/helperFuncs'
-import { Link } from 'react-router-dom'
-import { MenuUnfoldOutlined } from '@ant-design/icons'
 
 export default function Header() {
   const { t, i18n } = useTranslation(['main'])
@@ -43,7 +41,6 @@ export default function Header() {
             <Logo />
             <p style={{ color: 'grey', fontWeight: 600, marginBottom: 0 }}>{t('For Freelancers')}</p>
           </Link>
-          <SearchBox />
         </div>
         <nav className="navbar navbar-expand-lg navbar-dark bg-transparent py-0">
           <NavLargScreen />
@@ -92,7 +89,7 @@ export default function Header() {
         style={{
           background: '#6a60c8',
           color: 'white',
-          paddingBottom: 1 
+          paddingBottom: 1,
         }}
       >
         <ul
@@ -102,11 +99,14 @@ export default function Header() {
           }}
         >
           {skillShow.map(s => (
-            <li key={s?._id?.id} style={{
-				width: 'auto'
-			}}>
-              <Link to={`/search?skillId=${s?._id?.id}`}>{pickName(s?._id, i18n.language)}
-				({s?.count})
+            <li
+              key={s?._id?.id}
+              style={{
+                width: 'auto',
+              }}
+            >
+              <Link to={`/search?skillId=${s?._id?.id}`}>
+                {pickName(s?._id, i18n.language)}({s?.count})
               </Link>
             </li>
           ))}

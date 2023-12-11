@@ -36,13 +36,14 @@ import JobDetails from 'src/pages/ForumPages/hire/job-details'
 import JobList from 'src/pages/ForumPages/hire/job-list'
 import AllContracts from 'src/pages/FreelancerPages/AllContracts'
 import ClientProfile from 'src/pages/FreelancerPages/ClientProfile'
+import TransactionHistory from 'src/pages/FreelancerPages/Reports/TransactionHistory'
 import { handleCacheData, handleGetCacheData, miniSearch, syncTrackingDataToBackend } from 'src/utils/handleData'
 import './styles.css'
 
 export default function FreelancerRoutes() {
   const { state: trackingLogs, setState: setTrackingLogs } = useSubscription(trackingLogStore)
   const { loadTrackingData, determineRenderType } = useFreelancerTracking()
-  const [isSync, setSync] =useState(false)
+  const [isSync, setSync] = useState(false)
 
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -87,13 +88,13 @@ export default function FreelancerRoutes() {
   useEffect(() => {
     if (!isSync) {
       window.addEventListener('beforeunload', event => {
-        console.log('object called');
+        console.log('object called')
         setSync(true)
         syncTrackingDataToBackend(true)
         console.log('sync tracking to backend')
       })
     }
-  
+
     window.addEventListener('unload', event => {
       event.preventDefault()
       event.stopPropagation()
@@ -123,7 +124,7 @@ export default function FreelancerRoutes() {
           <Route path="/saved-jobs" element={<SavedJobs />} />
           <Route path="/proposals/:id" element={<Proposals />} />
           <Route path="/proposals" element={<Proposals />} />
-          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/profile/:id" element={<Profile noMargin={false} />} />
           <Route path="/email-verification" element={<EmailVerified />} />
           <Route path="/sign-up/please-verify" element={<PleaseVerifiy />} />
           <Route path="/my-stats" element={<MyStats />} />
@@ -136,16 +137,11 @@ export default function FreelancerRoutes() {
           <Route path="/connects-history" element={<ConnectsHistory />} />
           <Route path="/buyconnects" element={<BuyConnects />} />
           <Route path="/client-info/:clientId" element={<ClientProfile />} />
-          {/* <Route
-              path="/transaction-history"
-            
-              element={<TransactionHistory />}
-            /> */}
+          <Route path="/transaction-history" element={<TransactionHistory />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/contract/:id" element={<Contract />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="*" element={<PageNotFound />} />
-          {/* <ForumRoutes /> */}
         </Routes>
       </div>
       <Footer />
