@@ -24,23 +24,24 @@
 .card-job:hover {
   box-shadow: 0 3px 6px 2px #b693e6;
 }
+
 html {
-  --s: 200px; 
-  --c: #fff; 
-  
-  --_g: #0000 8%,var(--c) 0 17%,#0000 0 58%;
-  
+  --s: 200px;
+  --c: #fff;
+
+  --_g: #0000 8%, var(--c) 0 17%, #0000 0 58%;
+
 }
 
 .small-job-card {
   border-radius: 10px;
   filter: drop-shadow(0 5px 10px 0 #ffffff);
-  background: 
-    linear-gradient(135deg,#0000 20.5%,var(--c) 0 29.5%,#0000 0) 0 calc(var(--s)/4),
-    linear-gradient( 45deg,var(--_g)) calc(var(--s)/2) 0,
-    linear-gradient(135deg,var(--_g),var(--c) 0 67%,#0000 0),        
-    linear-gradient( 45deg,var(--_g),var(--c) 0 67%,#0000 0 83%,var(--c) 0 92%,#0000 0),
-    rgba(179, 185, 255, 0.18); 
+  background:
+    linear-gradient(135deg, #0000 20.5%, var(--c) 0 29.5%, #0000 0) 0 calc(var(--s)/4),
+    linear-gradient(45deg, var(--_g)) calc(var(--s)/2) 0,
+    linear-gradient(135deg, var(--_g), var(--c) 0 67%, #0000 0),
+    linear-gradient(45deg, var(--_g), var(--c) 0 67%, #0000 0 83%, var(--c) 0 92%, #0000 0),
+    rgba(179, 185, 255, 0.18);
   background-size: var(--s) var(--s);
   padding: 20px;
   position: relative;
@@ -156,4 +157,20 @@ html {
 .card__arc path {
   fill: #ffffff;
   d: path("M 40 80 c 30 0 40 -12 40 -40 v 40 Z");
+}
+
+.client-card {
+  --s: 50px;
+  /* control the size */
+
+  --c: #0000 75%, #c9c4d1 0;
+  --g1: conic-gradient(at calc(200%/5) 10%, var(--c));
+  --g2: conic-gradient(at 10% calc(200%/3), var(--c));
+  background:
+    var(--g1), var(--g2),
+    var(--g1) var(--s) var(--s),
+    var(--g2) var(--s) var(--s),
+    var(--g1) calc(2*var(--s)) calc(2*var(--s)),
+    var(--g2) calc(2*var(--s)) calc(2*var(--s)) #b3b9c3;
+  background-size: calc(3*var(--s)) calc(3*var(--s));
 }

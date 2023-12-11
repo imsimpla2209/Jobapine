@@ -6,7 +6,6 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
 import { updateUserData } from '../../../Network/Network'
 import img from '../../../assets/img/icon-user.svg'
-// import { db, storage } from "../../../firebase";
 import { PlusOutlined } from '@ant-design/icons'
 import { Card, Col, Form, Modal, Row, Space, Upload, UploadFile } from 'antd'
 import { RcFile } from 'antd/es/upload'
@@ -22,6 +21,7 @@ import { useSubscription } from 'src/libs/global-state-hook'
 import { currencyFormatter, fetchAllToCL, getBase64, pickName, timeAgo } from 'src/utils/helperFuncs'
 import Loader from '../../SharedComponents/Loader/Loader'
 import InviteFreelancerModal from './inviteModal'
+import CommentsList from 'src/pages/FreelancerPages/Profile/CommentList'
 
 export default function FirstSectionProfileFreelancer({ noMargin }) {
   const { id } = useParams()
@@ -563,6 +563,7 @@ export default function FirstSectionProfileFreelancer({ noMargin }) {
                     )}
                   </div>
                 </div>
+
                 <hr />
                 <div className="row">
                   {user?.company?.map((item, ix) => (
@@ -938,6 +939,14 @@ export default function FirstSectionProfileFreelancer({ noMargin }) {
               </div>
             </div>
           </div>
+          <Card
+            style={{ justifyContent: 'center' }}
+            className={`container-xxl container-fluid-sm bg-white ${noMargin ? '' : 'mt-5  mb-3'}`}
+          >
+            <div>
+              <CommentsList reviews={freelancer?.reviews} />
+            </div>
+          </Card>
         </>
       ) : (
         <div className="d-flex justify-content-center align-items-center" style={{ height: '90vh' }}>

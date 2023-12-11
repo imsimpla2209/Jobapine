@@ -62,7 +62,7 @@ export default function Settings() {
                   type="text"
                   icon={<CheckCircleTwoTone className="me-2" twoToneColor="#52c41a" />}
                 >
-                  {t('Payment verified')}
+                  {t('Account verified')}
                 </Button>
               </>
             ) : (
@@ -72,7 +72,7 @@ export default function Settings() {
                 icon={<FormOutlined />}
                 onClick={() => setOpenVerifyModal(true)}
               >
-                {t('Verify payment')}
+                {t('Verify Account')}
               </Button>
             )}
 

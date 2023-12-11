@@ -14,6 +14,11 @@ export const getClientByOptions = (data: any ) => {
   return Http.get('clients/get-by-options', data);
 }
 
+export const getRcmdClients = (data?: any ) => {
+  return Http.get('clients/rcmd/top', data);
+}
+
+
 export const verifyClient = (id: string ) => {
   return instance.patch(`clients/verify-profile/${id}`);
 }

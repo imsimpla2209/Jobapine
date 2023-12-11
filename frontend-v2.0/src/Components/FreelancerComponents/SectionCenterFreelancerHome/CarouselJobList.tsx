@@ -12,6 +12,8 @@ import {
 } from 'src/api/job-apis'
 import { RenderTypes } from 'src/hooks/freelancer-tracking-hook'
 import { useTranslation } from 'react-i18next'
+import { getRcmdClients } from 'src/api/client-apis'
+import { ClientItem } from './ClientItem'
 
 export enum EPrevNext {
   Upper = 'upper',
@@ -30,8 +32,7 @@ function getRenderTypeDetails(renderType: RenderTypes) {
         padding: '10px 20px',
         itemsP: 3,
         carouselPadding: 200,
-
-      } 
+      }
     case RenderTypes.SkillsRecommendation:
       return {
         api: getCurrentInterestJobs,
@@ -42,8 +43,6 @@ function getRenderTypeDetails(renderType: RenderTypes) {
         padding: '4px 12px',
         itemsP: 4,
         carouselPadding: 50,
-
-
       }
     case RenderTypes.CategoriesRecommendation:
       return {
@@ -55,8 +54,6 @@ function getRenderTypeDetails(renderType: RenderTypes) {
         padding: '4px 12px',
         itemsP: 4,
         carouselPadding: 50,
-
-
       }
     case RenderTypes.JobsRelatedToTopInterestJobs:
       return {
@@ -68,60 +65,50 @@ function getRenderTypeDetails(renderType: RenderTypes) {
         padding: '4px 12px',
         itemsP: 4,
         carouselPadding: 50,
-
-
       }
     case RenderTypes.JobsRelatedToCurrentInterestJobs:
       return {
         api: getCurrentInterestJobsByJobs,
         component: 'CurrentInterestJobsComponent',
-        text: 'Current interest jobs text',
+        text: 'Current interest jobs',
         sizeCard: ESize.Medium,
         prevNext: EPrevNext.Slide,
         padding: '4px 12px',
         itemsP: 4,
         carouselPadding: 50,
-
-
       }
     case RenderTypes.JobsRelatedToInterests:
       return {
         api: getCurrentInterestJobs,
         component: 'MostInterestJobsComponent',
-        text: 'Most interest jobs text',
+        text: 'Most interest jobs',
         sizeCard: ESize.Medium,
         prevNext: EPrevNext.Slide,
         padding: '4px 12px',
         itemsP: 4,
         carouselPadding: 50,
-
-
       }
     case RenderTypes.JobsRelatedToCurrentSkillsCategories:
       return {
         api: getCurrentInterestJobsByTypes,
         component: 'CurrentInterestSkillsCatsComponent',
-        text: 'Current interest skills & categories text',
+        text: 'Current interest skills & categories',
         sizeCard: ESize.Medium,
         prevNext: EPrevNext.Slide,
         padding: '4px 12px',
         itemsP: 4,
         carouselPadding: 50,
-
-
       }
     case RenderTypes.RecommendedClients:
       return {
-        api: getCurrentInterestJobs,
+        api: getRcmdClients,
         component: 'ClientsRcmdComponent',
-        text: 'Clients recommendation text',
+        text: 'We found some clients may suit your abilities',
         sizeCard: ESize.Medium,
         prevNext: EPrevNext.Slide,
         padding: '4px 12px',
         itemsP: 4,
         carouselPadding: 50,
-
-
       }
     case RenderTypes.FavoriteJobs:
       return {
@@ -133,8 +120,6 @@ function getRenderTypeDetails(renderType: RenderTypes) {
         padding: '4px 12px',
         itemsP: 4,
         carouselPadding: 50,
-
-
       }
   }
 }
@@ -201,49 +186,47 @@ export const CarouselJobList = ({ renderType, numberCardPerSlice, extraStyle, si
         <h4 className="fw-bold py-1" style={{ margin: 0, color: '#454047' }}>
           {t(renderDetails.text)}
         </h4>
-        {
-          renderDetails.prevNext === EPrevNext.Upper && (
-            <div style={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
-              <Button
-                type="primary"
-                disabled={activeIndex === 0}
-                style={{
-                  // display: activeIndex === 0 ? 'none' : 'block',
-                  marginRight: 10,
-                  height: 40,
-                  width: 40,
-                  paddingRight: 6,
-                  background: activeIndex === 0 ? '#ccc' :'white',
-                  border: 'none',
-                  boxShadow: `rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px`,
-                }}
-                shape="circle"
-                size={'large'}
-                onClick={e => slideRcmdPrev(e)}
-              >
-                <CaretLeftOutlined style={{ fontWeight: 700, fontSize: '30px', color: 'gray' }} />
-              </Button>
-              <Button
-                type="primary"
-                disabled={activeIndex === total - renderDetails.itemsP}
-                style={{
-                  // display: activeIndex === total - 4 ? 'none' : 'block',
-                  height: 40,
-                  width: 40,
-                  paddingLeft: 6,
-                  border: 'none',
-                  background: activeIndex === total - renderDetails.itemsP ? '#ccc' : 'white',
-                  boxShadow: 'rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px',
-                }}
-                shape="circle"
-                size={'large'}
-                onClick={e => slideRcmdNext(e)}
-              >
-                <CaretRightOutlined style={{ fontWeight: 700, fontSize: '30px', color: 'gray' }} />
-              </Button>
-            </div>
-          )
-        }
+        {renderDetails.prevNext === EPrevNext.Upper && (
+          <div style={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
+            <Button
+              type="primary"
+              disabled={activeIndex === 0}
+              style={{
+                // display: activeIndex === 0 ? 'none' : 'block',
+                marginRight: 10,
+                height: 40,
+                width: 40,
+                paddingRight: 6,
+                background: activeIndex === 0 ? '#ccc' : 'white',
+                border: 'none',
+                boxShadow: `rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px`,
+              }}
+              shape="circle"
+              size={'large'}
+              onClick={e => slideRcmdPrev(e)}
+            >
+              <CaretLeftOutlined style={{ fontWeight: 700, fontSize: '30px', color: 'gray' }} />
+            </Button>
+            <Button
+              type="primary"
+              disabled={activeIndex === total - renderDetails.itemsP}
+              style={{
+                // display: activeIndex === total - 4 ? 'none' : 'block',
+                height: 40,
+                width: 40,
+                paddingLeft: 6,
+                border: 'none',
+                background: activeIndex === total - renderDetails.itemsP ? '#ccc' : 'white',
+                boxShadow: 'rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px',
+              }}
+              shape="circle"
+              size={'large'}
+              onClick={e => slideRcmdNext(e)}
+            >
+              <CaretRightOutlined style={{ fontWeight: 700, fontSize: '30px', color: 'gray' }} />
+            </Button>
+          </div>
+        )}
       </Row>
       {!loading ? (
         <Row justify="center" className="mt-1">
@@ -252,9 +235,20 @@ export const CarouselJobList = ({ renderType, numberCardPerSlice, extraStyle, si
               autoWidth={false}
               mouseTracking
               activeIndex={activeIndex}
-              items={jobs?.map(j => (
-                <JobItem key={j._id} data={j} isRcmd={false} t={t} user={user} size={renderDetails?.sizeCard || null} />
-              ))}
+              items={jobs?.map(j =>
+                renderType === RenderTypes?.RecommendedClients ? (
+                  <ClientItem clientData={j} isRcmd={true}></ClientItem>
+                ) : (
+                  <JobItem
+                    key={j._id}
+                    data={j}
+                    isRcmd={false}
+                    t={t}
+                    user={user}
+                    size={renderDetails?.sizeCard || null}
+                  />
+                )
+              )}
               paddingRight={activeIndex === total - renderDetails.itemsP ? 0 : renderDetails.carouselPadding}
               paddingLeft={activeIndex === total - renderDetails.itemsP ? renderDetails.carouselPadding : 0}
               animationDuration={300}
@@ -315,5 +309,3 @@ export const CarouselJobList = ({ renderType, numberCardPerSlice, extraStyle, si
     </div>
   )
 }
-
-

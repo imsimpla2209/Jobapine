@@ -408,7 +408,9 @@ export const getCurrentRelateClientsForFreelancer = async (
       },
     ])
 
-    return matchingClient
+    const fullyClientsData = await Client.populate(matchingClient, [{ path: 'findingSkills'}, { path: 'preferJobType'}, { path: 'user'}])
+
+    return fullyClientsData
   } catch (error: any) {
     logger.error(`Error finding related clients:${error}`)
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Error finding related jobs: ${error}`)

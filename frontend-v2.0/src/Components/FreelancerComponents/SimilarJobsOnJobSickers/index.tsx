@@ -63,19 +63,33 @@ export const settings = {
 const JobItem = ({ data, t }: any) => {
   return (
     <div className="px-xl-3 px-1 mt-2">
-      <Card>
+      <Card style={{
+        height: 220
+      }}>
+        <div style={{
+        height: 80
+      }}>
         <div key={data?._id}>
           <a href={`/#/job/${data?._id}`} className="advanced-search-link" style={{ fontWeight: 600, fontSize: 17 }}>
             {data?.title}
           </a>
         </div>
-        <p className="text-muted text-wrap text-wrap">
+        <p className="text-muted text-wrap text-wrap" style={{
+          
+        }}>
           {data?.createdAt
-            ? new Date(data?.createdAt * 1000).toLocaleString()
+            ? new Date(data?.createdAt).toLocaleString()
             : randomDate(new Date(2022, 0, 1), new Date()).toLocaleString()}
         </p>
-        <p className="text-wrap text-wrap">{data?.description?.slice(0, 50)}...</p>
-        <div className="text-dark">
+        </div>
+        <p className="text-wrap text-wrap" style={{
+          height: 50
+        }}>{data?.description?.slice(0, 80)}...</p>
+        <div className="text-dark" style={{
+          justifyContent: 'baseline',
+          alignItems: 'baseline',
+          display: 'flex',
+        }}>
           <div className="header">
             <span className="icon up-icon" data-cy="fixed-price">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" aria-hidden="true" role="img" width="15px">
@@ -99,7 +113,7 @@ export default function SimilarJobsOnJobSickers({ id }: any) {
   useEffect(() => {
     getSimilarJobs(id, { limit: 8 })
       .then(res => {
-        setSimilarJobs(res.data.results)
+        setSimilarJobs(res.data)
       })
       .catch(err => {
         console.log(err)
