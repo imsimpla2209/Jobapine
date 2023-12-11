@@ -1,6 +1,7 @@
-import { ClockCircleFilled } from '@ant-design/icons'
-import { Dropdown, Space } from 'antd'
+import { ClockCircleFilled, ExclamationCircleFilled } from '@ant-design/icons'
+import { Dropdown, Modal, Space } from 'antd'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import ShowMore from 'react-show-more-button/dist/module'
@@ -11,6 +12,8 @@ import { useSubscription } from 'src/libs/global-state-hook'
 import { EComplexityGet } from 'src/utils/enum'
 import { currencyFormatter, randomDate } from 'src/utils/helperFuncs'
 
+const { confirm } = Modal
+
 export default function ClientJobCard({ item, client, lang }) {
   const { t } = useTranslation(['main'])
   const locations = useSubscription(locationStore).state
@@ -18,7 +21,25 @@ export default function ClientJobCard({ item, client, lang }) {
   const [deleting, setDeleting] = useState(false)
   const handleDeleteJob = async () => {
     setDeleting(true)
-    await deleteJob(item?._id || item?.id)
+    await deleteJob(item?._id || item?.id).then(() => {
+      toast.success('Job archived')
+    })
+  }
+
+  const showDeleteConfirm = () => {
+    confirm({
+      title: 'Are you sure delete this posted job?',
+      icon: <ExclamationCircleFilled />,
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        handleDeleteJob()
+      },
+      onCancel() {
+        console.log('Cancel')
+      },
+    })
   }
 
   if (deleting) return null
@@ -54,7 +75,7 @@ export default function ClientJobCard({ item, client, lang }) {
                             {
                               key: '3',
                               label: (
-                                <Link to={''} onClick={handleDeleteJob}>
+                                <Link to={''} onClick={showDeleteConfirm}>
                                   Remove posting
                                 </Link>
                               ),
@@ -68,7 +89,7 @@ export default function ClientJobCard({ item, client, lang }) {
                             {
                               key: '5',
                               label: (
-                                <Link to={''} onClick={handleDeleteJob}>
+                                <Link to={''} onClick={showDeleteConfirm}>
                                   Remove posting
                                 </Link>
                               ),

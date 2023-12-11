@@ -1,5 +1,5 @@
-import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Badge, Button, Card, Col, Modal, Row, Space, Typography } from 'antd'
+import { CheckCircleTwoTone, ClockCircleOutlined, ExclamationCircleFilled, SyncOutlined } from '@ant-design/icons'
+import { Badge, Button, Card, Col, Modal, Row, Space, Tag, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
@@ -88,7 +88,7 @@ export default function JobDetailsBeforeProposals() {
   return (
     <>
       {jobData !== null ? (
-        <div className="container-md container-fluid-sm py-xs-5 px-md-5">
+        <div className="container-md container-fluid-sm">
           <div className="d-lg-block">
             <Row align={'middle'} style={{ padding: '20px 0px', justifyContent: 'space-between' }}>
               <Title style={{ margin: 0 }}>{t('Job details')}</Title>
@@ -116,17 +116,30 @@ export default function JobDetailsBeforeProposals() {
 
                   <Paragraph className="mt-3" style={{ color: 'black' }}>
                     <ul>
-                      <li>
-                        <span style={{ marginRight: 10 }}>{t('Current status')}:</span>
-                        <Badge
-                          className="text-capitalize"
-                          status={
-                            jobData?.currentStatus === 'open' || jobData?.currentStatus === 'pending'
-                              ? 'processing'
-                              : 'default'
-                          }
-                          text={jobData?.currentStatus}
-                        />
+                      <li style={{ marginBottom: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
+                          <span>{t('Current status')}:</span>
+                          <Tag
+                            icon={
+                              jobData?.currentStatus === 'open' || jobData?.currentStatus === 'pending' ? (
+                                <SyncOutlined spin />
+                              ) : jobData?.currentStatus === 'completed' ? (
+                                <CheckCircleTwoTone twoToneColor={'#15d535'} />
+                              ) : (
+                                <ClockCircleOutlined />
+                              )
+                            }
+                            color={
+                              jobData?.currentStatus === 'open' || jobData?.currentStatus === 'pending'
+                                ? 'processing'
+                                : jobData?.currentStatus === 'completed'
+                                ? 'success'
+                                : 'default'
+                            }
+                          >
+                            {jobData?.currentStatus}
+                          </Tag>
+                        </div>
                       </li>
                       <li>
                         <span style={{ marginRight: 10 }}>{t('NumberofProposals')}:</span>

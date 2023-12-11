@@ -15,10 +15,9 @@ import { useTranslation } from 'react-i18next'
 
 export default function OneContract({ contract }) {
   const { t } = useTranslation(['main'])
-  console.log(contract)
   const currentJob = contract.job
   const { freelancer } = contract
-  console.log(contract)
+
   return (
     <section className="air-card-hover py-3">
       <Flex align="start" justify="space-between">
