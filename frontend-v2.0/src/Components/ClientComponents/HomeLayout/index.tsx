@@ -1,14 +1,32 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import img from '../../../assets/img/icon-user.svg'
-import { Button, Card, Col, ConfigProvider, Input, Pagination, Progress, Radio, Rate, Result, Row, Space } from 'antd'
+import { CheckCircleTwoTone, DollarTwoTone, FormOutlined } from '@ant-design/icons'
+import {
+  Button,
+  Card,
+  Col,
+  ConfigProvider,
+  Divider,
+  Input,
+  List,
+  Modal,
+  Pagination,
+  Radio,
+  Rate,
+  Result,
+  Row,
+  Space,
+} from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { clientStore, userStore } from 'src/Store/user.store'
+import { filterFreelancers, getFreelancerByOptions, getRcmdFreelancers } from 'src/api/freelancer-apis'
 import { getJobs } from 'src/api/job-apis'
-import { useSubscription } from 'src/libs/global-state-hook'
+import { createSubscription, useSubscription } from 'src/libs/global-state-hook'
+import { Title } from 'src/pages/ClientPages/JobDetailsBeforeProposols'
 import { EJobStatus } from 'src/utils/enum'
+import img from '../../../assets/img/icon-user.svg'
 import j1 from '../../../assets/svg/jobs1.svg'
 import j2 from '../../../assets/svg/jobs2.svg'
 import j3 from '../../../assets/svg/jobs3.svg'
@@ -17,11 +35,15 @@ import Loader from '../../SharedComponents/Loader/Loader'
 import ClientJobCard from '../ClientJobCard'
 import { Text } from '../ReviewProposalsCard'
 import './HomeLayout.css'
-import { CheckCircleTwoTone, DollarTwoTone, FormOutlined } from '@ant-design/icons'
-import { Title } from 'src/pages/ClientPages/JobDetailsBeforeProposols'
 import VerifyPaymentModal from './VerifyPaymentModal'
+import { createNotify } from 'src/api/message-api'
+
+export const openModalInviteClient = createSubscription({ open: '' })
 
 export default function HomeLayout() {
+  const {
+    state: { open },
+  } = useSubscription(openModalInviteClient)
   const { t, i18n } = useTranslation(['main'])
   const lang = i18n.language
   const client = useSubscription(clientStore).state
@@ -32,6 +54,67 @@ export default function HomeLayout() {
   const [total, setTotal] = useState(0)
   const [searchKey, setSearchKey] = useState('')
   const [jobStatus, setJobStatus] = useState(EJobStatus.OPEN)
+
+  const {
+    state: { favoriteFreelancers, id, name },
+  } = useSubscription(clientStore)
+
+  const [freelancer, setFreelancer] = useState<any>(null)
+  const [loadingModal, setLoadingModal] = useState(false)
+  const [freelancerTitle, setFreelancerName] = useState('')
+  const [mySavedFreelancer, setmySavedFreelancer] = useState([])
+  const [sending, setSending] = useState(false)
+
+  const handleInviteFreelancer = async () => {
+    setSending(true)
+    createNotify({
+      content: `${client?.name} want to invite you into this job: ${freelancerTitle}`,
+      to: freelancer?._id,
+      path: `/job/${open}`,
+    })
+      .then(res => {
+        toast.success('Invite successfull')
+        openModalInviteClient.updateState({ open: false })
+      })
+      .catch(err => {
+        toast.error(err.message)
+      })
+      .finally(() => setSending(false))
+  }
+
+  useEffect(() => {
+    setLoadingModal(true)
+    if (!open) return
+    filterFreelancers(
+      {
+        id: favoriteFreelancers,
+      },
+      { limit: 20 }
+    )
+      .then(res => {
+        setmySavedFreelancer(res?.data?.results?.map(f => f.user))
+      })
+      .catch(err => {
+        toast.error('something went wrong, ', err)
+      })
+      .finally(() => setLoadingModal(false))
+  }, [searchKey, open])
+
+  useEffect(() => {
+    const root = document.body.querySelector('#root') as HTMLElement
+    if (!!open) {
+      root.style.height = '100vh'
+      root.style.overflow = 'hidden'
+    } else {
+      root.style.height = '100vh'
+      root.style.overflow = ''
+    }
+
+    return () => {
+      root.style.height = '100vh'
+      root.style.overflow = ''
+    }
+  }, [!!open])
 
   useEffect(() => {
     if (client?._id || client?.id) {
@@ -75,6 +158,44 @@ export default function HomeLayout() {
     <>
       {user?.name ? (
         <Row style={{ padding: '20px' }}>
+          <Modal
+            destroyOnClose
+            title={t('Invite your favourite freelancer')}
+            open={!!open}
+            okText={t('Invite')}
+            onCancel={() => openModalInviteClient.updateState({ open: false })}
+            okButtonProps={{ disabled: !freelancer || sending, loading: sending }}
+            onOk={handleInviteFreelancer}
+          >
+            <Input
+              placeholder="Search freelancers here..."
+              className="mt-3"
+              value={searchKey}
+              onInput={e => setSearchKey((e.target as any).value)}
+            ></Input>
+            <Divider style={{ marginBottom: 0 }}></Divider>
+            <List
+              style={{ maxHeight: 'calc(100vh - 400px)', overflow: 'scroll' }}
+              loading={loadingModal}
+              itemLayout="horizontal"
+              dataSource={mySavedFreelancer}
+              renderItem={free => (
+                <List.Item key={free._id}>
+                  <Radio
+                    onChange={e => {
+                      setFreelancer(free)
+                      setFreelancerName(free.name)
+                    }}
+                    checked={freelancer?._id === free?._id}
+                  >
+                    <Title level={5} style={{ margin: 0 }} className="text-muted">
+                      {free.name}
+                    </Title>
+                  </Radio>
+                </List.Item>
+              )}
+            />
+          </Modal>
           <div className="row px-5 ">
             <Row style={{ display: 'flex', justifyContent: 'space-between', margin: '20px 20px 20px 0px' }}>
               <h4>
@@ -277,7 +398,7 @@ const RightLayout = () => {
 
           <div style={{ background: '#f9f9f9', borderRadius: 20, padding: 20, margin: 20 }}>
             <Title level={5}>
-              <DollarTwoTone twoToneColor="#eb2f96" style={{ marginRight: 8 }} />
+              <DollarTwoTone spin twoToneColor="#eb2f96" style={{ marginRight: 8 }} />
               {t('Avalable SickPoints')}: {user.sickPoints}
             </Title>
             <Button type="default">

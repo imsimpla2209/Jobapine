@@ -15,6 +15,7 @@ import { EComplexity, EJobType, ELevel, EPaymenType, LevelName } from 'src/utils
 import { useContext, useState } from 'react'
 import { StepContext } from 'src/pages/ClientPages/PostJop'
 import { cloneDeep } from 'lodash'
+import { openModalInviteClient } from '../HomeLayout'
 
 export const { Paragraph } = Typography
 
@@ -68,6 +69,7 @@ export default function PostJobReview() {
         id
       )
         .then(res => {
+          console.log({ res })
           postJobSubscribtion.updateState(defaultPostJobState)
           message.success('🎉🎉🎉 Job updated successfully! 🎉🎉🎉')
           navigate(`/job-details/${id}`)
@@ -81,6 +83,7 @@ export default function PostJobReview() {
         .then(res => {
           postJobSubscribtion.updateState(defaultPostJobState)
           message.success('🎉🎉🎉 Job created successfully! 🎉🎉🎉')
+          openModalInviteClient.updateState({ open: res.data?.id || res.data?._id })
           navigate('/')
         })
         .catch(err => {

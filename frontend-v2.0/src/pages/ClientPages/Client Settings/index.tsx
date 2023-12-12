@@ -78,7 +78,7 @@ export default function Settings() {
 
             <div style={{ background: '#f9f9f9', borderRadius: 20, padding: 12, marginTop: 10 }}>
               <Title level={5}>
-                <DollarTwoTone twoToneColor="#eb2f96" style={{ marginRight: 8 }} />
+                <DollarTwoTone spin twoToneColor="#eb2f96" style={{ marginRight: 8 }} />
                 {t('Avalable SickPoints')}: {user.sickPoints}
               </Title>
               <Button type="default">

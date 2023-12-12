@@ -1,7 +1,19 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { BellFilled, MailFilled } from '@ant-design/icons'
+import {
+  BellFilled,
+  DingtalkCircleFilled,
+  EditTwoTone,
+  HeartFilled,
+  MailFilled,
+  ReconciliationFilled,
+  ReconciliationTwoTone,
+  SmileTwoTone,
+  SyncOutlined,
+  UserAddOutlined,
+  UsergroupAddOutlined,
+} from '@ant-design/icons'
 import { Avatar, Badge, Divider, Dropdown, MenuProps, Space } from 'antd'
 import React, { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -115,60 +127,110 @@ export default function NavLargScreen() {
     <div className="navbar-expand" id="navbarNav-id" style={{ padding: '10px 0px' }}>
       <ul className="navbar-nav align-items-center">
         <li className="nav-item hov-cn">
-          <NavLink className="nav-link" to="/home">
-            {t('Jobs')}
-          </NavLink>
-          <ul className="dropdown-menu text-break" style={{ marginTop: '-8px' }}>
-            <div className="nav-dd-cn"></div>
-            <li>
-              <Link className="dropdown-item" to="/home">
-                {t('My Jobs')}
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item text-break" to="/all-job-posts">
-                {t('All Jobs')}
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item" to="/all-contract">
-                {t('Contracts')}
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item" to="/post-job">
-                {t('Post a job')}
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item" to="/invitations">
-                {t('Invitations')}
-              </Link>
-            </li>
-          </ul>
+          <Dropdown
+            placement="bottomCenter"
+            menu={{
+              items: [
+                {
+                  label: (
+                    <Title level={5} style={{ margin: 0 }}>
+                      <SmileTwoTone twoToneColor="#eb2f96" style={{ marginRight: 8 }} />
+                      {t('My Jobs')}
+                    </Title>
+                  ),
+                  key: '0',
+                  onClick: () => navigate('/home'),
+                },
+                {
+                  label: (
+                    <Title level={5} style={{ margin: 0 }}>
+                      <DingtalkCircleFilled style={{ marginRight: 8 }} />
+                      {t('All Jobs')}
+                    </Title>
+                  ),
+                  onClick: () => navigate('/all-job-posts'),
+                  key: '1',
+                },
+                {
+                  label: (
+                    <Title level={5} style={{ margin: 0 }}>
+                      <ReconciliationTwoTone twoToneColor="#ddb10f" style={{ marginRight: 8 }} />
+                      {t('Contracts')}
+                    </Title>
+                  ),
+                  onClick: () => navigate('/all-contract'),
+                  key: '2',
+                },
+                {
+                  label: (
+                    <Title level={5} style={{ margin: 0 }}>
+                      <EditTwoTone twoToneColor="#0f98dd" style={{ marginRight: 8 }} />
+                      {t('Post a job')}
+                    </Title>
+                  ),
+                  onClick: () => navigate('/post-job'),
+                  key: '3',
+                },
+                {
+                  label: (
+                    <Title level={5} style={{ margin: 0 }}>
+                      <UserAddOutlined style={{ marginRight: 8 }} />
+                      {t('Invitations')}
+                    </Title>
+                  ),
+                  onClick: () => navigate('/invitations'),
+                  key: '4',
+                },
+              ],
+            }}
+          >
+            <NavLink className="nav-link" to="/home">
+              {t('Jobs')}
+            </NavLink>
+          </Dropdown>
         </li>
         <li className="nav-item hov-cn ms-3">
-          <NavLink className="nav-link" to="/freelancer">
-            {t('Freelancer')}
-          </NavLink>
-          <ul className="dropdown-menu" style={{ marginTop: '-8px' }}>
-            <div className="nav-dd-cn"></div>
-            <li>
-              <Link className="dropdown-item" to="/freelancer">
-                {t('All freelancers')}
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item" to="/saved-freelancer">
-                {t('Favourite freelancers')}
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item" to="/my-hires">
-                {t('My Hires')}
-              </Link>
-            </li>
-          </ul>
+          <Dropdown
+            placement="bottomCenter"
+            menu={{
+              items: [
+                {
+                  label: (
+                    <Title level={5} style={{ margin: 0 }}>
+                      <UsergroupAddOutlined style={{ marginRight: 8 }} />
+                      {t('All freelancers')}
+                    </Title>
+                  ),
+                  key: '0',
+                  onClick: () => navigate('/settings'),
+                },
+                {
+                  label: (
+                    <Title level={5} style={{ margin: 0 }}>
+                      <HeartFilled style={{ marginRight: 8 }} />
+                      {t('Favourite freelancers')}
+                    </Title>
+                  ),
+                  onClick: () => navigate('/saved-freelancer'),
+                  key: '1',
+                },
+                {
+                  label: (
+                    <Title level={5} style={{ margin: 0 }}>
+                      <SyncOutlined spin style={{ marginRight: 8 }} />
+                      {t('My Hires')}
+                    </Title>
+                  ),
+                  onClick: () => navigate('/my-hires'),
+                  key: '2',
+                },
+              ],
+            }}
+          >
+            <NavLink className="nav-link" to="/freelancer">
+              {t('Freelancer')}
+            </NavLink>
+          </Dropdown>
         </li>
         <li className="nav-item hov-cn">
           <NavLink className="nav-link" to="/transaction-history">

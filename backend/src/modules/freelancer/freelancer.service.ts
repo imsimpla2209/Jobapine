@@ -153,6 +153,8 @@ export const getRcmdFreelancers = async (jobId: mongoose.Types.ObjectId, options
   // const similarDocs = await getSimilarsByOptions(freelancerId)
   const job = await getJobById(jobId)
 
+  if (!job) return null
+  console.log('😘', job)
   let keyWords
 
   if (job.description) {
@@ -928,7 +930,7 @@ export const getLastestTopJobs = async (freelancer: IFreelancerDoc, limit?: numb
             ],
           },
           timeDifference: {
-            $divide: [{ $subtract: [new Date(), { $toDate: { "$toLong": '$jobs.lastTimeView' } }] }, 3600000],
+            $divide: [{ $subtract: [new Date(), { $toDate: { $toLong: '$jobs.lastTimeView' } }] }, 3600000],
           },
         },
       },
@@ -1005,7 +1007,7 @@ export const getLastestTopCurrentTypeTracking = async (freelancer: IFreelancerDo
             ],
           },
           timeDifference: {
-            $divide: [{ $subtract: [new Date(), { $toDate: { "$toLong": '$categories.lastTimeView' } }] }, 3600000],
+            $divide: [{ $subtract: [new Date(), { $toDate: { $toLong: '$categories.lastTimeView' } }] }, 3600000],
           },
         },
       },
@@ -1067,7 +1069,7 @@ export const getLastestTopCurrentTypeTracking = async (freelancer: IFreelancerDo
             ],
           },
           timeDifference: {
-            $divide: [{ $subtract: [new Date(), { $toDate: { "$toLong": '$skills.lastTimeView' } }] }, 3600000],
+            $divide: [{ $subtract: [new Date(), { $toDate: { $toLong: '$skills.lastTimeView' } }] }, 3600000],
           },
         },
       },
@@ -1120,123 +1122,122 @@ export const getFreelancerIntend = async (freelancer: IFreelancerDoc, limit?: nu
       {
         $project: {
           data: {
-            $objectToArray: "$$ROOT"
-          }
-        }
+            $objectToArray: '$$ROOT',
+          },
+        },
       },
       {
-        $unwind: "$data"
+        $unwind: '$data',
       },
       {
         $match: {
-          "data.k": {
-            $in: ["categories", "skills", "jobs", "locations"]
-          }
-        }
+          'data.k': {
+            $in: ['categories', 'skills', 'jobs', 'locations'],
+          },
+        },
       },
       {
-        $unwind: "$data.v"
+        $unwind: '$data.v',
       },
       {
         $project: {
-          type: "$data.k",
+          type: '$data.k',
           events: {
-            $objectToArray: "$data.v.event"
-          }
-        }
+            $objectToArray: '$data.v.event',
+          },
+        },
       },
       {
-        $unwind: "$events"
+        $unwind: '$events',
       },
       {
         $group: {
           _id: {
-            type: "$type",
-            event: "$events.k"
+            type: '$type',
+            event: '$events.k',
           },
-          totalViewCount: { $sum: "$events.v.viewCount" },
-          totalTotalTimeView: { $sum: "$events.v.totalTimeView" }
-        }
+          totalViewCount: { $sum: '$events.v.viewCount' },
+          totalTotalTimeView: { $sum: '$events.v.totalTimeView' },
+        },
       },
       {
         $group: {
-          _id: "$_id.type",
+          _id: '$_id.type',
           events: {
             $push: {
-              eventType: "$_id.event",
+              eventType: '$_id.event',
               eventData: {
-                totalViewCount: "$totalViewCount",
-                totalTotalTimeView: "$totalTotalTimeView"
-              }
-            }
-          }
-        }
+                totalViewCount: '$totalViewCount',
+                totalTotalTimeView: '$totalTotalTimeView',
+              },
+            },
+          },
+        },
       },
       {
         $project: {
           _id: 0,
-          type: "$_id",
+          type: '$_id',
           events: {
             $map: {
-              input: "$events",
-              as: "event",
+              input: '$events',
+              as: 'event',
               in: {
-                eventType: "$$event.eventType",
+                eventType: '$$event.eventType',
                 eventData: {
-                  totalViewCount: "$$event.eventData.totalViewCount",
-                  totalTotalTimeView: "$$event.eventData.totalTotalTimeView",
+                  totalViewCount: '$$event.eventData.totalViewCount',
+                  totalTotalTimeView: '$$event.eventData.totalTotalTimeView',
                   weightedScore: {
                     $switch: {
                       branches: [
                         {
-                          case: { $eq: ["$$event.eventType", "APPLY"] },
-                          then: { $multiply: ["$$event.eventData.totalViewCount", 1.8] } // 80% more
+                          case: { $eq: ['$$event.eventType', 'APPLY'] },
+                          then: { $multiply: ['$$event.eventData.totalViewCount', 1.8] }, // 80% more
                         },
                         {
-                          case: { $eq: ["$$event.eventType", "JOB_VIEW"] },
-                          then: { $multiply: ["$$event.eventData.totalViewCount", 1.65] } // 65% more
+                          case: { $eq: ['$$event.eventType', 'JOB_VIEW'] },
+                          then: { $multiply: ['$$event.eventData.totalViewCount', 1.65] }, // 65% more
                         },
                         {
-                          case: { $eq: ["$$event.eventType", "VIEWCLIENT"] },
-                          then: { $multiply: ["$$event.eventData.totalViewCount", 1.5] } // 50% more
+                          case: { $eq: ['$$event.eventType', 'VIEWCLIENT'] },
+                          then: { $multiply: ['$$event.eventData.totalViewCount', 1.5] }, // 50% more
                         },
                         {
-                          case: { $eq: ["$$event.eventType", "SEARCHING"] },
-                          then: { $multiply: ["$$event.eventData.totalViewCount", 1.35] } // 35% more
+                          case: { $eq: ['$$event.eventType', 'SEARCHING'] },
+                          then: { $multiply: ['$$event.eventData.totalViewCount', 1.35] }, // 35% more
                         },
                         {
-                          case: { $eq: ["$$event.eventType", "DEFAULT"] },
-                          then: "$$event.eventData.totalViewCount"
-                        }
+                          case: { $eq: ['$$event.eventType', 'DEFAULT'] },
+                          then: '$$event.eventData.totalViewCount',
+                        },
                       ],
-                      default: "$$event.eventData.totalViewCount"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+                      default: '$$event.eventData.totalViewCount',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       {
         $group: {
           _id: null,
           categories: {
             $push: {
-              typeName: "$type",
-              eventData: "$events"
-            }
-          }
-        }
+              typeName: '$type',
+              eventData: '$events',
+            },
+          },
+        },
       },
       {
         $project: {
           _id: 0,
-          categories: 1
-        }
-      }
-    ])
-.exec()
+          categories: 1,
+        },
+      },
+    ]).exec()
 
     return freelancerIntend[0]?.categories
   } catch (err: any) {
