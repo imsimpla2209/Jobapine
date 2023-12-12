@@ -16,15 +16,21 @@ export enum EMSGTags {
   CONTACT = 'contact',
 }
 
-export default function MessagesLeftSide({ 
-  freelancerID, userID, selectedMessageRoom, 
-  setSelectedMessageRoom, messageRooms, selectedUserMessages,
-  setMessageRooms, setMessageRoomsByUser, messageRoomsByUser }: any) {
+export default function MessagesLeftSide({
+  freelancerID,
+  userID,
+  selectedMessageRoom,
+  setSelectedMessageRoom,
+  messageRooms,
+  selectedUserMessages,
+  setMessageRooms,
+  setMessageRoomsByUser,
+  messageRoomsByUser,
+}: any) {
   const { t } = useTranslation(['main'])
   const [tab, setTab] = useState(EMSGTags.CHAT)
   const [search, setSearch] = useState('')
   const { appSocket } = useSocket()
-
 
   useEffect(() => {
     // App socket
@@ -59,7 +65,6 @@ export default function MessagesLeftSide({
     }
   }, [])
 
-
   const onSeen = _id => {
     setMessageRooms(
       messageRooms?.map(m => {
@@ -70,31 +75,35 @@ export default function MessagesLeftSide({
       })
     )
     console.log(selectedUserMessages)
-    setMessageRoomsByUser(messageRoomsByUser.map((mByUser) => {
-      let msgByUser = mByUser
-      if (mByUser?.memberId?.id === selectedUserMessages?.id) {
-        msgByUser = { ...mByUser, rooms: mByUser?.rooms?.map((r) => {
-          if (r?._id === _id) {
-            return { ...r, seen: true }
+    setMessageRoomsByUser(
+      messageRoomsByUser.map(mByUser => {
+        let msgByUser = mByUser
+        if (mByUser?.memberId?.id === selectedUserMessages?.id) {
+          msgByUser = {
+            ...mByUser,
+            rooms: mByUser?.rooms?.map(r => {
+              if (r?._id === _id) {
+                return { ...r, seen: true }
+              }
+              return r
+            }),
           }
-          return r
-        })}
-        console.log(msgByUser)
-      }
-      return msgByUser
-    }))
+          console.log(msgByUser)
+        }
+        return msgByUser
+      })
+    )
     updateMessageRoom({ seen: true }, _id)
   }
 
   const filterRooms = () => {
-    return messageRooms?.filter((m) => {
+    return messageRooms?.filter(m => {
       return m?.proposal?.job?.title?.toLowerCase().includes(search.trim().toLowerCase())
     })
   }
 
   return (
     <div className="bg-white mt-2" style={{ height: '100vh' }}>
-
       <div className="card-body">
         <div className="row">
           <div className="input-group col-12">
@@ -121,34 +130,6 @@ export default function MessagesLeftSide({
             />
           </div>
           <div className="overflow-auto" style={{ maxHeight: '700px' }}>
-            <div className="btn-group btn-startdate col-12 w-100">
-              <button
-                type="button"
-                className="btn border border-gray py-0 dropdown-toggle text-start mt-3 "
-                data-bs-toggle="dropdown"
-                data-bs-display="static"
-                aria-expanded="false"
-              >
-                Start date
-              </button>
-              <ul className="dropdown-menu dropdown-menu-end dropdown-menu-lg-start">
-                <li>
-                  <button className="dropdown-item" type="button">
-                    Action
-                  </button>
-                </li>
-                <li>
-                  <button className="dropdown-item" type="button">
-                    Another action
-                  </button>
-                </li>
-                <li>
-                  <button className="dropdown-item" type="button">
-                    Something else here
-                  </button>
-                </li>
-              </ul>
-            </div>
             <ul className="list-group list-group-flush">
               {messageRooms?.length ? (
                 <>
@@ -175,7 +156,7 @@ export default function MessagesLeftSide({
                                 mr?.image ||
                                 'https://simpletexting.com/wp-content/uploads/2022/05/text-messages-not-sending.jpeg'
                               }
-                              style={{ background: "#ccc" }}
+                              style={{ background: '#ccc' }}
                               className="rounded-circle user_img_msg"
                             ></img>
                           </div>

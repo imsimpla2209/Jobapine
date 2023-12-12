@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-script-url */
-import { Flex } from 'antd'
+import { Flex, Space } from 'antd'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getFreelancer } from 'src/api/freelancer-apis'
@@ -23,7 +23,7 @@ export default function OneContract({ contract }) {
       <Flex align="start" justify="space-between">
         <Flex vertical gap={10}>
           <Flex align="baseline" gap={8}>
-            <Text className="text-muted">Job name:</Text>
+            <Text className="text-muted">{t('Job name')}:</Text>
             <Link to={`/job-details/${currentJob._id}`} className="fw-bold">
               {currentJob?.title}
             </Link>
@@ -57,12 +57,15 @@ export default function OneContract({ contract }) {
             </span>
           </div>
         </Flex>
-        <>
+        <Flex vertical justify="space-between" align="end" gap={20}>
           {contract?.currentStatus === EStatus.ACCEPTED && <img src={acceptimg} alt="ok" width={50} height={50} />}
           {contract?.currentStatus === EStatus.REJECTED && <img src={rejectimg} alt="ok" width={50} height={50} />}
           {contract?.currentStatus === EStatus.PENDING && <img src={pendingimg} alt="ok" width={50} height={50} />}
           {contract?.currentStatus === EStatus.ARCHIVE && <img src={archiveimg} alt="ok" width={50} height={50} />}
-        </>
+          <small className="text-muted">
+            <span>Created at: {formatDay(new Date(contract?.createdAt))}</span>
+          </small>
+        </Flex>
       </Flex>
     </section>
   )

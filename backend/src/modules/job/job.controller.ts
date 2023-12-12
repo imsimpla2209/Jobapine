@@ -14,6 +14,7 @@ import { Skill } from '@modules/skill'
 
 export const createJob = catchAsync(async (req: Request, res: Response) => {
   const job = await jobService.createJob(req.body)
+  console.log('😘job', job)
   res.status(httpStatus.CREATED).send(job)
 })
 
@@ -50,7 +51,7 @@ export const getAdvancedJobs = catchAsync(async (req: Request, res: Response) =>
     'currentStatus',
     'duration',
     'jobDuration',
-    'type'
+    'type',
   ])
   const freelancer = await getFreelancerByOptions({ user: new mongoose.Types.ObjectId(req?.user?._id as string) })
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy'])
@@ -247,23 +248,24 @@ export const sumBySkills = catchAsync(async (req: Request, res: Response) => {
     {
       $match: {
         isDeleted: { $exists: false },
-        reqSkills: { $exists: true, $ne: [] }
-      }
+        reqSkills: { $exists: true, $ne: [] },
+      },
     },
     // Unwind reqSkills array
-    { $unwind: "$reqSkills" },
+    { $unwind: '$reqSkills' },
     {
       $group: {
-        _id: "$reqSkills.skill",
+        _id: '$reqSkills.skill',
         count: { $sum: 1 }, // Count occurrences of each skill
         // data: { $push: "$$ROOT" } // Store entire documents for each skill
-      }
+      },
     },
     {
-      $sort: { count: -1 }
-    }, {
-      $limit: options?.limit || 12
-    }
+      $sort: { count: -1 },
+    },
+    {
+      $limit: options?.limit || 12,
+    },
   ])
 
   const sumBySkill = await Skill.populate(skillGroup, [{ path: '_id' }])
@@ -278,27 +280,27 @@ export const sumByCats = catchAsync(async (req: Request, res: Response) => {
     {
       $match: {
         isDeleted: { $exists: false },
-        categories: { $exists: true, $ne: [] }
-      }
+        categories: { $exists: true, $ne: [] },
+      },
     },
     // Unwind reqSkills array
-    { $unwind: "$categories" },
+    { $unwind: '$categories' },
     {
       $group: {
-        _id: "$categories",
+        _id: '$categories',
         count: { $sum: 1 }, // Count occurrences of each skill
         // data: { $push: "$$ROOT" } // Store entire documents for each skill
-      }
+      },
     },
     {
-      $sort: { count: -1 }
-    }, {
-      $limit: options?.limit || 11
-    }
+      $sort: { count: -1 },
+    },
+    {
+      $limit: options?.limit || 11,
+    },
   ])
 
   const sumByCats = await JobCategory.populate(catsGroup, [{ path: '_id' }])
 
   res.status(httpStatus.OK).send(sumByCats)
 })
-

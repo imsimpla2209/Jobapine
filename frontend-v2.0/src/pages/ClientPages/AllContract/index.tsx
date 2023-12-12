@@ -25,7 +25,7 @@ export default function AllContracts() {
     if (!clientId) return
 
     setloading(true)
-    getContracts({ client: clientId, currentStatus: contractStatus })
+    getContracts({ client: clientId, currentStatus: contractStatus, sortBy: 'updatedAt:desc' })
       .then(res => setContracts(res.data.results))
       .catch(err => toast.error(err))
       .finally(() => setloading(false))
@@ -43,9 +43,9 @@ export default function AllContracts() {
             size="large"
             style={{ marginBottom: 8 }}
           >
-            <Radio.Button value={EStatus.ACCEPTED}>ACCEPTED</Radio.Button>
-            <Radio.Button value={EStatus.PENDING}>PENDING</Radio.Button>
-            <Radio.Button value={EStatus.REJECTED}>REJECTED</Radio.Button>
+            <Radio.Button value={EStatus.ACCEPTED}>{t('Accepted')}</Radio.Button>
+            <Radio.Button value={EStatus.PENDING}>{t('Pending')}</Radio.Button>
+            <Radio.Button value={EStatus.REJECTED}>{t('Rejected')}</Radio.Button>
           </Radio.Group>
         }
       >
